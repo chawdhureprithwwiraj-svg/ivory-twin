@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../core/net_get.dart';
 import '../theme/ivory_theme.dart';
 
 /// THE HOUSE SEAL (CC.209): one scan carries Ivory to another phone.
@@ -39,18 +38,13 @@ class HouseSeal {
   static Future<void> refresh() async {
     if (_fetching) return;
     _fetching = true;
-    final HttpClient client = HttpClient();
-    client.connectionTimeout = const Duration(seconds: 8);
     try {
-      final HttpClientRequest req = await client.getUrl(Uri.parse(
-          'https://api.github.com/repos/chawdhureprithwwiraj-svg/Ivory-'
-          '/releases/latest'));
-      req.headers.set('User-Agent', 'ivory-house-seal');
-      final HttpClientResponse res =
-          await req.close().timeout(const Duration(seconds: 8));
-      if (res.statusCode == 200) {
-        final dynamic j =
-            jsonDecode(await res.transform(utf8.decoder).join());
+      final String body = await netGet(
+              'https://api.github.com/repos/chawdhureprithwwiraj-svg/Ivory-'
+              '/releases/latest')
+          .timeout(const Duration(seconds: 8));
+      if (body.isNotEmpty) {
+        final dynamic j = jsonDecode(body);
         if (j is Map<String, dynamic>) {
           final String tag = (j['tag_name'] ?? '').toString();
           String sha = '';
@@ -76,7 +70,6 @@ class HouseSeal {
     } catch (_) {
       // The baked numbers stay; a quiet seal is better than a wrong one.
     } finally {
-      client.close(force: true);
       _fetching = false;
     }
   }
