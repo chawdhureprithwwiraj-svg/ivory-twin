@@ -1,8 +1,7 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/discount_models.dart';
@@ -13,6 +12,7 @@ import '../services/quiz_service.dart';
 import '../services/razorpay_service.dart';
 import '../services/wheel_service.dart';
 import '../widgets/wheel_purse_tile.dart';
+import 'checkout_proof.dart';
 import '../theme/ivory_theme.dart';
 import '../widgets/checkout_cards.dart';
 import '../widgets/checkout_savings.dart';
@@ -47,11 +47,9 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController _utr = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
-
   PaymentSettings? _settings;
   IvoryPayment? _pending;
-  File? _proof;
+  Uint8List? _proof;
   bool _loading = true;
   String _mode = 'upi';
   bool _submitting = false;
@@ -158,13 +156,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _pickProof() async {
     try {
-      final XFile? x = await _picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 70,
-        maxWidth: 1400,
-      );
-      if (x == null) return;
-      setState(() => _proof = File(x.path));
+      final Uint8List? b = await pickProofBytes();
+      if (b == null) return;
+      setState(() => _proof = b);
     } catch (_) {
       _snack('Could not open your gallery. The screenshot is optional.');
     }
@@ -539,51 +533,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          InkWell(
+          ProofAttachTile(
+            attached: _proof != null,
             onTap: _pickProof,
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              decoration: BoxDecoration(
-                color: IvoryColors.surfaceWarm,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: IvoryColors.hairlineStrong),
-              ),
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    _proof == null
-                        ? Icons.add_photo_alternate_outlined
-                        : Icons.check_circle,
-                    color: _proof == null
-                        ? IvoryColors.plum
-                        : IvoryColors.success,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _proof == null
-                          ? 'Attach the receipt screenshot (optional)'
-                          : 'Screenshot attached',
-                      style: TextStyle(
-                        color: _proof == null
-                            ? IvoryColors.textSoft
-                            : IvoryColors.burgundy,
-                        fontSize: 13.5,
-                        fontWeight:
-                            _proof == null ? FontWeight.w500 : FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  if (_proof != null)
-                    TextButton(
-                      onPressed: () => setState(() => _proof = null),
-                      child: const Text('Remove'),
-                    ),
-                ],
-              ),
-            ),
+            onRemove: () => setState(() => _proof = null),
           ),
           if (_error != null) ...<Widget>[
             const SizedBox(height: 12),
