@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
@@ -51,7 +50,7 @@ class AdminService {
     if (x == null) return null;
     return PickedMedia(
       name: x.name,
-      bytes: await File(x.path).readAsBytes(),
+      bytes: await x.readAsBytes(),
     );
   }
 
@@ -63,9 +62,9 @@ class AdminService {
       maxDuration: const Duration(minutes: 120),
     );
     if (x == null) return null;
-    final File f = File(x.path);
-    if (!await f.exists()) return null;
-    return VaultPick(path: x.path, name: x.name, size: await f.length());
+    final int size = await x.length();
+    if (size <= 0) return null;
+    return VaultPick(path: x.path, name: x.name, size: size, file: x);
   }
 
   /// Audio, documents, anything. file_selector is the Flutter team's own
@@ -436,11 +435,18 @@ class PickedMedia {
 /// A big video chosen for the Vault: path and size only, no bytes.
 class VaultPick {
   const VaultPick(
-      {required this.path, required this.name, required this.size});
+      {required this.path,
+      required this.name,
+      required this.size,
+      this.file});
 
   final String path;
   final String name;
   final int size;
+
+  /// The pick itself, so the web can read its bytes out of memory
+  /// where a path means nothing.
+  final XFile? file;
 
   String get sizeLabel => AdminService.sizeLabel(size);
 }
