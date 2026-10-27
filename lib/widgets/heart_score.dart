@@ -151,11 +151,11 @@ class HeartScore {
           d2.buffer.asUint8List(d2.offsetInBytes, d2.lengthInBytes),
         ],
       );
-      final CachedBank first =
+      final CachedBank bankOne =
           await cacheBank('heart_score', 'first.wav', out[0]);
-      final CachedBank second =
+      final CachedBank bankTwo =
           await cacheBank('heart_score', 'second.wav', out[1]);
-      return <CachedBank>[first, second];
+      return <CachedBank>[bankOne, bankTwo];
     } catch (_) {
       return null;
     }
