@@ -15,7 +15,7 @@ Future<int> netPut(String url, Uint8List bytes, String contentType) async {
     requestHeaders: <String, String>{'Content-Type': contentType},
     sendData: bytes,
   );
-  final int code = req.status;
+  final int code = req.status ?? 0;
   return code;
 }
 
@@ -31,16 +31,17 @@ Future<int> netPutStream(String url, Uint8List bytes, String contentType,
   req.open('PUT', url);
   req.setRequestHeader('Content-Type', contentType);
   req.upload.onProgress.listen((html.ProgressEvent e) {
-    final int total = e.total;
-    if (total > 0) {
-      onProgress(e.loaded / total);
+    final int? total = e.total;
+    final int? loaded = e.loaded;
+    if (total != null && total > 0 && loaded != null) {
+      onProgress(loaded / total);
     }
   });
   final Future<html.ProgressEvent> done = req.onLoad.first;
   req.send(bytes);
   await done;
   onProgress(1);
-  final int code = req.status;
+  final int code = req.status ?? 0;
   return code;
 }
 
