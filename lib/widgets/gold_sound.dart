@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
+import 'bank_cache.dart';
 import 'gold_synth.dart';
 
 /// ============================================================
@@ -66,16 +65,9 @@ class GoldSound {
 
   Future<void> _open(int gen, String name, Bank bank) async {
     try {
-      final Directory dir = await Directory(
-        '${Directory.systemTemp.path}/gold_sound',
-      ).create(recursive: true);
-      final File f = File('${dir.path}/$name.wav');
-      await f.writeAsBytes(bank.bytes, flush: true);
-      final VideoPlayerController c = VideoPlayerController.file(
-        f,
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
-      await c.initialize();
+      final CachedBank shelf =
+          await cacheBank('gold_sound', '$name.wav', bank.bytes);
+      final VideoPlayerController c = await shelf.open();
       await c.setVolume(1);
       if (gen != _gen) {
         await c.dispose();
