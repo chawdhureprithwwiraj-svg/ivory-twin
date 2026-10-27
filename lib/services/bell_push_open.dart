@@ -26,6 +26,7 @@ class BellPushOpen {
   /// Starts listening. [onOpen] runs when a bell reminder is tapped.
   static Future<void> listen(VoidCallback onOpen) async {
     if (!PushService.firebaseAvailable) return;
+    if (kIsWeb) return; // The web bell road rises in a later sprint.
     try {
       await _sub?.cancel();
       _sub = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage m) {
