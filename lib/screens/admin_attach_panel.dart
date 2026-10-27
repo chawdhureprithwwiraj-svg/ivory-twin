@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../models/media_ref.dart';
@@ -188,6 +189,11 @@ class AdminAttachPanelState extends State<AdminAttachPanel>
         final VaultPick? v = await AdminService.instance.pickVideoPath();
         if (v == null) return;
         if (v.size > 48 * 1024 * 1024) {
+          if (kIsWeb) {
+            widget.onToast('On the web, films publish under 48 MB. '
+                'Huge films ride the phone road.');
+            return;
+          }
           setState(() {
             vaultPath = v.path;
             vaultName = v.name;
@@ -205,13 +211,14 @@ class AdminAttachPanelState extends State<AdminAttachPanel>
           );
           return;
         }
+        final Uint8List vb = await v.file!.readAsBytes();
         setState(() {
           vaultPath = null;
           vaultName = null;
           vaultSize = 0;
           picked = PickedMedia(
             name: v.name,
-            bytes: File(v.path).readAsBytesSync(),
+            bytes: vb,
           );
           uploadedUrl = null;
           uploadedSource = null;
