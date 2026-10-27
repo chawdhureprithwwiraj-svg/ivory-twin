@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -7,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
+import 'bank_cache.dart';
 import 'heart_sound.dart';
 
 /// ============================================================
@@ -31,7 +31,7 @@ class HeartScore {
   HeartScore._();
   static final HeartScore instance = HeartScore._();
 
-  Future<List<String>?>? _ready;
+  Future<List<CachedBank>?>? _ready;
   VideoPlayerController? _a;
   VideoPlayerController? _b;
   Timer? _next;
@@ -45,23 +45,15 @@ class HeartScore {
     _paused = false;
     await HeartSound.instance.load();
     if (!HeartSound.instance.on.value) return false;
-    final List<String>? files = await (_ready ??= _prepare());
-    if (files == null || run != _run) return files != null;
+    final List<CachedBank>? banks = await (_ready ??= _prepare());
+    if (banks == null || run != _run) return banks != null;
     try {
       await _stopPlayers();
       if (run != _run) return true;
-      final VideoPlayerController a = VideoPlayerController.file(
-        File(files[0]),
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
-      final VideoPlayerController b = VideoPlayerController.file(
-        File(files[1]),
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
+      final VideoPlayerController a = await banks[0].open();
+      final VideoPlayerController b = await banks[1].open();
       _a = a;
       _b = b;
-      await a.initialize();
-      await b.initialize();
       if (run != _run) {
         await a.dispose();
         await b.dispose();
@@ -136,7 +128,7 @@ class HeartScore {
 
   // Finds the two recordings, makes them louder and writes them to the
   // cache folder. Done once per app run.
-  Future<List<String>?> _prepare() async {
+  Future<List<CachedBank>?> _prepare() async {
     try {
       final AssetManifest m = await AssetManifest.loadFromAssetBundle(
         rootBundle,
@@ -159,14 +151,11 @@ class HeartScore {
           d2.buffer.asUint8List(d2.offsetInBytes, d2.lengthInBytes),
         ],
       );
-      final Directory dir = await Directory(
-        '${Directory.systemTemp.path}/heart_score',
-      ).create(recursive: true);
-      final File f1 = File('${dir.path}/first.wav');
-      final File f2 = File('${dir.path}/second.wav');
-      await f1.writeAsBytes(out[0], flush: true);
-      await f2.writeAsBytes(out[1], flush: true);
-      return <String>[f1.path, f2.path];
+      final CachedBank first =
+          await cacheBank('heart_score', 'first.wav', out[0]);
+      final CachedBank second =
+          await cacheBank('heart_score', 'second.wav', out[1]);
+      return <CachedBank>[first, second];
     } catch (_) {
       return null;
     }
