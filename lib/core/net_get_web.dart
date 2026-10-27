@@ -15,7 +15,8 @@ Future<int> netPut(String url, Uint8List bytes, String contentType) async {
     requestHeaders: <String, String>{'Content-Type': contentType},
     sendData: bytes,
   );
-  return req.status;
+  final int code = req.status;
+  return code;
 }
 
 Future<Uint8List> sourceBytes(String? path, Uint8List? held) async {
@@ -27,19 +28,20 @@ Future<Uint8List> sourceBytes(String? path, Uint8List? held) async {
 Future<int> netPutStream(String url, Uint8List bytes, String contentType,
     void Function(double progress) onProgress) async {
   final html.HttpRequest req = html.HttpRequest();
-  req.open('PUT', url, async: true);
+  req.open('PUT', url);
   req.setRequestHeader('Content-Type', contentType);
   req.upload.onProgress.listen((html.ProgressEvent e) {
-    final int? total = e.total;
-    if (total != null && total > 0) {
-      onProgress((e.loaded ?? 0) / total);
+    final int total = e.total;
+    if (total > 0) {
+      onProgress(e.loaded / total);
     }
   });
   final Future<html.ProgressEvent> done = req.onLoad.first;
   req.send(bytes);
   await done;
   onProgress(1);
-  return req.status;
+  final int code = req.status;
+  return code;
 }
 
 // END OF FILE - lib/core/net_get_web.dart
