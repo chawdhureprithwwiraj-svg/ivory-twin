@@ -1,0 +1,20 @@
+{
+  "name": "Ivory House",
+  "short_name": "Ivory",
+  "description": "The Ivory member house on the web: films, radio, bell, vault, gilded hours.",
+  "start_url": "/house/",
+  "scope": "/house/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#170A21",
+  "theme_color": "#170A21",
+  "categories": ["entertainment", "music", "video"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
