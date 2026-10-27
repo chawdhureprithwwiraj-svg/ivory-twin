@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -57,14 +57,14 @@ class PaymentService {
   /// Uploads the receipt screenshot to a private per-user folder and
   /// returns the storage path. Returns null if anything goes wrong -
   /// a missing screenshot must never block a real payment.
-  Future<String?> uploadProof(File file) async {
+  Future<String?> uploadProof(Uint8List bytes, {String ext = 'jpg'}) async {
     try {
       final String? uid = _db.auth.currentUser?.id;
       if (uid == null) return null;
-      final String ext = file.path.split('.').last.toLowerCase();
+      final String e = ext.isEmpty ? 'jpg' : ext.toLowerCase();
       final String path =
-          '$uid/${DateTime.now().millisecondsSinceEpoch}.${ext.isEmpty ? 'jpg' : ext}';
-      await _db.storage.from('payment-proofs').upload(path, file);
+          '$uid/${DateTime.now().millisecondsSinceEpoch}.$e';
+      await _db.storage.from('payment-proofs').uploadBinary(path, bytes);
       return path;
     } catch (_) {
       return null;
@@ -146,3 +146,5 @@ class PaymentService {
     return 'Something went wrong. Please check your connection and try again.';
   }
 }
+
+// END OF FILE - lib/services/payment_service.dart
