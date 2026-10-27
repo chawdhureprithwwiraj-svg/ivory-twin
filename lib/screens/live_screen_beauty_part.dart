@@ -1,4 +1,4 @@
-part of 'live_screen.dart';
+part of 'live_screen_io.dart';
 
 extension _LiveScreenBeauty on _LiveScreenState {
   bool get _showLiveBeauty =>
