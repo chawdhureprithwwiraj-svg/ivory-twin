@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/ivory_errors.dart';
+import '../core/net_get.dart';
 
 /// ============================================================
 /// IVORY - THE VAULT (CLOUDFLARE R2)
@@ -168,14 +168,8 @@ class VaultService {
     final String key = 'vault/${stamp}_$safe';
     final String ct = _contentType(safe);
 
-    final File f = File(path);
-    if (!await f.exists()) {
-      throw VaultError('put',
-          'The phone has already cleared that video from its temporary '
-          'folder. Pick the film again and publish without leaving the '
-          'composer in between.');
-    }
-    final int total = await f.length();
+    final Uint8List body = await sourceBytes(path, null);
+    final int total = body.length;
 
     final Map<String, dynamic> signed = await _call('put', <String, dynamic>{
       'key': key,
@@ -189,29 +183,9 @@ class VaultService {
           'Check the R2 secrets are set on the function.');
     }
 
-    int sent = 0;
-    double last = 0;
-
-    final HttpClient hc = HttpClient();
-    hc.connectionTimeout = const Duration(seconds: 30);
     try {
-      final HttpClientRequest req = await hc.openUrl('PUT', Uri.parse(url));
-      req.headers.set('Content-Type', ct);
-      req.contentLength = total;
-      req.persistentConnection = false;
-
-      await for (final List<int> chunk in f.openRead()) {
-        req.add(chunk);
-        sent += chunk.length;
-        final double p = total == 0 ? 1 : sent / total;
-        if (p - last >= 0.04 || sent == total) {
-          last = p;
-          onProgress?.call(p);
-        }
-      }
-      final HttpClientResponse res = await req.close();
-      final int code = res.statusCode;
-      await res.drain<void>();
+      final int code = await netPutStream(
+          url, body, ct, (double p) => onProgress?.call(p));
       if (code >= 300) {
         throw VaultError('put',
             'R2 refused the film (HTTP $code). The signed link may have '
@@ -221,8 +195,6 @@ class VaultService {
       rethrow;
     } catch (e) {
       throw VaultError('put', adminDetail(e));
-    } finally {
-      hc.close(force: true);
     }
     return key;
   }
@@ -262,33 +234,9 @@ class VaultService {
           'Check the R2 secrets are set on the function.');
     }
 
-    // Sent in slices so the progress line moves on a slow connection
-    // instead of sitting still and looking frozen.
-    const int slice = 256 * 1024;
-    final HttpClient hc = HttpClient();
-    hc.connectionTimeout = const Duration(seconds: 30);
     try {
-      final HttpClientRequest req = await hc.openUrl('PUT', Uri.parse(url));
-      req.headers.set('Content-Type', ct);
-      req.contentLength = total;
-      req.persistentConnection = false;
-
-      int sent = 0;
-      double last = 0;
-      while (sent < total) {
-        final int end = (sent + slice) > total ? total : (sent + slice);
-        req.add(bytes.sublist(sent, end));
-        sent = end;
-        final double prog = sent / total;
-        if (prog - last >= 0.04 || sent == total) {
-          last = prog;
-          onProgress?.call(prog);
-        }
-      }
-
-      final HttpClientResponse res = await req.close();
-      final int code = res.statusCode;
-      await res.drain<void>();
+      final int code = await netPutStream(
+          url, bytes, ct, (double p) => onProgress?.call(p));
       if (code >= 300) {
         throw VaultError('put',
             'R2 refused the file (HTTP $code). The signed link may have '
@@ -298,8 +246,6 @@ class VaultService {
       rethrow;
     } catch (e) {
       throw VaultError('put', adminDetail(e));
-    } finally {
-      hc.close(force: true);
     }
     return key;
   }
@@ -344,32 +290,9 @@ class VaultService {
           'The image store did not return its upload and display addresses.');
     }
 
-    const int slice = 256 * 1024;
-    final HttpClient hc = HttpClient();
-    hc.connectionTimeout = const Duration(seconds: 30);
     try {
-      final HttpClientRequest req =
-          await hc.openUrl('PUT', Uri.parse(uploadUrl));
-      req.headers.set('Content-Type', ct);
-      req.contentLength = bytes.length;
-      req.persistentConnection = false;
-      int sent = 0;
-      double last = 0;
-      while (sent < bytes.length) {
-        final int end = (sent + slice) > bytes.length
-            ? bytes.length
-            : sent + slice;
-        req.add(bytes.sublist(sent, end));
-        sent = end;
-        final double progress = sent / bytes.length;
-        if (progress - last >= 0.04 || sent == bytes.length) {
-          last = progress;
-          onProgress?.call(progress);
-        }
-      }
-      final HttpClientResponse res = await req.close();
-      final int code = res.statusCode;
-      await res.drain<void>();
+      final int code = await netPutStream(
+          uploadUrl, bytes, ct, (double p) => onProgress?.call(p));
       if (code >= 300) {
         throw VaultError('put_public_image',
             'R2 refused the image (HTTP $code). Please retry.');
@@ -378,8 +301,6 @@ class VaultService {
       rethrow;
     } catch (e) {
       throw VaultError('put_public_image', adminDetail(e));
-    } finally {
-      hc.close(force: true);
     }
     return publicUrl;
   }
