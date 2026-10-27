@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+
+import 'bank_cache.dart';
 
 import 'bell_synth.dart';
 import 'gold_synth.dart';
@@ -61,18 +62,11 @@ class BellSound {
       final String setKey = _setKey;
       final Bank bank = await compute(_makeBellBank, setKey);
       if (gen != _gen) return;
-      final Directory dir = await Directory(
-        '${Directory.systemTemp.path}/bell_sound',
-      ).create(recursive: true);
-      final File f = File('${dir.path}/doorbell_$setKey.wav');
-      await f.writeAsBytes(bank.bytes, flush: true);
+      final CachedBank shelf =
+          await cacheBank('bell_sound', 'doorbell_$setKey.wav', bank.bytes);
       final List<_BellDeck> made = <_BellDeck>[];
       for (int i = 0; i < _decks; i++) {
-        final VideoPlayerController c = VideoPlayerController.file(
-          f,
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-        );
-        await c.initialize();
+        final VideoPlayerController c = await shelf.open();
         await c.setVolume(1);
         made.add(_BellDeck(c));
       }
