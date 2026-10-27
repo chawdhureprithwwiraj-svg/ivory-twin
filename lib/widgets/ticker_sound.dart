@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+
+import 'bank_cache.dart';
 
 import 'gold_synth.dart';
 import 'lane_law.dart';
@@ -49,18 +50,11 @@ class TickerSound {
     }
     try {
       final Bank bank = await compute(_makeTickerBank, 0);
-      final Directory dir = await Directory(
-        '${Directory.systemTemp.path}/ticker_sound',
-      ).create(recursive: true);
-      final File f = File('${dir.path}/ticker.wav');
-      await f.writeAsBytes(bank.bytes, flush: true);
+      final CachedBank shelf =
+          await cacheBank('ticker_sound', 'ticker.wav', bank.bytes);
       final List<_TickerDeck> made = <_TickerDeck>[];
       for (int i = 0; i < 2; i++) {
-        final VideoPlayerController c = VideoPlayerController.file(
-          f,
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-        );
-        await c.initialize();
+        final VideoPlayerController c = await shelf.open();
         await c.setVolume(0.7);
         made.add(_TickerDeck(c));
       }
