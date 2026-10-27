@@ -1,0 +1,91 @@
+name: Build Ivory Web Twin
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Compile the web twin and deploy it to Cloudflare Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # A long file pasted from a phone can be cut short without warning.
+      # These files end with an END OF FILE line, so a truncated paste is
+      # caught in seconds instead of failing the compile mysteriously.
+      - name: Check the web files are complete
+        run: |
+          for f in .github/workflows/build_web.yml web_seed/index.html \
+                   public/index.html; do
+            if [ ! -f "$f" ]; then
+              echo "::error::MISSING FILE: $f"
+              exit 1
+            fi
+            if ! tail -n 5 "$f" | grep -q "html>\|END OF FILE"; then
+              echo "::error::TRUNCATED PASTE: $f is incomplete. Paste it again."
+              exit 1
+            fi
+            echo "complete: $f"
+          done
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Show environment
+        run: flutter --version
+
+      - name: Generate the web platform files
+        run: flutter create . --project-name ivory --org com.ivory --platforms web
+
+      - name: Lay the house seed over the web shell
+        run: |
+          cp web_seed/index.html web/index.html
+          cp web_seed/manifest.webmanifest web/manifest.webmanifest
+          cp web_seed/favicon.svg web/favicon.svg
+          ls -la web/
+
+      - name: Fetch dependencies
+        run: flutter pub get
+
+      - name: Compile the web twin
+        run: flutter build web --release --base-href /house/
+
+      - name: Assemble the published house
+        run: |
+          rm -rf dist
+          mkdir -p dist/house
+          cp -R public/. dist/
+          cp -R build/web/. dist/house/
+          cp web_seed/favicon.svg dist/favicon.svg
+          cp web_seed/manifest.webmanifest dist/manifest.webmanifest
+          find dist -type f | wc -l
+          du -sh dist
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare secrets are not set yet."
+            echo "The web twin is compiled but not deployed."
+            echo "Add CF_API_TOKEN and CF_ACCOUNT_ID in the repository"
+            echo "Settings > Secrets and variables > Actions, then run again."
+            exit 0
+          fi
+          npx wrangler pages deploy dist \
+            --project-name ivory-twin \
+            --branch main \
+            --commit-dirty=true
+          echo "The web twin is live at the Pages project 'ivory-twin'."
+
+# END OF FILE - .github/workflows/build_web.yml
