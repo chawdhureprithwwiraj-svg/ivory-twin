@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/ivory_errors.dart';
+import '../core/net_get.dart';
 
 class B2FullError extends Error {
   B2FullError(this.usedGb);
@@ -108,36 +108,12 @@ class B2MediaService {
     required String key,
     required String contentType,
     required int size,
-    required Stream<List<int>> stream,
+    required Uint8List body,
     void Function(double progress)? onProgress,
   }) async {
-    final HttpClient client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 30);
     try {
-      final HttpClientRequest request = await client.openUrl(
-        'PUT',
-        Uri.parse(url),
-      );
-      request.headers.set('Content-Type', contentType);
-      request.contentLength = size;
-      request.persistentConnection = false;
-      int sent = 0;
-      double last = 0;
-      await for (final List<int> chunk in stream) {
-        request.add(chunk);
-        sent += chunk.length;
-        final double progress = size == 0 ? 1 : sent / size;
-        if (progress - last >= 0.04 || sent == size) {
-          last = progress;
-          onProgress?.call(progress);
-        }
-      }
-      if (sent != size) {
-        throw B2MediaError('upload', 'The file ended before it was sent.');
-      }
-      final HttpClientResponse response = await request.close();
-      final int code = response.statusCode;
-      await response.drain<void>();
+      final int code = await netPutStream(
+          url, body, contentType, (double p) => onProgress?.call(p));
       if (code < 200 || code >= 300) {
         throw B2MediaError('upload', 'B2 refused the file (HTTP $code).');
       }
@@ -147,8 +123,6 @@ class B2MediaService {
       rethrow;
     } catch (e) {
       throw B2MediaError('upload', adminDetail(e));
-    } finally {
-      client.close(force: true);
     }
   }
 
@@ -215,13 +189,12 @@ class B2MediaService {
     if (url == null || url.isEmpty || key == null || key.isEmpty) {
       throw B2MediaError('upload', 'B2 did not return an upload link.');
     }
-    final Stream<List<int>> chunks = _chunks(bytes, slice);
     return _send(
       url: url,
       key: key,
       contentType: type,
       size: size,
-      stream: chunks,
+      body: bytes,
       onProgress: onProgress,
     );
   }
@@ -232,14 +205,8 @@ class B2MediaService {
     required String kind,
     void Function(double progress)? onProgress,
   }) async {
-    final File file = File(path);
-    if (!await file.exists()) {
-      throw B2MediaError(
-        'upload',
-        'The phone cleared that file. Pick the video again.',
-      );
-    }
-    final int size = await file.length();
+    final Uint8List bodyBytes = await sourceBytes(path, null);
+    final int size = bodyBytes.length;
     final String safe = _safeName(name);
     const Set<String> kinds = <String>{'video', 'audio', 'attachment'};
     if (!kinds.contains(kind)) {
@@ -268,7 +235,7 @@ class B2MediaService {
       key: key,
       contentType: contentType,
       size: size,
-      stream: file.openRead(),
+      body: bodyBytes,
       onProgress: onProgress,
     );
   }
