@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../core/effects.dart';
 
 /// ============================================================
 /// IVORY - THE JEWEL VAULT SKIN (paid members' Profile cards)
@@ -51,10 +52,13 @@ class VaultPlate extends StatefulWidget {
 
 class _VaultPlateState extends State<VaultPlate>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _beat = AnimationController(
+  late final AnimationController _beat = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(seconds: 11),
-  )..repeat();
+  ),
+  );
 
   @override
   void dispose() {
@@ -216,10 +220,13 @@ class VaultCoin extends StatefulWidget {
 
 class _VaultCoinState extends State<VaultCoin>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _beat = AnimationController(
+  late final AnimationController _beat = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(seconds: 7),
-  )..repeat();
+  ),
+  );
 
   @override
   void dispose() {
