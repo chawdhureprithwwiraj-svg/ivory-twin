@@ -26,6 +26,7 @@ import 'wish_screen.dart';
 import '../widgets/heart_button.dart';
 import '../widgets/bells_button.dart';
 import '../widgets/ladder_button.dart';
+import '../core/effects.dart';
 
 /// The signed-in container.
 /// Home · Explore · Wish · Premium · Inbox · Profile,
@@ -80,6 +81,8 @@ class _MainShellState extends State<MainShell> {
     NotificationService.instance.start();
     PushService.instance.start();
     // CC.120: a lapsed membership no longer keeps its profile photo.
+    // CC.244: the house begins watching its own frame rate.
+    IvoryEffects.start();
     unawaited(LapsedPhotoCleanup.instance.runIfLapsed());
     MainShell.onOpenTab = _openTab;
     // CC.240: while the member settles in, the house warms its
