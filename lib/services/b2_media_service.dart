@@ -4,6 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/ivory_errors.dart';
 import '../core/net_get.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../core/supabase_config.dart';
 
 class B2FullError extends Error {
   B2FullError(this.usedGb);
@@ -27,10 +30,63 @@ class B2MediaService {
   static const int imageLimit = 48 * 1024 * 1024;
   static const int fileLimit = 5000000000;
 
+  /// The web door for media: same origin, so no preflight blocks it.
+  Future<Map<String, dynamic>> _callThroughTheDoor(
+    String op,
+    Map<String, dynamic> body,
+  ) async {
+    final Session? session = Supabase.instance.client.auth.currentSession;
+    final String token = session?.accessToken ?? '';
+    final String raw;
+    try {
+      raw = await netPostJson(
+        '/api/b2-media',
+        jsonEncode(<String, dynamic>{'op': op, ...body}),
+        <String, String>{
+          'apikey': SupabaseConfig.anonKey,
+          if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+      );
+    } catch (e) {
+      throw B2MediaError(op, 'The door at /api/b2-media failed: $e');
+    }
+    dynamic envelope;
+    try {
+      envelope = jsonDecode(raw);
+    } catch (_) {
+      throw B2MediaError(op,
+          'The door at /api/b2-media did not answer in JSON.');
+    }
+    final int status =
+        envelope is Map ? ((envelope['status'] as num?)?.toInt() ?? 0) : 0;
+    final dynamic data = envelope is Map ? envelope['data'] : null;
+    if (status == 0) {
+      final String why =
+          data is Map ? (data['error'] ?? data).toString() : '$data';
+      throw B2MediaError(op, 'The door at /api/b2-media failed: $why');
+    }
+    if (status != 200) {
+      if (data is Map && data['error'] == 'b2_full') {
+        throw B2FullError(((data['used'] as num?) ?? 0) / 1000000000);
+      }
+      final String why = data is Map
+          ? (data['error'] ?? data['message'] ?? data).toString()
+          : '$data';
+      throw B2MediaError(op, 'b2-media answered HTTP $status: $why');
+    }
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    throw B2MediaError(op,
+        'b2-media replied with ${data.runtimeType}, not an object.');
+  }
+
   Future<Map<String, dynamic>> _call(
     String op,
     Map<String, dynamic> body,
   ) async {
+    // CC.244: a browser cannot reach the edge function (its preflight
+    // is a bare 405), so on the web the house knocks on its own door.
+    if (kIsWeb) return _callThroughTheDoor(op, body);
     dynamic response;
     try {
       response = await Supabase.instance.client.functions.invoke(
