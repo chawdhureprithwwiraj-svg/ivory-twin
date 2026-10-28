@@ -11,6 +11,7 @@ import '../widgets/gold_fx3d.dart';
 import '../widgets/gold_light.dart';
 import '../widgets/gold_sound.dart';
 import '../widgets/lane_law.dart';
+import '../widgets/flame_heart.dart';
 import '../widgets/gif_flame_heart.dart';
 import '../widgets/heart_score.dart';
 import '../widgets/heart_sound.dart';
@@ -248,12 +249,27 @@ class _HeartSheetState extends State<HeartSheet>
             Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                GifFlameHeart(
-                  fill: s.fill,
-                  tier: s.tierIdx,
-                  lit: s.lit,
-                  celebrate: _celebrate,
-                  height: 420,
+                Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    // CC.239: the painted heart holds the stage from
+                    // the first frame; the gif fades in over it once
+                    // decoded. No more empty burgundy room.
+                    FlameHeart(
+                      fill: s.fill,
+                      tier: s.tierIdx,
+                      lit: s.lit,
+                      celebrate: _celebrate,
+                      height: 420,
+                    ),
+                    GifFlameHeart(
+                      fill: s.fill,
+                      tier: s.tierIdx,
+                      lit: s.lit,
+                      celebrate: _celebrate,
+                      height: 420,
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
