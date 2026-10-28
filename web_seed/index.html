@@ -32,6 +32,21 @@
     <div class="name">IVORY HOUSE</div>
     <div class="line">OPENING THE DOOR</div>
   </div>
+  <script>
+    // CC.240: never serve yesterday's house. When a new deploy takes
+    // the wheel, the service worker hands over and the page reloads
+    // itself once, so the member always walks the newest rooms.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!window.__ivorySwReload) { window.__ivorySwReload = 1; window.location.reload(); }
+      });
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          if (reg) { reg.update(); }
+        });
+      });
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
   <script>
     window.addEventListener('flutter-first-frame', function () {
