@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../core/web_media.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -117,7 +118,7 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
 
   void _startFilm() {
     setState(() => _phase = 'film');
-    final VideoPlayerController c = VideoPlayerController.asset(
+    final VideoPlayerController c = ivoryVideoController(
         'assets/wheels/opening_film_wheel_of_fans.mp4');
     _film = c;
     c.initialize().then((_) {
