@@ -8,6 +8,7 @@ import '../screens/ladder_screen.dart';
 import '../services/ladder_service.dart';
 import 'ladder_paint.dart';
 import 'sound_bank.dart';
+import '../core/effects.dart';
 
 /// ============================================================
 /// IVORY - THE LADDER ICON IN THE TOP BAR
@@ -29,10 +30,13 @@ class LadderButton extends StatefulWidget {
 
 class _LadderButtonState extends State<LadderButton>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  late final AnimationController _loop = AnimationController(
+  late final AnimationController _loop = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 4800),
-  )..repeat();
+  ),
+  );
   Timer? _later;
 
   @override
@@ -279,7 +283,7 @@ class _GlowLadder extends CustomPainter {
           RRect.fromRectAndRadius(rr.inflate(1.8 + 2.2 * gi), Radius.circular(rh)),
           Paint()
             ..color = _gems[i].withValues(alpha: math.min(1.0, 0.8 * gi * boost))
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.2),
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, (3.2) * IvoryEffects.blurScale),
         );
       }
       final RRect body = RRect.fromRectAndRadius(rr, Radius.circular(rh / 2));
@@ -313,7 +317,7 @@ class _GlowLadder extends CustomPainter {
           3.6,
           Paint()
             ..color = const Color(0xFFFFE08A).withValues(alpha: 0.75 * sa)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.4),
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, (2.4) * IvoryEffects.blurScale),
         );
         canvas.drawCircle(o, 1.5, Paint()..color = Colors.white.withValues(alpha: sa));
       }
