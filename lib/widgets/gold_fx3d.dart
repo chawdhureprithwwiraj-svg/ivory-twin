@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/ivory_theme.dart';
 import 'gold_fx.dart';
+import '../core/effects.dart';
 
 /// ============================================================
 /// IVORY - GOLD IN THREE DIMENSIONS
@@ -38,10 +39,13 @@ class GoldTilt extends StatefulWidget {
 }
 
 class _GoldTiltState extends State<GoldTilt> with TickerProviderStateMixin {
-  late final AnimationController _idle = AnimationController(
+  late final AnimationController _idle = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(seconds: 7),
-  )..repeat();
+  ),
+  );
   late final AnimationController _back = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 520),
@@ -187,10 +191,13 @@ class GoldRays extends StatefulWidget {
 
 class _GoldRaysState extends State<GoldRays>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
+  late final AnimationController _c = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(seconds: 46),
-  )..repeat();
+  ),
+  );
 
   @override
   void dispose() {
@@ -273,10 +280,13 @@ class GoldPulseDot extends StatefulWidget {
 
 class _GoldPulseDotState extends State<GoldPulseDot>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
+  late final AnimationController _c = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1300),
-  )..repeat();
+  ),
+  );
 
   @override
   void dispose() {
