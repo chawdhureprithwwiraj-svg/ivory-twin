@@ -49,6 +49,59 @@ class _PillPainter extends CustomPainter {
   final Animation<double> t;
   final bool grand;
 
+  // CC.240: shaders are built ONCE per size and reused every frame;
+  // the moving flow and glint ride on canvas translations instead of
+  // fresh gradient allocations. Six allocations per frame became
+  // zero - the ribbon crosses like silk, even on a browser.
+  Size? _cs;
+  late Shader _body;
+  late Shader _gloss;
+  late Shader _depth;
+  late Shader _glint;
+  late Shader _trim;
+
+  void _build(Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    _body = LinearGradient(
+      colors: <Color>[pal.base, pal.mid, pal.light, pal.mid, pal.base],
+      tileMode: TileMode.mirror,
+    ).createShader(Rect.fromLTWH(0, 0, w * 1.3, h));
+    _gloss = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: <Color>[
+        Colors.white.withValues(alpha: 0.40),
+        Colors.white.withValues(alpha: 0.02),
+      ],
+    ).createShader(Rect.fromLTWH(0, 0, w, h * 0.52));
+    _depth = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: <Color>[
+        pal.deep.withValues(alpha: 0.0),
+        pal.deep.withValues(alpha: 0.38),
+      ],
+    ).createShader(Rect.fromLTWH(0, 0, w, h * 0.4));
+    _glint = LinearGradient(
+      colors: <Color>[
+        Colors.white.withValues(alpha: 0.0),
+        Colors.white.withValues(alpha: 0.5),
+        Colors.white.withValues(alpha: 0.0),
+      ],
+    ).createShader(Rect.fromLTWH(0, 0, 34, h));
+    _trim = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: <Color>[
+        pal.trim,
+        pal.trim.withValues(alpha: 0.5),
+        pal.trim,
+      ],
+    ).createShader(Offset.zero & size);
+    _cs = size;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final double w = size.width;
@@ -71,64 +124,48 @@ class _PillPainter extends CustomPainter {
         ..color = pal.light.withValues(alpha: (grand ? 0.42 : 0.26) + 0.14 * pulse)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, grand ? 12 : 8),
     );
-    // Body: a gradient that flows slowly along the ribbon.
+    if (_cs != size) _build(size);
+    // Body: the cached flow, riding a translation along the ribbon.
     final double rw = w * 1.3;
     final double dx = -t.value * rw;
+    canvas.save();
+    canvas.clipRRect(rr);
+    canvas.translate(dx, 0);
     canvas.drawRRect(
-      rr,
-      Paint()
-        ..shader = LinearGradient(
-          colors: <Color>[pal.base, pal.mid, pal.light, pal.mid, pal.base],
-          tileMode: TileMode.mirror,
-        ).createShader(Rect.fromLTWH(dx, 0, rw, h)),
+      rr.shift(Offset(-dx, 0)),
+      Paint()..shader = _body,
     );
+    canvas.restore();
     canvas.save();
     canvas.clipRRect(rr);
     // Glossy top.
     canvas.drawRect(
       Rect.fromLTWH(0, 0, w, h * 0.52),
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: <Color>[
-            Colors.white.withValues(alpha: 0.40),
-            Colors.white.withValues(alpha: 0.02),
-          ],
-        ).createShader(Rect.fromLTWH(0, 0, w, h * 0.52)),
+      Paint()..shader = _gloss,
     );
     // A little depth along the bottom edge.
+    canvas.save();
+    canvas.translate(0, h * 0.6);
     canvas.drawRect(
-      Rect.fromLTWH(0, h * 0.6, w, h * 0.4),
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: <Color>[
-            pal.deep.withValues(alpha: 0.0),
-            pal.deep.withValues(alpha: 0.38),
-          ],
-        ).createShader(Rect.fromLTWH(0, h * 0.6, w, h * 0.4)),
+      Rect.fromLTWH(0, 0, w, h * 0.4),
+      Paint()..shader = _depth,
     );
-    // The glint that sweeps across.
+    canvas.restore();
+    // The glint that sweeps across, on its cached shader.
     final double gx = -w * 0.3 + (w * 1.6) * ((t.value * 2.4) % 1.0);
     final Path band = Path()
-      ..moveTo(gx + 10, 0)
-      ..lineTo(gx + 34, 0)
-      ..lineTo(gx + 24, h)
-      ..lineTo(gx, h)
+      ..moveTo(10, 0)
+      ..lineTo(34, 0)
+      ..lineTo(24, h)
+      ..lineTo(0, h)
       ..close();
+    canvas.save();
+    canvas.translate(gx, 0);
     canvas.drawPath(
       band,
-      Paint()
-        ..shader = LinearGradient(
-          colors: <Color>[
-            Colors.white.withValues(alpha: 0.0),
-            Colors.white.withValues(alpha: 0.5),
-            Colors.white.withValues(alpha: 0.0),
-          ],
-        ).createShader(Rect.fromLTWH(gx, 0, 34, h)),
+      Paint()..shader = _glint,
     );
+    canvas.restore();
     canvas.restore();
     // Pale trim and a fine inner highlight.
     canvas.drawRRect(
@@ -136,15 +173,7 @@ class _PillPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            pal.trim,
-            pal.trim.withValues(alpha: 0.5),
-            pal.trim,
-          ],
-        ).createShader(Offset.zero & size),
+        ..shader = _trim,
     );
     canvas.drawRRect(
       rr.deflate(2.4),
