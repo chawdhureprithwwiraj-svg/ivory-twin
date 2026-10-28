@@ -11,6 +11,7 @@
 /// engages: the scale is always 1.0 and the richness never changes.
 library;
 
+import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -43,6 +44,23 @@ class IvoryEffects {
     if (quality.value == IvoryQuality.lite) return 0.35;
     if (quality.value == IvoryQuality.reduced) return 0.6;
     return 1.0;
+  }
+
+  /// Decorative motion - shimmer, breathing glows, idle sway - may run
+  /// here. This is the first luxury the web house gives up, because a
+  /// glowing card that breathes costs a full repaint of its layer on
+  /// every single frame, and there are a dozen of them on a screen.
+  static bool get decorativeMotion => quality.value == IvoryQuality.full;
+
+  /// Starts a repeating controller only when decorative motion is
+  /// wanted; returns it either way so the widget keeps its shape.
+  /// A stopped controller paints one calm frame and costs nothing.
+  static AnimationController repeatOn(
+    bool on,
+    AnimationController controller,
+  ) {
+    if (on) controller.repeat();
+    return controller;
   }
 
   /// The richest layered glass may be drawn here.
