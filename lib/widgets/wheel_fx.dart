@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../core/web_media.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -41,7 +42,7 @@ class WofSound {
     ];
     for (final String home in homes) {
       final VideoPlayerController c =
-          VideoPlayerController.asset('$home$n.wav');
+          ivoryVideoController('$home$n.wav');
       try {
         await c.initialize();
         c.setVolume(0.85);
