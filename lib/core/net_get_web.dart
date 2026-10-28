@@ -46,3 +46,22 @@ Future<int> netPutStream(String url, Uint8List bytes, String contentType,
 }
 
 // END OF FILE - lib/core/net_get_web.dart
+
+/// CC.242: a JSON POST for the house's own doors, same origin, so the
+/// browser never has to preflight anything.
+Future<String> netPostJson(
+  String url,
+  String body,
+  Map<String, String> headers,
+) async {
+  final html.HttpRequest req = await html.HttpRequest.request(
+    url,
+    method: 'POST',
+    requestHeaders: <String, String>{
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    sendData: body,
+  );
+  return req.responseText ?? '';
+}
