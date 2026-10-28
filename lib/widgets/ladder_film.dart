@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/web_media.dart';
 import 'package:video_player/video_player.dart';
 
 import 'premium_assets.dart';
@@ -50,10 +51,7 @@ class _LadderFilmState extends State<LadderFilm> with WidgetsBindingObserver {
         if (mounted && !_disposed) setState(() => _failed = true);
         return;
       }
-      final VideoPlayerController c = VideoPlayerController.asset(
-        path,
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
+      final VideoPlayerController c = ivoryVideoController(path);
       _c = c;
       await c.initialize();
       if (_disposed) {
