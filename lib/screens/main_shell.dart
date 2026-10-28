@@ -253,7 +253,17 @@ class _MainShellState extends State<MainShell> {
                 );
               },
             ),
-            Expanded(child: IndexedStack(index: _index, children: pages)),
+            Expanded(
+              child: IndexedStack(
+                index: _index,
+                // CC.239: one repaint boundary per room, so a ticking
+                // ribbon or a turning wheel never drags the other
+                // rooms into its repaint - calmer compositing on web.
+                children: pages
+                    .map((Widget w) => RepaintBoundary(child: w))
+                    .toList(),
+              ),
+            ),
           ],
         ),
       ),
