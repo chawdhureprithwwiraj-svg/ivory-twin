@@ -10,6 +10,7 @@ import '../services/bells_service.dart';
 import 'bell_paint.dart';
 import 'bell_sound.dart';
 import 'sound_bank.dart';
+import '../core/effects.dart';
 
 /// ============================================================
 /// IVORY - THE DOORBELL IN THE TOP BAR
@@ -33,10 +34,13 @@ class BellsButton extends StatefulWidget {
 
 class _BellsButtonState extends State<BellsButton>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  late final AnimationController _loop = AnimationController(
+  late final AnimationController _loop = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 4000),
-  )..repeat();
+  ),
+  );
   Timer? _tick;
   bool _opening = false;
 
