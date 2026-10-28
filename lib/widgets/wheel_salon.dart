@@ -14,7 +14,12 @@ import 'wheel_painter.dart';
 /// gradient buttons and a claim field you can actually see. Nothing
 /// here sells; it only invites.
 class WheelSalon extends StatefulWidget {
-  const WheelSalon({super.key});
+  const WheelSalon({super.key, this.focusPurse = false});
+
+  /// CC.239: TRUE when the member tapped straight for the purse -
+  /// the salon then walks down to the purse card instead of
+  /// leaving them at the top of the common page.
+  final bool focusPurse;
 
   @override
   State<WheelSalon> createState() => _WheelSalonState();
@@ -24,10 +29,26 @@ class _WheelSalonState extends State<WheelSalon> {
   Map<String, dynamic> _s = <String, dynamic>{};
   String _giftMsg = '';
   final TextEditingController _code = TextEditingController();
+  final ScrollController _sc = ScrollController();
+  final GlobalKey _purseKey = GlobalKey();
+  bool _jumped = false;
 
   @override
   void initState() {
     super.initState();
+    if (widget.focusPurse) {
+      Future<void>.delayed(const Duration(milliseconds: 450), () {
+        if (mounted && !_jumped && _purseKey.currentContext != null) {
+          _jumped = true;
+          Scrollable.ensureVisible(
+            _purseKey.currentContext!,
+            alignment: 0.18,
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
     WofSound.play('salon');
     WheelService.instance.state(force: true).then((Map<String, dynamic> m) {
       if (mounted) setState(() => _s = m);
@@ -36,6 +57,7 @@ class _WheelSalonState extends State<WheelSalon> {
 
   @override
   void dispose() {
+    _sc.dispose();
     _code.dispose();
     super.dispose();
   }
@@ -60,6 +82,7 @@ class _WheelSalonState extends State<WheelSalon> {
                 WheelCrest(onClose: () => Navigator.pop(context)),
                 Expanded(
                   child: ListView(
+                    controller: _sc,
                     padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
                     children: <Widget>[
                       _card(
@@ -72,17 +95,21 @@ class _WheelSalonState extends State<WheelSalon> {
                         'Come inside those hours and the wheel falls from '
                         'the air for you, turning slowly even at rest.',
                       ),
-                      _card(
+                      KeyedSubtree(
+                        key: _purseKey,
+                        child: _card(
                         'Your Fortune Purse',
                         const Color(0xFF00C853),
-                        '₹${_int('purse')} gathered · the cycle closes on '
-                        '${_str('cycle_closes_at')} · streak '
+                        '₹${_int('purse')} gathered'
+                        '${_str('cycle_closes_at').isEmpty ? '' : ' · the cycle closes on ${_str('cycle_closes_at')}'}'
+                        ' · streak '
                         '${_int('streak')} day(s) · Gilded Spin tokens: '
                         '${_int('tokens')}'
                         '${_int('petals_owed') > 0 ? ' · laurel petals owed to you: ${_int('petals_owed')}' : ''}. '
                         'The purse spends whole on any membership, session, '
                         'gift or single post whose price is greater than '
                         'it — one instrument per bill, the house rule.',
+                        ),
                       ),
                       _card(
                         'What the house declares',
