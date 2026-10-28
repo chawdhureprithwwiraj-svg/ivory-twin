@@ -30,7 +30,7 @@ String webAssetUrl(String key) {
 /// a fetched address in the browser. Mixed with any other audio
 /// the member may already be playing.
 VideoPlayerController ivoryVideoController(String key) {
-  const VideoPlayerOptions opts = VideoPlayerOptions(mixWithOthers: true);
+  final VideoPlayerOptions opts = VideoPlayerOptions(mixWithOthers: true);
   if (kIsWeb) {
     return VideoPlayerController.networkUrl(
       Uri.parse(webAssetUrl(key)),
