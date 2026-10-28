@@ -133,18 +133,15 @@ class PostArtworkState extends State<PostArtwork> {
     final IvoryPost post = widget.post;
     final String? url = post.thumbnailFor();
 
+    // CC.244: when a picture cannot arrive, the house still dresses for
+    // it. A painted golden stage with a gilded seal - never a flat slab
+    // that makes a missing wire look like a broken house.
     final Widget base = url == null
         ? Container(
             height: height,
             width: double.infinity,
-            decoration: const BoxDecoration(gradient: IvoryColors.warmGradient),
-            child: Center(
-              child: Icon(
-                postActionIcon(post.type),
-                size: 44,
-                color: IvoryColors.burgundy.withValues(alpha: 0.55),
-              ),
-            ),
+            decoration: _stageDecoration(),
+            child: Center(child: _stageSeal(post, 44)),
           )
         : Image.network(
             url,
@@ -153,15 +150,8 @@ class PostArtworkState extends State<PostArtwork> {
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => Container(
               height: height,
-              decoration:
-                  const BoxDecoration(gradient: IvoryColors.warmGradient),
-              child: Center(
-                child: Icon(
-                  postActionIcon(post.type),
-                  size: 40,
-                  color: IvoryColors.burgundy.withValues(alpha: 0.5),
-                ),
-              ),
+              decoration: _stageDecoration(),
+              child: Center(child: _stageSeal(post, 40)),
             ),
             loadingBuilder: (BuildContext c, Widget child, ImageChunkEvent? p) {
               if (p == null) return child;
@@ -255,6 +245,46 @@ class PostArtworkState extends State<PostArtwork> {
       ],
     );
   }
+}
+
+/// The painted stage a card wears while its picture is absent.
+BoxDecoration _stageDecoration() {
+  return const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: <Color>[
+        Color(0xFF3E1030),
+        Color(0xFF6E1D2F),
+        Color(0xFFA97421),
+      ],
+      stops: <double>[0.0, 0.55, 1.0],
+    ),
+    border: Border.fromBorderSide(
+      BorderSide(color: Color(0x66FFE9B0), width: 1.2),
+    ),
+  );
+}
+
+/// The gilded seal that stands in for the missing picture.
+Widget _stageSeal(IvoryPost post, double size) {
+  return Container(
+    width: size * 2.1,
+    height: size * 2.1,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: const RadialGradient(
+        colors: <Color>[Color(0xFFF7E08E), Color(0xFFC99A2E), Color(0xFF8A6516)],
+        stops: <double>[0.0, 0.62, 1.0],
+      ),
+      border: Border.all(color: const Color(0x88FFF3C4), width: 1.2),
+      boxShadow: const <BoxShadow>[
+        BoxShadow(color: Color(0x552B1839), blurRadius: 14, offset: Offset(0, 6)),
+      ],
+    ),
+    child: Icon(postActionIcon(post.type), size: size,
+        color: const Color(0xFF3E1030)),
+  );
 }
 
 // END OF FILE - lib/widgets/post_artwork.dart
