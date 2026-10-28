@@ -44,6 +44,7 @@ class WheelRoom extends StatefulWidget {
 
 class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
   String _phase = 'load'; // load film burst drop idle spin result
+  bool _salonFocus = false;
   VideoPlayerController? _film;
   Map<String, dynamic> _state = <String, dynamic>{};
   Map<String, dynamic> _prize = <String, dynamic>{};
@@ -98,7 +99,10 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
       setState(() => _state = m);
       final bool open = m['open'] == true;
       if (!open) {
-        setState(() => _phase = 'salon');
+        setState(() {
+      _salonFocus = false;
+      _phase = 'salon';
+    });
         return;
       }
       if (widget.ceremony) {
@@ -161,7 +165,10 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
     final Map<String, dynamic> st =
         await WheelService.instance.state(force: true);
     if (st['open'] != true) {
-      setState(() => _phase = 'salon');
+      setState(() {
+      _salonFocus = false;
+      _phase = 'salon';
+    });
       _busy = false;
       return;
     }
@@ -176,6 +183,7 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
         await WheelService.instance.spin(useToken: _useToken);
     if (r['ok'] != true) {
       setState(() {
+        _salonFocus = false;
         _phase = 'salon';
         _prize = r;
       });
@@ -252,7 +260,7 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (_phase == 'salon') return const WheelSalon();
+    if (_phase == 'salon') return WheelSalon(focusPurse: _salonFocus);
     return Material(
       color: const Color(0xFF241033),
       child: Stack(
@@ -453,7 +461,10 @@ class _WheelRoomState extends State<WheelRoom> with TickerProviderStateMixin {
           const SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _phase = 'salon'),
+              onTap: () => setState(() {
+                    _salonFocus = true;
+                    _phase = 'salon';
+                  }),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 decoration: BoxDecoration(
