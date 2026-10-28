@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/ivory_errors.dart';
@@ -100,6 +102,10 @@ class VaultService {
     String op,
     Map<String, dynamic> body,
   ) async {
+    // CC.242: in a browser the edge function cannot be reached at
+    // all - its preflight answer is a bare 405 - so the web house
+    // knocks on its own door at /api/r2-vault, which relays.
+    if (kIsWeb) return _callThroughTheDoor(op, body);
     dynamic fr;
     try {
       fr = await Supabase.instance.client.functions.invoke(
@@ -154,6 +160,51 @@ class VaultService {
     if (data is Map) return Map<String, dynamic>.from(data);
     throw VaultError(op, 'r2-vault replied with ${data.runtimeType}, '
         'not an object. Check the function returns JSON.');
+  }
+
+  /// The web door: same origin, so no preflight can block it.
+  Future<Map<String, dynamic>> _callThroughTheDoor(
+    String op,
+    Map<String, dynamic> body,
+  ) async {
+    final Session? session = Supabase.instance.client.auth.currentSession;
+    final String token = session?.accessToken ?? '';
+    final String raw = await netPostJson(
+      '/api/r2-vault',
+      jsonEncode(<String, dynamic>{'op': op, ...body}),
+      <String, String>{
+        'apikey': Supabase.instance.client.supabaseKey,
+        if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+    );
+    dynamic envelope;
+    try {
+      envelope = jsonDecode(raw);
+    } catch (_) {
+      throw VaultError(
+          op, 'The door at /api/r2-vault did not answer in JSON.');
+    }
+    final int status =
+        envelope is Map ? ((envelope['status'] as num?)?.toInt() ?? 0) : 0;
+    final dynamic data = envelope is Map ? envelope['data'] : null;
+    if (status == 0) {
+      final String why =
+          data is Map ? (data['error'] ?? data).toString() : '$data';
+      throw VaultError(op, 'The door at /api/r2-vault failed: $why');
+    }
+    if (status != 200) {
+      if (data is Map && data['error'] == 'vault_full') {
+        throw VaultFullError(((data['used'] as num?) ?? 0) / (1 << 30));
+      }
+      final String why = data is Map
+          ? (data['error'] ?? data['message'] ?? data).toString()
+          : '$data';
+      throw VaultError(op, 'r2-vault answered HTTP $status: $why');
+    }
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    throw VaultError(op,
+        'r2-vault replied with ${data.runtimeType}, not an object.');
   }
 
   /// Streams [path] into the Vault. Returns the vault key to store
