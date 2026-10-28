@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/ivory_theme.dart';
+import '../core/effects.dart';
 
 /// How wide the door stands for a number of early hours: shut just
 /// before the first hour, wider with every hour, wide open at two days
@@ -45,10 +46,13 @@ class _EarlyDoorViewState extends State<EarlyDoorView>
     vsync: this,
     duration: const Duration(milliseconds: 1400),
   );
-  late final AnimationController _breath = AnimationController(
+  late final AnimationController _breath = IvoryEffects.repeatOn(
+    IvoryEffects.decorativeMotion,
+    AnimationController(
     vsync: this,
     duration: const Duration(seconds: 6),
-  )..repeat();
+  ),
+  );
   late Animation<double> _open;
 
   @override
@@ -283,7 +287,7 @@ class _DoorPainter extends CustomPainter {
       floor,
       Paint()
         ..color = _pearl.withValues(alpha: (0.25 + 0.5 * spill) * (0.9 + 0.1 * pulse))
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, (3) * IvoryEffects.blurScale),
     );
   }
 
