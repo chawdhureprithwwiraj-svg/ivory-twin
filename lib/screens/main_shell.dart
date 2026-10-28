@@ -1,3 +1,5 @@
+import '../widgets/premium_assets.dart';
+import '../widgets/heart_sound.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -79,6 +81,29 @@ class _MainShellState extends State<MainShell> {
     // CC.120: a lapsed membership no longer keeps its profile photo.
     unawaited(LapsedPhotoCleanup.instance.runIfLapsed());
     MainShell.onOpenTab = _openTab;
+    // CC.240: while the member settles in, the house warms its
+    // heaviest pleasures in the background - the heart's gif and its
+    // sound - so the Golden Heart opens rich and instant instead of
+    // asking for patience.
+    unawaited(_warmTheHouse());
+  }
+
+  Future<void> _warmTheHouse() async {
+    await Future<void>.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
+    try {
+      await HeartSound.instance.load();
+      final String? gif = await PremiumAssets.find(
+        'warm_heart_gif',
+        const <String>[],
+        const <String>['.gif'],
+      );
+      if (gif != null && mounted) {
+        await precacheImage(AssetImage(gif), context);
+      }
+    } catch (_) {
+      // Warmth is a courtesy, never a requirement.
+    }
   }
 
   void _openBusinessEnquiries() {
