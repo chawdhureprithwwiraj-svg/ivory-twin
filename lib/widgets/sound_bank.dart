@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../core/web_media.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -245,10 +246,7 @@ class _Deck {
         _failedAt = DateTime.now();
         return false;
       }
-      final VideoPlayerController c = VideoPlayerController.asset(
-        path,
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
+      final VideoPlayerController c = ivoryVideoController(path);
       await c.initialize().timeout(const Duration(seconds: 8));
       // When the recording ends it rewinds itself, ready for the next tap.
       c.addListener(() => _onTick(c));
