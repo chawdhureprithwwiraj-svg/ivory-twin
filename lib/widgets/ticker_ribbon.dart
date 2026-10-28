@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../services/ticker_service.dart';
 import 'ticker_palettes.dart';
+import '../core/effects.dart';
 
 /// ============================================================
 /// IVORY - THE RIBBON ITSELF
@@ -28,13 +29,19 @@ Path _star(Offset c, double r) {
 
 void _twinkle(Canvas canvas, Offset c, double r, double a, Color glow) {
   if (a <= 0.02 || r <= 0.3) return;
-  canvas.drawCircle(
-    c,
-    r * 0.95,
-    Paint()
-      ..color = glow.withValues(alpha: 0.5 * a)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.7),
-  );
+  // CC.244: the halo is the first thing a struggling device gives up.
+  // The star itself is a sharp path and costs almost nothing, so the
+  // twinkle still reads on every machine.
+  final double halo = r * 0.7 * IvoryEffects.blurScale;
+  if (halo > 0.3) {
+    canvas.drawCircle(
+      c,
+      r * 0.95,
+      Paint()
+        ..color = glow.withValues(alpha: 0.5 * a)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, halo),
+    );
+  }
   canvas.drawPath(
     _star(c, r),
     Paint()..color = Colors.white.withValues(alpha: a.clamp(0.0, 1.0)),
@@ -110,20 +117,33 @@ class _PillPainter extends CustomPainter {
       Offset.zero & size,
       Radius.circular(h / 2),
     );
-    // Drop shadow, and a soft glow in the ribbon's own colour.
-    canvas.drawRRect(
-      rr.shift(const Offset(0, 5)),
-      Paint()
-        ..color = pal.deep.withValues(alpha: 0.42)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 9),
-    );
-    final double pulse = 0.5 + 0.5 * math.sin(t.value * math.pi * 8);
-    canvas.drawRRect(
-      rr.inflate(grand ? 3 : 1),
-      Paint()
-        ..color = pal.light.withValues(alpha: (grand ? 0.42 : 0.26) + 0.14 * pulse)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, grand ? 12 : 8),
-    );
+    // CC.244: the ribbon crosses on every screen, so its cost matters
+    // more than any other paint in the house. In the light dress it
+    // keeps a clean sharp shadow for depth and gives up the two soft
+    // passes - one cheap draw instead of two blur layers per frame.
+    final double soft = IvoryEffects.blurScale;
+    if (soft > 0) {
+      canvas.drawRRect(
+        rr.shift(const Offset(0, 5)),
+        Paint()
+          ..color = pal.deep.withValues(alpha: 0.42)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 9 * soft),
+      );
+      final double pulse = 0.5 + 0.5 * math.sin(t.value * math.pi * 8);
+      canvas.drawRRect(
+        rr.inflate(grand ? 3 : 1),
+        Paint()
+          ..color = pal.light
+              .withValues(alpha: (grand ? 0.42 : 0.26) + 0.14 * pulse)
+          ..maskFilter =
+              MaskFilter.blur(BlurStyle.normal, (grand ? 12 : 8) * soft),
+      );
+    } else {
+      canvas.drawRRect(
+        rr.shift(const Offset(0, 3)),
+        Paint()..color = pal.deep.withValues(alpha: 0.24),
+      );
+    }
     if (_cs != size) _build(size);
     // Body: the cached flow, riding a translation along the ribbon.
     final double rw = w * 1.3;
@@ -264,13 +284,22 @@ class _MedalPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Offset c = size.center(Offset.zero);
     final double r = size.width / 2;
-    canvas.drawCircle(
-      c + Offset(0, r * 0.2),
-      r,
-      Paint()
-        ..color = pal.deep.withValues(alpha: 0.55)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.38),
-    );
+    final double medSoft = r * 0.38 * IvoryEffects.blurScale;
+    if (medSoft > 0.3) {
+      canvas.drawCircle(
+        c + Offset(0, r * 0.2),
+        r,
+        Paint()
+          ..color = pal.deep.withValues(alpha: 0.55)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, medSoft),
+      );
+    } else {
+      canvas.drawCircle(
+        c + Offset(0, r * 0.12),
+        r * 0.98,
+        Paint()..color = pal.deep.withValues(alpha: 0.3),
+      );
+    }
     // Metal rim.
     canvas.drawCircle(
       c,
@@ -361,15 +390,18 @@ class _MedalPainter extends CustomPainter {
           stops: const <double>[0.0, 0.12, 0.3, 0.5, 0.62, 0.8],
         ).createShader(ring);
       canvas.drawCircle(c, r + 4, glow);
-      canvas.drawCircle(
-        c,
-        r + 4,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 4
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3)
-          ..shader = glow.shader,
-      );
+      final double ringSoft = 3 * IvoryEffects.blurScale;
+      if (ringSoft > 0.3) {
+        canvas.drawCircle(
+          c,
+          r + 4,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 4
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, ringSoft)
+            ..shader = glow.shader,
+        );
+      }
     }
   }
 
