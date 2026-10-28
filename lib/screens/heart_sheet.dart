@@ -65,11 +65,25 @@ class _HeartSheetState extends State<HeartSheet>
     // The owner's two recordings: the rush and heartbeat once, then the
     // heartbeat for as long as the member stays here. If the recordings
     // are not in the app, the older soft opening sound is used.
-    HeartScore.instance.start().then((bool played) {
-      if (played || !mounted) return;
+    bool openSounded = false;
+    void soundTheOpen() {
+      if (openSounded) return;
+      openSounded = true;
       HeartSound.instance.load().then((_) {
         if (mounted) HeartSound.instance.play('open', volume: 1.0);
       });
+    }
+
+    HeartScore.instance.start().then((bool played) {
+      if (played || !mounted) return;
+      soundTheOpen();
+    });
+    // CC.241: if the owner's two recordings hesitate on the wire (a
+    // slow first fetch in the browser), the house's own opening sound
+    // speaks at four hundred milliseconds, so no member ever watches
+    // a silent heart.
+    Future<void>.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) soundTheOpen();
     });
     _load();
   }
