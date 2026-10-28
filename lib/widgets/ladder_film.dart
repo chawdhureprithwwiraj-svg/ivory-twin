@@ -184,13 +184,28 @@ class _LadderFilmState extends State<LadderFilm> with WidgetsBindingObserver {
                       ),
                     )
                   else
-                    const Center(
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          color: Color(0xFF8F5B00),
+                    Container(
+                      // CC.239: a painted poster holds the cinema
+                      // frame while the film winds up - cream light
+                      // and one quiet line, never a bare spinner.
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: <Color>[Color(0xFFF6E7C4), Color(0xFFE8CFA0)],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.local_movies,
+                                color: Color(0xFF8A5E1C), size: 34),
+                            SizedBox(height: 8),
+                            Text('the film is winding up',
+                                style: TextStyle(
+                                    color: Color(0xFF8A5E1C), fontSize: 13)),
+                          ],
                         ),
                       ),
                     ),
