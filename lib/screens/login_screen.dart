@@ -361,7 +361,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onTap: () =>
                                         setState(() => _remember = !_remember),
                                     child: Text(
-                                      'Remember me on this phone'.tr,
+                                      (kIsWeb
+                                          ? 'Remember me on this device'
+                                          : 'Remember me on this phone')
+                                      .tr,
                                       style: TextStyle(
                                         color: IvoryColors.textSoft,
                                         fontSize: 13.5,
