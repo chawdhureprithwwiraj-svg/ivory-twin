@@ -1,5 +1,6 @@
 import '../widgets/premium_assets.dart';
 import '../widgets/heart_sound.dart';
+import '../core/film_prime.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -93,6 +94,16 @@ class _MainShellState extends State<MainShell> {
     if (!mounted) return;
     try {
       await HeartSound.instance.load();
+    // CC.241: the two films warm at idle too. The browser pulls them
+    // into its media cache while the member is still reading the
+    // corridor, so the ladder and the wheel open without a wire wait.
+    filmPrime('assets/wheels/opening_film_wheel_of_fans.mp4');
+    filmPrime(await PremiumAssets.find(
+          'ladder_film',
+          const <String>['ladder', 'film'],
+          const <String>['.mp4'],
+        ) ??
+        '');
       final String? gif = await PremiumAssets.find(
         'warm_heart_gif',
         const <String>[],
