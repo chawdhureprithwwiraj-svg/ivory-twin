@@ -183,6 +183,10 @@ class _EarlyDoorSheetState extends State<_EarlyDoorSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,
       decoration: const BoxDecoration(
+        // CC.239: an opaque dawn-plum floor. If the painted sky ever
+        // fails on any platform, the sheet still stands solid and the
+        // home behind it can never show through the member's words.
+        color: Color(0xFF2B1839),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: ClipRRect(
