@@ -185,26 +185,48 @@ class _LadderFilmState extends State<LadderFilm> with WidgetsBindingObserver {
                     )
                   else
                     Container(
-                      // CC.239: a painted poster holds the cinema
-                      // frame while the film winds up - cream light
-                      // and one quiet line, never a bare spinner.
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: <Color>[Color(0xFFF6E7C4), Color(0xFFE8CFA0)],
+                      // CC.240: a golden cinema frame holds the stage
+                      // while the film winds up - metallic, sealed,
+                      // never a flat cream rectangle.
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: <Color>[
+                            Color(0xFFE9C877),
+                            Color(0xFFC89A3E),
+                            Color(0xFF8A5E1C),
+                          ],
                         ),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: const Color(0xFFFFE9B0).withValues(alpha: 0.7),
+                          width: 1.4,
+                        ),
+                        boxShadow: const <BoxShadow>[
+                          BoxShadow(
+                            color: Color(0x552B1839),
+                            blurRadius: 14,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
                       ),
                       child: const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Icon(Icons.local_movies,
-                                color: Color(0xFF8A5E1C), size: 34),
+                                color: Color(0xFF4A0E17), size: 36),
                             SizedBox(height: 8),
-                            Text('the film is winding up',
-                                style: TextStyle(
-                                    color: Color(0xFF8A5E1C), fontSize: 13)),
+                            Text(
+                              'the film is winding up',
+                              style: TextStyle(
+                                color: Color(0xFF4A0E17),
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
                           ],
                         ),
                       ),
