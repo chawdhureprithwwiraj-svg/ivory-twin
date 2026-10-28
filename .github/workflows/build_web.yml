@@ -56,7 +56,10 @@ jobs:
         run: flutter pub get
 
       - name: Compile the web twin
-        run: flutter build web --release --base-href /house/
+        # CC.244: canvaskit is served from the house itself instead of a
+        # third-party CDN, so the first paint never waits on a cross-site
+        # download it does not control.
+        run: flutter build web --release --base-href /house/ --no-web-resources-cdn
 
       - name: Assemble the published house
         run: |
