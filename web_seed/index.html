@@ -47,6 +47,28 @@
       });
     }
   </script>
+  <script>
+    // CC.244: a phone's browser reports a pixel ratio of 2.6 to 3. At
+    // that ratio the house paints two and a half million pixels every
+    // frame - and CanvasKit has to fill every one of them on the GPU of
+    // a phone browser. Capping the ratio is the single largest saving
+    // available, because cost rises with the SQUARE of the ratio.
+    //   1.75 -> about 45% of the pixels, edges still clean
+    //   1.50 -> about 33% of the pixels, edges a touch softer
+    // Change the number below if you want to tune it by eye.
+    (function () {
+      var IVORY_MAX_DPR = 1.75;
+      try {
+        var real = window.devicePixelRatio || 1;
+        if (real > IVORY_MAX_DPR) {
+          Object.defineProperty(window, 'devicePixelRatio', {
+            get: function () { return IVORY_MAX_DPR; },
+            configurable: true
+          });
+        }
+      } catch (e) { /* an older browser keeps its own ratio */ }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
   <script>
     window.addEventListener('flutter-first-frame', function () {
