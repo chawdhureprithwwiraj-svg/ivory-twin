@@ -8433,6 +8433,18 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 #wof .wof-card{bottom:132px !important;max-height:min(58vh,420px);overflow:auto}
 #wof .wof-hours-link{transition:opacity .35s ease, transform .35s ease}
 #wof.has-card .wof-hours-link{opacity:0 !important;transform:translateY(8px);pointer-events:none}
+
+/* ---------- 41 · the ribbon: a long greeting ellipses, never breaks ---------- */
+.rib.dream{max-width:calc(100vw - 18px) !important}
+.rib.dream .who{flex:1 1 auto !important;min-width:0 !important;overflow:hidden}
+.rib.dream .who b,.rib.dream .who span{
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+@media (max-width:400px){
+  .rib.dream .who b{font-size:11.6px !important}
+  .rib.dream .who span{font-size:10.2px !important}
+  .rib.dream .plate{font-size:7.4px !important;letter-spacing:.1em !important;padding:3px 6px !important}
+}
 </style>
 </head>
 <body>
@@ -13893,8 +13905,8 @@ function sparkleAt(el){
     sparks();
     med.classList.add('is-falling');
     later(function(){ ripple.classList.add('is-hit'); }, 900);
-    later(function(){ copy.classList.add('is-up'); }, 1150);
-    later(function(){ try{ plate.style.display='none'; }catch(e){} }, 2400);
+    later(function(){ copy.classList.add('is-up'); }, 780);
+    later(function(){ try{ plate.style.display='none'; }catch(e){} }, 1700);
   }
 
   function play(){
@@ -13921,10 +13933,10 @@ function sparkleAt(el){
     var p=film.play && film.play();
     if(p && p.catch) p.catch(function(){});
     var fell=false;
-    function once(){ if(fell) return; fell=true; later(fall, 260); }
+    function once(){ if(fell) return; fell=true; later(fall, 120); }
     film.addEventListener('ended', once, {once:true});
     film.addEventListener('error', function(){ later(once, 200); }, {once:true});
-    later(once, 3100);
+    later(once, 2950);
   }
 
   function leave(then){
