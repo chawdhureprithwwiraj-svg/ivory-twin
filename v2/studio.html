@@ -331,22 +331,23 @@ a{color:inherit}
 
     <div id="gate-1">
       <div class="gate-field">
-        <label for="phrase">The phrase</label>
-        <input class="gate-input" id="phrase" type="password" autocomplete="off" placeholder="your phrase">
+        <label for="s-email">The house account</label>
+        <input class="gate-input" id="s-email" type="email" autocomplete="username" inputmode="email" placeholder="you@…">
+      </div>
+      <div class="gate-field">
+        <label for="s-pass">Its key</label>
+        <input class="gate-input" id="s-pass" type="password" autocomplete="current-password" placeholder="your password">
       </div>
       <button class="gate-btn" id="key-1">Turn the key</button>
-      <p class="gate-fine">Demo house · the lock is not set yet — any phrase turns.</p>
+      <p class="gate-fine">The lock is the house account itself &mdash; the same one that runs the app. Only a house key opens it.</p>
+      <p class="gate-err" id="gate-err" hidden></p>
     </div>
 
     <div id="gate-2" hidden>
       <div class="hats" id="hats"></div>
-      <div class="gate-field">
-        <label for="code">The second key</label>
-        <input class="gate-input" id="code" inputmode="numeric" maxlength="6" placeholder="six digits">
-      </div>
       <button class="gate-btn wax" id="key-2">Open the door</button>
-      <p class="gate-fine">Demo code <b class="num" style="color:#C7AE79">407 118</b> — in the house this is a tap on your device.</p>
-      <p class="gate-err" id="gate-err" hidden></p>
+      <p class="gate-fine" id="gate-who">Opening…</p>
+      <p class="gate-err" id="gate-err2" hidden></p>
     </div>
   </div>
 </section>
@@ -516,33 +517,82 @@ function paintHats(){
 }
 paintHats();
 
+/* ---------- THE REAL DOOR ----------
+   No phrase, no six digits: the house account itself, checked
+   against the same Supabase project the app uses, and only a
+   role the house trusts may pass. The key lives with her, not in
+   this file, and the page is safe to sit on a public URL. */
+var SB='https://soephrftgddbwkzwjddj.supabase.co';
+var SBKEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+var HOUSE_ROLES=['admin','ivory','owner'];
+var HOUSE={sess:null,profile:null};
+
+function gateErr(id,msg){ var e=document.getElementById(id); if(!msg){ e.hidden=true; e.textContent=''; return; } e.hidden=false; e.textContent=msg; }
+
+function sbSignIn(email,pass){
+  return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+    headers:{'apikey':SBKEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,password:pass})})
+    .then(function(r){ return r.json().then(function(j){
+      if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.');
+      return j; }); });
+}
+function sbProfile(sess){
+  return fetch(SB+'/rest/v1/profiles?select=*&id=eq.'+sess.user.id,
+    {headers:{'apikey':SBKEY,'Authorization':'Bearer '+sess.access_token}})
+    .then(function(r){ return r.json(); }).then(function(rows){ return (rows&&rows[0])||null; });
+}
+
 document.getElementById('key-1').addEventListener('click',function(){
-  var v=document.getElementById('phrase').value.trim();
-  gate1.hidden=true; gate2.hidden=false;
-  if(!v){ /* the demo accepts an empty phrase too — but a nudge is honest */ }
-  picked=picked||'admin'; paintHats();
-  document.getElementById('code').focus();
+  var email=(document.getElementById('s-email').value||'').trim();
+  var pass=(document.getElementById('s-pass').value||'');
+  var btn=this;
+  gateErr('gate-err');
+  if(!email||!pass){ gateErr('gate-err','Both lines, please.'); return; }
+  btn.disabled=true; btn.textContent='Turning…';
+  sbSignIn(email,pass)
+    .then(function(sess){
+      HOUSE.sess=sess;
+      return sbProfile(sess).then(function(p){
+        if(!p) throw new Error('That account has no house record.');
+        if(HOUSE_ROLES.indexOf(String(p.role||'').toLowerCase())<0)
+          throw new Error('That is a member key, not a house key. The studio stays shut.');
+        HOUSE.profile=p;
+        try{ sessionStorage.setItem('ivory.house',JSON.stringify(sess)); }catch(_){}
+        document.getElementById('s-pass').value='';
+        gate1.hidden=true; gate2.hidden=false;
+        picked='admin'; paintHats();
+        document.getElementById('gate-who').innerHTML=
+          'Signed in as <b style="color:#E8C77E">'+String(p.display_name||email).replace(/[<>&]/g,'')+'</b> &middot; '+
+          String(p.role||'')+' key &middot; the door is real; the books inside are being wired surface by surface.';
+        document.getElementById('key-2').textContent='Open the door';
+      });
+    })
+    .catch(function(x){ gateErr('gate-err',x.message||String(x)); })
+    .then(function(){ btn.disabled=false; btn.textContent='Turn the key'; });
 });
-document.getElementById('phrase').addEventListener('keydown',function(e){
-  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('key-1').click(); }
-});
-document.getElementById('code').addEventListener('keydown',function(e){
-  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('key-2').click(); }
-});
-document.getElementById('code').addEventListener('input',function(e){
-  e.target.value=e.target.value.replace(/\D/g,'').slice(0,6);
-});
+document.getElementById('s-email').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('key-1').click(); });
+document.getElementById('s-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('key-1').click(); });
+
 document.getElementById('key-2').addEventListener('click',function(){
-  var code=(document.getElementById('code').value||'').replace(/\s/g,'');
-  var err=document.getElementById('gate-err');
-  if(!picked){ err.hidden=false; err.textContent='Choose a hat first.'; return; }
-  if(code!=='407118'){ err.hidden=false; err.textContent='That is not the second key. Try once more.'; return; }
-  err.hidden=true;
+  if(!HOUSE.sess){ gateErr('gate-err2','Sign in again — the key has gone quiet.'); return; }
+  gateErr('gate-err2');
+  window.IVORY_HOUSE=HOUSE;   /* the rest of the studio reads the real session from here */
   open();
 });
+
 document.getElementById('lockDoor').addEventListener('click',function(){
   S.hat=null; S.room='desk'; S.wish=null;
   try{ sessionStorage.removeItem('ivory.studio.hat'); }catch(_){}
+  try{
+    if(window.IVORY_HOUSE&&IVORY_HOUSE.sess&&IVORY_HOUSE.sess.access_token){
+      fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':SBKEY,'Authorization':'Bearer '+IVORY_HOUSE.sess.access_token}}).catch(function(){});
+    }
+    IVORY_HOUSE.sess=null; IVORY_HOUSE.profile=null;
+    sessionStorage.removeItem('ivory.house');
+  }catch(_){}
+  try{ document.getElementById('gate-who').textContent='Opening…'; }catch(_){}
+  document.getElementById('s-email').value=''; document.getElementById('s-pass').value='';
   document.getElementById('studio').hidden=true;
   gate.classList.remove('gone'); gate1.hidden=false; gate2.hidden=true;
   document.getElementById('phrase').value=''; document.getElementById('code').value='';
@@ -550,6 +600,20 @@ document.getElementById('lockDoor').addEventListener('click',function(){
 
 function open(){
   S.hat=S.hat||picked||'admin';
+  try{
+    var b=document.getElementById('rehearsal');
+    if(!b){
+      b=document.createElement('div'); b.id='rehearsal';
+      b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:9999;'+
+        'max-width:520px;width:calc(100% - 28px);padding:9px 13px;border-radius:11px;'+
+        'background:rgba(255,247,226,.94);border:1px solid rgba(180,132,44,.5);color:#5C1226;'+
+        'font:12px/1.5 Georgia,serif;text-align:center;box-shadow:0 12px 30px -18px rgba(40,16,4,.8)';
+      b.innerHTML='<b>The door is real.</b> The books behind it are still the rehearsal set &mdash; '+
+        'the live surface is the first to be wired to the house.';
+      document.body.appendChild(b);
+      setTimeout(function(){ b.style.transition='opacity .6s'; b.style.opacity='0'; setTimeout(function(){ b.remove(); },700); },9000);
+    }
+  }catch(_){}
   try{ sessionStorage.setItem('ivory.studio.hat',S.hat); }catch(_){}
   if(!db.register.length){ write('opened the door','','first light'); save(); }
   gate.classList.add('gone');
