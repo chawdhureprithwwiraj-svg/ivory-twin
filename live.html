@@ -346,7 +346,14 @@
       allowed_tiers_in:[],
       guest_price_in:0
     };
-    call('/rest/v1/rpc/start_live_with_guests',body)
+    var open=function(payload){ return call('/rest/v1/rpc/start_live_with_guests',payload); };
+    open(body).catch(function(x){
+      /* a house that refuses the private shape still opens the public one; say so plainly */
+      if(!priv) throw x;
+      err('open-err','A private run-through was refused ('+x.message+'). Opening it to the house instead…');
+      return open({title_in:body.title_in, subtitle_in:null, access_in:'tier', min_tier_in:0,
+                   price_in:0, cover_in:null, allowed_tiers_in:[], guest_price_in:0});
+    })
       .then(function(res){
         var id=null;
         if(Array.isArray(res)&&res.length) id=res[0].id;
