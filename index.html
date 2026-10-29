@@ -8568,6 +8568,11 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 @keyframes riteStillBreath{0%,100%{opacity:.55}50%{opacity:1}}
 @media (prefers-reduced-motion: reduce){.rite-plate.no-film:after{animation:none;opacity:.8}}
 
+
+.lg-name{margin:12px 0 10px;padding:11px 13px;border-radius:10px;background:rgba(233,179,60,.13);
+  border:1px solid rgba(180,132,44,.30);display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.lg-name span{font-family:var(--f-ui);font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:#96703A}
+.lg-name b{font-family:var(--f-display);font-style:italic;font-size:16px;font-weight:700;color:#5C1226;letter-spacing:.005em}
 </style>
 </head>
 <body>
@@ -14166,6 +14171,7 @@ function sparkleAt(el){
           <p>Every complaint, question or legal notice reaches <b>a person, not a queue</b>. Write to the
             Grievance Officer named here and it is answered &mdash; there is no script and no ticket tree
             behind it.</p>
+          <p class="lg-name"><span>Grievance Officer</span><b>Indrani Chakraverty</b></p>
           <p class="lg-mail" id="lg-mail"></p>
           <div class="lg-clock">
             <div><u>48 hours</u><s>to acknowledge<br>your complaint</s></div>
@@ -14366,13 +14372,13 @@ function sparkleAt(el){
   var mailEl=document.getElementById('lg-mail');
   if(mailEl){
     if(MAIL.live){
-      mailEl.innerHTML='The Grievance Officer &middot; <a href="mailto:'+addr('officer')+'">'+addr('officer')+'</a>'+
+      mailEl.innerHTML='<a href="mailto:'+addr('officer')+'">'+addr('officer')+'</a>'+
         '<br>Payments and refunds &middot; <a href="mailto:'+addr('refunds')+'">'+addr('refunds')+'</a>'+
         '<br>Privacy and erasure &middot; <a href="mailto:'+addr('privacy')+'">'+addr('privacy')+'</a>';
     } else {
-      mailEl.innerHTML='The house mail is being set. Until the address below opens, the quiet door on your '+
-        'Profile page &mdash; <b>something&rsquo;s not right?</b> &mdash; reaches the same person, and the '+
-        'two clocks below still run from the moment you write.';
+      mailEl.innerHTML='Her address opens with the house mail. Until then the quiet door on your Profile '+
+        'page &mdash; <b>something&rsquo;s not right?</b> &mdash; reaches her, and the two clocks below '+
+        'still run from the moment you write.';
     }
   }
 
