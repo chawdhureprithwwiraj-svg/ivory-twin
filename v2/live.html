@@ -284,6 +284,81 @@
     return go();
   }
 
+
+  /* ============================================================
+     THE BEAUTY SEAM  ·  reserved, off by default
+     Everything the house publishes goes through one question:
+     the camera track, or a track drawn from a canvas we control?
+     A canvas can carry any filter we ever build — smoothing,
+     brightening, blush, a slimming warp, a change of iris — and
+     Agora never knows the difference. Today the canvas is a plain
+     mirror. When the filter arrives it is written inside render()
+     and nothing else in this page changes.
+     ============================================================ */
+  var IvoryBeauty=(function(){
+    var cv=document.createElement('canvas');
+    cv.width=720; cv.height=960;
+    var cx=cv.getContext('2d',{alpha:false});
+    var src=null, stream=null, track=null, running=false, raf=0;
+    var cfg={enabled:false, smooth:0, brighten:0, blush:0, slim:0, iris:null};
+
+    function size(){
+      var w=src.videoWidth||0, h=src.videoHeight||0;
+      if(w&&h&&(cv.width!==w||cv.height!==h)){ cv.width=w; cv.height=h; }
+    }
+    /* the only place a filter will ever be written */
+    function render(){
+      if(!src||!src.videoWidth) return;
+      size();
+      cx.save();
+      /* the seam: a mirrored frame, and, later, the passes in order —
+         smooth (edge-preserving blur masked to skin) → brighten (lifted
+         midtones, untouched highlights) → blush (two soft rose gradients
+         where the landmarks say the cheeks are) → slim (a horizontal
+         pinch between cheekbones) → iris (a coloured ring inside the
+         eye landmarks). All five are uniforms on one shader. */
+      cx.translate(cv.width,0); cx.scale(-1,1);
+      if(cfg.enabled && cfg.brighten>0){ cx.filter='brightness('+(1+cfg.brighten*0.22).toFixed(3)+') saturate('+(1+cfg.blush*0.06).toFixed(3)+')'; }
+      cx.drawImage(src,0,0,cv.width,cv.height);
+      cx.restore();
+      if(cfg.enabled && cfg.blush>0){
+        var g=cx.createRadialGradient(cv.width*0.30,cv.height*0.56,2,cv.width*0.30,cv.height*0.56,cv.width*0.16);
+        g.addColorStop(0,'rgba(226,96,110,'+(0.10*cfg.blush).toFixed(3)+')');
+        g.addColorStop(1,'rgba(226,96,110,0)');
+        cx.fillStyle=g; cx.fillRect(0,0,cv.width,cv.height);
+        var g2=cx.createRadialGradient(cv.width*0.70,cv.height*0.56,2,cv.width*0.70,cv.height*0.56,cv.width*0.16);
+        g2.addColorStop(0,'rgba(226,96,110,'+(0.10*cfg.blush).toFixed(3)+')');
+        g2.addColorStop(1,'rgba(226,96,110,0)');
+        cx.fillStyle=g2; cx.fillRect(0,0,cv.width,cv.height);
+      }
+    }
+    function loop(){ if(!running) return; render(); raf=requestAnimationFrame(loop); }
+
+    function start(videoEl){
+      src=videoEl||src;
+      if(!src) return null;
+      if(!stream){
+        stream=cv.captureStream ? cv.captureStream(30) : null;
+        if(!stream) return null;
+        track=stream.getVideoTracks()[0]||null;
+      }
+      if(!running){ running=true; loop(); }
+      return track;
+    }
+    function stop(){
+      running=false; if(raf) cancelAnimationFrame(raf); raf=0;
+      try{ if(track) track.stop(); }catch(e){}
+      try{ if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); } }catch(e){}
+      stream=null; track=null;
+    }
+    function set(o){ for(var k in o){ if(k in cfg) cfg[k]=o[k]; } if(cfg.enabled && src) start(src); return cfg; }
+    function state(){ var c={}; for(var k in cfg) c[k]=cfg[k]; return c; }
+
+    return { start:start, stop:stop, set:set, state:state, config:cfg,
+             canvas:cv, enabled:function(){ return !!cfg.enabled; } };
+  })();
+  window.IvoryBeauty=IvoryBeauty;
+
   /* ---------- 1 · the door ---------- */
   $('signin').addEventListener('click',function(){
     var e=$('email').value.trim(), p=$('pass').value;
@@ -335,6 +410,9 @@
   /* ---------- 3 · open the broadcast ---------- */
   $('golive').addEventListener('click',function(){
     var b=this; err('open-err'); b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    if(window.IvoryBeauty && IvoryBeauty.enabled() && !$('pv').srcObject){
+      camUp().catch(function(x){ err('open-err','The camera did not open: '+(x.message||x)); });
+    }
     var title=($('title').value||'').trim()||'A word after dark';
     var priv=$('who').value==='private';
     var body={
@@ -410,10 +488,16 @@
         $('st-room').textContent=String(tk.channel||'').slice(-10);
         var camOpt={encoderConfig:'480p_1'};
         if(S.camId) camOpt.cameraId=S.camId;
-        return Promise.all([
-          AgoraRTC.createCameraVideoTrack(camOpt),
-          AgoraRTC.createMicrophoneAudioTrack()
-        ]);
+        /* the seam: a filtered canvas track if the house has asked for one, the bare camera if not */
+        var picture;
+        if(window.IvoryBeauty && IvoryBeauty.enabled()){
+          var mt=IvoryBeauty.start($('pv'));
+          picture = mt ? AgoraRTC.createCustomVideoTrack({mediaStreamTrack:mt})
+                       : AgoraRTC.createCameraVideoTrack(camOpt);
+        } else {
+          picture = AgoraRTC.createCameraVideoTrack(camOpt);
+        }
+        return Promise.all([picture, AgoraRTC.createMicrophoneAudioTrack()]);
       })
       .then(function(tr){
         S.cam=tr[0]; S.mic=tr[1];
