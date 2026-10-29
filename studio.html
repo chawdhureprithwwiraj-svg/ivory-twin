@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Ivory · The Back of House</title>
+<style>
+/* ============================================================
+   IVORY · THE BACK OF HOUSE
+   One door, three keys, one seal. Pass 29: the studio shell
+   and the Post Room's wish queue, closing its loop once.
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --paper:#F6F1E6; --paper-2:#FBF7EC; --paper-3:#FFFDF7;
+  --ink:#241608; --ink-2:#4A3520; --ink-3:#7B6A52;
+  --brass:#A2741F; --brass-d:#8A5E10; --brass-l:#C8972A;
+  --wine:#5C1120; --wax:#8E1230; --baize:#1F3B33; --baize-2:#16302A;
+  --leaf:#3F6B4A; --wax-l:#A8213C;
+  --hair:rgba(90,64,30,.20); --hair-soft:rgba(90,64,30,.11);
+  --f-display:Georgia,'Times New Roman',serif;
+  --f-body:Georgia,'Times New Roman',serif;
+  --f-ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --e:cubic-bezier(.22,.61,.36,1);
+}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- the door ---------- */
+#gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px;
+  background:
+    radial-gradient(90% 70% at 50% -20%,#FFFDF7 0%,rgba(255,253,247,0) 62%),
+    radial-gradient(70% 60% at 50% 118%,rgba(162,116,31,.10),rgba(162,116,31,0) 62%),
+    repeating-linear-gradient(0deg,rgba(120,86,36,.030) 0 1px,rgba(120,86,36,0) 1px 4px),
+    linear-gradient(180deg,#FBF6E9,#F4EBD8 58%,#EFE4CE)}
+#gate::after{content:"";position:absolute;inset:14px;pointer-events:none;border-radius:2px;
+  box-shadow:inset 0 0 0 1px rgba(162,116,31,.20)}
+#gate.gone{display:none}
+.gate-plate{width:100%;max-width:420px;text-align:center;color:var(--ink);
+  padding:34px 28px 30px;border-radius:3px;
+  background:linear-gradient(180deg,#FFFDF8,#FCF6E8);
+  box-shadow:inset 0 0 0 1px rgba(162,116,31,.30),inset 0 1px 0 #fff,0 26px 54px -40px rgba(84,52,14,.42)}
+.gate-word{font:italic 400 34px/1 var(--f-display);letter-spacing:.14em;color:var(--brass-d)}
+.gate-k{margin:16px 0 0;font:700 8.4px/1 var(--f-ui);letter-spacing:.32em;text-transform:uppercase;color:#A7936B}
+.gate-h{margin:14px 0 0;font:400 17px/1.4 var(--f-display);color:var(--ink)}
+.gate-c{margin:9px auto 0;max-width:30ch;font:italic 400 12px/1.6 var(--f-body);color:#8A6A4C}
+.gate-field{margin:22px 0 0}
+.gate-field label{display:block;margin:0 0 7px;font:700 8px/1 var(--f-ui);letter-spacing:.26em;
+  text-transform:uppercase;color:#8A6A4C;text-align:left}
+.gate-input{width:100%;padding:13px 14px;border:0;border-radius:2px;background:#FFFDF7;
+  color:var(--ink);font:400 15px/1 var(--f-display);letter-spacing:.06em;
+  box-shadow:inset 0 0 0 1px rgba(162,116,31,.30)}
+.gate-input:focus{outline:0;box-shadow:inset 0 0 0 1px rgba(162,116,31,.7),0 0 0 3px rgba(200,146,50,.20)}
+.gate-input::placeholder{color:#A89880}
+.gate-btn{width:100%;margin-top:14px;min-height:48px;border:0;border-radius:2px;cursor:pointer;
+  font:700 10px/1 var(--f-ui);letter-spacing:.26em;text-transform:uppercase;color:#2A1608;
+  background:linear-gradient(180deg,#F7E2AE,#EBC873 45%,#D9A648);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 12px 24px -18px #000}
+.gate-btn:hover{filter:brightness(1.04)}
+.gate-btn.wax{color:#3B2410;background:linear-gradient(180deg,#F9DFC1,#EFC193 44%,#DFA26B);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 0 0 1px rgba(150,96,44,.45),
+    0 12px 22px -18px rgba(120,70,30,.6)}
+.gate-btn.wax:hover{filter:brightness(1.03)}
+.gate-fine{margin:13px 0 0;font:400 9.4px/1.5 var(--f-ui);letter-spacing:.06em;color:#8A6A4C}
+.gate-err{margin:11px 0 0;font:400 11.6px/1.5 var(--f-body);color:var(--wine)}
+.gate-err[hidden]{display:none}
+.hats{display:grid;gap:8px;margin:20px 0 0}
+.hat{display:flex;align-items:center;gap:12px;padding:12px 13px;cursor:pointer;text-align:left;
+  border:0;border-radius:2px;background:#FFFDF7;
+  box-shadow:inset 0 0 0 1px rgba(162,116,31,.22);transition:background .25s var(--e),box-shadow .25s var(--e)}
+.hat:hover{background:#FFFAEE}
+.hat.on{background:#FFF8E8;box-shadow:inset 0 0 0 1.4px rgba(162,116,31,.62),inset 3px 0 0 var(--brass)}
+.hat .keys{display:inline-flex;gap:3px;flex:0 0 auto}
+.hat .c{width:11px;height:11px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 38% 28%,#FFF3CE,#EDC875 56%,#D19E3C);
+  box-shadow:inset 0 0 0 .7px rgba(120,78,10,.4)}
+.hat .c::after{content:"";position:absolute;left:50%;top:47%;width:2.2px;height:4.4px;
+  transform:translateX(-50%);background:#8A5E10;border-radius:1px}
+.hat .c.off{background:transparent;box-shadow:inset 0 0 0 1px rgba(162,116,31,.45)}
+.hat .c.off::after{display:none}
+.hat b{display:block;font:400 14px/1.2 var(--f-display);color:var(--ink)}
+.hat i{display:block;margin-top:3px;font:400 9.6px/1.4 var(--f-ui);letter-spacing:.04em;color:#8A6A4C;font-style:normal}
+
+/* ---------- the bar ---------- */
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;
+  padding:11px 22px;background:rgba(246,241,230,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--hair)}
+.word{font:italic 400 17px/1 var(--f-display);letter-spacing:.1em;color:var(--wine)}
+.room-tag{font:700 8.6px/1 var(--f-ui);letter-spacing:.28em;text-transform:uppercase;color:var(--brass-d)}
+.sp{flex:1 1 auto}
+.pal{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:0;border-radius:2px;cursor:pointer;
+  background:var(--paper-3);box-shadow:inset 0 0 0 1px var(--hair);
+  font:400 9.8px/1 var(--f-ui);color:var(--ink-3)}
+.pal b{font-weight:400;color:var(--ink-2)}
+.pal i{font-style:normal;letter-spacing:.02em}
+.crest{display:inline-flex;align-items:center;gap:3.5px}
+.crest .c{position:relative;display:inline-block;width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 38% 28%,#FFF3CE,#EDC875 56%,#D19E3C);
+  box-shadow:inset 0 0 0 .8px rgba(120,78,10,.42)}
+.crest .c::after{content:"";position:absolute;left:50%;top:47%;width:2.5px;height:5.2px;
+  transform:translateX(-50%);background:#8A5E10;border-radius:1px}
+.crest .c.off{background:#FFFDF8;box-shadow:inset 0 0 0 1px rgba(90,64,30,.28)}
+.crest .c.off::after{background:rgba(90,64,30,.22)}
+.who{font:400 10px/1 var(--f-ui);color:var(--ink-2);letter-spacing:.02em;white-space:nowrap}
+.lock{width:26px;height:26px;border:0;background:none;cursor:pointer;color:var(--ink-3);
+  display:grid;place-items:center;border-radius:2px}
+.lock:hover{color:var(--wine)}
+
+/* ---------- the shell ---------- */
+.shell{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:calc(100vh - 47px)}
+.rail{border-right:1px solid var(--hair);padding:18px 0 40px;background:var(--paper-2)}
+.rail .lbl{padding:0 18px;margin:0 0 9px;font:700 7.8px/1 var(--f-ui);letter-spacing:.3em;
+  text-transform:uppercase;color:var(--ink-3)}
+.rail a{display:flex;align-items:baseline;gap:9px;padding:9px 18px;text-decoration:none;
+  font:400 12.6px/1.3 var(--f-body);color:var(--ink-2);border-left:2px solid transparent}
+.rail a span{font:400 9.6px/1 var(--f-ui);color:var(--ink-3);letter-spacing:.04em}
+.rail a:hover{background:rgba(162,116,31,.06);color:var(--ink)}
+.rail a.on{background:#FFFDF7;border-left-color:var(--brass-d);color:var(--ink);
+  box-shadow:inset 0 1px 0 var(--hair-soft),inset 0 -1px 0 var(--hair-soft)}
+.rail a.on span{color:var(--brass-d)}
+.rail .sep{height:1px;margin:14px 18px;background:var(--hair-soft)}
+.rail .absent{padding:9px 18px;font:italic 400 10.6px/1.5 var(--f-body);color:#9C8A6A}
+
+.main{padding:26px 30px 70px;max-width:1240px}
+.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.head h1{margin:0;font:400 30px/1.15 var(--f-display);color:var(--ink);letter-spacing:.01em}
+.head .when{font:400 10.4px/1 var(--f-ui);color:var(--ink-3);letter-spacing:.08em}
+.head .sp{flex:1 1 auto}
+.head .state{font:400 10px/1 var(--f-ui);letter-spacing:.14em;text-transform:lowercase;color:var(--ink-3)}
+.lede{margin:9px 0 0;max-width:62ch;font:italic 400 13px/1.6 var(--f-body);color:var(--ink-2)}
+
+.figs{display:grid;grid-template-columns:repeat(4,1fr);margin:22px 0 0;border-top:1px solid var(--hair);
+  border-bottom:1px solid var(--hair)}
+.fig{padding:15px 18px;border-right:1px solid var(--hair-soft)}
+.fig:last-child{border-right:0}
+.fig b{display:block;font:400 26px/1 var(--f-display);letter-spacing:-.01em;color:var(--ink)}
+.fig i{display:block;margin-top:7px;font:700 7.8px/1 var(--f-ui);letter-spacing:.26em;
+  text-transform:uppercase;color:var(--brass-d);font-style:normal}
+.fig small{display:block;margin-top:6px;font:400 10px/1.3 var(--f-ui);color:var(--ink-3)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:26px;margin:24px 0 0}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin:0 0 4px}
+.sec-h h2{margin:0;font:700 8.6px/1 var(--f-ui);letter-spacing:.3em;text-transform:uppercase;color:var(--brass-d)}
+.sec-h .n{font:400 10px/1 var(--f-ui);color:var(--ink-3)}
+.sec-h .sp{flex:1 1 auto}
+.sec-h .more{font:400 10px/1 var(--f-ui);color:var(--brass-d);text-decoration:none;letter-spacing:.04em}
+.sec-h .more:hover{text-decoration:underline}
+
+.queue{margin:8px 0 0;border-top:1px solid var(--hair)}
+.qrow{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid var(--hair-soft);
+  text-decoration:none;color:inherit}
+.qrow:hover{background:rgba(162,116,31,.045)}
+.qmark{flex:0 0 auto;width:15px;height:15px;margin-top:3px;color:var(--brass-d)}
+.qb{flex:1 1 auto;min-width:0}
+.qref{font:400 10.4px/1 var(--f-ui);letter-spacing:.04em;color:var(--ink)}
+.qname{display:block;margin-top:5px;font:400 15px/1.25 var(--f-display);color:var(--ink)}
+.qdesc{margin:4px 0 0;font:italic 400 11.6px/1.5 var(--f-body);color:var(--ink-3);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.qmeta{flex:0 0 auto;text-align:right}
+.qage{display:block;font:400 9.8px/1 var(--f-ui);color:var(--ink-3)}
+.qact{display:block;margin-top:6px;font:700 7.6px/1 var(--f-ui);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--brass-d)}
+.qchev{margin-top:7px;width:22px;height:22px;margin-left:auto;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px var(--hair);border-radius:2px;color:var(--ink-3)}
+
+.baize{background:linear-gradient(180deg,#FFFCF3,#FAF0DA);color:var(--ink);padding:16px 18px 14px;border-radius:2px;
+  box-shadow:inset 0 0 0 1px rgba(162,116,31,.34),inset 3px 0 0 var(--brass),0 14px 30px -26px rgba(84,52,14,.5)}
+.baize h3{margin:0 0 10px;font:700 7.8px/1 var(--f-ui);letter-spacing:.3em;text-transform:uppercase;color:var(--brass-d)}
+.baize dl{display:grid;grid-template-columns:1fr auto;gap:9px 10px;margin:0;font:400 11.6px/1.3 var(--f-body)}
+.baize dt{color:#8A6A4C}
+.baize dd{margin:0;font:400 12px/1 var(--f-ui);color:var(--ink);font-variant-numeric:tabular-nums}
+.baize .fine{margin:12px 0 0;padding-top:11px;border-top:1px solid rgba(90,64,30,.16);
+  font:italic 400 10.6px/1.5 var(--f-body);color:#8A6A4C}
+
+/* ---------- the register ---------- */
+.reg{width:100%;border-collapse:collapse;margin-top:8px}
+.reg th{font:700 7.6px/1 var(--f-ui);letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);
+  text-align:left;padding:0 0 9px;border-bottom:1px solid var(--hair)}
+.reg th.r{text-align:right}
+.reg td{padding:10px 0;border-bottom:1px solid var(--hair-soft);font:400 12px/1.35 var(--f-body);color:var(--ink-2)}
+.reg td.t{font:400 10.2px/1 var(--f-ui);color:var(--ink-3);white-space:nowrap;padding-right:10px}
+.reg td.hand{font:400 10.6px/1 var(--f-ui);color:var(--ink);white-space:nowrap;padding-right:12px}
+.reg td.ref{font:400 10.2px/1 var(--f-ui);color:var(--ink-3);text-align:right;white-space:nowrap}
+.reg td .st{font:400 10.2px/1 var(--f-ui);color:var(--brass-d);letter-spacing:.04em}
+.reg-note{margin:12px 0 0;font:italic 400 11px/1.55 var(--f-body);color:#8A6A4C}
+.empty{padding:26px 2px;border-bottom:1px solid var(--hair-soft);font:italic 400 12.4px/1.6 var(--f-body);color:#8A6A4C}
+
+/* ---------- the post room ---------- */
+.post{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:0;
+  margin:20px 0 0;border-top:1px solid var(--hair)}
+.wlist{max-height:calc(100vh - 210px);overflow:auto;border-right:1px solid var(--hair-soft)}
+.wrow{display:block;width:100%;text-align:left;padding:13px 16px 13px 4px;border:0;background:none;
+  border-bottom:1px solid var(--hair-soft);cursor:pointer;position:relative}
+.wrow:hover{background:rgba(162,116,31,.05)}
+.wrow.on{background:#FFFDF7;box-shadow:inset 2px 0 0 var(--brass-d)}
+.wrow .r{display:flex;align-items:baseline;gap:8px}
+.wrow .r b{font:400 10.2px/1 var(--f-ui);color:var(--ink);letter-spacing:.03em;font-weight:400}
+.wrow .r .age{margin-left:auto;font:400 9.4px/1 var(--f-ui);color:var(--ink-3)}
+.wrow h4{margin:6px 0 0;font:400 15px/1.25 var(--f-display);color:var(--ink)}
+.wrow p{margin:4px 0 0;font:italic 400 11.4px/1.5 var(--f-body);color:var(--ink-3);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.chip{display:inline-block;margin-top:7px;padding:4px 7px;border-radius:1px;
+  font:700 7.4px/1 var(--f-ui);letter-spacing:.18em;text-transform:uppercase;
+  box-shadow:inset 0 0 0 1px var(--hair);color:var(--ink-3)}
+.chip.received{color:var(--brass-d);box-shadow:inset 0 0 0 1px rgba(162,116,31,.4)}
+.chip.priced{color:var(--wine);box-shadow:inset 0 0 0 1px rgba(92,17,32,.3)}
+.chip.accepted{color:var(--leaf);box-shadow:inset 0 0 0 1px rgba(63,107,74,.4)}
+.chip.roomed{color:#FFF6DA;background:var(--leaf);box-shadow:none}
+.chip.declined{color:#8A6A4C;box-shadow:inset 0 0 0 1px rgba(138,106,76,.3)}
+
+.wdetail{padding:2px 0 0 22px;min-width:0}
+.wd-k{font:700 8.2px/1 var(--f-ui);letter-spacing:.28em;text-transform:uppercase;color:var(--brass-d)}
+.wd-h{margin:11px 0 0;font:400 25px/1.2 var(--f-display);color:var(--ink)}
+.wd-body{margin:12px 0 0;padding:14px 16px;background:var(--paper-3);border-radius:2px;
+  box-shadow:inset 0 0 0 1px var(--hair);
+  font:400 13.2px/1.72 var(--f-body);color:var(--ink-2)}
+.wd-body::before{content:"“";}
+.wd-body::after{content:"”";}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:14px 0 0;
+  padding:12px 0 0;border-top:1px solid var(--hair)}
+.kv dt{font:400 10px/1.4 var(--f-ui);color:var(--ink-3);letter-spacing:.04em}
+.kv dd{margin:0;font:400 11.4px/1.4 var(--f-ui);color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.kv dd.gold{color:var(--brass-d)}
+
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:16px 0 0;border-top:1px solid var(--hair)}
+.btn{padding:11px 15px;border:0;border-radius:2px;cursor:pointer;
+  font:700 9px/1 var(--f-ui);letter-spacing:.2em;text-transform:uppercase;
+  background:var(--paper-3);color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair)}
+.btn:hover{box-shadow:inset 0 0 0 1px rgba(150,101,18,.42)}
+.btn.wax{color:#3B2410;background:linear-gradient(180deg,#F9DFC1,#EFC193 44%,#DFA26B);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.82),inset 0 0 0 1px rgba(150,96,44,.42),
+    0 10px 20px -16px rgba(120,70,30,.55)}
+.btn.brass{color:#2A1608;background:linear-gradient(180deg,#F7E2AE,#EBC873 45%,#D9A648);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.quiet{background:none;box-shadow:none;color:var(--ink-3);padding-left:6px;padding-right:6px}
+.btn.quiet:hover{color:var(--wine);box-shadow:none}
+.act-note{margin:11px 0 0;font:italic 400 11.2px/1.5 var(--f-body);color:#8A6A4C}
+.acts .act-note{flex:1 1 100%}
+
+.form{margin:14px 0 0;padding:14px 16px;background:linear-gradient(178deg,#FFFDF7,#FBF2E1);
+  border-radius:2px;box-shadow:inset 0 0 0 1px var(--hair)}
+.form h4{margin:0;font:700 8px/1 var(--f-ui);letter-spacing:.26em;text-transform:uppercase;color:var(--brass-d)}
+.frow{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0;align-items:flex-end}
+.fld{flex:1 1 120px;min-width:0}
+.fld label{display:block;margin:0 0 6px;font:400 9.4px/1 var(--f-ui);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.fld input,.fld select{width:100%;padding:9px 10px;border:0;border-radius:2px;background:var(--paper-3);
+  box-shadow:inset 0 0 0 1px var(--hair);font:400 13px/1 var(--f-display);color:var(--ink)}
+.fld input:focus,.fld select:focus{outline:0;box-shadow:inset 0 0 0 1.4px rgba(150,101,18,.6)}
+.fld .hint{margin:6px 0 0;font:400 9.6px/1.4 var(--f-ui);color:var(--ink-3)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{padding:8px 11px;border:0;border-radius:2px;cursor:pointer;background:var(--paper-3);
+  box-shadow:inset 0 0 0 1px var(--hair);font:400 11.4px/1 var(--f-display);color:var(--ink-2)}
+.seg button.on{box-shadow:inset 0 0 0 1.4px rgba(150,101,18,.66);color:var(--ink);
+  background:linear-gradient(178deg,#FFFDF4,#FAEED8)}
+.form .end{display:flex;gap:8px;margin:14px 0 0}
+.letter{margin:14px 0 0;padding:12px 14px;border-left:2px solid rgba(162,116,31,.4);
+  font:italic 400 11.8px/1.6 var(--f-body);color:var(--ink-2);background:rgba(162,116,31,.05)}
+.trail-k{margin:26px 0 0;font:400 9.2px/1 var(--f-ui);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+.letter.pending{background:rgba(92,17,32,.055);border-left-color:rgba(92,17,32,.5)}
+.letter.pending b{color:var(--wine)}
+.letter b{display:block;font:700 7.6px/1 var(--f-ui);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--brass-d);font-style:normal;margin-bottom:7px}
+
+/* ---------- not yet built ---------- */
+.soon{max-width:58ch;margin:26px 0 0;padding:22px 22px 20px;background:var(--paper-3);
+  border-radius:2px;box-shadow:inset 0 0 0 1px var(--hair)}
+.soon h3{margin:0;font:400 20px/1.3 var(--f-display);color:var(--ink)}
+.soon p{margin:9px 0 0;font:italic 400 12px/1.65 var(--f-body);color:var(--ink-2)}
+.soon ul{margin:12px 0 0;padding:0 0 0 16px;font:400 12px/1.8 var(--f-body);color:var(--ink-2)}
+.soon .k{margin:0 0 9px;font:700 8px/1 var(--f-ui);letter-spacing:.28em;text-transform:uppercase;color:var(--brass-d)}
+
+/* ---------- the palette ---------- */
+#pal{position:fixed;inset:0;z-index:50;display:none;background:rgba(24,14,6,.34);backdrop-filter:blur(3px)}
+#pal.on{display:block}
+.pal-plate{width:min(560px,calc(100vw - 32px));margin:12vh auto 0;background:var(--paper-3);
+  border-radius:3px;box-shadow:0 40px 80px -40px rgba(20,10,0,.7),inset 0 0 0 1px var(--hair)}
+.pal-plate input{width:100%;padding:16px 18px;border:0;border-bottom:1px solid var(--hair);
+  background:none;font:400 17px/1 var(--f-display);color:var(--ink)}
+.pal-plate input:focus{outline:0}
+.pal-list{max-height:46vh;overflow:auto;padding:6px 0}
+.pal-item{display:flex;align-items:baseline;gap:10px;width:100%;padding:10px 18px;border:0;background:none;
+  cursor:pointer;text-align:left;font:400 13px/1.3 var(--f-body);color:var(--ink)}
+.pal-item.on{background:rgba(162,116,31,.09)}
+.pal-item i{margin-left:auto;font:400 9.4px/1 var(--f-ui);color:var(--ink-3);font-style:normal}
+
+@media (max-width:1080px){
+  .cols{grid-template-columns:1fr}
+  .post{grid-template-columns:1fr}
+  .wlist{max-height:none;border-right:0;border-bottom:1px solid var(--hair-soft)}
+  .wdetail{padding:20px 0 0}
+  .figs{grid-template-columns:repeat(2,1fr)}
+  .fig:nth-child(2){border-right:0}
+  .fig:nth-child(3),.fig:nth-child(4){border-top:1px solid var(--hair-soft)}
+  .fig:nth-child(3){border-right:1px solid var(--hair-soft)}
+}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr}
+  .rail{display:flex;gap:2px;overflow-x:auto;padding:8px 10px;border-right:0;
+    border-bottom:1px solid var(--hair);scrollbar-width:none}
+  .rail .lbl,.rail .sep,.rail .absent{display:none}
+  .rail a{flex:0 0 auto;border-left:0;border-bottom:2px solid transparent;padding:8px 12px;white-space:nowrap}
+  .rail a.on{border-left:0;border-bottom-color:var(--brass-d);box-shadow:none}
+  .main{padding:20px 16px 60px}
+  .head h1{font-size:24px}
+  .bar{padding:9px 14px;gap:10px}
+  .pal i{display:none}
+  .who{display:none}
+  .room-tag{max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8.4px}
+  .word{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============================ THE DOOR ============================ -->
+<section id="gate" aria-label="The back door">
+  <div class="gate-plate">
+    <div class="gate-word">IVORY</div>
+    <p class="gate-k">The back of house</p>
+    <p class="gate-h">One door. Three keys. One seal.</p>
+    <p class="gate-c">The studio is a different house from the member's — same gold, same wine, none of the ceremony.</p>
+
+    <div id="gate-1">
+      <div class="gate-field">
+        <label for="s-email">The house account</label>
+        <input class="gate-input" id="s-email" type="email" autocomplete="username" inputmode="email" placeholder="you@…">
+      </div>
+      <div class="gate-field">
+        <label for="s-pass">Its key</label>
+        <input class="gate-input" id="s-pass" type="password" autocomplete="current-password" placeholder="your password">
+      </div>
+      <button class="gate-btn" id="key-1">Turn the key</button>
+      <p class="gate-fine">The lock is the house account itself &mdash; the same one that runs the app. Only a house key opens it.</p>
+      <p class="gate-err" id="gate-err" hidden></p>
+    </div>
+
+    <div id="gate-2" hidden>
+      <div class="hats" id="hats"></div>
+      <button class="gate-btn wax" id="key-2">Open the door</button>
+      <p class="gate-fine" id="gate-who">Opening…</p>
+      <p class="gate-err" id="gate-err2" hidden></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ THE STUDIO ============================ -->
+<div id="studio" hidden>
+  <header class="bar">
+    <span class="word">Ivory</span>
+    <span class="room-tag" id="roomTag">The Morning Desk</span>
+    <span class="sp"></span>
+    <button class="pal" id="palBtn"><b>&#8984;K</b> <i>a wish, a room, an act</i></button>
+    <span class="crest" id="crest" aria-hidden="true"></span>
+    <span class="who" id="who">Ivory Admin</span>
+    <button class="lock" id="lockDoor" title="Lock the door" aria-label="Lock the door">
+      <svg viewBox="0 0 24 24" width="15" height="15"><rect x="5" y="10.6" width="14" height="9.4" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 10.6V8.2a3.8 3.8 0 017.6 0v2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+
+  <div class="shell">
+    <nav class="rail" id="rail" aria-label="Rooms"></nav>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<div id="pal" role="dialog" aria-modal="true" aria-label="Jump">
+  <div class="pal-plate">
+    <input id="palInput" type="text" placeholder="a wish, a room, an act…" autocomplete="off">
+    <div class="pal-list" id="palList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1 · THE LEDGER — the same shelf the member house reads
+   ============================================================ */
+var KEY='ivory.ledger.v1', VERSION=1;
+var WINDOWS=[{k:'m',label:'Morning',h:11,m:37},{k:'a',label:'Afternoon',h:16,m:37},{k:'e',label:'Evening',h:20,m:7}];
+var PRICE={video:{30:2999,45:3999,60:4999},audio:{30:1499,45:1999,60:2499}};
+var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function blank(){
+  return {v:VERSION,member:{name:'Ivory Probe',tier:'Guest',since:Date.now()},
+    purse:0,fortunes:[],spins:{},gifts:{},wishes:[],inboxRead:[],prefs:{},seq:1040,
+    sessions:[],minutes:{period:'',video:0,audio:0},purchases:[],letters:[],register:[]};
+}
+function load(){
+  var o=null;
+  try{ var raw=localStorage.getItem(KEY); if(raw){ var p=JSON.parse(raw); if(p&&p.v===VERSION) o=p; } }catch(_){}
+  if(!o) o=blank();
+  if(!o.wishes)o.wishes=[]; if(!o.sessions)o.sessions=[]; if(!o.purchases)o.purchases=[];
+  if(!o.letters)o.letters=[]; if(!o.register)o.register=[]; if(!o.gifts)o.gifts={};
+  if(!o.fortunes)o.fortunes=[]; if(!o.minutes)o.minutes={period:'',video:0,audio:0};
+  if(!o.member)o.member={name:'Ivory Probe',tier:'Guest',since:Date.now()};
+  if(typeof o.seq!=='number')o.seq=1040;
+  return o;
+}
+var db=load();
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(_){}
+  try{ window.dispatchEvent(new CustomEvent('ivory:ledger',{detail:{}})); }catch(_){}
+}
+
+/* ============================================================
+   2 · SMALL LANGUAGE
+   ============================================================ */
+function money(n){ return '\u20B9'+Number(n||0).toLocaleString('en-IN'); }
+function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ago(t){
+  var s=Math.max(0,Math.round((Date.now()-(t||Date.now()))/1000));
+  if(s<90) return 'just now';
+  var m=Math.round(s/60); if(m<60) return m+' m';
+  var h=Math.round(m/60); if(h<24) return h+' h';
+  var d=Math.round(h/24); return d+' d';
+}
+function clock(t){ var d=new Date(t||Date.now());
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function today(){ var d=new Date(); return d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3).toUpperCase(); }
+function iso(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+
+/* ============================================================
+   3 · THE THREE KEYS
+   ============================================================ */
+var HATS={
+  ivory:{id:'ivory',label:'Ivory',keys:3,
+    note:'Every act, and the four that are only yours.',
+    rooms:['desk','post','money','press','season','members','instruments','register','keys','house'],
+    acts:{price:1,accept:1,decline:1,room:1,answer:1,money:1}},
+  admin:{id:'admin',label:'Ivory Admin',keys:2,
+    note:'Everything the app\u2019s console holds, but for the second key.',
+    rooms:['desk','post','money','press','season','members','instruments','register'],
+    acts:{price:1,accept:1,decline:1,room:1,answer:1,money:1}},
+  sub:{id:'sub',label:'Ivory Sub-Admin',keys:1,
+    note:'Replies, confirmations, drafts. No money, no prices.',
+    rooms:['desk','post','members','press'],
+    acts:{room:1,answer:1}}
+};
+var ROOMS=[
+  {id:'desk',n:'01',name:'The Morning Desk',built:true},
+  {id:'post',n:'02',name:'The Post Room',built:true},
+  {id:'money',n:'03',name:'Counting House',built:false,
+    soon:'The bills, the proofs, the refunds, the dials.',plan:'Pass 30'},
+  {id:'press',n:'04',name:'The Press',built:false,
+    soon:'Pieces, letters and the letter of the day.',plan:'Pass 31'},
+  {id:'season',n:'05',name:'The Season',built:false,
+    soon:'The calendar of the house and its rooms.',plan:'Pass 32'},
+  {id:'members',n:'06',name:'Book of Members',built:false,
+    soon:'Every folio, its events and its private notes.',plan:'Pass 32'},
+  {id:'instruments',n:'07',name:'The Instruments',built:false,
+    soon:'The wheel, the bells, the tiers and their dials.',plan:'Pass 32'},
+  {id:'register',n:'08',name:'The Register',built:true},
+  {id:'keys',n:'09',name:'The Keys',built:false,
+    soon:'People, hats, devices, and who may do what.',plan:'Pass 33'},
+  {id:'house',n:'10',name:'The House',built:false,
+    soon:'Its name, its hours, its closing.',plan:'Pass 33'}
+];
+
+var S={hat:null,room:'desk',wish:null,form:null,query:''};
+
+/* the acts, each one writing a line the Register cannot lose */
+function write(act,ref,note){
+  var hand=(S.hat&&HATS[S.hat])?HATS[S.hat].label:'the house';
+  db.register.unshift({at:Date.now(),hand:hand,act:act,ref:ref||'',note:note||''});
+  if(db.register.length>400) db.register.length=400;
+}
+function letter(subject,body,from,ref){
+  db.letters.unshift({at:Date.now(),from:from||'A note from the house',subject:subject,body:body,read:false,ref:ref||''});
+  if(db.letters.length>60) db.letters.length=60;
+}
+
+/* ============================================================
+   4 · THE DESK ACCOUNTS
+   ============================================================ */
+function wishById(ref){ for(var i=0;i<db.wishes.length;i++) if(db.wishes[i].ref===ref) return db.wishes[i]; return null; }
+function waiting(){ return db.wishes.filter(function(w){ return w.status==='received'||w.status==='priced'; }); }
+function heldRooms(){ return db.sessions.filter(function(s){ return s.status==='held'; }); }
+function settledToday(){
+  var d0=new Date(); d0.setHours(0,0,0,0);
+  return db.purchases.reduce(function(a,p){ return a+(p.at>=d0.getTime()?(+p.price||0):0); },0);
+}
+function myLines(){ return db.register.filter(function(r){ return r.hand===HATS[S.hat].label; }); }
+
+/* ============================================================
+   5 · THE DOOR
+   ============================================================ */
+var gate=document.getElementById('gate');
+var gate1=document.getElementById('gate-1'), gate2=document.getElementById('gate-2');
+var picked=null;
+
+function paintHats(){
+  var host=document.getElementById('hats'); host.innerHTML='';
+  ['ivory','admin','sub'].forEach(function(id){
+    var h=HATS[id];
+    var b=document.createElement('button');
+    b.type='button'; b.className='hat'+(picked===id?' on':'');
+    b.setAttribute('aria-pressed',picked===id?'true':'false');
+    var keys=''; for(var i=0;i<3;i++) keys+='<span class="c'+(i<h.keys?'':' off')+'"></span>';
+    b.innerHTML='<span class="keys" aria-hidden="true">'+keys+'</span>'+
+      '<span><b>'+h.label+'</b><i>'+h.note+'</i></span>';
+    b.addEventListener('click',function(){ picked=id; paintHats(); });
+    host.appendChild(b);
+  });
+}
+paintHats();
+
+/* ---------- THE REAL DOOR ----------
+   No phrase, no six digits: the house account itself, checked
+   against the same Supabase project the app uses, and only a
+   role the house trusts may pass. The key lives with her, not in
+   this file, and the page is safe to sit on a public URL. */
+var SB='https://soephrftgddbwkzwjddj.supabase.co';
+var SBKEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+var HOUSE_ROLES=['admin','ivory','owner'];
+var HOUSE={sess:null,profile:null};
+
+function gateErr(id,msg){ var e=document.getElementById(id); if(!msg){ e.hidden=true; e.textContent=''; return; } e.hidden=false; e.textContent=msg; }
+
+function sbSignIn(email,pass){
+  return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+    headers:{'apikey':SBKEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,password:pass})})
+    .then(function(r){ return r.json().then(function(j){
+      if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.');
+      return j; }); });
+}
+function sbProfile(sess){
+  return fetch(SB+'/rest/v1/profiles?select=*&id=eq.'+sess.user.id,
+    {headers:{'apikey':SBKEY,'Authorization':'Bearer '+sess.access_token}})
+    .then(function(r){ return r.json(); }).then(function(rows){ return (rows&&rows[0])||null; });
+}
+
+document.getElementById('key-1').addEventListener('click',function(){
+  var email=(document.getElementById('s-email').value||'').trim();
+  var pass=(document.getElementById('s-pass').value||'');
+  var btn=this;
+  gateErr('gate-err');
+  if(!email||!pass){ gateErr('gate-err','Both lines, please.'); return; }
+  btn.disabled=true; btn.textContent='Turning…';
+  sbSignIn(email,pass)
+    .then(function(sess){
+      HOUSE.sess=sess;
+      return sbProfile(sess).then(function(p){
+        if(!p) throw new Error('That account has no house record.');
+        if(HOUSE_ROLES.indexOf(String(p.role||'').toLowerCase())<0)
+          throw new Error('That is a member key, not a house key. The studio stays shut.');
+        HOUSE.profile=p;
+        try{ sessionStorage.setItem('ivory.house',JSON.stringify(sess)); }catch(_){}
+        document.getElementById('s-pass').value='';
+        gate1.hidden=true; gate2.hidden=false;
+        picked='admin'; paintHats();
+        document.getElementById('gate-who').innerHTML=
+          'Signed in as <b style="color:#E8C77E">'+String(p.display_name||email).replace(/[<>&]/g,'')+'</b> &middot; '+
+          String(p.role||'')+' key &middot; the door is real; the books inside are being wired surface by surface.';
+        document.getElementById('key-2').textContent='Open the door';
+      });
+    })
+    .catch(function(x){ gateErr('gate-err',x.message||String(x)); })
+    .then(function(){ btn.disabled=false; btn.textContent='Turn the key'; });
+});
+document.getElementById('s-email').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('key-1').click(); });
+document.getElementById('s-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('key-1').click(); });
+
+document.getElementById('key-2').addEventListener('click',function(){
+  if(!HOUSE.sess){ gateErr('gate-err2','Sign in again — the key has gone quiet.'); return; }
+  gateErr('gate-err2');
+  window.IVORY_HOUSE=HOUSE;   /* the rest of the studio reads the real session from here */
+  open();
+});
+
+document.getElementById('lockDoor').addEventListener('click',function(){
+  S.hat=null; S.room='desk'; S.wish=null;
+  try{ sessionStorage.removeItem('ivory.studio.hat'); }catch(_){}
+  try{
+    if(window.IVORY_HOUSE&&IVORY_HOUSE.sess&&IVORY_HOUSE.sess.access_token){
+      fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':SBKEY,'Authorization':'Bearer '+IVORY_HOUSE.sess.access_token}}).catch(function(){});
+    }
+    IVORY_HOUSE.sess=null; IVORY_HOUSE.profile=null;
+    sessionStorage.removeItem('ivory.house');
+  }catch(_){}
+  try{ document.getElementById('gate-who').textContent='Opening…'; }catch(_){}
+  document.getElementById('s-email').value=''; document.getElementById('s-pass').value='';
+  document.getElementById('studio').hidden=true;
+  gate.classList.remove('gone'); gate1.hidden=false; gate2.hidden=true;
+  document.getElementById('phrase').value=''; document.getElementById('code').value='';
+});
+
+function open(){
+  S.hat=S.hat||picked||'admin';
+  try{
+    var b=document.getElementById('rehearsal');
+    if(!b){
+      b=document.createElement('div'); b.id='rehearsal';
+      b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:9999;'+
+        'max-width:520px;width:calc(100% - 28px);padding:9px 13px;border-radius:11px;'+
+        'background:rgba(255,247,226,.94);border:1px solid rgba(180,132,44,.5);color:#5C1226;'+
+        'font:12px/1.5 Georgia,serif;text-align:center;box-shadow:0 12px 30px -18px rgba(40,16,4,.8)';
+      b.innerHTML='<b>The door is real.</b> The books behind it are still the rehearsal set &mdash; '+
+        'the live surface is the first to be wired to the house.';
+      document.body.appendChild(b);
+      setTimeout(function(){ b.style.transition='opacity .6s'; b.style.opacity='0'; setTimeout(function(){ b.remove(); },700); },9000);
+    }
+  }catch(_){}
+  try{ sessionStorage.setItem('ivory.studio.hat',S.hat); }catch(_){}
+  if(!db.register.length){ write('opened the door','','first light'); save(); }
+  gate.classList.add('gone');
+  document.getElementById('studio').hidden=false;
+  renderAll();
+}
+
+/* ============================================================
+   6 · RENDER — the shell
+   ============================================================ */
+function renderAll(){
+  renderBar(); renderRail(); renderMain();
+}
+function renderBar(){
+  var h=HATS[S.hat];
+  var r=ROOMS.filter(function(x){ return x.id===S.room; })[0];
+  document.getElementById('roomTag').textContent=r?r.name:'The Studio';
+  document.getElementById('who').textContent=h.label+' \u00B7 last door '+clock();
+  var keys=''; for(var i=0;i<3;i++) keys+='<span class="c'+(i<h.keys?'':' off')+'"></span>';
+  document.getElementById('crest').innerHTML=keys;
+}
+function renderRail(){
+  var h=HATS[S.hat], rail=document.getElementById('rail');
+  var out='<p class="lbl">Rooms</p>';
+  ROOMS.filter(function(r){ return h.rooms.indexOf(r.id)>=0; }).forEach(function(r){
+    if(!r) return;
+    out+='<a href="#'+r.id+'" data-room="'+r.id+'" class="'+(S.room===r.id?'on':'')+'">'+
+         '<span>'+r.n+'</span>'+r.name+'</a>';
+  });
+  var absent=ROOMS.length-h.rooms.length;
+  out+='<div class="sep"></div><p class="absent">'+
+       (absent>0? absent+' rooms not on this key\u2019s wall.' : 'Every room. Every act.')+'</p>';
+  rail.innerHTML=out;
+  [].forEach.call(rail.querySelectorAll('a'),function(a){
+    a.addEventListener('click',function(e){ e.preventDefault(); go(a.getAttribute('data-room')); });
+  });
+}
+function go(id){
+  S.room=id; S.wish=null; S.form=null;
+  if(window.innerWidth<760) window.scrollTo({top:0,behavior:'smooth'});
+  renderAll();
+}
+function renderMain(){
+  var main=document.getElementById('main');
+  var r=ROOMS.filter(function(x){ return x.id===S.room; })[0];
+  if(!r){ main.innerHTML=''; return; }
+  if(!r.built){ main.innerHTML=''; main.appendChild(soonPlate(r)); return; }
+  if(r.id==='desk'){ main.innerHTML=''; main.appendChild(deskNode()); return; }
+  if(r.id==='post'){ main.innerHTML=''; main.appendChild(postNode()); return; }
+  if(r.id==='register'){ main.innerHTML=''; main.appendChild(registerNode()); return; }
+}
+
+function soonPlate(r){
+  var d=document.createElement('div');
+  d.innerHTML='<div class="head"><h1>'+esc(r.name)+'</h1><span class="when">'+esc(r.n)+'</span></div>'+
+    '<div class="soon"><p class="k">'+esc(r.plan||'later')+'</p><h3>This room has its plans, not yet its walls.</h3>'+
+    '<p>'+esc(r.soon||'')+'</p>'+
+    '<ul><li>The room is drawn in <b>THE_BACK_OF_HOUSE.md</b> \u2014 its acts, its keyholes, its limits.</li>'+
+    '<li>It is built after the Post Room closes its loop.</li></ul></div>';
+  return d;
+}
+
+/* ============================================================
+   7 · THE MORNING DESK
+   ============================================================ */
+function deskNode(){
+  var d=document.createElement('div');
+  var w=waiting(), rooms=heldRooms();
+  var sub=S.hat==='sub';
+  var figs = sub
+    ? [['Waiting for you',w.length,'across the house'],
+       ['Answered by you',myLines().filter(function(l){return l.act==='answered';}).length,'letters sent today'],
+       ['Rooms held',rooms.length,'already in the book']]
+    : [['Waiting for you',w.length,'wishes and priced wishes'],
+       ['Rooms held',rooms.length,'live sessions in the book'],
+       ['Settled today',money(settledToday()),db.purchases.length+' bills, all time'],
+       ['Purse liability',money(db.purse),'owed in minutes and gifts']];
+
+  var html='<div class="head"><h1>The Morning Desk</h1>'+
+    '<span class="when">'+today()+' \u00B7 '+clock()+'</span><span class="sp"></span>'+
+    '<span class="state">open \u00B7 booked \u00B7 quiet</span></div>'+
+    '<p class="lede">'+(w.length? (w.length===1? 'One thing is waiting on a hand.' : w.length+' things are waiting on a hand.')
+      : 'Nothing is waiting. The desk is quiet.')+'</p>'+
+    '<div class="figs">'+figs.map(function(f){
+      return '<div class="fig"><b class="num">'+f[1]+'</b><i>'+f[0]+'</i><small>'+f[2]+'</small></div>';
+    }).join('')+'</div>';
+
+  html+='<div class="cols"><div>'+
+    '<div class="sec-h"><h2>Waiting for you</h2><span class="n num">'+w.length+'</span><span class="sp"></span>'+
+    '<a class="more" href="#post" data-jump="post">the Post Room \u203A</a></div><div class="queue" id="queue"></div></div>'+
+    '<div>'+housePanel()+'</div></div>'+
+    '<div class="sec-h" style="margin-top:26px"><h2>The Register</h2><span class="n">last five</span>'+
+    '<span class="sp"></span><a class="more" href="#register" data-jump="register">all of it \u203A</a></div>'+
+    regTable(db.register.slice(0,5),true);
+
+  d.innerHTML=html;
+
+  var q=d.querySelector('#queue');
+  if(!w.length){
+    q.innerHTML='<p class="empty">No wish is waiting. Open the member house, write one, and it will arrive here.</p>';
+  } else {
+    w.slice(0,6).forEach(function(x){
+      var a=document.createElement('a');
+      a.className='qrow'; a.href='#post';
+      a.innerHTML='<svg class="qmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.5 5.4 5.9.6-4.4 4 1.2 5.8L12 16.6 6.8 19.4 8 13.6 3.6 9.6l5.9-.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>'+
+        '<span class="qb"><span class="qref">'+esc(x.ref)+'</span>'+
+        '<span class="qname">'+esc(x.name)+'</span>'+
+        '<p class="qdesc">'+esc(x.desc)+'</p></span>'+
+        '<span class="qmeta"><span class="qage">'+ago(x.at)+'</span>'+
+        '<span class="qact">'+(x.status==='priced'?'confirm':'answer')+'</span>'+
+        '<span class="qchev">\u203A</span></span>';
+      a.addEventListener('click',function(e){ e.preventDefault(); S.wish=x.ref; S.room='post'; S.form=null; renderAll(); });
+      q.appendChild(a);
+    });
+  }
+  [].forEach.call(d.querySelectorAll('[data-jump]'),function(a){
+    a.addEventListener('click',function(e){ e.preventDefault(); go(a.getAttribute('data-jump')); });
+  });
+  return d;
+}
+
+function housePanel(){
+  var rooms=heldRooms(), gifts=Object.keys(db.gifts||{}).length;
+  var rows=S.hat==='sub'
+    ? [['Wishes answered',db.wishes.filter(function(w){return w.status!=='received';}).length],
+       ['Rooms held',rooms.length],
+       ['Letters sent',db.letters.length]]
+    : [['In the house',1],
+       ['Rooms held',rooms.length],
+       ['Purse liability',money(db.purse)],
+       ['Gifts open',gifts],
+       ['Settled today',money(settledToday())]];
+  return '<div class="sec-h"><h2>The house, now</h2><span class="sp"></span><span class="n">'+clock()+'</span></div>'+
+    '<div class="baize"><h3>Live</h3><dl>'+
+    rows.map(function(r){ return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'; }).join('')+
+    '</dl><p class="fine">'+(S.hat==='sub'
+      ? 'You see four rooms. The rest are not greyed out \u2014 they are not on your wall.'
+      : 'Nothing here is a number without a name. Every line is a reference the member can quote back to you.')+'</p></div>';
+}
+
+function regTable(lines,compact){
+  if(!lines.length) return '<p class="empty">The Register is empty. Every act you take writes a line here.</p>';
+  var rows=lines.map(function(r){
+    return '<tr><td class="t num">'+clock(r.at)+'</td><td class="hand">'+esc(r.hand)+'</td>'+
+      '<td>'+esc(r.act)+(r.note?' \u00B7 <span class="st">'+esc(r.note)+'</span>':'')+'</td>'+
+      '<td class="ref">'+esc(r.ref||'\u2014')+'</td></tr>';
+  }).join('');
+  return '<table class="reg"><tr><th>Time</th><th>Hand</th><th>What</th><th class="r">Reference</th></tr>'+rows+'</table>'+
+    (compact?'':'<p class="reg-note">A line is written once. The house reads its own memory back, in order.</p>');
+}
+
+/* ============================================================
+   8 · THE POST ROOM
+   ============================================================ */
+function postNode(){
+  var d=document.createElement('div');
+  var w=db.wishes.slice().sort(function(a,b){ return b.at-a.at; });
+  if(!S.wish&&w.length) S.wish=w[0].ref;
+
+  var html='<div class="head"><h1>The Post Room</h1>'+
+    '<span class="when">where a person is waiting</span><span class="sp"></span>'+
+    '<span class="state num">'+waiting().length+' waiting</span></div>'+
+    '<p class="lede">A wish is a person asking the house for something in their own words. Set a price, answer it, decline it \u2014 or turn it into a room.</p>'+
+    '<div class="post"><div class="wlist" id="wlist"></div><div class="wdetail" id="wdetail"></div></div>';
+  d.innerHTML=html;
+
+  var list=d.querySelector('#wlist');
+  if(!w.length){
+    list.innerHTML='<p class="empty" style="padding:22px 16px">No wish has arrived yet.</p>';
+  } else {
+    w.forEach(function(x){
+      var b=document.createElement('button');
+      b.type='button'; b.className='wrow'+(S.wish===x.ref?' on':'');
+      b.innerHTML='<span class="r"><b>'+esc(x.ref)+'</b><span class="age">'+ago(x.at)+'</span></span>'+
+        '<h4>'+esc(x.name)+'</h4><p>'+esc(x.desc)+'</p>'+
+        '<span class="chip '+(x.pending?'priced':esc(x.status))+'">'+(x.pending?'second key':esc(x.status))+'</span>';
+      b.addEventListener('click',function(){ S.wish=x.ref; S.form=null; renderMain(); });
+      list.appendChild(b);
+    });
+  }
+  d.querySelector('#wdetail').appendChild(detailNode());
+  return d;
+}
+
+function detailNode(){
+  var host=document.createElement('div');
+  var w=S.wish?wishById(S.wish):null;
+  if(!w){
+    host.innerHTML='<p class="empty">Choose a wish on the left.</p>';
+    return host;
+  }
+  var acts=HATS[S.hat].acts;
+  var member=db.member||{};
+  var html='<p class="wd-k">'+esc(w.ref)+' \u00B7 '+ago(w.at)+'</p>'+
+    '<h2 class="wd-h">'+esc(w.name)+'</h2>'+
+    '<p class="wd-body">'+esc(w.desc)+'</p>'+
+    '<dl class="kv">'+
+      '<dt>The member</dt><dd>'+esc(member.name||'Ivory Probe')+'</dd>'+
+      '<dt>Their tier</dt><dd>'+esc(member.tier||'Guest')+'</dd>'+
+      '<dt>Their purse</dt><dd>'+money(db.purse)+'</dd>'+
+      (w.kind?'<dt>They called it</dt><dd>'+esc(w.kind)+'</dd>':'')+
+      (w.amount?'<dt>Priced at</dt><dd class="gold">'+money(w.amount)+'</dd>':'')+
+      '<dt>State</dt><dd><span class="chip '+(w.pending?'priced':esc(w.status))+'">'+(w.pending?'second key':esc(w.status))+'</span></dd>'+
+      (w.room?'<dt>The room</dt><dd>'+esc(w.room)+'</dd>':'')+
+    '</dl>';
+
+  if(w.pending){
+    html+='<div class="letter pending"><b>Waiting on the second key \u00B7 '+esc(w.pending.by)+' \u00B7 '+ago(w.pending.at)+'</b>'+
+      money(w.pending.amount)+' was proposed and has not been agreed. '+
+      (S.hat==='ivory'? 'Turn the second key to finish it.' : 'Only Ivory can finish it.')+'</div>';
+  }
+
+  html+='<div class="acts">';
+  if(w.pending&&S.hat==='ivory')
+    html+='<button class="btn wax" data-act="second">Turn the second key \u00B7 '+money(w.pending.amount)+'</button>';
+  if(w.pending&&S.hat!=='ivory')
+    html+='<p class="act-note">This act is begun, not finished. It waits on Ivory\u2019s desk.</p>';
+  if((w.status==='received'||w.status==='priced')&&!w.pending){
+    if(acts.price) html+='<button class="btn" data-act="price">'+(w.amount?'Change the price':'Set a price')+'</button>';
+    if(acts.accept) html+='<button class="btn brass" data-act="accept">Accept'+(w.amount?' at '+money(w.amount):'')+'</button>';
+    if(acts.decline) html+='<button class="btn quiet" data-act="decline">Decline</button>';
+  }
+  if(w.status==='accepted'&&acts.room) html+='<button class="btn wax" data-act="room">Turn it into a room</button>';
+  if(w.status==='accepted'&&!acts.room&&acts.answer) html+='<button class="btn wax" data-act="room">Turn it into a room</button>';
+  if(acts.answer) html+='<button class="btn quiet" data-act="answer">Send a letter</button>';
+  if(!acts.price&&(w.status==='received'||w.status==='priced'))
+    html+='<p class="act-note">A price and an answer are not on your key \u2014 the wish waits for a hand above.</p>';
+  html+='</div>';
+
+  if(w.status==='declined') html+='<p class="act-note">Declined'+(w.reason?' \u00B7 '+esc(w.reason):'')+'. A letter was sent.</p>';
+  if(w.status==='roomed') html+='<p class="act-note">Held as '+esc(w.room||'a room')+'. The member has the time in their Room sheet and a letter in their inbox.</p>';
+
+  var trail=db.letters.filter(function(L){ return L.ref===w.ref; }).slice(0,3);
+  if(trail.length) html+='<p class="trail-k">The letters</p>';
+  trail.forEach(function(L){
+    html+='<div class="letter"><b>'+esc(L.from)+' \u00B7 '+ago(L.at)+'</b>'+esc(L.subject)+' \u2014 '+esc(L.body)+'</div>';
+  });
+
+  host.innerHTML=html;
+
+  [].forEach.call(host.querySelectorAll('[data-act]'),function(b){
+    b.addEventListener('click',function(){ S.form=b.getAttribute('data-act'); renderMain(); });
+  });
+
+  if(S.form&&w) host.appendChild(formNode(w,S.form));
+  return host;
+}
+
+function formNode(w,kind){
+  var f=document.createElement('div'); f.className='form';
+  if(kind==='price'){
+    var guess=w.amount||PRICE.video[30];
+    f.innerHTML='<h4>Set the price</h4>'+
+      '<div class="frow"><div class="fld"><label for="amt">Amount, in rupees</label>'+
+      '<input id="amt" type="number" min="0" step="50" value="'+guess+'">'+
+      '<p class="hint">Above \u20B91,000 a price needs Ivory\u2019s second key. This is the demo ledger.</p></div></div>'+
+      '<div class="end"><button class="btn wax" id="do">Write the price</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>';
+    f.querySelector('#do').addEventListener('click',function(){
+      var v=Math.max(0,parseInt(f.querySelector('#amt').value,10)||0);
+      if(v>1000&&S.hat!=='ivory'){
+        /* the two keyholes: the first key is turned, the act waits */
+        w.pending={amount:v,by:HATS[S.hat].label,at:Date.now()};
+        write('set a price \u00B7 first key',w.ref,money(v)+' \u00B7 waiting on Ivory');
+        letter('A price, waiting \u2014 \u201C'+w.name+'\u201D',
+          'I have proposed '+money(v)+'. It waits on Ivory\u2019s second key \u2014 nothing is agreed yet.',
+          HATS[S.hat].label,w.ref);
+      } else {
+        w.status='priced'; w.amount=v;
+        write('set a price',w.ref,money(v));
+        letter('A price for \u201C'+w.name+'\u201D','I can do this for '+money(v)+'. Say the word and it is yours.',
+          'Ivory',w.ref);
+      }
+      S.form=null; save(); renderAll();
+    });
+  } else if(kind==='second'){
+    f.innerHTML='<h4>The second key</h4>'+
+      '<p class="act-note">'+esc(money(w.pending.amount))+' was proposed by '+esc(w.pending.by)+
+      '. Turning this key finishes the act, and the Register prints both hands on one line.</p>'+
+      '<div class="end"><button class="btn wax" id="do">Turn it</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>';
+    f.querySelector('#do').addEventListener('click',function(){
+      var amt=w.pending.amount, first=w.pending.by;
+      w.status='priced'; w.amount=amt; delete w.pending;
+      db.register.unshift({at:Date.now(),hand:'Ivory',act:'set a price',ref:w.ref,
+        note:money(amt)+' \u00B7 first key '+first+' \u00B7 second key Ivory'});
+      if(db.register.length>400) db.register.length=400;
+      letter('A price for \u201C'+w.name+'\u201D','It is '+money(amt)+'. Ivory has turned the second key \u2014 it is agreed.',
+        'Ivory',w.ref);
+      S.form=null; save(); renderAll();
+    });
+  } else if(kind==='accept'){
+    f.innerHTML='<h4>Accept the wish</h4>'+
+      '<p class="act-note">The wish becomes a yes. A letter goes to the member at once'+(w.amount?', quoting '+money(w.amount):'')+'.</p>'+
+      '<div class="end"><button class="btn brass" id="do">Accept it</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>';
+    f.querySelector('#do').addEventListener('click',function(){
+      w.status='accepted';
+      write('accepted a wish',w.ref,w.amount?money(w.amount):'no price');
+      letter('Yes \u2014 \u201C'+w.name+'\u201D','I have said yes to this one.'+(w.amount? ' It is '+money(w.amount)+'.':'')+
+        ' I will open the room myself.', 'Ivory', w.ref);
+      S.form=null; save(); renderAll();
+    });
+  } else if(kind==='decline'){
+    f.innerHTML='<h4>Decline the wish</h4>'+
+      '<p class="act-note">Three reasons the house uses. The member is told which one.</p>'+
+      '<div class="frow"><div class="fld"><div class="seg" id="seg">'+
+        '<button data-r="Not this month">Not this month</button>'+
+        '<button data-r="Not something the house does">Not the house</button>'+
+        '<button data-r="It needs more than I can give">Too large a thing</button>'+
+      '</div></div></div>'+
+      '<div class="end"><button class="btn wax" id="do" disabled>Decline it</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>';
+    var reason=null, doBtn=f.querySelector('#do');
+    [].forEach.call(f.querySelectorAll('#seg button'),function(b){
+      b.addEventListener('click',function(){
+        [].forEach.call(f.querySelectorAll('#seg button'),function(x){ x.classList.remove('on'); });
+        b.classList.add('on'); reason=b.getAttribute('data-r'); doBtn.disabled=false;
+      });
+    });
+    doBtn.addEventListener('click',function(){
+      if(!reason) return;
+      w.status='declined'; w.reason=reason;
+      write('declined a wish',w.ref,reason);
+      letter('About \u201C'+w.name+'\u201D','Not this one, and I would rather say why: '+reason.toLowerCase()+
+        '. It is not a no to you.', 'Ivory', w.ref);
+      S.form=null; save(); renderAll();
+    });
+  } else if(kind==='answer'){
+    f.innerHTML='<h4>Send a letter</h4>'+
+      '<div class="frow"><div class="fld"><label for="body">Your words</label>'+
+      '<input id="body" type="text" placeholder="I have read this. Give me a day."></div></div>'+
+      '<div class="end"><button class="btn wax" id="do">Seal and send</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>'+
+      '<p class="act-note">A letter does not change the wish. It changes the waiting.</p>';
+    f.querySelector('#do').addEventListener('click',function(){
+      var t=f.querySelector('#body').value.trim();
+      if(!t) return;
+      write('answered a wish',w.ref,'letter');
+      letter('About \u201C'+w.name+'\u201D',t,'Ivory',w.ref);
+      S.form=null; save(); renderAll();
+    });
+  } else if(kind==='room'){
+    var day0=new Date();
+    var opts='';
+    for(var i=0;i<7;i++){
+      var d2=new Date(day0); d2.setDate(d2.getDate()+i);
+      opts+='<option value="'+iso(d2)+'">'+DAYS[d2.getDay()]+' '+d2.getDate()+' '+MONTHS[d2.getMonth()].slice(0,3)+'</option>';
+    }
+    f.innerHTML='<h4>Turn the wish into a room</h4>'+
+      '<div class="frow">'+
+        '<div class="fld"><label for="med">Medium</label><select id="med">'+
+          '<option value="video">On video</option><option value="audio">My voice only</option></select></div>'+
+        '<div class="fld"><label for="mins">Length</label><select id="mins">'+
+          '<option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></div>'+
+        '<div class="fld"><label for="day">Day</label><select id="day">'+opts+'</select></div>'+
+        '<div class="fld"><label for="win">Hour</label><select id="win">'+
+          WINDOWS.map(function(x){ return '<option value="'+x.k+'">'+x.label+' \u00B7 '+('0'+x.h).slice(-2)+':'+('0'+x.m).slice(-2)+'</option>'; }).join('')+
+        '</select></div>'+
+      '</div>'+
+      '<div class="frow"><div class="fld"><label for="fee">Price</label>'+
+        '<input id="fee" type="number" min="0" step="100" value="'+(w.amount||PRICE.video[30])+'">'+
+        '<p class="hint">Set it to 0 to carry it \u2014 a gift is a price of nothing.</p></div></div>'+
+      '<div class="end"><button class="btn wax" id="do">Hold the room</button>'+
+      '<button class="btn quiet" id="cancel">Cancel</button></div>'+
+      '<p class="act-note">The member sees the held hour in their Room sheet and a letter in their inbox. The Register prints both.</p>';
+    f.querySelector('#do').addEventListener('click',function(){
+      var med=f.querySelector('#med').value, mins=parseInt(f.querySelector('#mins').value,10);
+      var day=f.querySelector('#day').value, win=f.querySelector('#win').value;
+      var fee=Math.max(0,parseInt(f.querySelector('#fee').value,10)||0);
+      var W=WINDOWS.filter(function(x){ return x.k===win; })[0];
+      var dd=new Date(day+'T00:00:00');
+      var when=new Date(dd); when.setHours(W.h,W.m,0,0);
+      var ref='SES \u00B7 IV \u00B7 '+(++db.seq);
+      db.sessions.unshift({ref:ref,medium:med,minutes:mins,day:day,window:W.k,
+        weekday:DAYS[dd.getDay()],date:dd.getDate(),month:MONTHS[dd.getMonth()],
+        hour:W.h,minute:W.m,at:when.getTime(),price:fee,listPrice:PRICE[med][mins],
+        carried:fee===0,method:'house',status:'held',created:Date.now(),wish:w.ref});
+      w.status='roomed'; w.room=ref;
+      write('held a room',ref,DAYS[dd.getDay()]+' '+dd.getDate()+' '+MONTHS[dd.getMonth()].slice(0,3)+' \u00B7 '+clock(when));
+      letter('Your room \u2014 \u201C'+w.name+'\u201D',
+        (med==='video'?'On video':'My voice only')+', '+mins+' minutes, '+
+        DAYS[dd.getDay()]+' '+dd.getDate()+' '+MONTHS[dd.getMonth()]+' at '+clock(when)+
+        (fee? '. '+money(fee)+', settled when you confirm.' : '. It is carried \u2014 nothing to pay.'),
+        'Ivory', ref);
+      S.form=null; save(); renderAll();
+    });
+  }
+  f.querySelector('#cancel').addEventListener('click',function(){ S.form=null; renderMain(); });
+  return f;
+}
+
+/* ============================================================
+   9 · THE REGISTER
+   ============================================================ */
+function registerNode(){
+  var d=document.createElement('div');
+  var lines=S.hat==='sub'?myLines():db.register;
+  d.innerHTML='<div class="head"><h1>The Register</h1><span class="when">append-only</span>'+
+    '<span class="sp"></span><span class="state num">'+lines.length+' lines</span></div>'+
+    '<p class="lede">Every act, its hand and its reference. Nobody edits a line once it is printed \u2014 not even Ivory.</p>'+
+    regTable(lines)+
+    (S.hat==='sub'?'<p class="reg-note">On this key you see your own lines only.</p>':'');
+  return d;
+}
+
+/* ============================================================
+   10 · THE PALETTE
+   ============================================================ */
+var pal=document.getElementById('pal'), palInput=document.getElementById('palInput'),
+    palList=document.getElementById('palList'), palIdx=0, palItems=[];
+
+function palOpen(){
+  pal.classList.add('on'); palInput.value=''; palPaint(''); palInput.focus();
+}
+function palClose(){ pal.classList.remove('on'); }
+function palPaint(q){
+  q=(q||'').toLowerCase();
+  var items=[];
+  HATS[S.hat].rooms.forEach(function(id){
+    var r=ROOMS.filter(function(x){ return x.id===id; })[0]; if(!r) return;
+    if(!q||r.name.toLowerCase().indexOf(q)>=0) items.push({label:r.name,hint:'room',go:function(){ go(id); }});
+  });
+  db.wishes.forEach(function(w){
+    if(!q||(w.name+' '+w.desc+' '+w.ref).toLowerCase().indexOf(q)>=0)
+      items.push({label:w.name,hint:w.ref,go:function(){ S.wish=w.ref; S.room='post'; S.form=null; renderAll(); }});
+  });
+  palItems=items.slice(0,9); palIdx=0;
+  palList.innerHTML=palItems.map(function(it,i){
+    return '<button class="pal-item'+(i===0?' on':'')+'" data-i="'+i+'">'+esc(it.label)+'<i>'+esc(it.hint)+'</i></button>';
+  }).join('')||'<p class="empty" style="padding:14px 18px">Nothing by that name.</p>';
+  [].forEach.call(palList.querySelectorAll('.pal-item'),function(b){
+    b.addEventListener('click',function(){ var it=palItems[+b.getAttribute('data-i')]; palClose(); it.go(); });
+  });
+}
+palInput.addEventListener('input',function(e){ palPaint(e.target.value); });
+palInput.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ palClose(); }
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    if(!palItems.length) return;
+    palIdx=(palIdx+(e.key==='ArrowDown'?1:palItems.length-1))%palItems.length;
+    [].forEach.call(palList.querySelectorAll('.pal-item'),function(b,i){ b.classList.toggle('on',i===palIdx); });
+  }
+  if(e.key==='Enter'){ if(palItems[palIdx]){ var it=palItems[palIdx]; palClose(); it.go(); } }
+});
+pal.addEventListener('click',function(e){ if(e.target===pal) palClose(); });
+document.getElementById('palBtn').addEventListener('click',palOpen);
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); pal.classList.contains('on')?palClose():palOpen(); }
+  if(e.key==='Escape'&&pal.classList.contains('on')) palClose();
+});
+
+/* ============================================================
+   11 · GO
+   ============================================================ */
+window.IvoryStudio={db:function(){return db;},go:go,open:function(hat){S.hat=hat;picked=hat;open();}};
+
+/* a hat already worn in this tab walks straight back in */
+try{
+  var worn=sessionStorage.getItem('ivory.studio.hat');
+  if(worn&&HATS[worn]){ S.hat=worn; picked=worn; open(); }
+}catch(_){}
+})();
+</script>
+</body>
+</html>

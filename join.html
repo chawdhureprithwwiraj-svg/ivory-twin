@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF7E2">
+<title>Ivory · Membership</title>
+<style>
+  :root{
+    --paper:#FFFDF6; --ink:#3A2007; --ink-soft:#6E4A1C; --gold:#C49A45;
+    --bu:#B81A34; --bu-deep:#6E0C24; --cream:#FFF7E2;
+    --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{font-family:var(--serif);color:var(--ink);background:
+      radial-gradient(120% 70% at 50% -10%,#FFF6DE 0,rgba(255,246,222,0) 60%),
+      linear-gradient(180deg,#FFFDF6 0,#FCF3E0 48%,#F6E6C6 100%);
+    background-attachment:fixed;min-height:100svh;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:560px;padding:14px 18px calc(30px + env(safe-area-inset-bottom));position:relative}
+  .wrap:before{content:'';position:fixed;inset:8px;border:1px solid rgba(180,132,44,.26);border-radius:20px;pointer-events:none;z-index:0}
+
+  .top{display:flex;align-items:center;gap:10px;padding:6px 0 12px;position:relative;z-index:1}
+  .mark{font-weight:700;font-size:14px;letter-spacing:.42em;color:#5C1226;text-indent:.42em}
+  .top .sp{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--ui);font-size:8.4px;letter-spacing:.18em;text-transform:uppercase;color:#8A6A3A;max-width:60%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  h1{margin:0 0 6px;font-size:26px;line-height:1.14;font-weight:700;font-style:italic;color:var(--bu-deep)}
+  .kicker{margin:0 0 8px;font-family:var(--ui);font-size:8.2px;letter-spacing:.3em;text-transform:uppercase;color:#A98545}
+  .lede{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--ink-soft);font-style:italic}
+
+  .card{position:relative;z-index:1;border:1px solid rgba(180,132,44,.34);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(90,42,6,.6);
+    padding:15px 15px 14px;margin:0 0 13px}
+  label.f{display:block;margin:0 0 11px}
+  label.f span{display:block;font-family:var(--ui);font-size:8.2px;letter-spacing:.22em;text-transform:uppercase;color:#96703A;margin:0 0 5px}
+  input[type=email],input[type=password]{width:100%;padding:12px 13px;border-radius:11px;
+    border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.86);font-family:var(--serif);font-size:15px;
+    color:var(--ink);outline:none;-webkit-appearance:none}
+  input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+  .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 16px;border:0;
+    border-radius:13px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:700;color:var(--cream);
+    background:linear-gradient(180deg,#A8162F,#7E0E23);
+    box-shadow:0 1px 0 rgba(255,255,255,.22) inset,0 12px 24px -16px rgba(110,12,36,.9);
+    transition:transform .18s var(--ease),filter .18s}
+  .btn:active{transform:translateY(1px) scale(.995)}
+  .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);
+    box-shadow:none;font-weight:400}
+  .note{margin:11px 0 0;font-size:11.6px;line-height:1.55;color:#8A6A3A;font-style:italic}
+  .err{margin:11px 0 0;padding:10px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
+  .ok{margin:11px 0 0;padding:12px;border-radius:11px;font-size:12.8px;line-height:1.6;
+    background:rgba(23,197,126,.08);border:1px solid rgba(7,153,92,.3);color:#0A6B45}
+  .hide{display:none !important}
+
+  /* — the tier plates — */
+  .tier{position:relative;z-index:1;margin:0 0 12px;padding:15px 15px 13px;border-radius:16px;
+    border:1px solid rgba(180,132,44,.4);
+    background:linear-gradient(178deg,#FFFDF6 0%,#FCF3E1 60%,#F7E8CB 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 36px -32px rgba(90,42,6,.75)}
+  .tier .head{display:flex;align-items:baseline;gap:10px}
+  .tier h3{margin:0;font-size:18px;font-style:italic;font-weight:700;color:#5C1226;flex:1;line-height:1.2}
+  .tier .price{font-family:var(--ui);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;white-space:nowrap}
+  .tier .price b{display:block;font-family:var(--serif);font-size:21px;letter-spacing:0;color:#5C1226;font-weight:700}
+  .tier p.d{margin:6px 0 10px;font-size:12.6px;line-height:1.55;color:var(--ink-soft)}
+  .tier ul{margin:0 0 12px;padding:0;list-style:none}
+  .tier li{position:relative;padding:0 0 0 15px;margin:0 0 5px;font-size:12.4px;line-height:1.5;color:#4B2C0D}
+  .tier li:before{content:'';position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 2px rgba(196,154,69,.18)}
+  .tier .btn{padding:12px 14px;font-size:14px}
+  .tier.held{border-color:rgba(23,197,126,.45)}
+  .tier .flag{font-family:var(--ui);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+    color:#0A6B45;border:1px solid rgba(23,197,126,.45);border-radius:100px;padding:3px 8px}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+    animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .foot{margin:16px 0 0;text-align:center;font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;
+    text-transform:uppercase;color:#A98545}
+  .foot a{color:#8A6A3A;text-decoration:none;border-bottom:1px solid rgba(180,132,44,.45)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="mark">IVORY</span>
+    <span class="sp"></span>
+    <span class="chip" id="chip">membership</span>
+  </div>
+
+  <p class="kicker" id="kicker">membership &middot; settled here or in the app</p>
+  <h1 id="h1">Three doors into the house.</h1>
+  <p class="lede" id="lede">Every tier is paid a month at a time and runs to the end of that month. The
+    receipt, the access, and the hours are the same whether you settle here or inside the app.</p>
+
+  <!-- the door -->
+  <section id="v-door" class="hide">
+    <div class="card">
+      <label class="f"><span>email</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
+      <label class="f"><span>password</span><input type="password" id="pass" autocomplete="current-password"></label>
+      <button class="btn" id="signin">Unlock</button>
+      <p class="note">Sign in to see what you already hold. New here? An account can be made in the app,
+        and it opens here with the same email.</p>
+      <p class="err hide" id="door-err"></p>
+    </div>
+  </section>
+
+  <section id="v-held" class="hide"></section>
+  <section id="v-tiers"><div class="card"><div class="note" style="margin:0">Reading the ledger…</div></div></section>
+
+  <p class="foot"><a href="./">the house</a> &middot; <a href="room.html">the room</a></p>
+</div>
+
+<script>
+/* ============================================================
+   MEMBERSHIP · the real checkout
+   The order is made by the house's own Edge Function and
+   checked by the house's own verifier — exactly the two calls
+   the app makes. Nothing secret lives in this page.
+   ============================================================ */
+(function(){
+  'use strict';
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+  var $=function(id){ return document.getElementById(id); };
+  var S={sess:null, profile:null, tier:null, busy:false};
+
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
+  function err(id,msg){ var e=$(id); if(!e) return; if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=msg; e.classList.remove('hide'); }
+
+  /* ---------- session ---------- */
+  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
+  function load(){ try{ var r=localStorage.getItem('ivory.member'); S.sess=r?JSON.parse(r):null; }catch(e){ S.sess=null; } return S.sess; }
+  function expired(){
+    if(!S.sess||!S.sess.access_token) return true;
+    try{ var p=JSON.parse(atob(S.sess.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      return (p.exp*1000-Date.now())<60000; }catch(e){ return false; }
+  }
+  function headers(){ var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+  function login(e,p){ return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error_description||j.msg||'That sign-in was not accepted.'); return j; }); }); }
+  function renew(){ return fetch(SB+'/auth/v1/token?grant_type=refresh_token',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.sess.refresh_token})})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error('Sign in again.'); save(j); return j; }); }); }
+  function call(path,body,opt){
+    opt=opt||{};
+    var go=function(){ return fetch(SB+path,{method:opt.method||'POST',headers:headers(),
+        body:(body===undefined||body===null)?undefined:JSON.stringify(body)})
+      .then(function(r){ return r.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+        if(r.ok) return j;
+        if(r.status===401&&!opt.retried){ opt.retried=true; return renew().then(go); }
+        var m=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
+        throw new Error(typeof m==='string'?m:'That did not work.');
+      });}); };
+    if(expired()&&S.sess) return renew().then(go).catch(go);
+    return go();
+  }
+
+  /* ---------- the ledger ---------- */
+  function tiers(){
+    return call('/rest/v1/subscription_tiers?select=*&is_active=eq.true&order=level.asc',null,{method:'GET'});
+  }
+  function mine(){
+    if(!S.sess) return Promise.resolve(null);
+    return call('/rest/v1/my_membership?select=*&limit=1',null,{method:'GET'})
+      .then(function(r){ return (r&&r[0])||null; }).catch(function(){ return null; });
+  }
+
+  function paint(list, held){
+    var box=$('v-tiers'); box.innerHTML='';
+    (list||[]).forEach(function(t){
+      var isHeld = held && (Number(held.tier_id)===Number(t.id) || String(held.tier_name||'')===String(t.name));
+      var el=document.createElement('article');
+      el.className='tier'+(isHeld?' held':'');
+      var perks=(t.perks||[]).map(function(p){ return '<li>'+esc(p)+'</li>'; }).join('');
+      el.innerHTML='<div class="head"><h3>'+esc(t.name)+'</h3>'+
+        (isHeld?'<span class="flag">yours</span>':'')+
+        '<span class="price">a month<b>'+money(t.price_inr)+'</b></span></div>'+
+        '<p class="d">'+esc(t.description||'')+'</p>'+
+        (perks?'<ul>'+perks+'</ul>':'')+
+        '<button class="btn'+(isHeld?' quiet':'')+'" data-tier="'+t.id+'">'+
+          (isHeld?'Renew this one':'Take this door')+'</button>';
+      el.querySelector('[data-tier]').addEventListener('click',function(){ buy(t,this); });
+      box.appendChild(el);
+    });
+    if(!box.children.length) box.innerHTML='<div class="card"><div class="note" style="margin:0">The ledger is empty just now. Write to the house.</div></div>';
+  }
+
+  function heldBlock(m){
+    if(!m){ $('v-held').classList.add('hide'); return; }
+    var name=m.tier_name||m.name||'a tier';
+    var until=m.expires_at||m.ends_at||m.renews_at||m.current_period_end;
+    var when=until? new Date(until).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    $('v-held').innerHTML='<div class="card"><div class="note" style="margin:0;color:#0A6B45">'+
+      'You hold <b>'+esc(name)+'</b>'+(when?' until '+esc(when):'')+'.</div></div>';
+    $('v-held').classList.remove('hide');
+  }
+
+  /* ---------- paying ---------- */
+  function buy(t,btn){
+    if(S.busy) return;
+    S.busy=true; err('door-err');
+    var label=t.name+' · one month';
+    var restore=function(){ btn.disabled=false; btn.textContent='Take this door'; S.busy=false; };
+    btn.disabled=true; btn.innerHTML='<span class="spin"></span> Opening';
+    call('/functions/v1/rzp-create-order',{purpose:'subscription',tier_id:t.id})
+      .then(function(d){
+        if(!d||!d.order_id) throw new Error((d&&d.error)||'The order did not open.');
+        return checkout(d,label).then(function(res){
+          if(!res) { throw new Error('__closed'); }
+          return call('/functions/v1/rzp-verify-unlock',{
+            razorpay_order_id:res.razorpay_order_id,
+            razorpay_payment_id:res.razorpay_payment_id,
+            razorpay_signature:res.razorpay_signature
+          });
+        });
+      })
+      .then(function(v){
+        if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
+        $('v-held').innerHTML='<div class="ok">It is yours now. The house has your payment and everything is open. '+
+          'The receipt sits in the app under your payments.</div>';
+        $('v-held').classList.remove('hide');
+        $('h1').textContent='Welcome into the house.';
+        $('lede').textContent='Your tier is on the account. Nothing else is needed — the room and the letters open with it.';
+        return mine().then(function(m){ heldBlock(m); });
+      })
+      .catch(function(x){
+        if(x&&x.message==='__closed'){ err('door-err','The payment window was closed. Nothing was taken.'); }
+        else err('door-err',x.message||String(x));
+      })
+      .then(restore);
+  }
+
+  var RZP=null;
+  function loadRzp(){
+    if(window.Razorpay) return Promise.resolve(true);
+    if(RZP) return RZP;
+    RZP=new Promise(function(res,rej){
+      var s=document.createElement('script');
+      s.src='https://checkout.razorpay.com/v1/checkout.js';
+      s.onload=function(){ res(true); };
+      s.onerror=function(){ rej(new Error('The payment window could not load. Check the connection, then try once more.')); };
+      document.head.appendChild(s);
+    });
+    return RZP;
+  }
+
+  function checkout(d,label){
+    return loadRzp().then(function(){
+      return new Promise(function(resolve){
+        var rzp=new window.Razorpay({
+          key:d.key_id,
+          amount:d.amount_paise,
+          currency:d.currency||'INR',
+          order_id:d.order_id,
+          name:'Ivory',
+          description:label,
+          theme:{color:'#4A0E17'},
+          prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''},
+          handler:function(r){ resolve(r); },
+          modal:{ondismiss:function(){ resolve(null); }}
+        });
+        rzp.on&&rzp.on('payment.failed',function(resp){
+          err('door-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
+          resolve(null);
+        });
+        rzp.open();
+      });
+    });
+  }
+
+  /* ---------- the door ---------- */
+  $('signin').addEventListener('click',function(){
+    var e=$('email').value.trim(), p=$('pass').value, b=this;
+    err('door-err');
+    if(!e||!p){ err('door-err','Both lines, please.'); return; }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    login(e,p).then(function(s){ save(s); $('pass').value=''; return start(); })
+      .catch(function(x){ err('door-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Unlock'; });
+  });
+  $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+
+  function start(){
+    var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
+    $('chip').textContent=who?(who.split('@')[0]):'membership';
+    $('v-door').classList.add('hide');
+    return Promise.all([tiers(), mine()]).then(function(r){ heldBlock(r[1]); paint(r[0],r[1]); });
+  }
+
+  /* boot: anyone may look at the three doors; only a signed-in member is marked "yours" */
+  tiers().then(function(list){ paint(list,null); }).catch(function(x){
+    $('v-tiers').innerHTML='<div class="card"><div class="note" style="margin:0">The ledger could not be read — '+esc(x.message)+'</div></div>';
+  });
+  var s=load();
+  if(s&&s.access_token){ start().catch(function(){ save(null); $('v-door').classList.remove('hide'); }); }
+  else { $('v-door').classList.remove('hide'); }
+})();
+</script>
+</body>
+</html>
