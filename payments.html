@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF7E2">
+<title>Ivory · The Counter</title>
+<style>
+  :root{
+    --ink:#3A2007; --ink-soft:#6E4A1C; --gold:#C49A45; --bu:#B81A34; --bu-deep:#6E0C24;
+    --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif; --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{font-family:var(--serif);color:var(--ink);background:
+      radial-gradient(120% 70% at 50% -10%,#FFF6DE 0,rgba(255,246,222,0) 60%),
+      linear-gradient(180deg,#FFFDF6 0,#FCF3E0 48%,#F6E6C6 100%);
+    background-attachment:fixed;min-height:100svh;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:560px;padding:14px 18px calc(30px + env(safe-area-inset-bottom));position:relative}
+  .wrap:before{content:'';position:fixed;inset:8px;border:1px solid rgba(180,132,44,.26);border-radius:20px;pointer-events:none;z-index:0}
+  .top{display:flex;align-items:center;gap:10px;padding:6px 0 12px;position:relative;z-index:1}
+  .mark{font-weight:700;font-size:13.4px;letter-spacing:.4em;color:#5C1226;text-indent:.4em}
+  .top .sp{flex:1}
+  .chip{font-family:var(--ui);font-size:8.2px;letter-spacing:.18em;text-transform:uppercase;color:#8A6A3A;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);border-radius:100px;padding:5px 10px;
+    max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  h1{margin:0 0 6px;font-size:25px;line-height:1.14;font-weight:700;font-style:italic;color:var(--bu-deep)}
+  .kicker{margin:0 0 8px;font-family:var(--ui);font-size:8.2px;letter-spacing:.3em;text-transform:uppercase;color:#A98545}
+  .lede{margin:0 0 16px;font-size:12.8px;line-height:1.6;color:var(--ink-soft);font-style:italic}
+  .card{position:relative;z-index:1;border:1px solid rgba(180,132,44,.34);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(90,42,6,.6);
+    padding:15px 15px 14px;margin:0 0 13px}
+  .card h2{margin:0 0 10px;font-size:17px;font-style:italic;font-weight:700;color:#5C1226}
+  label.f{display:block;margin:0 0 11px}
+  label.f span{display:block;font-family:var(--ui);font-size:8.2px;letter-spacing:.22em;text-transform:uppercase;color:#96703A;margin:0 0 5px}
+  input[type=email],input[type=password],input[type=text]{width:100%;padding:12px 13px;border-radius:11px;
+    border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.86);font-family:var(--serif);font-size:15px;
+    color:var(--ink);outline:none;-webkit-appearance:none}
+  input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+  textarea{width:100%;min-height:74px;padding:11px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);
+    background:rgba(255,255,255,.86);font-family:var(--serif);font-size:13.6px;line-height:1.5;color:var(--ink);
+    outline:none;resize:vertical}
+  .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px 15px;border:0;
+    border-radius:12px;cursor:pointer;font-family:var(--serif);font-size:14.4px;font-weight:700;color:#FFF7E2;
+    background:linear-gradient(180deg,#A8162F,#7E0E23);box-shadow:0 1px 0 rgba(255,255,255,.22) inset;
+    transition:transform .18s var(--ease)}
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.gold{color:#3A2007;background:linear-gradient(180deg,#F7D77F,#D9A93F)}
+  .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);font-weight:400}
+  .btn.sm{padding:10px 12px;font-size:12.6px}
+  .row{display:flex;gap:9px}.row>*{flex:1}
+  .note{margin:10px 0 0;font-size:11.4px;line-height:1.55;color:#8A6A3A;font-style:italic}
+  .err{margin:10px 0 0;padding:10px 12px;border-radius:11px;font-size:12.2px;line-height:1.55;
+    background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
+  .ok{margin:10px 0 0;padding:10px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(23,197,126,.08);border:1px solid rgba(7,153,92,.3);color:#0A6B45}
+  .hide{display:none !important}
+
+  /* the mode switches */
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 10px}
+  .mode{padding:12px 11px;border-radius:13px;cursor:pointer;text-align:left;border:1px solid rgba(180,132,44,.4);
+    background:rgba(255,255,255,.6);font-family:var(--serif);color:#7A4A12;line-height:1.25}
+  .mode b{display:block;font-size:13.4px;color:#5C1226;font-style:italic}
+  .mode i{display:block;font-style:normal;font-family:var(--ui);font-size:8px;letter-spacing:.14em;
+    text-transform:uppercase;color:#8A6A3A;margin-top:3px}
+  .mode.on{border-color:rgba(150,97,15,.75);background:rgba(255,249,232,.95);box-shadow:0 0 0 3px rgba(196,154,69,.16) inset}
+  .mode.offrail b{color:#9A8A74}
+
+  /* the queue */
+  .q{border-top:1px dashed rgba(180,132,44,.3);padding:12px 0 4px}
+  .q:first-of-type{border-top:0}
+  .q .l1{display:flex;align-items:baseline;gap:8px}
+  .q .amt{font-size:16px;font-weight:700;color:#5C1226}
+  .q .tier{flex:1;font-size:12.4px;color:#6E4A1C}
+  .q .when{font-family:var(--ui);font-size:8.4px;letter-spacing:.1em;text-transform:uppercase;color:#A98545}
+  .q .utr{margin:6px 0 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.6px;color:#4B2C0D;word-break:break-all}
+  .q .proof{display:inline-block;margin:0 0 9px;font-family:var(--ui);font-size:8.6px;letter-spacing:.12em;
+    text-transform:uppercase;color:#7A4A12;text-decoration:none;border-bottom:1px solid rgba(180,132,44,.5)}
+  .empty{padding:14px 4px;color:#8A6A3A;font-style:italic;font-size:12.6px}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+    animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .foot{margin:16px 0 0;text-align:center;font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;
+    text-transform:uppercase;color:#A98545}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="mark">IVORY</span>
+    <span class="sp"></span>
+    <span class="chip" id="chip">the counter</span>
+  </div>
+
+  <p class="kicker">the counter &middot; back of house</p>
+  <h1 id="h1">Two ways in, one switch.</h1>
+  <p class="lede" id="lede">The same two rails the app has, and the same switches: the house opens UPI, or
+    Razorpay, or both, and the website and the app both obey it at once.</p>
+
+  <!-- the door -->
+  <section id="v-door" class="hide">
+    <div class="card">
+      <label class="f"><span>the house account</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
+      <label class="f"><span>its key</span><input type="password" id="pass" autocomplete="current-password" placeholder="your password"></label>
+      <button class="btn" id="signin">Open the counter</button>
+      <p class="note">Only a house account opens this. A member key is refused, and the database refuses it again.</p>
+      <p class="err hide" id="door-err"></p>
+    </div>
+  </section>
+
+  <!-- the switches -->
+  <section id="v-panel" class="hide">
+    <div class="card">
+      <h2>Which rails are open</h2>
+      <div class="modes" id="modes">
+        <button class="mode" type="button" data-mode="upi"><b>UPI only</b><i>straight to the house</i></button>
+        <button class="mode" type="button" data-mode="razorpay"><b>Razorpay only</b><i>card, netbanking</i></button>
+        <button class="mode" type="button" data-mode="both"><b>Both, side by side</b><i>the member chooses</i></button>
+        <button class="mode" data-mode="paused" type="button"><b>Resting</b><i>nothing can be paid</i></button>
+      </div>
+      <p class="note" id="mode-note">This is the app's own switch too. Change it here and the app follows.</p>
+      <p class="err hide" id="mode-err"></p>
+      <p class="ok hide" id="mode-ok"></p>
+    </div>
+
+    <div class="card">
+      <h2>Where the UPI goes</h2>
+      <label class="f"><span>the UPI id</span><input type="text" id="upi-id" placeholder="name@bank" autocomplete="off"></label>
+      <label class="f"><span>the name on it</span><input type="text" id="upi-name" placeholder="Ivory" autocomplete="off"></label>
+      <label class="f"><span>the note that rides with a payment</span><input type="text" id="upi-note" placeholder="Ivory membership" autocomplete="off"></label>
+      <label class="f"><span>what the member is told to do</span><textarea id="upi-instr" placeholder="Pay with any UPI app, then come back and enter the 12-digit UTR…"></textarea></label>
+      <button class="btn" id="save-upi">Keep this</button>
+      <p class="note">Read live by the app and the website — nothing is compiled in, so changing it here changes it everywhere.</p>
+      <p class="err hide" id="upi-err"></p>
+      <p class="ok hide" id="upi-ok"></p>
+    </div>
+
+    <div class="card">
+      <h2>Waiting to be checked</h2>
+      <div id="queue"><div class="empty">Reading the counter…</div></div>
+      <p class="err hide" id="q-err"></p>
+    </div>
+
+    <div class="card">
+      <h2>The last few, settled</h2>
+      <div id="settled"><div class="empty">—</div></div>
+    </div>
+
+    <button class="btn quiet" id="lock">Lock the counter</button>
+  </section>
+
+  <p class="foot">ivory &middot; the counter</p>
+</div>
+
+<script>
+/* ============================================================
+   THE COUNTER · the two rails, switched from here
+   Everything is the app's own: payment_settings, submit_payment,
+   approve_payment, reject_payment. The page only offers the
+   switches; the database still decides who may move them.
+   ============================================================ */
+(function(){
+  'use strict';
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+  var HOUSE_ROLES=['admin','ivory','owner'];
+  var $=function(id){ return document.getElementById(id); };
+  var S={sess:null, profile:null, settings:null, mode:null, busy:false};
+
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
+  function err(id,m){ var e=$(id); if(!m){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=m; e.classList.remove('hide'); }
+  function ok(id,m){ var e=$(id); if(!m){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=m; e.classList.remove('hide'); }
+
+  function save(s){ S.sess=s; try{ if(s) sessionStorage.setItem('ivory.counter',JSON.stringify(s)); else sessionStorage.removeItem('ivory.counter'); }catch(e){} }
+  function load(){ try{ var r=sessionStorage.getItem('ivory.counter'); S.sess=r?JSON.parse(r):null; }catch(e){ S.sess=null; } return S.sess; }
+  function headers(){ var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+
+  function call(path,body,opt){
+    opt=opt||{};
+    return fetch(SB+path,{method:opt.method||'POST',headers:headers(),
+      body:(body===undefined||body===null)?undefined:JSON.stringify(body)})
+      .then(function(r){ return r.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+        if(r.ok) return j;
+        var m=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
+        throw new Error(typeof m==='string'?m:'That did not work.');
+      });});
+  }
+
+  /* ---------- the door ---------- */
+  $('signin').addEventListener('click',function(){
+    var e=$('email').value.trim(), p=$('pass').value, b=this;
+    err('door-err');
+    if(!e||!p){ err('door-err','Both lines, please.'); return; }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Turning';
+    fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})})
+      .then(function(r){ return r.json().then(function(j){
+        if(!r.ok) throw new Error(j.error_description||j.msg||'That sign-in was not accepted.'); return j; }); })
+      .then(function(sess){
+        save(sess);
+        return call('/rest/v1/profiles?select=*&id=eq.'+sess.user.id,null,{method:'GET'}).then(function(rows){
+          var p=rows&&rows[0];
+          if(!p) throw new Error('That account has no house record.');
+          if(HOUSE_ROLES.indexOf(String(p.role||'').toLowerCase())<0)
+            throw new Error('That is a member key, not a house key. The counter stays shut.');
+          S.profile=p; $('pass').value=''; $('chip').textContent=String(p.display_name||'the house');
+          panel();
+        });
+      })
+      .catch(function(x){ save(null); err('door-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Open the counter'; });
+  });
+  $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+  $('lock').addEventListener('click',function(){
+    var t=S.sess&&S.sess.access_token;
+    if(t) fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+t}}).catch(function(){});
+    save(null); S.settings=null; $('v-panel').classList.add('hide'); $('v-door').classList.remove('hide');
+    $('email').value=''; $('pass').value=''; $('chip').textContent='the counter';
+  });
+
+  /* ---------- the switches ---------- */
+  function panel(){
+    $('v-door').classList.add('hide'); $('v-panel').classList.remove('hide');
+    return loadSettings().then(queue);
+  }
+
+  function loadSettings(){
+    return call('/rest/v1/payment_settings?select=*&id=eq.1',null,{method:'GET'}).then(function(rows){
+      S.settings=(rows&&rows[0])||{};
+      S.mode = S.settings.is_active===false ? 'paused' : String(S.settings.mode||'upi').toLowerCase();
+      if(S.mode!=='upi'&&S.mode!=='razorpay'&&S.mode!=='both') S.mode='upi';
+      $('upi-id').value=S.settings.upi_id||'';
+      $('upi-name').value=S.settings.payee_name||'';
+      $('upi-note').value=S.settings.note_template||'';
+      $('upi-instr').value=S.settings.instructions||'';
+      paintModes();
+      return S.settings;
+    }).catch(function(x){ err('mode-err','The settings could not be read — '+x.message); });
+  }
+
+  function paintModes(){
+    [].forEach.call($('modes').children,function(b){
+      b.classList.toggle('on', b.dataset.mode===S.mode);
+    });
+    $('mode-note').textContent = S.mode==='paused'
+      ? 'Everything is resting: no rail is offered in the app or on the site.'
+      : 'This is the app’s own switch too. Change it here and the app follows at once.';
+  }
+
+  [].forEach.call($('modes').children,function(b){
+    b.addEventListener('click',function(){
+      var mode=b.dataset.mode;
+      if(S.busy||mode===S.mode) return;
+      S.busy=true; err('mode-err'); ok('mode-ok');
+      var body={updated_at:new Date().toISOString()};
+      if(mode==='paused'){ body.is_active=false; }
+      else { body.is_active=true; body.mode=mode; }
+      call('/rest/v1/payment_settings?id=eq.1',body,{method:'PATCH'})
+        .then(function(){
+          S.mode=mode;
+          if(S.settings){ S.settings.is_active=body.is_active; if(body.mode) S.settings.mode=body.mode; }
+          paintModes();
+          ok('mode-ok', mode==='paused' ? 'The counter is resting. Nothing can be paid anywhere.'
+            : 'Open. The website and the app both follow this at once.');
+        })
+        .catch(function(x){
+          var m=x.message||String(x);
+          if(mode==='both' && /check|constraint|invalid|enum/i.test(m))
+            m='The house’s table only holds one value of mode at a time. To run both rails at once, the column needs to allow “both” — one line, and I will do it the moment you say.';
+          err('mode-err',m);
+        })
+        .then(function(){ S.busy=false; });
+    });
+  });
+
+  $('save-upi').addEventListener('click',function(){
+    var b=this; err('upi-err'); ok('upi-ok');
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Keeping';
+    call('/rest/v1/payment_settings?id=eq.1',{
+      upi_id:($('upi-id').value||'').trim(),
+      payee_name:($('upi-name').value||'').trim()||'Ivory',
+      note_template:($('upi-note').value||'').trim(),
+      instructions:($('upi-instr').value||'').trim(),
+      updated_at:new Date().toISOString()
+    },{method:'PATCH'})
+      .then(function(){ ok('upi-ok','Kept. The app and the website read this the next time a member pays.'); })
+      .catch(function(x){ err('upi-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Keep this'; });
+  });
+
+  /* ---------- the queue ---------- */
+  function queue(){
+    var box=$('queue');
+    return call('/rest/v1/my_payments?select=*&status=eq.pending&order=created_at.asc&limit=40',null,{method:'GET'})
+      .then(function(rows){
+        if(!rows||!rows.length){ box.innerHTML='<div class="empty">Nothing waiting. Every reference sent has been answered.</div>'; }
+        else { box.innerHTML=''; rows.forEach(function(p){ box.appendChild(row(p)); }); }
+        return call('/rest/v1/my_payments?select=*&status=neq.pending&order=created_at.desc&limit=8',null,{method:'GET'});
+      })
+      .then(function(rows){
+        var s=$('settled');
+        if(!rows||!rows.length){ s.innerHTML='<div class="empty">—</div>'; return; }
+        s.innerHTML=rows.map(function(p){
+          return '<div class="q"><div class="l1"><span class="amt">'+money(p.amount_inr)+'</span>'+
+            '<span class="tier">'+esc(p.tier_name||p.purpose||'—')+'</span>'+
+            '<span class="when" style="color:'+(p.status==='approved'?'#0A6B45':'#8E1230')+'">'+esc(p.status)+'</span></div></div>';
+        }).join('');
+      })
+      .catch(function(x){ err('q-err',x.message||String(x)); });
+  }
+
+  function row(p){
+    var el=document.createElement('div'); el.className='q';
+    var when=p.created_at? new Date(p.created_at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}) : '';
+    el.innerHTML='<div class="l1"><span class="amt">'+money(p.amount_inr)+'</span>'+
+      '<span class="tier">'+esc(p.tier_name||p.purpose||'—')+(p.payer_name?(' · '+esc(p.payer_name)):'')+'</span>'+
+      '<span class="when">'+esc(when)+'</span></div>'+
+      '<div class="utr">UTR '+esc(p.utr||'—')+'</div>'+
+      (p.screenshot_url?'<a class="proof" href="#" data-proof="'+esc(p.screenshot_url)+'">open the screenshot</a>':'')+
+      '<div class="row" style="margin:0 0 8px">'+
+        '<button class="btn sm gold" data-ok="'+p.id+'">It is in the bank</button>'+
+        '<button class="btn sm quiet" data-no="'+p.id+'">Cannot find it</button>'+
+      '</div>';
+    el.querySelector('[data-ok]').addEventListener('click',function(){ approve(p,this); });
+    el.querySelector('[data-no]').addEventListener('click',function(){ reject(p,this); });
+    var link=el.querySelector('[data-proof]');
+    if(link) link.addEventListener('click',function(e){ e.preventDefault(); openProof(p,link); });
+    return el;
+  }
+
+  function approve(p,btn){
+    if(S.busy) return; S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
+    call('/rest/v1/rpc/approve_payment',{payment_id_in:p.id})
+      .then(function(){ ok('q-err'); return queue(); })
+      .catch(function(x){ err('q-err',x.message||String(x)); btn.disabled=false; btn.textContent='It is in the bank'; })
+      .then(function(){ S.busy=false; });
+  }
+
+  function reject(p,btn){
+    if(S.busy) return;
+    var reason=prompt('Why not? (the member sees this)','The reference did not match the bank statement.');
+    if(reason===null) return;
+    S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
+    call('/rest/v1/rpc/reject_payment',{payment_id_in:p.id, reason_in:reason||null})
+      .then(function(){ return queue(); })
+      .catch(function(x){ err('q-err',x.message||String(x)); btn.disabled=false; btn.textContent='Cannot find it'; })
+      .then(function(){ S.busy=false; });
+  }
+
+  function openProof(p,link){
+    if(!p.screenshot_url) return;
+    link.textContent='opening…';
+    call('/storage/v1/object/sign/payment-proofs/'+p.screenshot_url,{expiresIn:1800})
+      .then(function(j){
+        var u=j&&(j.signedURL||j.signedUrl);
+        if(!u) throw new Error('no link');
+        window.open(SB+'/storage/v1'+u, '_blank');
+        link.textContent='open the screenshot';
+      })
+      .catch(function(){ link.textContent='the screenshot could not be opened'; });
+  }
+
+  /* ---------- boot ---------- */
+  var s=load();
+  if(s&&s.access_token){
+    call('/rest/v1/profiles?select=*&id=eq.'+s.user.id,null,{method:'GET'}).then(function(rows){
+      var p=rows&&rows[0];
+      if(p&&HOUSE_ROLES.indexOf(String(p.role||'').toLowerCase())>=0){ S.profile=p; panel(); return; }
+      throw new Error('no');
+    }).catch(function(){ save(null); $('v-door').classList.remove('hide'); });
+  } else { $('v-door').classList.remove('hide'); }
+})();
+</script>
+</body>
+</html>

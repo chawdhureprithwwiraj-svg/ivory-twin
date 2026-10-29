@@ -41,10 +41,12 @@
     padding:15px 15px 14px;margin:0 0 13px}
   label.f{display:block;margin:0 0 11px}
   label.f span{display:block;font-family:var(--ui);font-size:8.2px;letter-spacing:.22em;text-transform:uppercase;color:#96703A;margin:0 0 5px}
-  input[type=email],input[type=password]{width:100%;padding:12px 13px;border-radius:11px;
+  input[type=email],input[type=password],input[type=text],input[type=tel]{width:100%;padding:12px 13px;border-radius:11px;
     border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.86);font-family:var(--serif);font-size:15px;
     color:var(--ink);outline:none;-webkit-appearance:none}
   input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+  input[type=file]{width:100%;font-family:var(--ui);font-size:10.5px;color:#7A4A12}
+
   .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 16px;border:0;
     border-radius:13px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:700;color:var(--cream);
     background:linear-gradient(180deg,#A8162F,#7E0E23);
@@ -52,6 +54,8 @@
     transition:transform .18s var(--ease),filter .18s}
   .btn:active{transform:translateY(1px) scale(.995)}
   .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.gold{color:#3A2007;background:linear-gradient(180deg,#F7D77F,#D9A93F);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 12px 24px -18px rgba(120,74,14,.9)}
   .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);
     box-shadow:none;font-weight:400}
   .note{margin:11px 0 0;font-size:11.6px;line-height:1.55;color:#8A6A3A;font-style:italic}
@@ -59,9 +63,11 @@
     background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
   .ok{margin:11px 0 0;padding:12px;border-radius:11px;font-size:12.8px;line-height:1.6;
     background:rgba(23,197,126,.08);border:1px solid rgba(7,153,92,.3);color:#0A6B45}
+  .warnt{margin:11px 0 0;padding:11px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(233,179,60,.12);border:1px solid rgba(180,132,44,.34);color:#6E4A1C}
   .hide{display:none !important}
 
-  /* — the tier plates — */
+  /* — tiers — */
   .tier{position:relative;z-index:1;margin:0 0 12px;padding:15px 15px 13px;border-radius:16px;
     border:1px solid rgba(180,132,44,.4);
     background:linear-gradient(178deg,#FFFDF6 0%,#FCF3E1 60%,#F7E8CB 100%);
@@ -79,6 +85,34 @@
   .tier.held{border-color:rgba(23,197,126,.45)}
   .tier .flag{font-family:var(--ui);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
     color:#0A6B45;border:1px solid rgba(23,197,126,.45);border-radius:100px;padding:3px 8px}
+
+  /* — the two rails — */
+  #settle{position:relative;z-index:1}
+  .railpick{display:flex;gap:10px;margin:0 0 12px}
+  .railpick button{flex:1;padding:13px 10px;border-radius:13px;cursor:pointer;text-align:left;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--serif);color:#7A4A12;line-height:1.3}
+  .railpick button b{display:block;font-size:13.6px;color:#5C1226;font-style:italic}
+  .railpick button i{display:block;font-style:normal;font-family:var(--ui);font-size:8.4px;
+    letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;margin-top:3px}
+  .railpick button.on{border-color:rgba(150,97,15,.75);background:rgba(255,249,232,.95);
+    box-shadow:0 0 0 3px rgba(196,154,69,.16) inset}
+  .upibox{display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:12px;
+    background:rgba(255,255,255,.75);border:1px dashed rgba(180,132,44,.55);margin:0 0 11px}
+  .upibox code{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;color:#5C1226;word-break:break-all}
+  .upibox button{border:1px solid rgba(180,132,44,.5);background:#fff;border-radius:9px;padding:7px 10px;
+    font-family:var(--ui);font-size:8.6px;letter-spacing:.14em;text-transform:uppercase;color:#7A4A12;cursor:pointer}
+  .steps{margin:0 0 12px;padding:0;list-style:none;counter-reset:s}
+  .steps li{position:relative;padding:0 0 0 26px;margin:0 0 9px;font-size:12.6px;line-height:1.55;color:#4B2C0D;counter-increment:s}
+  .steps li:before{content:counter(s);position:absolute;left:0;top:1px;width:17px;height:17px;border-radius:50%;
+    background:rgba(196,154,69,.18);border:1px solid rgba(180,132,44,.5);color:#8A5A16;
+    font-family:var(--ui);font-size:9px;display:grid;place-items:center}
+  .paylist{margin:14px 0 0}
+  .pay{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px dashed rgba(180,132,44,.3);
+    font-size:12.4px;color:#4B2C0D}
+  .pay b{flex:1;font-weight:400}
+  .pay em{font-style:normal;font-family:var(--ui);font-size:8.4px;letter-spacing:.14em;text-transform:uppercase}
+  .pay em.p{color:#8A6A3A}.pay em.a{color:#0A6B45}.pay em.r{color:#8E1230}
   .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
     animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
@@ -95,12 +129,11 @@
     <span class="chip" id="chip">membership</span>
   </div>
 
-  <p class="kicker" id="kicker">membership &middot; settled here or in the app</p>
-  <h1 id="h1">Three doors into the house.</h1>
-  <p class="lede" id="lede">Every tier is paid a month at a time and runs to the end of that month. The
-    receipt, the access, and the hours are the same whether you settle here or inside the app.</p>
+  <p class="kicker" id="kicker">membership &middot; two ways to settle it</p>
+  <h1 id="h1">Four doors into the house.</h1>
+  <p class="lede" id="lede">A month at a time, and it runs to the end of that month. Settle by UPI straight
+    to the house, or by card and netbanking through Razorpay &mdash; whichever the house has open today.</p>
 
-  <!-- the door -->
   <section id="v-door" class="hide">
     <div class="card">
       <label class="f"><span>email</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
@@ -115,27 +148,82 @@
   <section id="v-held" class="hide"></section>
   <section id="v-tiers"><div class="card"><div class="note" style="margin:0">Reading the ledger…</div></div></section>
 
+  <!-- the two rails, side by side, as the app has them -->
+  <section id="settle" class="hide">
+    <div class="card" id="settle-card">
+      <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 12px">
+        <h2 style="margin:0;flex:1;font-size:18px;font-style:italic;font-weight:700;color:#5C1226" id="settle-h">Settling</h2>
+        <button class="btn quiet" style="width:auto;padding:7px 11px;font-size:11px" id="settle-x">Change</button>
+      </div>
+
+      <div class="railpick" id="railpick"></div>
+
+      <!-- rail 1 · UPI, the house's own id -->
+      <div id="rail-upi" class="hide">
+        <div class="upibox">
+          <code id="upi-id">—</code>
+          <button id="upi-copy" type="button">Copy</button>
+        </div>
+        <ol class="steps">
+          <li>Open any UPI app and send <b id="upi-amt">₹0</b> to the id above.</li>
+          <li>Come back and paste the <b>12-digit UTR</b> or reference from the receipt.</li>
+          <li>The house checks it by hand &mdash; usually the same day. Access opens the moment it is approved.</li>
+        </ol>
+        <a class="btn gold" id="upi-open" href="#" style="text-decoration:none">Open a UPI app with it filled in</a>
+        <label class="f" style="margin-top:13px"><span>the UTR / reference</span>
+          <input type="tel" id="utr" inputmode="numeric" maxlength="24" placeholder="12 digits from your receipt"></label>
+        <label class="f"><span>a screenshot, if you have one (optional)</span>
+          <input type="file" id="proof" accept="image/*"></label>
+        <button class="btn" id="upi-send">Send it to the house</button>
+        <p class="note" id="upi-note">Nothing is charged here. The house reads your reference against the
+          bank statement, and approves or asks.</p>
+        <p class="warnt hide" id="upi-off"></p>
+        <p class="err hide" id="upi-err"></p>
+        <p class="ok hide" id="upi-ok"></p>
+      </div>
+
+      <!-- rail 2 · Razorpay -->
+      <div id="rail-rzp" class="hide">
+        <p class="note" style="margin:0 0 12px">Card, netbanking, wallet or UPI through Razorpay&rsquo;s own
+          window. The house never sees the card &mdash; it stays with Razorpay and your bank.</p>
+        <label class="f"><span>a code, if you were sent one (optional)</span>
+          <input type="text" id="code" placeholder="the code, or leave it empty" autocomplete="off"></label>
+        <button class="btn" id="rzp-pay">Pay by card or netbanking</button>
+        <p class="note">The order is made by the house before the window opens, so the price that appears is
+          the price the house made &mdash; never one typed here.</p>
+        <p class="err hide" id="rzp-err"></p>
+        <p class="ok hide" id="rzp-ok"></p>
+      </div>
+
+      <div class="paylist hide" id="paylist"></div>
+    </div>
+  </section>
+
   <p class="foot"><a href="./">the house</a> &middot; <a href="room.html">the room</a></p>
 </div>
 
 <script>
 /* ============================================================
-   MEMBERSHIP · the real checkout
-   The order is made by the house's own Edge Function and
-   checked by the house's own verifier — exactly the two calls
-   the app makes. Nothing secret lives in this page.
+   MEMBERSHIP · both rails, exactly as the app has them
+   UPI  : the house's own id (payment_settings), a UTR, a screenshot,
+          submit_payment → pending → the house approves by hand.
+   RZP  : rzp-create-order → Razorpay's window → rzp-verify-unlock.
+   Which rails appear is decided by payment_settings.mode, which the
+   house changes in the studio. Nothing secret lives in this page.
    ============================================================ */
 (function(){
   'use strict';
   var SB='https://soephrftgddbwkzwjddj.supabase.co';
   var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
   var $=function(id){ return document.getElementById(id); };
-  var S={sess:null, profile:null, tier:null, busy:false};
+  var S={sess:null, settings:null, tier:null, rail:null, busy:false, poll:null};
 
   function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
   function err(id,msg){ var e=$(id); if(!e) return; if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=msg; e.classList.remove('hide'); }
+  function ok(id,msg){ var e=$(id); if(!e) return; if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.innerHTML=msg; e.classList.remove('hide'); }
+  function clear(id){ err(id); ok(id); }
 
   /* ---------- session ---------- */
   function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
@@ -162,21 +250,51 @@
         if(r.ok) return j;
         if(r.status===401&&!opt.retried){ opt.retried=true; return renew().then(go); }
         var m=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
-        throw new Error(typeof m==='string'?m:'That did not work.');
+        var e=new Error(typeof m==='string'?m:'That did not work.'); e.raw=j; throw e;
       });}); };
     if(expired()&&S.sess) return renew().then(go).catch(go);
     return go();
   }
 
-  /* ---------- the ledger ---------- */
-  function tiers(){
-    return call('/rest/v1/subscription_tiers?select=*&is_active=eq.true&order=level.asc',null,{method:'GET'});
+  /* the house's own sentences, the same ones the app uses */
+  function friendly(x){
+    var m=String((x&&x.message)||x||'');
+    if(m.indexOf('already been submitted')>=0) return 'That reference number has already been used. Each UPI payment can only be submitted once.';
+    if(m.indexOf('does not look like a UTR')>=0) return 'That does not look right. Copy the 12-digit UTR or reference number from your payment receipt.';
+    if(m.indexOf('not available')>=0) return 'That membership is not available right now.';
+    if(m.indexOf('signed in')>=0) return 'Sign in first — the house needs to know whose payment this is.';
+    return m||'Something went wrong. Please check your connection and try again.';
   }
-  function mine(){
-    if(!S.sess) return Promise.resolve(null);
-    return call('/rest/v1/my_membership?select=*&limit=1',null,{method:'GET'})
-      .then(function(r){ return (r&&r[0])||null; }).catch(function(){ return null; });
+
+  /* ---------- the house's settings ---------- */
+  function settings(){
+    return call('/rest/v1/payment_settings?select=*&id=eq.1',null,{method:'GET'}).then(function(rows){
+      S.settings=(rows&&rows[0])||{};
+      return S.settings;
+    });
   }
+  function upiReady(){
+    var id=(S.settings&&S.settings.upi_id)||'';
+    return id.indexOf('@')>0 && id.toLowerCase().indexOf('yourname@')!==0;
+  }
+  /* which rails the house has open: 'upi' · 'razorpay' · 'both' · paused */
+  function railsOpen(){
+    var m=String((S.settings&&S.settings.mode)||'upi').toLowerCase();
+    var active=(S.settings&&S.settings.is_active)!==false;
+    if(!active) return {upi:false,rzp:false,why:'paused'};
+    if(m==='both'||m==='both_on'||m==='parallel') return {upi:true,rzp:true};
+    if(m==='razorpay') return {upi:false,rzp:true};
+    if(m==='upi') return {upi:true,rzp:false};
+    return {upi:true,rzp:true};
+  }
+
+  /* ---------- tiers ---------- */
+  function tiers(){ return call('/rest/v1/subscription_tiers?select=*&is_active=eq.true&order=level.asc',null,{method:'GET'}); }
+  function mine(){ if(!S.sess) return Promise.resolve(null);
+    return call('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1',null,{method:'GET'})
+      .then(function(r){ return (r&&r[0])||null; }).catch(function(){ return null; }); }
+  function myPayments(){ if(!S.sess) return Promise.resolve([]);
+    return call('/rest/v1/my_payments?select=*&order=created_at.desc&limit=6',null,{method:'GET'}).catch(function(){ return []; }); }
 
   function paint(list, held){
     var box=$('v-tiers'); box.innerHTML='';
@@ -190,59 +308,158 @@
         '<span class="price">a month<b>'+money(t.price_inr)+'</b></span></div>'+
         '<p class="d">'+esc(t.description||'')+'</p>'+
         (perks?'<ul>'+perks+'</ul>':'')+
-        '<button class="btn'+(isHeld?' quiet':'')+'" data-tier="'+t.id+'">'+
-          (isHeld?'Renew this one':'Take this door')+'</button>';
-      el.querySelector('[data-tier]').addEventListener('click',function(){ buy(t,this); });
+        '<button class="btn'+(isHeld?' quiet':'')+'">'+(isHeld?'Renew this one':'Take this door')+'</button>';
+      el.querySelector('button').addEventListener('click',function(){ openSettle(t); });
       box.appendChild(el);
     });
     if(!box.children.length) box.innerHTML='<div class="card"><div class="note" style="margin:0">The ledger is empty just now. Write to the house.</div></div>';
   }
 
-  function heldBlock(m){
+  function heldBlock(m, list){
     if(!m){ $('v-held').classList.add('hide'); return; }
-    var name=m.tier_name||m.name||'a tier';
-    var until=m.expires_at||m.ends_at||m.renews_at||m.current_period_end;
-    var when=until? new Date(until).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    var name=m.tier_name||'a tier';
+    var left=m.days_left;
+    var until=m.expires_at? new Date(m.expires_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
     $('v-held').innerHTML='<div class="card"><div class="note" style="margin:0;color:#0A6B45">'+
-      'You hold <b>'+esc(name)+'</b>'+(when?' until '+esc(when):'')+'.</div></div>';
+      'You hold <b>'+esc(name)+'</b>'+(left?' &middot; '+esc(left)+' days left':'')+(until?', until '+esc(until):'')+'.</div></div>';
     $('v-held').classList.remove('hide');
   }
 
-  /* ---------- paying ---------- */
-  function buy(t,btn){
-    if(S.busy) return;
-    S.busy=true; err('door-err');
-    var label=t.name+' · one month';
-    var restore=function(){ btn.disabled=false; btn.textContent='Take this door'; S.busy=false; };
-    btn.disabled=true; btn.innerHTML='<span class="spin"></span> Opening';
-    call('/functions/v1/rzp-create-order',{purpose:'subscription',tier_id:t.id})
-      .then(function(d){
-        if(!d||!d.order_id) throw new Error((d&&d.error)||'The order did not open.');
-        return checkout(d,label).then(function(res){
-          if(!res) { throw new Error('__closed'); }
-          return call('/functions/v1/rzp-verify-unlock',{
-            razorpay_order_id:res.razorpay_order_id,
-            razorpay_payment_id:res.razorpay_payment_id,
-            razorpay_signature:res.razorpay_signature
-          });
-        });
-      })
-      .then(function(v){
-        if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
-        $('v-held').innerHTML='<div class="ok">It is yours now. The house has your payment and everything is open. '+
-          'The receipt sits in the app under your payments.</div>';
-        $('v-held').classList.remove('hide');
-        $('h1').textContent='Welcome into the house.';
-        $('lede').textContent='Your tier is on the account. Nothing else is needed — the room and the letters open with it.';
-        return mine().then(function(m){ heldBlock(m); });
-      })
-      .catch(function(x){
-        if(x&&x.message==='__closed'){ err('door-err','The payment window was closed. Nothing was taken.'); }
-        else err('door-err',x.message||String(x));
-      })
-      .then(restore);
+  /* ---------- opening the settle panel ---------- */
+  function openSettle(t){
+    S.tier=t;
+    $('settle').classList.remove('hide');
+    $('settle-h').textContent=t.name+' · '+money(t.price_inr);
+    var open=railsOpen();
+    var pick=$('railpick'); pick.innerHTML='';
+    var can=[];
+    if(open.upi && upiReady()) can.push('upi');
+    if(open.rzp) can.push('rzp');
+    if(open.upi && !upiReady()){ /* the row exists but the id is a placeholder */ }
+
+    if(!can.length){
+      $('rail-upi').classList.add('hide'); $('rail-rzp').classList.add('hide');
+      pick.innerHTML='<div class="warnt" style="margin:0;flex:1">'+
+        (open.why==='paused'
+          ? 'The house has payments resting just now. Nothing can be settled from here until it reopens them.'
+          : 'The house has its UPI id being set and Razorpay resting. Nothing can be settled from here this moment.')+
+        '</div>';
+      $('settle').scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+    if(can.length>1){
+      can.forEach(function(k){
+        var b=document.createElement('button'); b.type='button'; b.dataset.rail=k;
+        b.innerHTML= k==='upi'
+          ? '<b>UPI, to the house</b><i>your own app</i>'
+          : '<b>Card or netbanking</b><i>through Razorpay</i>';
+        b.addEventListener('click',function(){ chooseRail(k); });
+        pick.appendChild(b);
+      });
+      chooseRail(can[0]);
+    } else {
+      pick.classList.add('hide');
+      chooseRail(can[0]);
+    }
+    if(can.length>1) pick.classList.remove('hide');
+    $('settle').scrollIntoView({behavior:'smooth',block:'start'});
   }
 
+  function chooseRail(k){
+    S.rail=k;
+    [].forEach.call(document.querySelectorAll('#railpick button'),function(b){
+      b.classList.toggle('on', b.dataset.rail===k);
+    });
+    $('rail-upi').classList.toggle('hide', k!=='upi');
+    $('rail-rzp').classList.toggle('hide', k!=='rzp');
+    clear('upi-err'); clear('upi-ok'); clear('rzp-err'); clear('rzp-ok');
+    if(k==='upi') paintUpi();
+    paymentsList();
+  }
+
+  function paintUpi(){
+    var s=S.settings||{}, amt=S.tier?S.tier.price_inr:0;
+    var note=(s.note_template||'Ivory membership')+' · '+(S.tier?S.tier.name:'');
+    $('upi-id').textContent=s.upi_id||'—';
+    $('upi-amt').textContent=money(amt);
+    var link='upi://pay?pa='+encodeURIComponent(s.upi_id||'')+
+      '&pn='+encodeURIComponent(s.payee_name||'Ivory')+
+      '&am='+encodeURIComponent(String(amt))+'&cu=INR&tn='+encodeURIComponent(note);
+    $('upi-open').setAttribute('href',link);
+    if(s.instructions) $('upi-note').textContent=s.instructions;
+    if(!upiReady()){
+      $('upi-off').textContent='The house’s UPI id is being set. Until it is, only the other rail can settle this.';
+      $('upi-off').classList.remove('hide');
+      $('upi-send').disabled=true;
+    } else { $('upi-off').classList.add('hide'); $('upi-send').disabled=false; }
+  }
+
+  /* ---------- UPI: pay, then send the reference ---------- */
+  $('upi-copy').addEventListener('click',function(){
+    var t=(S.settings&&S.settings.upi_id)||'';
+    var b=this;
+    var done=function(){ b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy'; },1600); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(function(){ fallback(); });
+    else fallback();
+    function fallback(){ try{ var i=document.createElement('textarea'); i.value=t; document.body.appendChild(i); i.select();
+      document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+  });
+
+  function uploadProof(file){
+    if(!file) return Promise.resolve(null);
+    var tok=S.sess&&S.sess.access_token; if(!tok) return Promise.resolve(null);
+    var uid=S.sess.user.id;
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase().slice(0,4);
+    var path=uid+'/'+Date.now()+'.'+ext;
+    return fetch(SB+'/storage/v1/object/payment-proofs/'+path,{method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+tok,'Content-Type':file.type||'image/jpeg','x-upsert':'false'},
+      body:file})
+      .then(function(r){ if(!r.ok) return null; return path; })
+      .catch(function(){ return null; });   /* a missing screenshot must never block a real payment */
+  }
+
+  $('upi-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var btn=this, utr=($('utr').value||'').replace(/\s/g,'');
+    clear('upi-err'); clear('upi-ok');
+    if(!S.sess){ err('upi-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(utr.length<6){ err('upi-err','That does not look like a UTR. Copy the reference number from your payment receipt.'); return; }
+    S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Sending';
+    uploadProof(($('proof').files||[])[0])
+      .then(function(path){
+        return call('/rest/v1/rpc/submit_payment',{
+          tier_id_in:S.tier.id, utr_in:utr, screenshot_url_in:path
+        });
+      })
+      .then(function(id){
+        ok('upi-ok','<b>Sent.</b> The house has your reference'+(id?(' (no. '+esc(id)+')'):'')+'. '+
+          'It is checked by hand and access opens the moment it is approved — this page will say so when you come back.');
+        $('utr').value=''; $('proof').value='';
+        watchPayment(id);
+      })
+      .catch(function(x){ err('upi-err',friendly(x)); })
+      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Send it to the house'; });
+  });
+
+  function watchPayment(id){
+    if(S.poll) clearInterval(S.poll);
+    if(!id) return;
+    S.poll=setInterval(function(){
+      call('/rest/v1/my_payments?select=*&id=eq.'+id,null,{method:'GET'}).then(function(rows){
+        var p=rows&&rows[0]; if(!p) return;
+        if(p.status==='approved'){
+          clearInterval(S.poll); S.poll=null;
+          ok('upi-ok','<b>Approved.</b> Your '+esc(p.tier_name||'membership')+' is on the account now.');
+          refreshHeld();
+        } else if(p.status==='rejected'){
+          clearInterval(S.poll); S.poll=null;
+          err('upi-err','The house could not match that reference'+(p.admin_note?(': '+esc(p.admin_note)):'')+'. Write through the quiet door and it will be put right.');
+        }
+      }).catch(function(){});
+    },9000);
+  }
+
+  /* ---------- Razorpay ---------- */
   var RZP=null;
   function loadRzp(){
     if(window.Razorpay) return Promise.resolve(true);
@@ -257,28 +474,76 @@
     return RZP;
   }
 
-  function checkout(d,label){
-    return loadRzp().then(function(){
-      return new Promise(function(resolve){
-        var rzp=new window.Razorpay({
-          key:d.key_id,
-          amount:d.amount_paise,
-          currency:d.currency||'INR',
-          order_id:d.order_id,
-          name:'Ivory',
-          description:label,
-          theme:{color:'#4A0E17'},
-          prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''},
-          handler:function(r){ resolve(r); },
-          modal:{ondismiss:function(){ resolve(null); }}
+  $('rzp-pay').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var btn=this, code=($('code').value||'').trim();
+    clear('rzp-err'); clear('rzp-ok');
+    if(!S.sess){ err('rzp-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Opening';
+    var body={purpose:'subscription', tier_id:S.tier.id};
+    if(code) body.code=code;
+    call('/functions/v1/rzp-create-order',body)
+      .then(function(d){
+        if(!d||!d.order_id) throw new Error((d&&d.error)||'The order did not open.');
+        if(code && d.code_applied!==true) throw new Error('The code could not be applied just now. Please try again in a moment.');
+        return loadRzp().then(function(){
+          return new Promise(function(resolve,reject){
+            var rzp=new window.Razorpay({
+              key:d.key_id, amount:d.amount_paise, currency:d.currency||'INR', order_id:d.order_id,
+              name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
+              prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''},
+              handler:function(r){ resolve(r); },
+              modal:{ondismiss:function(){ resolve(null); }}
+            });
+            rzp.on&&rzp.on('payment.failed',function(resp){
+              err('rzp-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
+              resolve(null);
+            });
+            rzp.open();
+          });
         });
-        rzp.on&&rzp.on('payment.failed',function(resp){
-          err('door-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
-          resolve(null);
+      })
+      .then(function(res){
+        if(!res) throw new Error('__closed');
+        return call('/functions/v1/rzp-verify-unlock',{
+          razorpay_order_id:res.razorpay_order_id,
+          razorpay_payment_id:res.razorpay_payment_id,
+          razorpay_signature:res.razorpay_signature
         });
-        rzp.open();
-      });
+      })
+      .then(function(v){
+        if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
+        ok('rzp-ok','<b>It is yours now.</b> The house has your payment and everything is open. The receipt sits in the app under your payments.');
+        $('h1').textContent='Welcome into the house.';
+        refreshHeld();
+      })
+      .catch(function(x){
+        if(x&&x.message==='__closed') err('rzp-err','The payment window was closed. Nothing was taken.');
+        else err('rzp-err',friendly(x));
+      })
+      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Pay by card or netbanking'; });
+  });
+
+  /* ---------- what this member has already sent ---------- */
+  function paymentsList(){
+    myPayments().then(function(rows){
+      var box=$('paylist');
+      var list=(rows||[]).filter(function(r){ return r && r.status; }).slice(0,5);
+      if(!list.length){ box.classList.add('hide'); box.innerHTML=''; return; }
+      var label={pending:'pending',approved:'approved',rejected:'not verified'};
+      var cls={pending:'p',approved:'a',rejected:'r'};
+      box.innerHTML='<div style="font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;text-transform:uppercase;color:#A98545;margin:0 0 6px">what you have sent</div>'+
+        list.map(function(p){
+          var d=p.created_at? new Date(p.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+          return '<div class="pay"><b>'+money(p.amount_inr)+(p.tier_name?' · '+esc(p.tier_name):'')+' <span style="color:#A98545">'+(d?('· '+esc(d)):'')+'</span></b>'+
+            '<em class="'+(cls[p.status]||'p')+'">'+(label[p.status]||p.status)+'</em></div>';
+        }).join('');
+      box.classList.remove('hide');
     });
+  }
+
+  function refreshHeld(){
+    return mine().then(function(m){ heldBlock(m); paymentsList(); });
   }
 
   /* ---------- the door ---------- */
@@ -292,18 +557,24 @@
       .then(function(){ b.disabled=false; b.textContent='Unlock'; });
   });
   $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+  $('settle-x').addEventListener('click',function(){ $('settle').classList.add('hide'); $('v-tiers').scrollIntoView({behavior:'smooth'}); });
 
   function start(){
     var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
-    $('chip').textContent=who?(who.split('@')[0]):'membership';
+    if(who) $('chip').textContent=who.split('@')[0];
     $('v-door').classList.add('hide');
-    return Promise.all([tiers(), mine()]).then(function(r){ heldBlock(r[1]); paint(r[0],r[1]); });
+    return settings().then(function(){
+      return Promise.all([tiers(), mine()]);
+    }).then(function(r){ paint(r[0],r[1]); heldBlock(r[1]); paymentsList(); });
   }
 
-  /* boot: anyone may look at the three doors; only a signed-in member is marked "yours" */
-  tiers().then(function(list){ paint(list,null); }).catch(function(x){
-    $('v-tiers').innerHTML='<div class="card"><div class="note" style="margin:0">The ledger could not be read — '+esc(x.message)+'</div></div>';
-  });
+  /* boot: anyone may see the doors; the settings decide which rails are open */
+  settings().catch(function(){ S.settings={mode:'upi',is_active:true}; })
+    .then(tiers)
+    .then(function(list){ paint(list,null); })
+    .catch(function(x){
+      $('v-tiers').innerHTML='<div class="card"><div class="note" style="margin:0">The ledger could not be read — '+esc(friendly(x))+'</div></div>';
+    });
   var s=load();
   if(s&&s.access_token){ start().catch(function(){ save(null); $('v-door').classList.remove('hide'); }); }
   else { $('v-door').classList.remove('hide'); }
