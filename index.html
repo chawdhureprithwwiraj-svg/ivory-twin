@@ -8445,6 +8445,129 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
   .rib.dream .who span{font-size:10.2px !important}
   .rib.dream .plate{font-size:7.4px !important;letter-spacing:.1em !important;padding:3px 6px !important}
 }
+
+/* ---------- 42 · THE FINE PRINT · the quiet legal room ---------- */
+#legal{
+  position:fixed;inset:0;z-index:200;display:flex;align-items:stretch;justify-content:center;
+  visibility:hidden;pointer-events:none;opacity:0;
+  transition:opacity .34s var(--ease),visibility .34s var(--ease);
+}
+#legal.on{visibility:visible;pointer-events:auto;opacity:1}
+.lg-veil{position:absolute;inset:0;background:rgba(58,31,6,.40);
+  -webkit-backdrop-filter:blur(7px) saturate(1.05);backdrop-filter:blur(7px) saturate(1.05)}
+.lg-frame{
+  position:relative;display:flex;flex-direction:column;width:100%;max-width:600px;height:100%;
+  background:linear-gradient(180deg,#FFFDF6 0%,#FCF4E2 52%,#F8EBD2 100%);
+  box-shadow:0 0 0 1px rgba(150,101,18,.30),0 30px 80px -30px rgba(40,16,4,.55);
+  transform:translate3d(0,16px,0);transition:transform .40s var(--ease);
+  overflow:hidden;
+}
+#legal.on .lg-frame{transform:none}
+.lg-frame:before{content:'';position:absolute;inset:7px;border:1px solid rgba(180,132,44,.30);
+  border-radius:16px;pointer-events:none;z-index:0}
+.lg-top{position:relative;z-index:2;display:flex;align-items:center;gap:10px;
+  padding:14px 16px 10px;border-bottom:1px solid rgba(180,132,44,.26)}
+.lg-top-k{margin:0;flex:1;text-align:center;font-family:var(--f-ui);font-size:8.6px;
+  letter-spacing:.30em;text-transform:uppercase;color:#96703A}
+.lg-back,.lg-x{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(180,132,44,.34);border-radius:50%;background:rgba(255,255,255,.55);
+  color:#7A4A12;transition:transform .2s var(--ease),background .2s}
+.lg-back:active,.lg-x:active{transform:scale(.94)}
+.lg-back svg{width:17px;height:17px}
+.lg-x svg{width:13px;height:13px}
+.lg-back[hidden]{visibility:hidden}
+.lg-scroll{position:relative;z-index:2;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 20px 40px;scrollbar-width:none}
+.lg-scroll::-webkit-scrollbar{display:none}
+
+/* — index — */
+.lg-index{padding:6px 2px 0}
+.lg-index-k{margin:0 0 8px;font-family:var(--f-ui);font-size:8.4px;letter-spacing:.30em;
+  text-transform:uppercase;color:#A98545}
+.lg-index-h{margin:0 0 10px;font-family:var(--f-display);font-style:italic;font-weight:700;
+  font-size:24px;line-height:1.16;color:var(--bu4);letter-spacing:.005em}
+.lg-lede{margin:0 0 18px;font-size:13.2px;line-height:1.62;color:#6E4A1C;font-style:italic}
+.lg-rows{border-top:1px solid rgba(180,132,44,.28)}
+.lg-row{display:grid;grid-template-columns:1fr auto;grid-template-areas:"t i" "s i";
+  width:100%;gap:2px 12px;padding:13px 2px 12px;background:none;border:0;cursor:pointer;
+  border-bottom:1px solid rgba(180,132,44,.22);text-align:left;align-items:center}
+.lg-row b{grid-area:t;font-family:var(--f-display);font-size:14.6px;font-weight:700;
+  color:#5C1226;letter-spacing:.005em}
+.lg-row span{grid-area:s;font-family:var(--f-ui);font-size:10.4px;color:#8A6A3A;letter-spacing:.02em}
+.lg-row i{grid-area:i;font-style:normal;font-size:19px;color:#C49A45;line-height:1;transition:transform .22s var(--ease)}
+.lg-row:active i{transform:translateX(3px)}
+
+/* — the officer — */
+.lg-officer{margin:22px 0 0;padding:16px 15px 14px;border:1px solid rgba(180,132,44,.34);
+  border-radius:13px;background:rgba(255,255,255,.52)}
+.lg-officer h4{margin:0 0 7px;font-family:var(--f-ui);font-size:8.4px;letter-spacing:.28em;
+  text-transform:uppercase;color:#96703A}
+.lg-officer p{margin:0 0 9px;font-size:12.6px;line-height:1.6;color:#4B2C0D}
+.lg-officer p:last-child{margin-bottom:0}
+.lg-officer b{color:#5C1226}
+.lg-officer a{color:#7A4A12;text-decoration:none;border-bottom:1px solid rgba(180,132,44,.5)}
+.lg-clock{display:flex;gap:14px;margin:12px 0 0;padding-top:11px;border-top:1px solid rgba(180,132,44,.24)}
+.lg-clock div{flex:1}
+.lg-clock u{display:block;text-decoration:none;font-family:var(--f-display);font-size:16px;
+  font-weight:700;color:#5C1226;line-height:1}
+.lg-clock s{display:block;text-decoration:none;margin-top:4px;font-family:var(--f-ui);
+  font-size:8.6px;letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;line-height:1.4}
+.lg-web{margin:18px 0 0;padding:13px 15px;border-radius:12px;background:rgba(233,179,60,.10);
+  border:1px solid rgba(180,132,44,.24);font-size:12.2px;line-height:1.62;color:#4B2C0D}
+.lg-web b{color:#5C1226}
+.lg-foot{margin:20px 0 0;font-family:var(--f-ui);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:#A98545;text-align:center}
+
+/* — a document — */
+.lg-doc{padding:2px 1px 0}
+.lg-doc[hidden]{display:none}
+.lg-doc-k{margin:0 0 7px;font-family:var(--f-ui);font-size:8.4px;letter-spacing:.30em;
+  text-transform:uppercase;color:#A98545}
+.lg-doc-h{margin:0 0 6px;font-family:var(--f-display);font-style:italic;font-weight:700;
+  font-size:23px;line-height:1.16;color:var(--bu4)}
+.lg-doc-up{margin:0 0 16px;font-family:var(--f-ui);font-size:9.2px;letter-spacing:.14em;
+  text-transform:uppercase;color:#9A7742;padding-bottom:13px;border-bottom:1px solid rgba(180,132,44,.26)}
+.lg-doc-b h3{margin:22px 0 7px;font-family:var(--f-ui);font-size:9.4px;font-weight:700;
+  letter-spacing:.19em;text-transform:uppercase;color:#8A5A16;line-height:1.45}
+.lg-doc-b h3:first-child{margin-top:4px}
+.lg-doc-b h3 i{font-style:normal;display:inline-block;min-width:22px;color:#C49A45;
+  font-family:var(--f-display);font-size:11px;letter-spacing:.06em}
+.lg-doc-b p{margin:0 0 10px;font-size:13.4px;line-height:1.66;color:#4B2C0D}
+.lg-doc-back{display:block;width:100%;margin:24px 0 0;padding:12px 0;cursor:pointer;
+  border:1px solid rgba(180,132,44,.42);border-radius:11px;background:rgba(255,255,255,.5);
+  font-family:var(--f-ui);font-size:9.4px;letter-spacing:.22em;text-transform:uppercase;color:#7A4A12}
+.lg-heart{display:inline-block;margin:0 4px 0 0;color:#C49A45}
+
+/* the home footer's quiet line */
+.foot-fine{display:inline-block;margin:7px 0 0;padding:2px 6px;cursor:pointer;
+  background:none;border:0;border-bottom:1px solid rgba(150,101,18,.34);
+  font-family:var(--f-ui);font-size:8.4px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(120,80,20,.72)}
+.foot-fine:active{color:#7A4A12}
+@media (max-width:400px){
+  .lg-index-h{font-size:21.5px}
+  .lg-doc-h{font-size:20.5px}
+  .lg-doc-b p{font-size:12.9px}
+  .lg-scroll{padding-left:16px;padding-right:16px}
+}
+
+
+/* ---------- 43 · THE FILM, ON A DEVICE THAT WILL NOT PLAY IT ---------- */
+.rite-plate{
+  background-image:url("media/wheel_opening_poster.jpg");
+  background-size:cover;background-position:50% 42%;background-repeat:no-repeat;
+  background-color:#1B1030;
+}
+.rite-film{transition:opacity .30s ease}
+.rite-plate.no-film .rite-film{opacity:0 !important}
+.rite-plate.no-film:after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 80% at 50% 46%, rgba(255,239,184,.16), rgba(0,0,0,0) 62%);
+  animation:riteStillBreath 5.2s ease-in-out infinite;
+}
+@keyframes riteStillBreath{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.rite-plate.no-film:after{animation:none;opacity:.8}}
+
 </style>
 </head>
 <body>
@@ -8890,6 +9013,7 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
     <div class="hp-footwrap">
       <p class="foot">This platform is maintained by 'Infinity'. All rights reserved 2026</p>
       <button class="sound" id="sound" title="Sound"><span class="si">♪</span> SOUND ON</button>
+      <button class="foot-fine" data-legal aria-label="Privacy, safety and terms">the fine print</button>
     </div>
   </div>
 </section>
@@ -9277,8 +9401,8 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
       </button>
 
       <div class="pf-links">
-        <a href="#" data-tap>something’s not right?</a>
-        <a href="#" data-tap>privacy, safety &amp; terms</a>
+        <a href="#legal" data-legal="door" data-tap>something’s not right?</a>
+        <a href="#legal" data-legal data-tap>privacy, safety &amp; terms</a>
       </div>
 
       <div class="pulse-strip"><span class="pulse-dot" aria-hidden="true"></span>
@@ -11652,7 +11776,7 @@ function sparkleAt(el){
 <div id="rite" role="dialog" aria-modal="true" aria-label="The wheel descends" aria-hidden="true">
   <span class="rite-veil" aria-hidden="true"></span>
   <div class="rite-plate" id="rite-plate">
-    <video class="rite-film" id="rite-film" playsinline muted preload="auto" aria-hidden="true">
+    <video class="rite-film" id="rite-film" playsinline webkit-playsinline x5-playsinline muted preload="auto" poster="media/wheel_opening_poster.jpg" aria-hidden="true">
       <source src="media/wheel_opening.mp4" type="video/mp4">
     </video>
     <span class="rite-plate-lab">The Gilded Hours</span>
@@ -14005,6 +14129,356 @@ function sparkleAt(el){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+})();
+</script>
+
+<!-- ······· 12 · THE FINE PRINT · privacy, safety &amp; terms ······· -->
+<div id="legal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Privacy, safety and terms">
+  <span class="lg-veil" aria-hidden="true"></span>
+  <div class="lg-frame" role="document">
+    <header class="lg-top">
+      <button class="lg-back" id="lg-back" aria-label="Back" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 5.6L8 12l6.4 6.4"/></svg>
+      </button>
+      <p class="lg-top-k" id="lg-top-k">the fine print</p>
+      <button class="lg-x" id="lg-x" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+    <div class="lg-scroll" id="lg-scroll">
+
+      <div class="lg-index" id="lg-index">
+        <p class="lg-index-k">privacy, safety &amp; terms</p>
+        <h2 class="lg-index-h">Nothing hidden, nothing shouted.</h2>
+        <p class="lg-lede">Four short documents &mdash; what this house is, what it does with what you tell it,
+          what it promises, and what comes back if something goes wrong. Written in plain sentences,
+          and the same words the app keeps.</p>
+
+        <div class="lg-rows">
+        <button class="lg-row" data-doc="content"><b>Content &amp; conduct</b><span>what this house is, and what it is not</span><i aria-hidden="true">›</i></button>
+        <button class="lg-row" data-doc="privacy"><b>Privacy</b><span>what is taken, why, and how long it is kept</span><i aria-hidden="true">›</i></button>
+        <button class="lg-row" data-doc="terms"><b>Terms of use</b><span>the agreement between you and the house</span><i aria-hidden="true">›</i></button>
+        <button class="lg-row" data-doc="refunds"><b>Refunds</b><span>what comes back, and when</span><i aria-hidden="true">›</i></button>
+        </div>
+
+        <div class="lg-officer" id="lg-door">
+          <h4>the officer &middot; the quiet door</h4>
+          <p>Every complaint, question or legal notice reaches <b>a person, not a queue</b>. Write to the
+            Grievance Officer named here and it is answered &mdash; there is no script and no ticket tree
+            behind it.</p>
+          <p class="lg-mail" id="lg-mail"></p>
+          <div class="lg-clock">
+            <div><u>48 hours</u><s>to acknowledge<br>your complaint</s></div>
+            <div><u>one month</u><s>to resolve it<br>or say why not</s></div>
+            <div><u>same day</u><s>for anything<br>about safety</s></div>
+          </div>
+        </div>
+
+        <div class="lg-web">
+          <b>On the web.</b> This page sets no advertising cookie, carries no tracking pixel and loads
+          nothing from anyone else. The only thing it stores is your own preference &mdash; sound, a
+          remembered visit &mdash; and that stays in your own browser. No card detail is taken on this
+          website: membership and gifts are settled inside the app, by the payment page the house already
+          uses. The two clocks above are the ones India&rsquo;s consumer rules ask for; the safety line
+          moves faster than either.
+        </div>
+
+        <p class="lg-foot">Ivory &middot; the fine print &middot; 2026</p>
+      </div>
+
+<div class="lg-docs">
+      <article class="lg-doc" id="lg-content" hidden>
+        <p class="lg-doc-k">the fine print</p>
+        <h2 class="lg-doc-h">Content &amp; conduct</h2>
+        <p class="lg-doc-up">Last updated 2026 &middot; the same words as the app</p>
+        <div class="lg-doc-b">
+        <h3><i>01</i>What Ivory is</h3>
+        <p>Stories, voice, film and private conversation, made by one artist. Intimate in tone, adult in audience, and suggestive where it wants to be.</p>
+        <h3><i>02</i>What Ivory is not</h3>
+        <p>No nudity. No sexual acts, shown or described in explicit detail. No in-person meetings, arranged or hinted at, ever. No escorting, no soliciting, and nothing that treats a member as a transaction.</p>
+        <p>These are not temporary limits. They are what the house is.</p>
+        <h3><i>03</i>Adults only</h3>
+        <p>Every member confirms they are 18 or older. The app is rated for adults. An account found to belong to someone younger is closed and refunded.</p>
+        <h3><i>04</i>How members behave</h3>
+        <p>Be decent. Do not demand what section 2 says does not exist. Do not press for a personal number, an address or a meeting. Do not record. Do not repeat a private conversation outside Ivory.</p>
+        <p>A member who harasses or threatens is removed immediately and without refund. There is no second warning for that one.</p>
+        <h3><i>05</i>How the house behaves</h3>
+        <p>The house will never ask for your password, your card number, your UPI PIN or an OTP. The house will never ask you to pay anywhere outside the app. The house will never propose meeting you.</p>
+        <p>If a message appears to come from Ivory and does any of those things, it is not from Ivory. Report it through the quiet door.</p>
+        <h3><i>06</i>What happens in a session</h3>
+        <p>A session is between the two people in it. The house does not record. You may not record. Either side may end a session at any moment, for any reason or none.</p>
+        <h3><i>07</i>Reporting</h3>
+        <p>The quiet door is on the privacy, safety and terms page and inside the app wherever something can go wrong. It reaches a person, not a queue, and the serious things are dealt with the same day.</p>
+        <h3><i>08</i>If something unlawful appears</h3>
+        <p>Tell the house. It is removed on sight, the account behind it is closed, and where the law requires it the matter is reported to the authorities.</p>
+        <h3><i>09</i>AI and authenticity</h3>
+        <p>Everything in Ivory is made by the artist. Nothing here is a synthetic likeness of another person, and nothing is presented as someone it is not.</p>
+        </div>
+        <button class="lg-doc-back" data-lgindex>Back to the four</button>
+      </article>
+      <article class="lg-doc" id="lg-privacy" hidden>
+        <p class="lg-doc-k">the fine print</p>
+        <h2 class="lg-doc-h">Privacy</h2>
+        <p class="lg-doc-up">Last updated 2026 &middot; the same words as the app</p>
+        <div class="lg-doc-b">
+        <h3><i>01</i>The short version</h3>
+        <p>Ivory collects as little as it can get away with. Nothing is sold. Nothing is handed to advertisers. There are no tracking pixels and no advertising networks anywhere in this app.</p>
+        <h3><i>02</i>What is collected</h3>
+        <p>Your account: the email address you use to sign in and the name you choose to show. At signup you may also provide an optional phone number and date of birth. Those details are kept apart from your public profile and are not shown to other members.</p>
+        <p>Your profile photo, if you choose one. It appears on your Profile page and beside your messages in live chat. Only people allowed to view that broadcast can view the chat photo. If you are a confirmed gifter on a post, your photo also appears beside your name in that post's gifts section, visible only to members who can open that post.</p>
+        <p>Your membership: which tier you hold, when it started and when it renews.</p>
+        <p>Your payments: the amount, the date, the reference number you type in after paying, and the screenshot if you send one. The house never sees your card, your bank login or your UPI PIN - those stay with your own bank and payment app.</p>
+        <p>Your activity in Ivory: what you have unlocked, which sessions you have booked, how long a session lasted, and the messages you send to the house.</p>
+        <p>Your Quiet Folio, if you use it: private notes, writing drafts, saved web links and optional notes linked to your own scheduled calls. These entries sync to your Ivory account so you can return to them on another device. They are not end-to-end encrypted.</p>
+        <p>Your device, for notifications only: a token from Google that lets a message reach your phone. It identifies the phone, not you, and it is deleted when you sign out.</p>
+        <h3><i>03</i>What is not collected</h3>
+        <p>No location. No contacts. No browsing of other apps. The app reads only the photo you deliberately choose for your profile; it does not scan your photo library. No microphone or camera except during a session you joined yourself, and nothing from them is recorded or stored. No advertising identifier.</p>
+        <h3><i>04</i>Why</h3>
+        <p>To let you in, to show you what your membership includes, to run the sessions you book, to confirm payments, to answer you when you write, to keep the private Folio pages you choose to save, and to meet the record-keeping the law requires of anyone taking money. A phone number is optional, is not a sign-in method, and is not displayed publicly. If you share your real birthday, Ivory will try to prepare a small birthday token; it is not guaranteed.</p>
+        <h3><i>05</i>Who else sees it</h3>
+        <p>Supabase holds sign-in, the database and private profile-photo files; Google Firebase delivers notifications; Agora carries the live audio and video; Cloudflare R2 stores film, voice and published post photo/cover files; Razorpay, where used, handles payment. Each receives only what is needed to make that service work.</p>
+        <p>Published post photos and covers use public image links; only publish images intended to be visible to anyone with their link. Profile photos and payment screenshots stay on a private path and use time-limited viewing links.</p>
+        <p>The Ivory house can access optional phone and birthday details for account administration and the possible birthday token. Other members cannot see those details. A member who is allowed to view the same live broadcast can see your chat messages and, if you chose a photo, that photo beside them. Photo files are private; the app uses time-limited links to display them. Anyone given such a link may view it until it expires.</p>
+        <p>Quiet Folio pages are protected by database rules tied to your signed-in account; other members and the app's ordinary admin screens cannot read them. They are not end-to-end encrypted. Authorized service operators with privileged database access may access account data where needed to operate or support the service.</p>
+        <p>No advertiser or data broker receives your information. The only other exception is a demand the house is legally required to answer, and the house will tell you if that happens unless forbidden.</p>
+        <h3><i>06</i>Calls are not recorded</h3>
+        <p>Sessions are live only. No recording is made by the house, not of video, not of audio. What was said exists only in the memory of the two people who were there. Recording a session yourself is forbidden by the terms of use.</p>
+        <h3><i>07</i>How long it is kept</h3>
+        <p>Your account details stay while the account exists. Optional phone and birthday details are stored separately from the public profile. Quiet Folio entries stay until you delete them or ask for account erasure. Profile photos stay until you remove or replace them, or ask for erasure. Payment records are kept for eight years because tax law requires it. Messages to the house are kept while the matter is open and for a reasonable time after. Notification tokens die when you sign out. Nothing is auto-deleted behind your back.</p>
+        <h3><i>08</i>Your rights</h3>
+        <p>You may view, edit or delete each Quiet Folio page in the app. You may also ask what is held about you, ask for a mistake to be corrected, ask for your account and its data to be erased, and withdraw a consent you gave. Ask through the quiet door or write to the Grievance Officer. The house answers within 30 days, and usually the same day.</p>
+        <p>Erasure removes what the law allows to be removed. Payment records stay for the eight years mentioned above - the house is not permitted to delete those.</p>
+        <h3><i>09</i>Children</h3>
+        <p>Ivory is for adults. The house does not knowingly hold the data of anyone under 18, and deletes it on discovery.</p>
+        <h3><i>10</i>Security</h3>
+        <p>Everything travels encrypted. Access to the database is restricted by rules that run on the server, not in the app, so one member cannot read another's private account details. No system is beyond failure; if one happens and it affects you, the house will tell you and tell the authorities, as the law requires.</p>
+        <h3><i>11</i>Where it lives</h3>
+        <p>Data is stored on servers operated by the providers in section 5, which may be outside India. They are bound to protect it to the standard described here.</p>
+        <h3><i>12</i>Changes</h3>
+        <p>If this notice changes, the date at the top changes and the app says so.</p>
+        <h3><i>13</i>Who to ask</h3>
+        <p>The Grievance Officer named on the privacy, safety and terms page. A real person, and the only address the house uses for this.</p>
+        </div>
+        <button class="lg-doc-back" data-lgindex>Back to the four</button>
+      </article>
+      <article class="lg-doc" id="lg-terms" hidden>
+        <p class="lg-doc-k">the fine print</p>
+        <h2 class="lg-doc-h">Terms of use</h2>
+        <p class="lg-doc-up">Last updated 2026 &middot; the same words as the app</p>
+        <div class="lg-doc-b">
+        <h3><i>01</i>Who this is between</h3>
+        <p>Ivory is run by one person, from India. In these terms "the house" means Ivory, and "you" means the member reading them. Using the app means you accept what is written here. If you do not, please stop using it and ask for your account to be removed through the quiet door.</p>
+        <h3><i>02</i>You must be 18</h3>
+        <p>Ivory is for adults only. By using it you confirm you are 18 years old or more. If the house has reason to believe a member is under 18, the account is closed and anything paid for and not yet delivered is refunded.</p>
+        <h3><i>03</i>What Ivory is</h3>
+        <p>Ivory is a private place for stories, voice, film and conversation made by one artist for the people who choose to be here. There is no nudity and no explicit content. There are no meetings in person, ever, and nobody from the house will suggest one.</p>
+        <h3><i>04</i>Your account</h3>
+        <p>Your account is yours alone. Do not share the login. If you think someone else has reached it, tell the house immediately through the quiet door and it will be locked while it is sorted out.</p>
+        <h3><i>05</i>What you may not do</h3>
+        <p>Do not record, screenshot, copy, repost or sell anything you see or hear in Ivory. Do not quote a private session anywhere outside it. Do not use Ivory to harass anyone, to threaten anyone, or to pass anything unlawful through it. Do not try to break, probe or overload the app or the services behind it.</p>
+        <p>Any of these can end a membership without a refund of time already used.</p>
+        <h3><i>06</i>Membership and payment</h3>
+        <p>Tiers are paid in advance for a stated period. What each tier includes is shown on the membership page before you pay and can change for future periods, never for one already paid for. Prices are in Indian rupees and include any tax the house is required to collect.</p>
+        <h3><i>07</i>Sessions</h3>
+        <p>A session is a private call booked inside Ivory. A booking needs a free slot, and slots exist only inside the hours shown on the calendar. Sessions start when both sides connect, not at the clock time. Running past the booked length does not end a session; the house may offer more time, at a price shown before you agree to it.</p>
+        <p>If you cannot make a session, move it. The reschedule button is there for exactly that and there is no charge for using it.</p>
+        <h3><i>08</i>If the house cannot attend</h3>
+        <p>If a session cannot happen from the house's side, it is rescheduled at your convenience or refunded in full, whichever you prefer. That is a promise, not a courtesy.</p>
+        <h3><i>09</i>Content belongs to the house</h3>
+        <p>Everything in Ivory - words, voice, film, photographs, the look of the app - belongs to the house. Paying for access is paying to see and hear it, here, for as long as your access lasts. It is not a transfer of ownership and it is not permission to use it anywhere else.</p>
+        <h3><i>10</i>What you send</h3>
+        <p>Anything you write or send to the house stays yours. By sending it you allow the house to read it, keep it while it is needed, and answer it. The house will not publish anything you sent privately.</p>
+        <h3><i>11</i>When things break</h3>
+        <p>Ivory is run honestly and carefully, but no app is perfect. The house does not promise it will never be unavailable. Where the law allows, the house's responsibility for any one problem is limited to what you paid for the thing that went wrong. Nothing here removes a right you have under Indian consumer law.</p>
+        <h3><i>12</i>Ending it</h3>
+        <p>You may stop being a member whenever you like; access runs to the end of the period you have paid for. The house may close an account that breaks section 5, or that is used to harm another member.</p>
+        <h3><i>13</i>The law</h3>
+        <p>These terms are governed by the law of India, and the courts of West Bengal have jurisdiction. If any single sentence here is found unenforceable, the rest still stands.</p>
+        <h3><i>14</i>Changes</h3>
+        <p>If these terms change, the date at the top changes and the app will say so. Continuing to use Ivory after that means you accept the new version.</p>
+        <h3><i>15</i>Reaching a person</h3>
+        <p>Every complaint, question or legal notice goes to the Grievance Officer named on the previous page, or through the quiet door inside the app. A real person reads it.</p>
+        </div>
+        <button class="lg-doc-back" data-lgindex>Back to the four</button>
+      </article>
+      <article class="lg-doc" id="lg-refunds" hidden>
+        <p class="lg-doc-k">the fine print</p>
+        <h2 class="lg-doc-h">Refunds</h2>
+        <p class="lg-doc-up">Last updated 2026 &middot; the same words as the app</p>
+        <div class="lg-doc-b">
+        <h3><i>01</i>The idea</h3>
+        <p>A purchase in Ivory is a ticket to a private performance. The moment it reaches you it has been performed, so a change of mind is not a refund. That is the rule, and the exceptions below are real exceptions, not loopholes to argue through.</p>
+        <h3><i>02</i>Always refunded</h3>
+        <p>A ticket that never arrived. You paid and nothing unlocked, or it unlocked and will not open.</p>
+        <p>A double charge. Two payments for one thing, whatever caused it.</p>
+        <p>A show pulled before you stepped in. You paid for something that was then taken down before you could see or hear it.</p>
+        <p>A session the house could not attend. Full refund, or a new time, whichever you prefer.</p>
+        <h3><i>03</i>Sessions</h3>
+        <p>A session you cannot make should be moved, not cancelled. The reschedule button is on the session itself and costs nothing.</p>
+        <p>If you simply do not come, and do not move it, the time is used. The house held that hour for you and turned others away. After a small number of no-shows the booking privilege pauses; the app tells you where you stand before that happens.</p>
+        <p>A session cut short by a failure on the house's side is either finished later at your convenience or refunded for the part you did not get.</p>
+        <h3><i>04</i>Membership</h3>
+        <p>A tier is paid for a period and runs to the end of that period. Stopping a membership stops the next renewal; it does not refund the period you are inside. If a tier is charged after you stopped it, that is a double charge under section 2 and it comes back.</p>
+        <h3><i>05</i>Extensions</h3>
+        <p>Time added to a session that then could not be used, because of a failure on the house's side, is refunded in full.</p>
+        <h3><i>06</i>How to ask</h3>
+        <p>Use the quiet door inside the app and choose "a payment or refund". Tell the house what happened and quote the reference number from your payment. Ask within the window shown on the privacy, safety and terms page.</p>
+        <h3><i>07</i>What happens next</h3>
+        <p>The house replies, and serious things are dealt with the same day. An approved refund goes back to the method you paid from, within the number of days shown on that same page. The house cannot send it anywhere else - that is a rule of the payment system, not a preference.</p>
+        <h3><i>08</i>If you are not satisfied</h3>
+        <p>Write to the Grievance Officer. If you are still not satisfied, nothing here takes away your right to go to a consumer forum under the Consumer Protection Act 2019.</p>
+        </div>
+        <button class="lg-doc-back" data-lgindex>Back to the four</button>
+      </article>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   THE FINE PRINT — the quiet legal room
+   One discreet layer. Four documents. The officer's door.
+   ============================================================ */
+(function(){
+  /* ---- every address the house uses, in one block --------------
+     The day the domain mail is approved, set live:true and every
+     page, sheet and letter follows at once. One edit, nowhere else. */
+  var MAIL={
+    domain:'house-of-ivory.eu.org',
+    live:false,
+    boxes:{hello:'hello',officer:'officer',privacy:'privacy',refunds:'refunds',support:'support',
+           care:'care',studio:'studio',accounts:'accounts',guests:'guests',press:'press'}
+  };
+  function addr(k){ return MAIL.boxes[k]+'@'+MAIL.domain; }
+  window.IVORY_MAIL=MAIL; window.ivoryAddress=addr;
+
+  var L=document.getElementById('legal'); if(!L) return;
+  var scroll=document.getElementById('lg-scroll');
+  var index=document.getElementById('lg-index');
+  var back=document.getElementById('lg-back');
+  var topK=document.getElementById('lg-top-k');
+  var rows=[].slice.call(L.querySelectorAll('.lg-doc'));
+  var openDoc=null, lastFocus=null;
+
+  /* the officer's line, drawn from the one block above */
+  var mailEl=document.getElementById('lg-mail');
+  if(mailEl){
+    if(MAIL.live){
+      mailEl.innerHTML='The Grievance Officer &middot; <a href="mailto:'+addr('officer')+'">'+addr('officer')+'</a>'+
+        '<br>Payments and refunds &middot; <a href="mailto:'+addr('refunds')+'">'+addr('refunds')+'</a>'+
+        '<br>Privacy and erasure &middot; <a href="mailto:'+addr('privacy')+'">'+addr('privacy')+'</a>';
+    } else {
+      mailEl.innerHTML='The house mail is being set. Until the address below opens, the quiet door on your '+
+        'Profile page &mdash; <b>something&rsquo;s not right?</b> &mdash; reaches the same person, and the '+
+        'two clocks below still run from the moment you write.';
+    }
+  }
+
+  function showIndex(){
+    rows.forEach(function(a){ a.hidden=true; });
+    index.hidden=false; back.hidden=true; topK.textContent='the fine print';
+    openDoc=null;
+  }
+  function showDoc(k){
+    var el=document.getElementById('lg-'+k); if(!el) return;
+    rows.forEach(function(a){ a.hidden=(a!==el); });
+    index.hidden=true; back.hidden=false;
+    topK.textContent=(el.querySelector('.lg-doc-h')||{}).textContent||'the fine print';
+    openDoc=k;
+    if(scroll) scroll.scrollTop=0;
+  }
+  function open(where){
+    lastFocus=document.activeElement;
+    if(where && where!=='index' && where!=='door' && document.getElementById('lg-'+where)) showDoc(where);
+    else { showIndex(); if(scroll){ scroll.scrollTop = (where==='door') ? 9999 : 0; } }
+    L.classList.add('on'); L.setAttribute('aria-hidden','false');
+    document.body.classList.add('legal-open');
+    try{ if(window.Sound&&Sound.tap) Sound.tap(); }catch(e){}
+    var f=L.querySelector('.lg-x'); if(f&&f.focus) setTimeout(function(){ try{f.focus({preventScroll:true});}catch(e){} },160);
+  }
+  function close(){
+    L.classList.remove('on'); L.setAttribute('aria-hidden','true');
+    document.body.classList.remove('legal-open');
+    setTimeout(showIndex,340);
+    if(lastFocus&&lastFocus.focus) try{ lastFocus.focus({preventScroll:true}); }catch(e){}
+  }
+
+  window.IvoryLegal={ open:open, close:close, address:addr, mail:MAIL };
+
+  [].forEach.call(document.querySelectorAll('[data-legal]'),function(el){
+    el.addEventListener('click',function(e){
+      e.preventDefault(); e.stopPropagation();
+      open(el.getAttribute('data-legal')||'');
+    });
+  });
+  [].forEach.call(document.querySelectorAll('[data-doc]'),function(el){
+    el.addEventListener('click',function(){ showDoc(el.getAttribute('data-doc')); });
+  });
+  [].forEach.call(document.querySelectorAll('[data-lgindex]'),function(el){
+    el.addEventListener('click',function(){ showIndex(); if(scroll) scroll.scrollTop=0; });
+  });
+  document.getElementById('lg-x').addEventListener('click',close);
+  back.addEventListener('click',function(){ showIndex(); if(scroll) scroll.scrollTop=0; });
+  L.querySelector('.lg-veil').addEventListener('click',close);
+  document.addEventListener('keydown',function(e){
+    if(!L.classList.contains('on')) return;
+    if(e.key==='Escape'){ e.preventDefault(); close(); }
+  });
+  if((location.hash||'').toLowerCase()==='#legal') setTimeout(function(){ open(''); },400);
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   THE FILM, ON A DEVICE THAT WILL NOT PLAY IT (iOS, data-saver,
+   a page that has lost its network). The poster is already under
+   the film, so the plate is never a black hole; and if the film
+   cannot decode, the ceremony moves on at once instead of holding
+   a still for three seconds. Nothing here delays a film that plays.
+   ============================================================ */
+(function(){
+  var film=document.getElementById('rite-film');
+  var plate=document.getElementById('rite-plate');
+  if(!film||!plate||!window.IvoryRite) return;
+
+  function still(on){ if(on) plate.classList.add('no-film'); else plate.classList.remove('no-film'); }
+  function decoded(){ return film.readyState>=2 && film.videoWidth>0; }
+
+  film.addEventListener('loadeddata',function(){ if(decoded()) still(false); });
+  film.addEventListener('playing',function(){ still(false); });
+  film.addEventListener('error',function(){ still(true); cut(); });
+  film.addEventListener('stalled',function(){ /* keep whatever is on screen; the timer still runs */ });
+
+  /* cut: hand the rite's own 'ended' path the job of falling */
+  var cutOnce=false;
+  function cut(){
+    if(cutOnce) return; cutOnce=true;
+    try{ film.dispatchEvent(new Event('ended')); }catch(e){}
+  }
+  film.addEventListener('play',function(){ cutOnce=false; });
+
+  var _play=window.IvoryRite.play;
+  window.IvoryRite.play=function(){
+    var r=_play.apply(this,arguments);
+    setTimeout(function(){
+      if(decoded() && !film.paused) return;      /* the film is playing; leave it alone */
+      if(!decoded()){
+        still(true);
+        /* paused at the first frame with nothing decoded = it will not play here */
+        if(film.paused) cut();
+      }
+    },820);
+    return r;
+  };
+
+  /* a device that reports no video support at all */
+  if(!film.canPlayType || film.canPlayType('video/mp4')===''){
+    still(true);
+    film.addEventListener('error',cut);
+  }
 })();
 </script>
 </body>
