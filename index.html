@@ -9995,6 +9995,240 @@ body.on-desk .ribbonlay{display:none}
 .pm-proof{display:block;width:100%;height:auto;border-radius:14px;margin:4px 0 14px;
   box-shadow:0 0 0 1px rgba(168,131,68,.4),0 16px 34px -20px rgba(0,0,0,.7)}
 </style>
+
+<style id="iv-store-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE STRONGROOM · the rails, the switch, the shelves
+   Wine, champagne, brass. Nothing flat, nothing cheap, nothing that moves
+   without being asked. Reduced motion is honoured at the foot of the file.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── the three plates ─────────────────────────────────────────────────── */
+.st-rails{display:grid;gap:8px;margin:0 0 20px}
+.st-plate{position:relative;display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(155deg,rgba(255,253,246,.98),rgba(250,240,219,.95) 58%,rgba(244,231,205,.94));
+  box-shadow:0 0 0 1px rgba(168,131,68,.42),0 20px 44px -30px rgba(0,0,0,.9),
+             inset 0 1px 0 rgba(255,255,255,.9)}
+.st-plate:before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 44%,transparent 58%);
+  transform:translateX(-130%);animation:stSheen 9s ease-in-out infinite}
+.st-plate:nth-child(2):before{animation-delay:1.6s}
+.st-plate:nth-child(3):before{animation-delay:3.2s}
+@keyframes stSheen{0%,74%{transform:translateX(-130%)}90%,100%{transform:translateX(130%)}}
+.st-plate.is-jammed{box-shadow:0 0 0 1px rgba(142,15,39,.45),0 18px 40px -30px rgba(0,0,0,.85),
+  inset 0 1px 0 rgba(255,255,255,.86)}
+.st-arc{width:44px;height:44px;flex:0 0 auto;transform:rotate(-90deg)}
+.st-arc-bed{fill:none;stroke:rgba(168,131,68,.2);stroke-width:4}
+.st-arc-fill{fill:none;stroke:#B08431;stroke-width:4;stroke-linecap:round;
+  transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1)}
+.st-plate.r2 .st-arc-fill{stroke:#8E6BB5}
+.st-plate.supabase .st-arc-fill{stroke:#0E5B3E}
+.st-plate-id{flex:1 1 auto;min-width:0}
+.st-plate-id b{display:block;font-family:Georgia,serif;font-size:14px;font-weight:600;
+  letter-spacing:.04em;color:#3A1207}
+.st-plate-id i{display:block;font-family:Georgia,serif;font-style:italic;font-size:11px;
+  color:#8A6A33;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-plate-use{flex:0 0 auto;text-align:right;max-width:46%}
+.st-plate-use b{display:block;font-family:Georgia,serif;font-size:14px;color:#5C1120;font-weight:600}
+.st-plate-use s{display:block;text-decoration:none;margin-top:1px;font-size:9.5px;
+  letter-spacing:.06em;color:#A8834A}
+.st-plate-use s.st-bad{color:#8E0F27;letter-spacing:0;font-family:Georgia,serif;
+  font-style:italic;font-size:10.5px;line-height:1.35;white-space:normal}
+.st-plate-foot{display:none}
+
+/* ── the switch ───────────────────────────────────────────────────────── */
+.st-block{margin:0 0 22px}
+.st-h{margin:0 0 9px;font-family:Georgia,serif;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:#F3D08A}
+.st-h s{text-decoration:none;display:block;margin-top:2px;font-style:italic;letter-spacing:0;
+  text-transform:none;font-size:11px;color:rgba(251,240,218,.55)}
+.st-routes{display:grid;gap:8px}
+.st-row{padding:11px 12px;border-radius:14px;background:rgba(255,253,246,.055);
+  border:1px solid rgba(168,131,68,.28);transition:border-color .2s ease,background .2s ease}
+.st-row:hover{background:rgba(255,253,246,.075);border-color:rgba(168,131,68,.45)}
+.st-row-id b{display:inline-block;font-family:Georgia,serif;font-size:14px;color:#FBF2DE}
+.st-row-id s{display:block;text-decoration:none;margin-top:2px;font-family:Georgia,serif;
+  font-style:italic;font-size:11px;color:rgba(251,240,218,.52)}
+.st-def{display:inline-block;margin-left:8px;padding:2px 6px;border-radius:5px;
+  font-size:8px;letter-spacing:.1em;color:#8A6A33;background:rgba(243,208,138,.16);
+  border:1px solid rgba(243,208,138,.35);vertical-align:1px}
+.st-def.moved{color:#F3D08A;background:rgba(243,208,138,.1)}
+.st-row-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.st-rail-chip{flex:1 1 auto;padding:8px 9px;border-radius:9px;cursor:pointer;
+  font-family:Georgia,serif;font-size:9.5px;letter-spacing:.1em;color:rgba(251,240,218,.72);
+  background:rgba(255,253,246,.04);border:1px solid rgba(168,131,68,.3);
+  transition:transform .14s ease,background .2s ease,color .2s ease}
+.st-rail-chip:active{transform:scale(.97)}
+.st-rail-chip.on{background:linear-gradient(180deg,#F7E3B4,#E4C384);color:#3A1207;
+  border-color:rgba(243,208,138,.9);box-shadow:0 6px 14px -8px rgba(0,0,0,.8)}
+.st-save{display:flex;gap:8px;margin-top:12px}
+.st-save .dk-btn{flex:1 1 auto}
+.st-note{margin:9px 0 0;font-family:Georgia,serif;font-style:italic;font-size:11.5px;
+  line-height:1.5;color:rgba(251,240,218,.55)}
+.st-note.good{color:#9BD9B6}
+.st-note.bad{color:#F2A7B4}
+.st-note.pending{color:#F3D08A}
+
+/* ── the shelves ──────────────────────────────────────────────────────── */
+.st-tabs{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.st-tabs::-webkit-scrollbar{display:none}
+.st-tabs .dk-chip{flex:0 0 auto;font-size:9px;letter-spacing:.07em;padding:9px 11px}
+.st-shelf{padding:0 0 30px}
+.st-loading{padding:26px 4px;font-family:Georgia,serif;font-style:italic;font-size:12.5px;
+  color:rgba(251,240,218,.5)}
+.st-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.st-filters .dk-chip{font-size:9px;letter-spacing:.08em}
+.st-filters .dk-chip i{font-style:normal;opacity:.7;margin-left:3px}
+.st-search{display:block;margin:0 0 12px}
+.st-search input{width:100%;padding:11px 13px;border-radius:12px;font-family:Georgia,serif;
+  font-size:13px;color:#FBF2DE;background:rgba(255,253,246,.055);
+  border:1px solid rgba(168,131,68,.32);outline:none}
+.st-search input::placeholder{color:rgba(251,240,218,.35);font-style:italic}
+.st-fine{margin:0 0 12px;font-family:Georgia,serif;font-style:italic;font-size:11.5px;
+  line-height:1.55;color:rgba(251,240,218,.55)}
+.st-jam{margin:0 0 8px;font-family:Georgia,serif;font-style:italic;font-size:12.5px;
+  line-height:1.55;color:#F2A7B4}
+
+/* a file, with its own picture */
+.st-item{display:flex;align-items:center;gap:11px;padding:9px 10px;margin-bottom:8px;
+  border-radius:14px;background:rgba(255,253,246,.045);border:1px solid rgba(168,131,68,.24)}
+.st-thumb{flex:0 0 auto;width:56px;height:56px;border-radius:11px;overflow:hidden;cursor:pointer;
+  display:grid;place-items:center;padding:0;
+  background:linear-gradient(150deg,#5E0A20,#32040E);
+  box-shadow:0 0 0 1px rgba(233,196,124,.35) inset,0 8px 18px -12px rgba(0,0,0,.9)}
+.st-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.st-thumb-in{font-size:15px;color:#F3D08A}
+.st-thumb.has-pic .st-thumb-in{display:none}
+.st-thumb.voice{background:linear-gradient(150deg,#26323F,#101820)}
+.st-item-id{min-width:0;flex:1 1 auto}
+.st-item-id b{display:block;font-family:Georgia,serif;font-size:12.5px;color:#FBF2DE;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-item-id s{display:block;text-decoration:none;margin-top:2px;font-size:10.5px;
+  color:rgba(251,240,218,.5)}
+.st-kind{letter-spacing:.1em;font-size:8.5px;color:#F3D08A}
+.st-item-id u{display:block;text-decoration:none;margin-top:2px;
+  font-family:ui-monospace,Menlo,monospace;font-size:9.5px;color:rgba(251,240,218,.32);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-bin{flex:0 0 auto;width:30px;height:30px;border-radius:9px;cursor:pointer;
+  color:#F2A7B4;background:rgba(142,15,39,.16);border:1px solid rgba(142,15,39,.5);
+  font-size:13px;line-height:1}
+.st-bin:active{transform:scale(.95)}
+
+/* the database, standing */
+.st-counts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.st-count{padding:9px 8px;border-radius:12px;text-align:center;
+  background:rgba(255,253,246,.045);border:1px solid rgba(168,131,68,.22)}
+.st-count b{display:block;font-family:Georgia,serif;font-size:15px;color:#F3D08A}
+.st-count i{display:block;margin-top:2px;font-style:normal;font-size:8.5px;
+  letter-spacing:.04em;color:rgba(251,240,218,.45);text-transform:uppercase}
+.st-bucket{margin:6px 0 0}
+.st-brow{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;
+  border-bottom:1px solid rgba(168,131,68,.16);font-size:11px;color:rgba(251,240,218,.6)}
+.st-brow i{font-style:normal;color:#F3D08A;flex:0 0 auto}
+.st-folio-card{margin-top:6px}
+
+/* the banks — pictures that are pictures, voices that play */
+.st-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:6px}
+.st-gallery .st-tile{width:100%;min-width:0}
+.st-tile{position:relative;padding:0;border-radius:14px;overflow:hidden;cursor:pointer;
+  aspect-ratio:1/1;display:grid;place-items:center;text-align:left;
+  background:linear-gradient(150deg,#5E0A20,#32040E);
+  box-shadow:0 0 0 1px rgba(233,196,124,.3) inset}
+.st-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.st-tile-in{width:26px;height:26px;border-radius:50%;
+  box-shadow:0 0 0 1px rgba(243,208,138,.6) inset}
+.st-tile b,.st-tile s{position:absolute;left:9px;right:9px;text-align:left;
+  font-family:Georgia,serif;font-size:10.5px;color:#FBF2DE;text-shadow:0 1px 6px rgba(0,0,0,.8);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-tile b{bottom:20px}
+.st-tile s{bottom:7px;text-decoration:none;font-style:italic;font-size:9.5px;
+  color:rgba(251,240,218,.7)}
+.st-tile.has-pic:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 45%,rgba(12,0,4,.78))}
+.st-voices{display:grid;gap:7px;margin-bottom:14px}
+.st-vrow{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:13px;
+  background:rgba(255,253,246,.045);border:1px solid rgba(168,131,68,.24)}
+.st-play{flex:0 0 auto;width:38px;height:38px;border-radius:50%;cursor:pointer;
+  color:#3A1207;background:linear-gradient(180deg,#F7E3B4,#E0BE7C);
+  border:none;font-size:12px;display:grid;place-items:center;
+  box-shadow:0 8px 18px -12px rgba(0,0,0,.9)}
+.st-play:active{transform:scale(.95)}
+.st-vid b{display:block;font-family:Georgia,serif;font-size:12.5px;color:#FBF2DE}
+.st-vid s{display:block;text-decoration:none;margin-top:2px;font-size:10.5px;
+  color:rgba(251,240,218,.5)}
+.st-bank-tools{display:flex;gap:8px;margin:4px 0 16px}
+.st-bank-tools .dk-btn{flex:1 1 auto}
+
+/* the viewer */
+.st-viewer .st-viewer-body{margin:2px 0 14px}
+.st-view-pic{width:100%;height:auto;border-radius:14px;display:block;
+  box-shadow:0 0 0 1px rgba(168,131,68,.4),0 22px 44px -28px rgba(0,0,0,.9)}
+.st-view-video{width:100%;border-radius:14px;display:block;background:#0B0206}
+.st-view-audio{width:100%;display:block;margin:6px 0}
+.st-viewer .st-jam{color:#8E0F27}
+.st-viewer .dk-btn{margin-top:2px}
+
+@media (max-width:340px){
+  .st-counts{grid-template-columns:repeat(2,1fr)}
+  .st-gallery{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .st-plate:before{animation:none;display:none}
+  .st-arc-fill{transition:none}
+}
+
+/* ═══ THE QUIET FOLIO, made real ═══════════════════════════════════════════ */
+.fo-list{margin:0 0 4px}
+.fo-use{margin:2px 0 12px;font-family:Georgia,serif;font-style:italic;font-size:11.5px;
+  line-height:1.55;color:#8A6A33}
+.fo-use s{text-decoration:none;opacity:.8}
+.fo-empty{padding:20px 16px;margin-bottom:10px;border-radius:14px;text-align:center;
+  font-family:Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.6;color:#8A6A33;
+  border:1px dashed rgba(168,131,68,.45);
+  background:linear-gradient(180deg,rgba(255,253,246,.7),rgba(250,240,219,.5))}
+.fl-tag.file{background:rgba(14,91,62,.12);color:#0E5B3E;border-color:rgba(14,91,62,.35)}
+.fl-file .fo-file-slot{margin:8px 0 6px}
+.fo-file-wait{font-family:Georgia,serif;font-style:italic;font-size:11.5px;line-height:1.5;color:#8A6A33}
+.fo-file-name{margin-top:5px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#A8834A;
+  word-break:break-all}
+.fo-file-pic{width:100%;height:auto;display:block;border-radius:12px;
+  box-shadow:0 0 0 1px rgba(168,131,68,.35),0 16px 32px -24px rgba(0,0,0,.8)}
+.fo-file-audio{width:100%;display:block;margin:2px 0}
+.fo-file-video{width:100%;display:block;border-radius:12px;background:#0B0206}
+.fo-file-open{display:inline-block;padding:9px 12px;border-radius:10px;
+  font-family:Georgia,serif;font-size:11.5px;color:#5C1120;text-decoration:none;
+  background:rgba(243,208,138,.28);border:1px solid rgba(168,131,68,.45)}
+.fo-link{display:block;margin:4px 0 6px;font-family:Georgia,serif;font-size:11.5px;
+  color:#5C1120;text-decoration:none;border-bottom:1px solid rgba(92,17,32,.25);word-break:break-all}
+.fo-kinds{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 12px}
+.fo-body{min-height:120px;resize:vertical;line-height:1.55;font-family:Georgia,serif}
+.fo-count{margin:8px 0 12px;font-family:Georgia,serif;font-style:italic;font-size:11px;
+  line-height:1.5;color:#8A6A33}
+.fo-count.over{color:#8E0F27;font-style:normal}
+.fo-keepfile{margin-top:8px}
+.fo-sheet .dk-btn+.dk-btn{margin-top:8px}
+
+/* the folio's own frame, tightened now that it carries real pages */
+#sheet-folio .fl-hero{padding:16px 15px 15px}
+#sheet-folio .fl-htag{font-size:9px}
+#sheet-folio .fl-title{font-size:21px;margin:5px 0 6px}
+#sheet-folio .fl-copy{font-size:12px;line-height:1.55}
+#sheet-folio .fl-kept{display:none}
+#sheet-folio .fl-filters{flex-wrap:wrap;gap:6px;margin-bottom:10px}
+#sheet-folio .fl-filters .ff{flex:0 0 auto}
+.st-save .dk-chip{white-space:nowrap}
+
+/* what is left, at the head of every shelf */
+.st-bar{display:flex;align-items:baseline;gap:8px;padding:9px 11px;margin:0 0 11px;
+  border-radius:11px;background:rgba(255,253,246,.05);border:1px solid rgba(168,131,68,.26)}
+.st-bar b{flex:0 0 auto;font-family:Georgia,serif;font-size:9.5px;letter-spacing:.12em;color:#F3D08A}
+.st-bar s{text-decoration:none;font-family:Georgia,serif;font-style:italic;font-size:10.5px;
+  line-height:1.4;color:rgba(251,240,218,.62)}
+.st-bar.b2 b{color:#F3D08A}
+.st-bar.r2 b{color:#C9AEE6}
+.st-bar.supa b{color:#9BD9B6}
+</style>
 </head>
 <body>
 <svg width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
@@ -16849,9 +17083,9 @@ window.IVSESS = (function () {
     ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
     ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
     ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
-    ['TICKER','ticker'],['WHEEL','wheel']
+    ['TICKER','ticker'],['WHEEL','wheel'],['VAULT','vault']
   ];
-  var BUILT = {live:1, calls:1, tiers:1, members:1, broadcast:1, payments:1};
+  var BUILT = {live:1, calls:1, tiers:1, members:1, broadcast:1, payments:1, vault:1};
   /* what each room is, in the app's own words — so no two rooms read alike */
   var NOTES = {
     create:'A new story, a poll, a teaser — written, attached and published from the phone.',
@@ -16875,7 +17109,8 @@ window.IVSESS = (function () {
     line:'The Line: letters and their settings.',
     translate:'Every word of the house, in its five tongues.',
     ticker:'The words that run across the top of the house.',
-    wheel:'The wheel, its segments and its prizes.'
+    wheel:'The wheel, its segments and its prizes.',
+    vault:'The strongroom: both private rails, the public door, the switch that decides where each kind sleeps, and every file the house is carrying.'
   };
   var D = {tab:'members', session:null, client:null, clock:null, poll:null, tiers:[], guests:[], seen:{} };
   /* the app opens the console on its first tab; here it opens on the first room that is real */
@@ -20177,25 +20412,34 @@ window.IVROOMS.broadcast = function (pane) {
     return '\u25A1';
   }
 
-  /* the app uploads into its own media bucket; here the same bucket and the same
-     path shape, and if the house has not fitted one it says so plainly */
+  /* The attachment follows the house's own rails: B2 for a picture, a voice note
+     or a file, R2 for a film, the public door for a picture meant for everyone.
+     The desk's STRONGROOM decides which; this only obeys. */
+  function kindOfFile(file) {
+    var t = String((file && file.type) || '');
+    if (t.indexOf('image/') === 0) return 'image';
+    if (t.indexOf('audio/') === 0) return 'voice';
+    if (t.indexOf('video/') === 0) return 'video';
+    return 'attachment';
+  }
+
   function upload(file) {
-    var safe = String(file.name || 'file').replace(/[^A-Za-z0-9._-]/g, '_').replace(/_+/g, '_');
-    if (safe.length > 60) safe = safe.slice(safe.length - 60);
-    var path = 'broadcast/' + Date.now() + '_' + safe;
-    var h = (window.IVSESS && IVSESS.headers) ? IVSESS.headers() : { apikey: '' };
-    h['Content-Type'] = file.type || 'application/octet-stream';
-    h['x-upsert'] = 'true';
-    return fetch(K.SB + '/storage/v1/object/media/' + path, { method: 'POST', headers: h, body: file })
-      .then(function (r) {
-        if (!r.ok) {
-          return r.text().then(function (t) {
-            throw new Error('The media bucket is not fitted in the house yet, so a file cannot be stored. ' +
-                            'Paste a link instead and it travels with the message.');
-          });
-        }
-        return K.SB + '/storage/v1/object/public/media/' + path;
-      });
+    if (!window.IVSTORE) {
+      throw new Error('The strongroom is not on this page, so a file cannot be stored. ' +
+                      'Paste a link instead and it travels with the message.');
+    }
+    return IVSTORE.put(file, kindOfFile(file), function (p) {
+      var b = $('bc-send');
+      if (b) status('Uploading ' + Math.round(p * 100) + '% of ' + K.size(file.size) + '\u2026');
+    }).then(function (got) {
+      S.fileRail = got.rail;
+      if (got.url) return got.url;
+      /* a private rail has no address to hand out — carry the key, signed on read */
+      return (got.rail === 'r2' ? 'r2://' : 'b2://') + got.key;
+    }).catch(function (e) {
+      throw new Error((e && e.message ? e.message : 'The rail refused the file.') +
+                      ' Paste a link instead and it travels with the message.');
+    });
   }
 
   /* ── SEND, with the app's own validations, in its own words ───────────── */
@@ -20635,7 +20879,19 @@ window.IVINBOX = (function () {
 
   function openTarget(row) {
     if (!row) return;
-    if (row.action_url) { try { window.open(row.action_url, '_blank', 'noopener'); } catch (e) {} return; }
+    var k = kit();
+    var url = String(row.action_url || '');
+    var priv = url.match(/^(b2|r2):\/\/(.+)$/);
+    if (priv) {
+      if (!window.IVSTORE) { k.toast('This note carries a private file the house cannot open here.', true); return; }
+      k.toast('Opening the file\u2026');
+      IVSTORE.open({ rail: priv[1], key: priv[2] }).then(function (signed) {
+        if (signed) window.open(signed, '_blank', 'noopener');
+        else k.toast('That file is private to the house and would not open.', true);
+      });
+      return;
+    }
+    if (url) { try { window.open(url, '_blank', 'noopener'); } catch (e) {} return; }
     if (row.action_tab && window.ivoryShow) window.ivoryShow(row.action_tab);
   }
 
@@ -20729,6 +20985,1514 @@ window.IVINBOX = (function () {
 
   return { load: load, refreshCount: refreshCount, markAll: markAll,
            rows: function () { return S.rows; } };
+})();
+</script>
+<script id="iv-store-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE STRONGROOM · one spine for every byte the house keeps
+   ---------------------------------------------------------------------------
+   The app has two private rails and one public door, and the website must
+   speak to all three exactly as the phone does:
+
+     b2-media   put / usage / get / sign_previews      (Backblaze B2, private)
+     r2-vault   put / put_public_image / usage / list / delete / get   (R2)
+     storage    the public `media` bucket + the Postgres standing
+
+   The house's rule, as Ivory gave it on 30 October 2026:
+     · B2 keeps what is written, spoken, pictured, banked and kept in a folio.
+     · R2 keeps the films — and anything else too large for a single B2 put.
+   Every kind can be moved to any rail by hand, and the choice is written to
+   `app_policies` under the key `storage_rails` so the whole house obeys it.
+
+   Nothing here hard-codes a price, a limit or a sentence the database already
+   owns. When a door refuses, the refusal is shown in its own words.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+window.IVSTORE = (function () {
+  var K = window.IVKIT;
+  function nice(b) {
+    b = Number(b) || 0;
+    if (b >= 1e9) return (b / 1e9).toFixed(2) + ' GB';
+    return K.size(b);
+  }
+  var SB = (K && K.SB) || 'https://soephrftgddbwkzwjddj.supabase.co';
+
+  /* ── the house's defaults — the only place they are written down ──────── */
+  var DEFAULTS = {
+    v: 1,
+    routes: {
+      image: 'b2', cover: 'b2', story: 'b2', poll: 'b2',
+      voice: 'b2', attachment: 'b2', folio: 'b2', proof: 'b2', portrait: 'b2',
+      video: 'r2'
+    },
+    caps: { b2_gb: 10, r2_gb: 9, folio_mb: 500, folio_member_mb: 1 },
+    updated_at: null,
+    by: null
+  };
+
+  var KINDS = [
+    { k: 'image', label: 'Pictures', note: 'a story picture, a poll picture, the wheel\u2019s image bank' },
+    { k: 'cover', label: 'Covers', note: 'the cover of a story or a film' },
+    { k: 'story', label: 'Story pages', note: 'the long form, with its pictures' },
+    { k: 'poll', label: 'Poll pictures', note: 'the one image a poll carries' },
+    { k: 'voice', label: 'Voice notes', note: 'a spoken word, the wheel\u2019s voice bank' },
+    { k: 'attachment', label: 'Attachments', note: 'a file pinned to an announcement' },
+    { k: 'video', label: 'Films', note: 'everything long, everything large' },
+    { k: 'folio', label: 'Folio files', note: 'what a member keeps in the Quiet Folio' },
+    { k: 'proof', label: 'Receipts', note: 'a payment\u2019s proof, read by the house alone' },
+    { k: 'portrait', label: 'Portraits', note: 'a member\u2019s own picture' }
+  ];
+
+  var RAILS = {
+    b2: { id: 'b2', name: 'Backblaze B2', short: 'B2', line: 'The private room',
+          note: 'Pictures, voices, receipts and every page kept in a folio.',
+          cap: 'no house cap \u2014 Backblaze\u2019s own allowance' },
+    r2: { id: 'r2', name: 'Cloudflare R2', short: 'R2', line: 'The film vault',
+          note: 'Films, and anything too large, because egress costs nothing.',
+          cap: '9 GB of safety' },
+    supabase: { id: 'supabase', name: 'Supabase', short: 'SUPABASE', line: 'The public door',
+          note: 'The showcase bucket the whole web can see, and the database itself.',
+          cap: 'the free allowance' }
+  };
+
+  var MIME = {
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif',
+    heic: 'image/heic', mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime',
+    mkv: 'video/x-matroska', webm: 'video/webm', mp3: 'audio/mpeg', m4a: 'audio/mp4',
+    aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg',
+    flac: 'audio/flac', amr: 'audio/amr', pdf: 'application/pdf', txt: 'text/plain'
+  };
+
+  function ext(name) {
+    var n = String(name || '').toLowerCase().split('.').pop();
+    return n === name ? '' : n;
+  }
+  function mimeOf(name, fallback) {
+    return MIME[ext(name)] || fallback || 'application/octet-stream';
+  }
+  function safe(name) {
+    var s = String(name || 'file').replace(/[^A-Za-z0-9._-]/g, '_');
+    if (s.length > 120) s = s.slice(s.length - 120);
+    return s || 'file.bin';
+  }
+  function fnHeaders() {
+    var h = window.IVSESS ? IVSESS.headers() : { apikey: '' };
+    h['Content-Type'] = 'application/json';
+    return h;
+  }
+  function jwt() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('ivory.session') || 'null'); } catch (e) { s = null; }
+    return (s && s.access_token) || '';
+  }
+
+  /* ── one edge function, one honest failure ────────────────────────────── */
+  function fn(name, body) {
+    return fetch(SB + '/functions/v1/' + name, {
+      method: 'POST',
+      headers: fnHeaders(),
+      body: JSON.stringify(body || {})
+    }).then(function (r) {
+      return r.text().then(function (txt) {
+        var j = null;
+        try { j = txt ? JSON.parse(txt) : null; } catch (e) { j = { raw: txt }; }
+        if (!r.ok) {
+          var why = (j && (j.error || j.message)) || ('HTTP ' + r.status);
+          var err = new Error(why);
+          err.code = j && j.error;
+          err.status = r.status;
+          err.used = j && j.used;
+          throw err;
+        }
+        return j || {};
+      });
+    });
+  }
+
+  /* ── the policy: read, merge, write ───────────────────────────────────── */
+  var _policy = null;
+
+  function merge(p) {
+    var out = { v: DEFAULTS.v, routes: {}, caps: {}, updated_at: null };
+    var i, k;
+    for (k in DEFAULTS.routes) out.routes[k] = DEFAULTS.routes[k];
+    for (k in DEFAULTS.caps) out.caps[k] = DEFAULTS.caps[k];
+    if (p && typeof p === 'object') {
+      if (p.routes) for (k in p.routes) if (DEFAULTS.routes[k]) out.routes[k] = p.routes[k];
+      if (p.caps) for (k in p.caps) if (DEFAULTS.caps[k] != null) out.caps[k] = p.caps[k];
+      out.updated_at = p.updated_at || null;
+      out.by = p.by || null;
+    }
+    return out;
+  }
+
+  function policy(force) {
+    if (_policy && !force) return Promise.resolve(_policy);
+    return K.get('/rest/v1/app_policies?select=key,value&key=eq.storage_rails')
+      .then(function (rows) {
+        var raw = rows && rows[0] ? rows[0].value : null;
+        var obj = raw;
+        if (typeof raw === 'string') { try { obj = JSON.parse(raw); } catch (e) { obj = null; } }
+        _policy = merge(obj);
+        return _policy;
+      })
+      .catch(function () { _policy = merge(null); return _policy; });
+  }
+
+  function savePolicy(p) {
+    var body = { key: 'storage_rails', value: p };
+    var url = '/rest/v1/app_policies?on_conflict=key';
+    function put(v) {
+      return fetch(SB + url, {
+        method: 'POST',
+        headers: Object.assign(fnHeaders(), { Prefer: 'resolution=merge-duplicates,return=representation' }),
+        body: JSON.stringify(body)
+      }).then(function (r) {
+        return r.text().then(function (t) {
+          if (!r.ok) {
+            var e = new Error('The rails could not be written (' + r.status + ').');
+            e.detail = t;
+            throw e;
+          }
+          return JSON.parse(t || '[]');
+        });
+      });
+    }
+    return put().catch(function (e) {
+      /* a text column instead of jsonb — the same fact, spelled as a string */
+      body = { key: 'storage_rails', value: JSON.stringify(p) };
+      return put();
+    }).then(function () {
+      _policy = p;
+      return p;
+    });
+  }
+
+  function railOf(kind, p) {
+    var r = (p || _policy || DEFAULTS).routes || DEFAULTS.routes;
+    return r[kind] || DEFAULTS.routes[kind] || 'b2';
+  }
+
+  /* ── upload straight into the chosen rail ─────────────────────────────── */
+  function putRaw(url, file, onProgress, contentType) {
+    return new Promise(function (resolve, reject) {
+      var x = new XMLHttpRequest();
+      x.open('PUT', url, true);
+      if (contentType) x.setRequestHeader('Content-Type', contentType);
+      if (onProgress) x.upload.onprogress = function (e) {
+        if (e.lengthComputable) onProgress(e.loaded / e.total);
+      };
+      x.onload = function () {
+        if (x.status >= 200 && x.status < 300) { if (onProgress) onProgress(1); resolve(x.status); }
+        else reject(new Error('The rail refused the file (HTTP ' + x.status + ').'));
+      };
+      x.onerror = function () { reject(new Error('The rail could not be reached.')); };
+      x.send(file);
+    });
+  }
+
+  /* Returns { rail, key, url, bytes, name, mime } — url is a readable address
+     when the rail gives one (public), null when the file stays private. */
+  function put(file, kind, onProgress, p) {
+    var rail = railOf(kind, p);
+    var name = safe(file.name || kind);
+    var mime = file.type || mimeOf(name);
+    var stamp = Date.now();
+
+    if (rail === 'b2') {
+      var b2kind = kind === 'video' ? 'video' : (kind === 'voice' ? 'audio'
+        : (kind === 'attachment' || kind === 'folio' ? 'attachment' : (kind === 'cover' ? 'cover' : 'image')));
+      return fn('b2-media', { op: 'put', kind: b2kind, name: name, size: file.size, content_type: mime })
+        .then(function (signed) {
+          if (!signed.url || !signed.key) throw new Error('B2 did not return an upload link.');
+          return putRaw(signed.url, file, onProgress, mime).then(function () {
+            return { rail: 'b2', key: signed.key, url: null, bytes: file.size, name: name, mime: mime };
+          });
+        });
+    }
+
+    if (rail === 'r2' || rail === 'r2pub') {
+      var key = (rail === 'r2pub' ? 'images/' : 'vault/') + stamp + '_' + name;
+      var op = rail === 'r2pub' ? 'put_public_image' : 'put';
+      return fn('r2-vault', { op: op, key: key, size: file.size, content_type: mime })
+        .then(function (signed) {
+          if (!signed.url) throw new Error('R2 did not return an upload link.');
+          return putRaw(signed.url, file, onProgress, mime).then(function () {
+            return {
+              rail: rail === 'r2pub' ? 'r2pub' : 'r2',
+              key: key,
+              url: signed.public_url || null,
+              bytes: file.size, name: name, mime: mime
+            };
+          });
+        });
+    }
+
+    /* the public door: the `media` bucket, as the showcase pictures already use */
+    var path = 'uploads/' + stamp + '_' + name;
+    return fetch(SB + '/storage/v1/object/media/' + encodeURI(path), {
+      method: 'POST',
+      headers: {
+        apikey: (window.IVSESS && IVSESS.KEY) || jwt(),
+        Authorization: 'Bearer ' + jwt(),
+        'x-upsert': 'true',
+        'Content-Type': mime
+      },
+      body: file
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        if (!r.ok) throw new Error('The public bucket refused the file (' + r.status + ').');
+        if (onProgress) onProgress(1);
+        var pub = SB + '/storage/v1/object/public/media/' + path;
+        return { rail: 'supabase', key: path, url: pub, bytes: file.size, name: name, mime: mime };
+      });
+    });
+  }
+
+  /* ── a readable address for a private file ────────────────────────────── */
+  var _seen = {};
+
+  function open(ref) {
+    ref = ref || {};
+    if (typeof ref === 'string') {
+      if (/^https:\/\//.test(ref)) return Promise.resolve(ref);
+      ref = { key: ref, rail: 'b2' };
+    }
+    if (ref.url && /^https:\/\//.test(ref.url)) return Promise.resolve(ref.url);
+    var cacheKey = (ref.rail || 'b2') + '|' + (ref.postId ? 'p' + ref.postId : ref.key);
+    if (_seen[cacheKey] && _seen[cacheKey].t > Date.now() - 240000) {
+      return Promise.resolve(_seen[cacheKey].url);
+    }
+    var tries = [];
+    if (ref.rail === 'r2' || ref.rail === 'r2pub') {
+      tries.push(function () { return fn('r2-vault', { op: 'get', key: ref.key }).then(function (d) { return d.url; }); });
+      if (ref.postId) tries.push(function () { return fn('r2-vault', { op: 'get', post_id: ref.postId }).then(function (d) { return d.url; }); });
+    } else {
+      /* the app's own two doors first: by the post it belongs to … */
+      if (ref.postId) {
+        tries.push(function () {
+          return fn('b2-media', { op: 'get', post_id: ref.postId, field: ref.field || 'media' })
+            .then(function (d) { return d.url; });
+        });
+      }
+      /* … then by its key, which the function answers when it is asked plainly */
+      tries.push(function () { return fn('b2-media', { op: 'get', key: ref.key }).then(function (d) { return d.url; }); });
+      tries.push(function () {
+        return fn('b2-media', { op: 'sign_previews', paths: [ref.key] }).then(function (d) {
+          var it = (d.items || [])[0];
+          return it && (it.url || it.signed_url);
+        });
+      });
+    }
+    var i = 0;
+    function step() {
+      if (i >= tries.length) return Promise.resolve(null);
+      var t = tries[i++];
+      return t().then(function (u) {
+        if (u && /^https:\/\//.test(u)) { _seen[cacheKey] = { url: u, t: Date.now() }; return u; }
+        return step();
+      }).catch(function () { return step(); });
+    }
+    return step();
+  }
+
+  /* A bank row is a key without a post. If a post still points at it, the
+     app's own door opens it; that is the case that works on every house. */
+  function openBank(row) {
+    var path = String(row.path || row.ref || '');
+    if (/^https:\/\//.test(path)) return Promise.resolve(path);
+    return K.get('/rest/v1/posts?select=id,title,media_source,media_ref&media_ref=eq.' +
+                 encodeURIComponent(path) + '&limit=1')
+      .then(function (rows) {
+        var post = rows && rows[0];
+        return open({ rail: (post && post.media_source) === 'r2' ? 'r2' : 'b2',
+                      key: path, postId: post ? post.id : null });
+      })
+      .catch(function () { return open({ key: path, rail: 'b2' }); });
+  }
+
+  /* ── what each rail holds ─────────────────────────────────────────────── */
+  function usage() {
+    var out = { b2: null, r2: null, supabase: null, b2why: null, r2why: null, supa: null };
+    return Promise.all([
+      fn('b2-media', { op: 'usage' }).then(function (d) { out.b2 = num(d.used); })
+        .catch(function (e) { out.b2why = e.message; }),
+      fn('r2-vault', { op: 'usage' }).then(function (d) { out.r2 = num(d.used); })
+        .catch(function (e) { out.r2why = e.message; }),
+      listBucket('').then(function (items) {
+        var bytes = 0;
+        items.forEach(function (i) { bytes += (i.size || (i.metadata && i.metadata.size) || 0); });
+        out.supabase = bytes; out.supa = items;
+      }).catch(function (e) { out.supaWhy = e.message; })
+    ]).then(function () { return out; });
+  }
+  function num(v) { var n = Number(v); return isFinite(n) ? n : null; }
+
+  /* the public bucket, read as the signed-in house */
+  function listBucket(prefix, depth) {
+    depth = depth || 0;
+    return fetch(SB + '/storage/v1/object/list/media', {
+      method: 'POST',
+      headers: {
+        apikey: (window.IVSESS && IVSESS.KEY) || jwt(),
+        Authorization: 'Bearer ' + jwt(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prefix: prefix || '', limit: 200, offset: 0,
+                             sortBy: { column: 'name', order: 'asc' } })
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        if (!r.ok) throw new Error('The public bucket did not open (' + r.status + ').');
+        var rows = JSON.parse(t || '[]');
+        var files = [], folders = [];
+        rows.forEach(function (o) {
+          if (o.id) files.push({ name: prefix + o.name, size: (o.metadata && o.metadata.size) || 0,
+                                 mime: (o.metadata && o.metadata.mimetype) || '',
+                                 updated: o.updated_at || null });
+          else folders.push(o.name);
+        });
+        if (!folders.length || depth > 0) return files;
+        return Promise.all(folders.slice(0, 12).map(function (f) {
+          return listBucket(prefix + f + '/', depth + 1).catch(function () { return []; });
+        })).then(function (parts) { return files.concat.apply(files, parts); });
+      });
+    });
+  }
+
+  /* every object the house references in private B2 */
+  function b2Inventory() {
+    return K.call('/rest/v1/rpc/media_vault_b2', {}).then(function (r) {
+      var m = r || {};
+      if (m.ok === false) {
+        var e = new Error(m.why === 'not-signed' ? 'Sign in as the house to read the B2 ledger.'
+                                                 : 'The B2 ledger refused.');
+        e.why = m.why; throw e;
+      }
+      return (m.rows || []).map(function (r) {
+        return { key: String(r.ref || ''), bytes: num(r.bytes), kind: String(r.kind || ''),
+                 owner: String(r.owner || ''), rail: 'b2' };
+      });
+    });
+  }
+
+  function r2Inventory() {
+    return fn('r2-vault', { op: 'list' }).then(function (d) {
+      return (d.items || []).map(function (i) {
+        return { key: String(i.key || ''), bytes: num(i.size) || 0, modified: i.modified || '',
+                 postId: i.post_id || null, owner: i.post_title || '',
+                 pub: !!i.is_public_image, cover: !!i.is_cover_image,
+                 rail: i.is_public_image ? 'r2pub' : 'r2' };
+      });
+    });
+  }
+
+  function bank() {
+    return Promise.all([
+      K.get('/rest/v1/wheel_images?select=*&order=id.desc'),
+      K.get('/rest/v1/wheel_voices?select=*&order=id.desc')
+    ]).then(function (r) {
+      return {
+        images: (r[0] || []).map(function (x) { x._kind = 'image'; return x; }),
+        voices: (r[1] || []).map(function (x) { x._kind = 'voice'; return x; })
+      };
+    });
+  }
+
+  /* ── the database, standing up ────────────────────────────────────────── */
+  var TABLES = ['profiles', 'posts', 'payments', 'notifications', 'call_requests',
+    'live_sessions', 'live_messages', 'live_guest_requests', 'subscription_tiers',
+    'wheel_images', 'wheel_voices', 'gifts', 'wish_categories', 'poll_votes', 'post_previews',
+    'story_submissions', 'member_private_folio_entries', 'app_policies', 'payment_settings'];
+
+  function countOf(table) {
+    return fetch(SB + '/rest/v1/' + table + '?select=*&limit=0', {
+      method: 'GET',
+      headers: Object.assign(fnHeaders(), { Prefer: 'count=exact' })
+    }).then(function (r) {
+      var cr = r.headers.get('Content-Range') || '';
+      var n = cr.split('/').pop();
+      return /^\d+$/.test(n) ? Number(n) : null;
+    }).catch(function () { return null; });
+  }
+
+  function standing() {
+    return Promise.all(TABLES.map(function (t) {
+      return countOf(t).then(function (n) { return { t: t, n: n }; });
+    }));
+  }
+
+  /* ── the folio's own arithmetic ───────────────────────────────────────── */
+  function folioQuota(p, members) {
+    var house = ((p || DEFAULTS).caps.folio_mb || 500) * 1024 * 1024;
+    var per = ((p || DEFAULTS).caps.folio_member_mb || 1) * 1024 * 1024;
+    var m = members && members > 0 ? members : 0;
+    var share = m ? Math.floor(house / m) : per;
+    return { house: house, per: Math.min(per, share || per), members: m, share: share };
+  }
+
+  return {
+    SB: SB, nice: nice, KINDS: KINDS, RAILS: RAILS, DEFAULTS: DEFAULTS, TABLES: TABLES,
+    policy: policy, savePolicy: savePolicy, railOf: railOf,
+    put: put, open: open, openBank: openBank,
+    usage: usage, b2Inventory: b2Inventory, r2Inventory: r2Inventory,
+    bank: bank, standing: standing, listBucket: listBucket, folioQuota: folioQuota,
+    fn: fn, mimeOf: mimeOf, safe: safe
+  };
+})();
+
+/* ═════════════════════════ THE VAULT, IN HER DESK ═════════════════════════
+   Three rails, one switch, four shelves. The bank — which the app could list
+   but never show — is shown here: every image as a picture, every voice as
+   something she can hear.
+   ═══════════════════════════════════════════════════════════════════════ */
+window.IVROOMS = window.IVROOMS || {};
+window.IVROOMS.vault = function (pane) {
+  var K = window.IVKIT, S = window.IVSTORE;
+  var $ = function (id) { return pane.querySelector('#' + id); };
+  var esc = K.esc;
+
+  var St = {
+    policy: null, dirty: false, shelf: 'b2', filter: 'all', q: '',
+    use: null, b2: null, r2: null, bankRows: null, standingRows: null,
+    bucket: null, members: 0, b2why: null, r2why: null, supaWhy: null
+  };
+
+  pane.innerHTML =
+    '<p class="dk-kick">The strongroom</p>' +
+    '<h1 class="dk-h1">Every byte, and <em>where it sleeps.</em></h1>' +
+    '<p class="dk-lede">Two private rails and one public door. B2 keeps what is written, spoken ' +
+      'and pictured \u2014 every picture, every voice note, every file kept in a folio. R2 keeps the ' +
+      'films, because its egress costs nothing. You may move any kind to any rail, and the shelves ' +
+      'below tell the truth about what is inside each.</p>' +
+
+    '<div class="st-rails" id="st-rails"></div>' +
+
+    '<section class="st-block">' +
+      '<p class="st-h">The switch <s>where each kind sleeps</s></p>' +
+      '<div id="st-routes" class="st-routes"><p class="dk-empty">Reading the house\u2019s rule\u2026</p></div>' +
+      '<div class="st-save">' +
+        '<button class="dk-btn" id="st-save">SAVE THE RAILS</button>' +
+        '<button class="dk-chip" id="st-reset">HOUSE DEFAULT</button>' +
+      '</div>' +
+      '<p class="st-note" id="st-saved"></p>' +
+    '</section>' +
+
+    '<div class="st-tabs" id="st-tabs">' +
+      '<button class="dk-chip" data-shelf="b2">B2 VAULT</button>' +
+      '<button class="dk-chip" data-shelf="r2">R2 VAULT</button>' +
+      '<button class="dk-chip" data-shelf="supabase">SUPABASE</button>' +
+      '<button class="dk-chip" data-shelf="bank">THE BANKS</button>' +
+    '</div>' +
+    '<div id="st-shelf"></div>';
+
+  /* ── the three rails ─────────────────────────────────────────────────── */
+  function plate(rail, used, why, count) {
+    var r = S.RAILS[rail];
+    var cap = rail === 'b2' ? (St.policy ? St.policy.caps.b2_gb : 10) * 1e9
+            : rail === 'r2' ? (St.policy ? St.policy.caps.r2_gb : 9) * 1e9 : null;
+    var pct = cap && used ? Math.min(100, used / cap * 100) : 0;
+    var arc = 2 * Math.PI * 17.5 * (pct / 100);
+    var share = cap && used ? (used / cap * 100) : null;
+    var figure = why ? '\u2014' : used == null ? '\u2026' : K.size(used);
+    return '<article class="st-plate ' + rail + (why ? ' is-jammed' : '') + '">' +
+      '<svg class="st-arc" viewBox="0 0 44 44" aria-hidden="true">' +
+        '<circle cx="22" cy="22" r="17.5" class="st-arc-bed"/>' +
+        '<circle cx="22" cy="22" r="17.5" class="st-arc-fill" ' +
+          'style="stroke-dasharray:' + arc.toFixed(1) + ' 999"/>' +
+      '</svg>' +
+      '<div class="st-plate-id"><b>' + esc(r.short) + '</b><i>' + esc(r.line) + '</i></div>' +
+      '<div class="st-plate-use">' +
+        (why ? '<s class="st-bad">' + esc(String(why).slice(0, 60)) + '</s>'
+             : '<b>' + figure + '</b><s>' + (cap ? 'of ' + (cap / 1e9) + ' GB' +
+               (share != null ? ' \u00b7 ' + share.toFixed(share < 1 ? 2 : 0) + '%' : '') : 'kept') +
+               '</s>') +
+      '</div>' +
+      '<p class="st-plate-foot">' + esc(count == null ? (cap ? '' : '') : count) + '</p>' +
+    '</article>';
+  }
+
+  function paintRails() {
+    var u = St.use || {};
+    var b2n = St.b2 ? St.b2.length + ' things referenced' : null;
+    var r2n = St.r2 ? St.r2.length + ' objects' : null;
+    var supaN = u.supa ? u.supa.length + ' objects in the showcase' : null;
+    $('st-rails').innerHTML =
+      plate('b2', u.b2, St.b2why || u.b2why, b2n) +
+      plate('r2', u.r2, St.r2why || u.r2why, r2n) +
+      plate('supabase', u.supabase, St.supaWhy || u.supaWhy, supaN);
+  }
+
+  /* ── the switch ──────────────────────────────────────────────────────── */
+  function routeRow(k) {
+    var cur = S.railOf(k.k, St.policy);
+    var isDefault = cur === S.DEFAULTS.routes[k.k];
+    var chips = [['b2', 'B2'], ['r2', 'R2'], ['r2pub', 'R2 PUBLIC'], ['supabase', 'SUPABASE']]
+      .map(function (c) {
+        return '<button class="st-rail-chip' + (cur === c[0] ? ' on' : '') +
+          '" data-kind="' + k.k + '" data-rail="' + c[0] + '">' + c[1] + '</button>';
+      }).join('');
+    return '<div class="st-row" data-row="' + k.k + '">' +
+      '<div class="st-row-id"><b>' + esc(k.label) + '</b>' +
+        (isDefault ? '<span class="st-def">HOUSE DEFAULT</span>'
+                   : '<span class="st-def moved">MOVED BY HAND</span>') +
+        '<s>' + esc(k.note) + '</s></div>' +
+      '<div class="st-row-chips">' + chips + '</div>' +
+    '</div>';
+  }
+
+  function paintRoutes() {
+    $('st-routes').innerHTML = S.KINDS.map(routeRow).join('');
+  }
+  function bindRailChips() {
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-routes [data-rail]'), function (b) {
+      b.onclick = function () {
+        St.policy.routes[b.dataset.kind] = b.dataset.rail;
+        St.dirty = true;
+        var k = S.KINDS.filter(function (x) { return x.k === b.dataset.kind; })[0];
+        pane.querySelector('.st-row[data-row="' + b.dataset.kind + '"]').outerHTML = routeRow(k);
+        bindRailChips();
+        var saved = $('st-saved');
+        saved.className = 'st-note pending';
+        saved.textContent = 'Not written yet \u2014 SAVE THE RAILS when it reads as you want it.';
+      };
+    });
+  }
+
+  $('st-save').addEventListener('click', function () {
+    var b = $('st-save');
+    b.disabled = true; b.textContent = 'WRITING\u2026';
+    St.policy.updated_at = new Date().toISOString();
+    var mb = Number(($('fol-mb') || {}).value || St.policy.caps.folio_mb) || 500;
+    var per = Number(($('fol-per') || {}).value || St.policy.caps.folio_member_mb) || 1;
+    St.policy.caps.folio_mb = mb;
+    St.policy.caps.folio_member_mb = per;
+    S.savePolicy(St.policy).then(function () {
+      St.dirty = false;
+      var s = $('st-saved');
+      s.className = 'st-note good';
+      s.textContent = 'Saved. Every upload in the house follows this from the next tap.';
+      K.toast('The rails are written.');
+    }).catch(function (e) {
+      var s = $('st-saved');
+      s.className = 'st-note bad';
+      s.textContent = 'Not written \u2014 ' + (e.message || 'the database refused.') +
+        ' The house keeps its defaults until it can be written.';
+    }).then(function () {
+      b.disabled = false; b.textContent = 'SAVE THE RAILS';
+      paintRoutes(); bindRailChips();
+    });
+  });
+
+  $('st-reset').addEventListener('click', function () {
+    St.policy.routes = Object.assign({}, S.DEFAULTS.routes);
+    St.caps = null;
+    St.dirty = true;
+    paintRoutes(); bindRailChips();
+    var s = $('st-saved');
+    s.className = 'st-note pending';
+    s.textContent = 'Back to the house default \u2014 B2 for everything, R2 for films. SAVE to keep it.';
+  });
+
+  /* ── the shelves ─────────────────────────────────────────────────────── */
+  function tabs() {
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-tabs [data-shelf]'), function (b) {
+      b.classList.toggle('on', b.dataset.shelf === St.shelf);
+      b.addEventListener('click', function () {
+        St.shelf = b.dataset.shelf;
+        tabs(); shelf();
+      });
+    });
+  }
+
+  function sizeCell(n) { return n == null ? 'unmeasured' : K.size(n); }
+
+  function itemRow(it, opts) {
+    opts = opts || {};
+    var isImg = /image|cover|portrait|story|poll/.test(it.kind || '') || /\.(jpe?g|png|webp|gif)$/i.test(it.key || '');
+    var isVoice = /voice|audio/.test(it.kind || '') || /\.(mp3|m4a|oga|ogg|opus|wav|aac|flac|amr)$/i.test(it.key || '');
+    var isFilm = /video|film/.test(it.kind || '') || /\.(mp4|mov|mkv|webm|m4v)$/i.test(it.key || '');
+    var mark = isImg ? 'PICTURE' : isVoice ? 'VOICE' : isFilm ? 'FILM' : 'FILE';
+    return '<article class="st-item" data-item="' + esc(it.key) + '">' +
+      '<button class="st-thumb ' + (isImg ? 'pic' : isVoice ? 'voice' : 'file') + '" ' +
+        'data-look="' + esc(it.key) + '" aria-label="Look at this">' +
+        '<span class="st-thumb-in">' + (isImg ? '' : isVoice ? '\u25B6' : '\u2913') + '</span>' +
+      '</button>' +
+      '<div class="st-item-id">' +
+        '<b>' + esc(it.owner || it.title || it.name || (it.key || '').split('/').pop()) + '</b>' +
+        '<s><span class="st-kind">' + mark + '</span> \u00b7 ' + sizeCell(it.bytes) + '</s>' +
+        '<u>' + esc(String(it.key || '').split('/').slice(-1)[0].slice(0, 46)) + '</u>' +
+      '</div>' +
+      (opts.remove ? '<button class="st-bin" data-bin="' + esc(it.key) + '" aria-label="Remove">\u2715</button>' : '') +
+    '</article>';
+  }
+
+  function shelfFilters(list) {
+    var counts = { all: list.length, pic: 0, voice: 0, film: 0, none: 0 };
+    list.forEach(function (i) {
+      var k = (i.kind || '') + ' ' + (i.key || '');
+      if (/image|cover|portrait|story|poll|\.(jpe?g|png|webp|gif)$/i.test(k)) counts.pic++;
+      else if (/voice|audio|\.(mp3|m4a|oga|ogg|opus|wav)$/i.test(k)) counts.voice++;
+      else if (/video|film|\.(mp4|mov|mkv|webm)$/i.test(k)) counts.film++;
+      if (i.bytes == null) counts.none++;
+    });
+    function chip(id, label, n) {
+      return '<button class="dk-chip st-f' + (St.filter === id ? ' on' : '') + '" data-f="' + id + '">' +
+        label + ' <i>' + n + '</i></button>';
+    }
+    return '<div class="st-filters">' + chip('all', 'ALL', counts.all) + chip('pic', 'PICTURES', counts.pic) +
+      chip('voice', 'VOICES', counts.voice) + chip('film', 'FILMS', counts.film) +
+      chip('none', 'UNMEASURED', counts.none) + '</div>' +
+      '<label class="st-search"><input id="st-q" placeholder="Find by name or key" value="' + esc(St.q) + '"></label>';
+  }
+
+  function passes(it) {
+    var k = (it.kind || '') + ' ' + (it.key || '');
+    var f = St.filter;
+    if (f === 'pic' && !/image|cover|portrait|story|poll|\.(jpe?g|png|webp|gif)$/i.test(k)) return false;
+    if (f === 'voice' && !/voice|audio|\.(mp3|m4a|oga|ogg|opus|wav)$/i.test(k)) return false;
+    if (f === 'film' && !/video|film|\.(mp4|mov|mkv|webm)$/i.test(k)) return false;
+    if (f === 'none' && it.bytes != null) return false;
+    if (St.q) {
+      var q = St.q.toLowerCase();
+      if ((k + ' ' + (it.owner || '')).toLowerCase().indexOf(q) < 0) return false;
+    }
+    return true;
+  }
+
+  function bindShelfControls(list) {
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-f]'), function (b) {
+      b.addEventListener('click', function () { St.filter = b.dataset.f; shelf(); });
+    });
+    var q = $('st-q');
+    if (q) q.addEventListener('input', function () {
+      St.q = q.value;
+      paintList(list);
+    });
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-look]'), function (b) {
+      b.addEventListener('click', function () { look(b.dataset.look, list); });
+    });
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-bin]'), function (b) {
+      b.addEventListener('click', function () { removeObject(b.dataset.bin, list); });
+    });
+  }
+
+  function paintList(list) {
+    var box = pane.querySelector('#st-list');
+    if (!box) return;
+    var rows = list.filter(passes);
+    if (!rows.length) {
+      box.innerHTML = '<div class="dk-empty">Nothing here under that name. Try ALL, or clear the search.</div>';
+      return;
+    }
+    box.innerHTML = rows.map(function (it) {
+      return itemRow(it, { remove: St.shelf === 'r2' });
+    }).join('');
+    bindShelfControls(list);
+    primeThumbs(rows);
+  }
+
+  /* every picture is a picture, not a filename */
+  function primeThumbs(rows) {
+    rows.slice(0, 40).forEach(function (it) {
+      var btn = pane.querySelector('[data-look="' + (it.key || '').replace(/"/g, '\\"') + '"]');
+      if (!btn) return;
+      var img = null;
+      var job = it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId });
+      job.then(function (url) {
+        if (!url) return;
+        if (/\.(mp4|mov|mkv|webm|m4v)$/i.test(url) || /film|video/.test(it.kind || '')) {
+          btn.classList.add('has-film'); return;
+        }
+        img = new Image();
+        img.src = url;
+        img.alt = '';
+        img.onload = function () {
+          btn.querySelector('.st-thumb-in').replaceWith(img);
+          btn.classList.add('has-pic');
+          btn.dataset.url = url;
+        };
+        img.onerror = function () {
+          btn.dataset.why = 'The rail would not hand over a picture for this key.';
+        };
+      });
+    });
+  }
+
+  function look(key, list) {
+    var it = list.filter(function (i) { return i.key === key || i.ref === key; })[0] || { key: key, rail: 'b2' };
+    var job = it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId });
+    openViewer(it, job);
+  }
+
+  function openViewer(it, job) {
+    var veil = K.el('div', 'bc-veil');
+    var sheet = K.el('div', 'bc-sheet st-viewer');
+    sheet.innerHTML =
+      '<div class="bc-grab"></div>' +
+      '<p class="dk-kick">' + esc((it.owner || it.title || (it.key || '').split('/').pop() || 'The file')) + '</p>' +
+      '<p class="dk-lede">Reading it from the ' + esc((it.rail || 'b2').toUpperCase()) + ' rail\u2026</p>' +
+      '<div class="st-viewer-body" id="st-view"></div>' +
+      '<button class="dk-btn quiet" id="st-vshut">CLOSE</button>';
+    veil.appendChild(sheet);
+    document.body.appendChild(veil);
+    requestAnimationFrame(function () { veil.classList.add('on'); });
+    function shut() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 260); }
+    veil.addEventListener('click', function (e) { if (e.target === veil) shut(); });
+    sheet.querySelector('#st-vshut').addEventListener('click', shut);
+    job.then(function (url) {
+      var box = sheet.querySelector('#st-view');
+      if (!url) {
+        box.innerHTML = '<p class="st-jam">The rail did not hand over a readable address for this file. ' +
+          'The house needs the signing door to accept a key for a file that has no post \u2014 ' +
+          'see the handover, \u00A7 the two signing doors.</p>';
+        return;
+      }
+      if (/\.(mp4|mov|mkv|webm|m4v)$/i.test(url) || /video/.test(it.kind || '')) {
+        box.innerHTML = '<video class="st-view-video" src="' + esc(url) + '" controls playsinline></video>';
+      } else if (/\.(mp3|m4a|oga|ogg|opus|wav|aac|flac)$/i.test(url)) {
+        box.innerHTML = '<audio class="st-view-audio" src="' + esc(url) + '" controls></audio>';
+      } else if (/\.(jpe?g|png|webp|gif|heic)$/i.test(url) || /image|cover|portrait/.test(it.kind || '')) {
+        box.innerHTML = '<img class="st-view-pic" alt="" src="' + esc(url) + '">';
+      } else {
+        box.innerHTML = '<a class="dk-btn" href="' + esc(url) + '" target="_blank" rel="noopener">OPEN THE FILE</a>';
+      }
+    });
+  }
+
+  function removeObject(key, list) {
+    var veil = K.el('div', 'bc-veil');
+    var sheet = K.el('div', 'bc-sheet');
+    sheet.innerHTML =
+      '<div class="bc-grab"></div>' +
+      '<p class="dk-kick">Remove this from the film vault?</p>' +
+      '<p class="dk-lede">' + esc(key.split('/').pop()) + '. The object leaves R2 for good. ' +
+        'If a post still points at it, that post will lose its film.</p>' +
+      '<button class="dk-btn" id="st-rm">REMOVE IT</button>' +
+      '<button class="dk-btn quiet" id="st-rmkeep">KEEP IT</button>';
+    veil.appendChild(sheet);
+    document.body.appendChild(veil);
+    requestAnimationFrame(function () { veil.classList.add('on'); });
+    function shut() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 260); }
+    veil.addEventListener('click', function (e) { if (e.target === veil) shut(); });
+    sheet.querySelector('#st-rmkeep').addEventListener('click', shut);
+    sheet.querySelector('#st-rm').addEventListener('click', function () {
+      var b = this; b.disabled = true; b.textContent = 'REMOVING\u2026';
+      S.fn('r2-vault', { op: 'delete', key: key }).then(function () {
+        shut(); K.toast('Gone from the film vault.'); loadShelves('r2');
+      }).catch(function (e) {
+        b.disabled = false; b.textContent = 'REMOVE IT';
+        K.toast(e.message || 'R2 refused the removal.', true);
+      });
+    });
+  }
+
+  function shelf() {
+    var box = $('st-shelf');
+    if (St.shelf === 'b2') return shelfB2(box);
+    if (St.shelf === 'r2') return shelfR2(box);
+    if (St.shelf === 'supabase') return shelfSupabase(box);
+    return shelfBank(box);
+  }
+
+  function shelfB2(box) {
+    box.innerHTML = '<div class="st-shelf"><div class="st-loading">Opening the B2 ledger\u2026</div></div>';
+    if (St.b2 === null) {
+      S.b2Inventory().then(function (rows) {
+        St.b2 = rows;
+        paintRails(); shelfB2(box);
+      }).catch(function (e) {
+        St.b2why = e.message;
+        box.innerHTML = '<div class="st-shelf"><p class="st-jam">The B2 ledger did not open. ' +
+          esc(e.message) + '</p><p class="st-fine">Everything below is still referenced by the house \u2014 ' +
+          'a post, a cover, the wheel. The ledger is a reading of the database, so signing in as the house is what opens it.</p></div>';
+        paintRails();
+      });
+      return;
+    }
+    var list = St.b2.slice();
+    var b2cap = (St.policy ? St.policy.caps.b2_gb : 10) * 1e9;
+    var b2free = St.use && St.use.b2 != null ? Math.max(0, b2cap - St.use.b2) : null;
+    box.innerHTML = '<div class="st-shelf">' +
+      '<div class="st-bar b2"><b>B2</b><s>' +
+        (St.use && St.use.b2 != null
+          ? S.nice(St.use.b2) + ' kept \u00b7 ' + S.nice(b2free) + ' free of ' + (b2cap / 1e9) + ' GB'
+          : 'waiting for the ledger') +
+        ' \u00b7 Backblaze\u2019s own allowance is higher still</s></div>' +
+      shelfFilters(list) +
+      '<p class="st-fine">Everything the house points at in private B2. A file banked before the vault says ' +
+      'plainly that its size was never measured \u2014 the vault never guesses.</p>' +
+      '<div id="st-list"></div></div>';
+    paintList(list);
+  }
+
+  function shelfR2(box) {
+    box.innerHTML = '<div class="st-shelf"><div class="st-loading">Opening the film vault\u2026</div></div>';
+    S.r2Inventory().then(function (rows) {
+      St.r2 = rows;
+      paintRails();
+      var list = rows.slice();
+      var r2cap = (St.policy ? St.policy.caps.r2_gb : 9) * 1e9;
+      var r2free = St.use && St.use.r2 != null ? Math.max(0, r2cap - St.use.r2) : null;
+      box.innerHTML = '<div class="st-shelf">' +
+        '<div class="st-bar r2"><b>R2</b><s>' +
+          (St.use && St.use.r2 != null
+            ? S.nice(St.use.r2) + ' kept \u00b7 ' + S.nice(r2free) + ' free of the ' + (r2cap / 1e9) + ' GB cap'
+            : 'waiting for the vault') + '</s></div>' +
+        shelfFilters(list) +
+        '<p class="st-fine">Every object in the shared R2 vault, including published pictures. ' +
+        'Removal is yours alone and is asked for twice.</p>' +
+        '<div id="st-list"></div></div>';
+      paintList(list);
+    }).catch(function (e) {
+      St.r2why = e.message;
+      paintRails();
+      box.innerHTML = '<div class="st-shelf"><p class="st-jam">The film vault did not open.</p>' +
+        '<p class="st-fine">' + esc(e.message) + '</p></div>';
+    });
+  }
+
+  function shelfSupabase(box) {
+    box.innerHTML = '<div class="st-shelf"><div class="st-loading">Counting the house\u2026</div></div>';
+    Promise.all([
+      St.standingRows ? Promise.resolve(St.standingRows) : S.standing(),
+      S.listBucket('').catch(function (e) { St.supaWhy = e.message; return []; }),
+      K.get('/rest/v1/profiles?select=id&limit=2000').catch(function () { return []; })
+    ]).then(function (r) {
+      St.standingRows = r[0]; St.bucket = r[1]; St.members = (r[2] || []).length;
+      var q = S.folioQuota(St.policy, St.members);
+      var bucketBytes = St.bucket.reduce(function (n, o) { return n + (o.size || 0); }, 0);
+      box.innerHTML = '<div class="st-shelf">' +
+        '<p class="st-h">The database <s>what the house is carrying</s></p>' +
+        '<p class="st-bar supa"><b>SUPABASE</b><s>' +
+          (function () {
+            var rows = St.standingRows.reduce(function (n, x) { return n + (x.n || 0); }, 0);
+            var big = St.standingRows.slice().sort(function (a, b) { return (b.n || 0) - (a.n || 0); })[0];
+            return rows + ' rows across ' + St.standingRows.length + ' tables \u00b7 the fullest is ' +
+              (big ? big.t.replace(/_/g, ' ') + ' at ' + big.n : '\u2014') +
+              ' \u00b7 ' + K.size(bucketBytes) + ' in the showcase';
+          })() + '</s></p>' +
+        '<div class="st-counts">' + St.standingRows.map(function (x) {
+          return '<div class="st-count"><b>' + (x.n == null ? '\u2014' : x.n) + '</b><i>' +
+            esc(x.t.replace(/_/g, ' ')) + '</i></div>';
+        }).join('') + '</div>' +
+
+        '<p class="st-h" style="margin-top:18px">The public door <s>the showcase bucket</s></p>' +
+        '<p class="st-fine">' + (St.bucket.length
+          ? St.bucket.length + ' objects \u00b7 ' + K.size(bucketBytes) + ' \u00b7 served to anyone with the link.'
+          : esc(St.supaWhy || 'The bucket is empty, or it would not open for this account.')) + '</p>' +
+        (St.bucket.length ? '<div class="st-bucket">' + St.bucket.slice(0, 12).map(function (o) {
+          return '<div class="st-brow"><span>' + esc(o.name.split('/').pop()) + '</span><i>' +
+            K.size(o.size) + '</i></div>';
+        }).join('') + '</div>' : '') +
+
+        '<p class="st-h" style="margin-top:18px">The Quiet Folio <s>what a member may keep</s></p>' +
+        '<div class="dk-card st-folio-card">' +
+          '<p class="st-fine">Every folio page is a row in the database; every file a member keeps goes to ' +
+            S.railOf('folio', St.policy).toUpperCase() + ' under the same rule as everything else.</p>' +
+          '<label class="dk-label" for="fol-mb">The house\u2019s folio allowance (MB)</label>' +
+          '<input class="dk-input" id="fol-mb" inputmode="numeric" value="' + (St.policy.caps.folio_mb || 500) + '">' +
+          '<label class="dk-label" for="fol-per">At most, for one member (MB)</label>' +
+          '<input class="dk-input" id="fol-per" inputmode="numeric" value="' + (St.policy.caps.folio_member_mb || 1) + '">' +
+          '<p class="st-fine" style="margin-top:10px">At ' + q.members + ' members, ' + (q.house / 1048576).toFixed(0) +
+            ' MB is ' + (q.share / 1048576).toFixed(2) + ' MB each. Nobody is allowed past ' +
+            (q.per / 1048576).toFixed(2) + ' MB until you raise it. SAVE THE RAILS writes it.</p>' +
+        '</div>' +
+      '</div>';
+    });
+  }
+
+  function shelfBank(box) {
+    box.innerHTML = '<div class="st-shelf"><div class="st-loading">Opening the banks\u2026</div></div>';
+    S.bank().then(function (b) {
+      St.bankRows = b;
+      var flat = [];
+      b.images.forEach(function (r) { flat.push({ key: r.path, owner: r.title, kind: 'image', bytes: r.bytes, _bank: r }); });
+      b.voices.forEach(function (r) { flat.push({ key: r.path, owner: r.title, kind: 'voice', bytes: r.bytes, _bank: r }); });
+      St.bankFlat = flat;
+      if (St.b2 && St.b2why === null) St.b2 = St.b2.filter(function (x) { return !x._fromBank; });
+      box.innerHTML = '<div class="st-shelf">' +
+        '<p class="st-h">The image bank <s>' + b.images.length + (b.images.length === 1 ? ' picture' : ' pictures') +
+          ' the wheel may give</s></p>' +
+        '<div class="st-gallery">' + b.images.map(function (r, i) {
+          return '<button class="st-tile" data-bank="image" data-i="' + i + '">' +
+            '<span class="st-tile-in"></span>' +
+            '<b>' + esc(r.title || 'An image from Ivory') + '</b>' +
+            '<s>' + (r.bytes ? K.size(r.bytes) : 'banked before the vault') + '</s>' +
+          '</button>';
+        }).join('') + '</div>' +
+
+        '<p class="st-h" style="margin-top:18px">The voice bank <s>' + b.voices.length +
+          (b.voices.length === 1 ? ' note' : ' notes') + ' she may hear</s></p>' +
+        '<div class="st-voices">' + b.voices.map(function (r, i) {
+          return '<div class="st-vrow" data-voice="' + i + '">' +
+            '<button class="st-play" data-hear="' + i + '">\u25B6</button>' +
+            '<div class="st-vid"><b>' + esc(r.title || 'A voice from Ivory') + '</b>' +
+              '<s>' + (r.bytes ? K.size(r.bytes) : 'banked before the vault') + ' \u00b7 ' +
+              (r.enabled === false ? 'resting' : 'in the bank') + '</s></div>' +
+            '</div>';
+        }).join('') + '</div>' +
+
+        '<div class="st-bank-tools">' +
+          '<button class="dk-btn" id="st-bank-add-img">ADD PICTURES</button>' +
+          '<button class="dk-btn quiet" id="st-bank-add-voice">ADD VOICES</button>' +
+        '</div>' +
+
+        '<p class="st-h" style="margin-top:18px">The banks, file by file</p>' +
+        '<div id="st-list"></div>' +
+      '</div>';
+
+      paintBankTiles(b.images);
+      paintList(flat);
+      voicePlayers(b.voices);
+
+      $('st-bank-add-img').addEventListener('click', function () { pickBank('image'); });
+      $('st-bank-add-voice').addEventListener('click', function () { pickBank('voice'); });
+    }).catch(function (e) {
+      box.innerHTML = '<div class="st-shelf"><p class="st-jam">The banks did not open.</p>' +
+        '<p class="st-fine">' + esc(e.message) + '</p></div>';
+    });
+  }
+
+  function paintBankTiles(images) {
+    images.forEach(function (r, i) {
+      var tile = pane.querySelector('[data-bank="image"][data-i="' + i + '"]');
+      if (!tile) return;
+      S.openBank(r).then(function (url) {
+        if (!url) return;
+        var img = new Image();
+        img.src = url; img.alt = '';
+        img.onload = function () {
+          tile.querySelector('.st-tile-in').replaceWith(img);
+          tile.classList.add('has-pic');
+          tile.dataset.url = url;
+        };
+      });
+      tile.addEventListener('click', function () { look(r.path, [{ key: r.path, owner: r.title, kind: 'image', _bank: r }]); });
+    });
+  }
+
+  function voicePlayers(voices) {
+    voices.forEach(function (r, i) {
+      var b = pane.querySelector('[data-hear="' + i + '"]');
+      if (!b) return;
+      b.addEventListener('click', function () {
+        S.openBank(r).then(function (url) {
+          if (!url) { K.toast('That voice cannot be opened by this house yet.', true); return; }
+          var a = new Audio(url);
+          a.play().then(function () {
+            b.textContent = '\u275A\u275A';
+            a.onended = function () { b.textContent = '\u25B6'; };
+          }).catch(function () { K.toast('The browser would not play it.', true); });
+        });
+      });
+    });
+  }
+
+  function pickBank(kind) {
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = kind === 'image' ? 'image/*' : 'audio/*';
+    inp.multiple = true;
+    inp.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(inp.files || []);
+      if (!files.length) return;
+      var done = 0, failed = 0;
+      K.toast('Carrying ' + files.length + (kind === 'image' ? ' picture' : ' voice note') + '\u2026');
+      files.reduce(function (chain, f) {
+        return chain.then(function () {
+          return S.put(f, kind === 'image' ? 'image' : 'voice').then(function (got) {
+            return K.call('/rest/v1/rpc/wheel_bank_add', {
+              kind: kind === 'image' ? 'image' : 'audio',
+              title: kind === 'image' ? 'An image from Ivory' : 'A voice from Ivory',
+              path: got.key, fname_in: got.name, bytes_in: got.bytes, mime_in: got.mime
+            }).then(function () { done++; });
+          }).catch(function () { failed++; });
+        });
+      }, Promise.resolve()).then(function () {
+        K.toast(failed ? done + ' banked, ' + failed + ' refused.' : done + ' banked.');
+        St.bankRows = null; St.bankFlat = null;
+        shelf();
+      });
+    });
+    inp.click();
+  }
+
+  /* ── the first read ──────────────────────────────────────────────────── */
+  function loadShelves(which) {
+    if (which) { shelf(); return; }
+    shelf();
+  }
+
+  S.policy().then(function (p) {
+    St.policy = p;
+    paintRoutes(); bindRailChips();
+    if (p.updated_at) {
+      var s = $('st-saved');
+      s.className = 'st-note';
+      s.textContent = 'Last written ' + K.when(p.updated_at) + '.';
+    }
+  });
+
+  S.usage().then(function (u) { St.use = u; paintRails(); });
+  S.b2Inventory().then(function (rows) { St.b2 = rows; paintRails(); })
+    .catch(function (e) { St.b2why = e.message; paintRails(); });
+
+  tabs();
+  shelf();
+};
+</script>
+<script id="iv-folio-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE QUIET FOLIO · made real
+   ---------------------------------------------------------------------------
+   The app's folio, in the website's hands. Every page is a row in
+   `member_private_folio_entries`, owned by its member and read through RLS —
+   the house never sees another member's folio, and this module never asks.
+
+   Four kinds, exactly as the phone has them: note, draft, saved link, call
+   note. Plus one the phone cannot carry — a file a member keeps. Its bytes go
+   to the folio's rail (B2 by default, through the same signing door every
+   other upload uses) and the page keeps only its address, so a folio never
+   bloats the database.
+
+   The caps are the database's own: 100 pages, 42 KB a page, 1 MB of words.
+   The file allowance is the house's: 500 MB across everyone, 1 MB a member,
+   both written on the desk's rails and enforced here before a byte is wasted.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+window.IVFOLIO = (function () {
+  var K = window.IVKIT;
+  var TABLE = 'member_private_folio_entries';
+  var KINDS = [
+    { k: 'note', label: 'Note' },
+    { k: 'draft', label: 'Draft' },
+    { k: 'link', label: 'Saved link' },
+    { k: 'call_note', label: 'Call note' }
+  ];
+  var CAPS = { entries: 100, page: 42 * 1024, words: 1024 * 1024 };
+
+  var S = { rows: [], filter: 'all', q: '', loaded: false, who: null, quota: null, busy: false };
+
+  function esc(t) { return K.esc(t); }
+  function el(tag, cls, html) { return K.el(tag, cls, html); }
+  function bytesOf(t) { return new Blob([String(t || '')]).size; }
+  function contentBytes(r) {
+    var n = bytesOf(r.title) + bytesOf(r.body) + bytesOf(r.url || '');
+    (r.tags || []).forEach(function (t) { n += bytesOf(t); });
+    return n;
+  }
+  function isFile(r) { return String(r.url || '').indexOf('b2://') === 0 || (r.tags || []).indexOf('file') >= 0; }
+  function fileMeta(r) {
+    var t = r.tags || [];
+    return { mime: t[1] || '', bytes: Number(t[2] || 0), key: String(r.url || '').replace(/^b2:\/\//, '') };
+  }
+  function kindLabel(r) {
+    if (isFile(r)) return 'Kept file';
+    var m = KINDS.filter(function (x) { return x.k === r.kind; })[0];
+    return m ? m.label : 'Note';
+  }
+  function when(iso) {
+    var d = iso ? new Date(iso) : null;
+    if (!d || isNaN(d)) return '';
+    var m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var h = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
+    return d.getDate() + ' ' + m[d.getMonth()] + ', ' + h + ':' +
+           String(d.getMinutes()).padStart(2, '0') + ' ' + (d.getHours() < 12 ? 'am' : 'pm');
+  }
+
+  /* ── reading ─────────────────────────────────────────────────────────── */
+  function load(force) {
+    if (S.loaded && !force) return Promise.resolve(S.rows);
+    return K.get('/rest/v1/' + TABLE + '?select=*&order=updated_at.desc&limit=' + CAPS.entries)
+      .then(function (rows) {
+        S.rows = (rows || []).map(function (r) {
+          (r.tags || []).forEach(function () {});
+          if (!Array.isArray(r.tags)) r.tags = [];
+          return r;
+        });
+        S.loaded = true;
+        return S.rows;
+      })
+      .catch(function (e) {
+        S.loaded = true;
+        S.why = e && e.message ? e.message : 'The folio did not open.';
+        return [];
+      });
+  }
+
+  function quota() {
+    if (S.quota) return Promise.resolve(S.quota);
+    return Promise.all([
+      window.IVSTORE ? IVSTORE.policy() : Promise.resolve(null),
+      K.get('/rest/v1/profiles?select=id&limit=2000').catch(function () { return []; })
+    ]).then(function (r) {
+      var p = r[0] || (window.IVSTORE ? IVSTORE.DEFAULTS : null);
+      var members = (r[1] || []).length;
+      var q = window.IVSTORE ? IVSTORE.folioQuota(p, members)
+        : { house: 500 * 1048576, per: 1048576, members: members, share: 1048576 };
+      S.quota = q;
+      return q;
+    });
+  }
+
+  function fileBytesUsed() {
+    return S.rows.filter(isFile).reduce(function (n, r) { return n + fileMeta(r).bytes; }, 0);
+  }
+
+  /* ── painting ────────────────────────────────────────────────────────── */
+  function card(r) {
+    var file = isFile(r);
+    var art = el('article', 'fl-note' + (file ? ' fl-file' : ''));
+    art.dataset.id = r.id;
+    art.innerHTML =
+      '<div class="fl-note-top"><span class="fl-tag' + (file ? ' file' : '') + '">' +
+        esc(kindLabel(r)) + '</span>' +
+        '<button class="fl-more" aria-label="Page options" data-more="' + esc(r.id) + '"><i></i><i></i><i></i></button>' +
+      '</div>' +
+      '<h4>' + esc(r.title || 'Untitled') + '</h4>' +
+      (file ? '<div class="fo-file-slot" data-slot="' + esc(r.id) + '"></div>'
+            : (r.body ? '<p>' + esc(String(r.body).slice(0, 320)) + '</p>' : '')) +
+      (r.url && !file ? '<a class="fo-link" href="' + esc(r.url) + '" target="_blank" rel="noopener">' +
+        esc(String(r.url).replace(/^https?:\/\//, '').slice(0, 46)) + '</a>' : '') +
+      '<span class="fl-when">Kept ' + esc(when(r.created_at || r.updated_at)) + '</span>';
+    var more = art.querySelector('[data-more]');
+    if (more) more.addEventListener('click', function () { menu(r); });
+    art.addEventListener('click', function (e) {
+      if (e.target.closest('[data-more]') || e.target.closest('a')) return;
+      editor(r);
+    });
+    return art;
+  }
+
+  function passes(r) {
+    if (S.filter === 'file' && !isFile(r)) return false;
+    if (S.filter !== 'all' && S.filter !== 'file' && (isFile(r) || r.kind !== S.filter)) return false;
+    if (S.q) {
+      var hay = [r.title, r.body, r.url].join(' ').toLowerCase();
+      if (hay.indexOf(S.q.toLowerCase()) < 0) return false;
+    }
+    return true;
+  }
+
+  function paint() {
+    var box = document.getElementById('fl-list');
+    if (!box) return;
+    var rows = S.rows.filter(passes);
+    var files = S.rows.filter(isFile).length;
+    var used = fileBytesUsed();
+    var q = S.quota || { per: 1048576, house: 500 * 1048576, members: 0, share: 1048576 };
+
+    var head =
+      '<p class="fo-use">' + S.rows.length + ' of ' + CAPS.entries + ' pages \u00b7 ' +
+        K.size(S.rows.reduce(function (n, r) { return n + contentBytes(r); }, 0)) + ' of words \u00b7 ' +
+        files + (files === 1 ? ' file' : ' files') + ', ' + K.size(used) +
+        ' of ' + (q.per / 1048576).toFixed(2) + ' MB kept' +
+        (q.members ? ' <s>(' + (q.house / 1048576).toFixed(0) + ' MB across ' + q.members + ' members)</s>' : '') +
+      '</p>';
+
+    box.innerHTML = head +
+      (S.why ? '<div class="fl-fine" style="color:#8E0F27">' + esc(S.why) + '</div>' : '') +
+      (rows.length ? '' : '<div class="fo-empty">' +
+        (S.rows.length ? 'Nothing under that name.' :
+          'Nothing kept yet. A note, a draft, a link, a thought after a call \u2014 or a file you would rather not lose.') +
+        '</div>');
+
+    rows.forEach(function (r) { box.appendChild(card(r)); });
+    rows.filter(isFile).forEach(function (r) { fillFile(r); });
+  }
+
+  function fillFile(r) {
+    var slot = document.querySelector('[data-slot="' + r.id + '"]');
+    if (!slot) return;
+    var meta = fileMeta(r);
+    var key = meta.key;
+    slot.innerHTML = '<div class="fo-file-wait">Opening\u2026</div>';
+    var job = window.IVSTORE
+      ? IVSTORE.open({ rail: 'b2', key: key })
+      : Promise.resolve(null);
+    job.then(function (url) {
+      if (!url) {
+        slot.innerHTML = '<div class="fo-file-wait">Kept, but this house cannot open it yet \u2014 ' +
+          'the signing door has to learn the file\u2019s address.</div>' +
+          '<div class="fo-file-name">' + esc(meta.key.split('/').pop()) + ' \u00b7 ' + K.size(meta.bytes) + '</div>';
+        return;
+      }
+      if (/^image\//.test(meta.mime) || /\.(jpe?g|png|webp|gif)$/i.test(url)) {
+        slot.innerHTML = '<img class="fo-file-pic" alt="" src="' + esc(url) + '">';
+      } else if (/^audio\//.test(meta.mime) || /\.(mp3|m4a|oga|ogg|opus|wav|aac)$/i.test(url)) {
+        slot.innerHTML = '<audio class="fo-file-audio" controls src="' + esc(url) + '"></audio>';
+      } else if (/^video\//.test(meta.mime) || /\.(mp4|mov|mkv|webm)$/i.test(url)) {
+        slot.innerHTML = '<video class="fo-file-video" controls playsinline src="' + esc(url) + '"></video>';
+      } else {
+        slot.innerHTML = '<a class="fo-file-open" href="' + esc(url) + '" target="_blank" rel="noopener">' +
+          esc(meta.key.split('/').pop()) + ' \u00b7 ' + K.size(meta.bytes) + '</a>';
+      }
+    });
+  }
+
+  /* ── writing ─────────────────────────────────────────────────────────── */
+  function sheet(build) {
+    var veil = el('div', 'bc-veil');
+    var card = el('div', 'bc-sheet fo-sheet');
+    veil.appendChild(card);
+    document.body.appendChild(veil);
+    requestAnimationFrame(function () { veil.classList.add('on'); });
+    function shut() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 260); }
+    veil.addEventListener('click', function (e) { if (e.target === veil) shut(); });
+    build(card, shut);
+  }
+
+  function editor(existing) {
+    var e = existing || null;
+    var pick = e ? (isFile(e) ? 'link' : e.kind) : 'note';
+    sheet(function (card, shut) {
+      card.innerHTML =
+        '<div class="bc-grab"></div>' +
+        '<p class="dk-kick">' + (e ? 'This page' : 'Keep something') + '</p>' +
+        '<p class="dk-lede">' + (e ? 'Change it, or let it go.' :
+          'Nothing here is sent, posted or shared. It stays with your account and nowhere else.') + '</p>' +
+        '<div class="fo-kinds" id="fo-kinds">' + KINDS.map(function (k) {
+          return '<button class="dk-chip' + (pick === k.k ? ' on' : '') + '" data-k="' + k.k + '">' +
+            k.label.toUpperCase() + '</button>';
+        }).join('') + '</div>' +
+        '<label class="dk-label" for="fo-title">Title</label>' +
+        '<input class="dk-input" id="fo-title" maxlength="120" placeholder="What is this?" value="' +
+          esc(e ? e.title || '' : '') + '">' +
+        '<label class="dk-label" for="fo-body">The page</label>' +
+        '<textarea class="dk-input fo-body" id="fo-body" rows="7" placeholder="Write it as you think it.">' +
+          esc(e && !isFile(e) ? e.body || '' : '') + '</textarea>' +
+        '<label class="dk-label" for="fo-url">A link, if it is one</label>' +
+        '<input class="dk-input" id="fo-url" inputmode="url" placeholder="https://" value="' +
+          esc(e && !isFile(e) ? e.url || '' : '') + '">' +
+        '<p class="fo-count" id="fo-count"></p>' +
+        '<button class="dk-btn" id="fo-save">' + (e ? 'SAVE THE PAGE' : 'KEEP IT') + '</button>' +
+        (e ? '<button class="dk-btn quiet" id="fo-del">LET IT GO</button>' : '') +
+        '<button class="dk-btn quiet" id="fo-shut">CANCEL</button>';
+      card.querySelector('#fo-shut').addEventListener('click', shut);
+
+      var kind = pick;
+      Array.prototype.forEach.call(card.querySelectorAll('#fo-kinds [data-k]'), function (b) {
+        b.addEventListener('click', function () {
+          kind = b.dataset.k;
+          Array.prototype.forEach.call(card.querySelectorAll('#fo-kinds [data-k]'), function (x) {
+            x.classList.toggle('on', x === b);
+          });
+        });
+      });
+
+      function count() {
+        var n = bytesOf(card.querySelector('#fo-title').value) +
+                bytesOf(card.querySelector('#fo-body').value) +
+                bytesOf(card.querySelector('#fo-url').value);
+        var p = card.querySelector('#fo-count');
+        p.textContent = K.size(n) + ' of ' + Math.round(CAPS.page / 1024) + ' KB for this page. ' +
+          'Anything longer is refused by the database itself.';
+        p.className = 'fo-count' + (n > CAPS.page ? ' over' : '');
+        return n;
+      }
+      ['#fo-title', '#fo-body', '#fo-url'].forEach(function (sel) {
+        card.querySelector(sel).addEventListener('input', count);
+      });
+      count();
+
+      card.querySelector('#fo-save').addEventListener('click', function () {
+        var b = this;
+        var title = card.querySelector('#fo-title').value.trim();
+        var body = card.querySelector('#fo-body').value.trim();
+        var url = card.querySelector('#fo-url').value.trim();
+        if (count() > CAPS.page) { K.toast('This page is too large to keep. Shorten it and try again.', true); return; }
+        if (!title && !body && !url) { K.toast('Give it a line, at least.', true); return; }
+        b.disabled = true; b.textContent = 'KEEPING\u2026';
+        var row = { kind: kind, title: title, body: body, url: url || null, tags: [] };
+        var job = e
+          ? fetch(IVSTORE.SB + '/rest/v1/' + TABLE + '?id=eq.' + encodeURIComponent(e.id), {
+              method: 'PATCH',
+              headers: Object.assign(IVSESS.headers(), { Prefer: 'return=representation' }),
+              body: JSON.stringify(Object.assign(row, { updated_at: new Date().toISOString(), tags: e.tags || [] }))
+            })
+          : fetch(IVSTORE.SB + '/rest/v1/' + TABLE, {
+              method: 'POST',
+              headers: Object.assign(IVSESS.headers(), { Prefer: 'return=representation' }),
+              body: JSON.stringify(row)
+            });
+        job.then(function (r) {
+          return r.text().then(function (t) {
+            if (!r.ok) throw new Error(refusal(t, r.status));
+            return t;
+          });
+        }).then(function () {
+          shut();
+          K.toast(e ? 'Saved.' : 'Kept. It is yours alone.');
+          load(true).then(function () { paint(); });
+        }).catch(function (x) {
+          b.disabled = false; b.textContent = e ? 'SAVE THE PAGE' : 'KEEP IT';
+          K.toast(x.message || 'The folio refused.', true);
+        });
+      });
+
+      if (e) card.querySelector('#fo-del').addEventListener('click', function () {
+        var b = this;
+        b.disabled = true; b.textContent = 'LETTING GO\u2026';
+        fetch(IVSTORE.SB + '/rest/v1/' + TABLE + '?id=eq.' + encodeURIComponent(e.id), {
+          method: 'DELETE', headers: IVSESS.headers()
+        }).then(function (r) {
+          if (!r.ok) throw new Error('The folio refused to let it go.');
+          shut(); K.toast('Let go.');
+          load(true).then(function () { paint(); });
+        }).catch(function (x) {
+          b.disabled = false; b.textContent = 'LET IT GO';
+          K.toast(x.message, true);
+        });
+      });
+
+      setTimeout(function () { try { card.querySelector('#fo-title').focus(); } catch (x) {} }, 320);
+    });
+  }
+
+  function refusal(text, status) {
+    try {
+      var j = JSON.parse(text);
+      if (j.message) return j.message;
+    } catch (e) {}
+    return 'The folio refused (' + status + ').';
+  }
+
+  function menu(r) {
+    sheet(function (card, shut) {
+      card.innerHTML =
+        '<div class="bc-grab"></div>' +
+        '<p class="dk-kick">' + esc(r.title || 'This page') + '</p>' +
+        '<p class="dk-lede">' + esc(kindLabel(r)) + ' \u00b7 kept ' + esc(when(r.created_at || r.updated_at)) + '</p>' +
+        '<button class="dk-btn" id="fo-open">OPEN IT</button>' +
+        '<button class="dk-btn quiet" id="fo-let">LET IT GO</button>' +
+        '<button class="dk-btn quiet" id="fo-back">BACK</button>';
+      card.querySelector('#fo-back').addEventListener('click', shut);
+      card.querySelector('#fo-open').addEventListener('click', function () { shut(); setTimeout(function () { editor(r); }, 220); });
+      card.querySelector('#fo-let').addEventListener('click', function () {
+        var b = this; b.disabled = true; b.textContent = 'LETTING GO\u2026';
+        fetch(IVSTORE.SB + '/rest/v1/' + TABLE + '?id=eq.' + encodeURIComponent(r.id), {
+          method: 'DELETE', headers: IVSESS.headers()
+        }).then(function (x) {
+          if (!x.ok) throw new Error('The folio refused to let it go.');
+          shut(); K.toast('Let go.');
+          load(true).then(function () { paint(); });
+        }).catch(function (x) {
+          b.disabled = false; b.textContent = 'LET IT GO';
+          K.toast(x.message, true);
+        });
+      });
+    });
+  }
+
+  /* ── a file a member keeps ───────────────────────────────────────────── */
+  function keepFile() {
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.addEventListener('change', function () {
+      var f = (inp.files || [])[0];
+      if (!f) return;
+      quota().then(function (q) {
+        var used = fileBytesUsed();
+        if (used + f.size > q.per) {
+          K.toast('That file would take your folio past ' + (q.per / 1048576).toFixed(2) +
+                  ' MB. The house keeps ' + (q.house / 1048576).toFixed(0) + ' MB for everyone.', true);
+          return;
+        }
+        K.toast('Carrying ' + f.name + '\u2026');
+        IVSTORE.put(f, 'folio').then(function (got) {
+          var tags = ['file', got.mime, String(got.bytes)];
+          return fetch(IVSTORE.SB + '/rest/v1/' + TABLE, {
+            method: 'POST',
+            headers: Object.assign(IVSESS.headers(), { Prefer: 'return=representation' }),
+            body: JSON.stringify({ kind: 'link', title: f.name, body: '', url: 'b2://' + got.key, tags: tags })
+          }).then(function (r) {
+            return r.text().then(function (t) {
+              if (!r.ok) throw new Error(refusal(t, r.status));
+              return t;
+            });
+          });
+        }).then(function () {
+          K.toast('Kept. It is in your folio and on the ' +
+                  (IVSTORE.railOf('folio')).toUpperCase() + ' rail.');
+          load(true).then(function () { paint(); });
+        }).catch(function (e) {
+          K.toast(e.message || 'The file could not be kept.', true);
+        });
+      });
+    });
+    inp.click();
+  }
+
+  /* ── the sheet itself ────────────────────────────────────────────────── */
+  function wire() {
+    var wrap = document.getElementById('sheet-folio');
+    if (!wrap || wrap.dataset.wired) return;
+    wrap.dataset.wired = '1';
+    var body = wrap.querySelector('.folio-body');
+    var demo = body.querySelector('.fl-note');
+    var list = el('div', 'fo-list');
+    list.id = 'fl-list';
+    if (demo) demo.replaceWith(list); else body.insertBefore(list, body.querySelector('.fl-fine'));
+
+    var filters = body.querySelector('.fl-filters');
+    if (filters) {
+      var fileChip = el('button', 'ff', 'Kept files');
+      fileChip.dataset.f = 'file';
+      filters.appendChild(fileChip);
+      Array.prototype.forEach.call(filters.querySelectorAll('.ff'), function (b) {
+        b.addEventListener('click', function () {
+          Array.prototype.forEach.call(filters.querySelectorAll('.ff'), function (x) {
+            x.classList.toggle('on', x === b);
+          });
+          var t = b.textContent.toLowerCase();
+          S.filter = t.indexOf('all') === 0 ? 'all' : t.indexOf('note') === 0 && t.indexOf('call') < 0 ? 'note'
+            : t.indexOf('draft') === 0 ? 'draft' : t.indexOf('saved') === 0 ? 'link'
+            : t.indexOf('call') === 0 ? 'call_note' : 'file';
+          paint();
+        });
+      });
+    }
+
+    var search = body.querySelector('.fl-search input');
+    if (search) search.addEventListener('input', function () { S.q = search.value; paint(); });
+
+    var keep = body.querySelector('.fl-keep');
+    if (keep) keep.addEventListener('click', function () { editor(null); });
+
+    if (keep) {
+      var keepFileBtn = el('button', 'fl-keep fo-keepfile', '<span aria-hidden="true">&#10515;</span> Keep a file');
+      keep.parentNode.insertBefore(keepFileBtn, keep.nextSibling);
+      keepFileBtn.addEventListener('click', keepFile);
+    }
+  }
+
+  function open() {
+    wire();
+    Promise.all([load(), quota()]).then(function () { paint(); });
+  }
+
+  /* the sheet opens through window.openSheet — we take it at the door */
+  (function hook() {
+    if (!window.openSheet) { /* the shell is not up yet; try again in a moment */
+      setTimeout(hook, 120); return;
+    }
+    if (window.openSheet.__folio) return;
+    var base = window.openSheet;
+    var wrapped = function (id) {
+      var r = base.apply(this, arguments);
+      if (String(id) === 'folio') setTimeout(open, 60);
+      return r;
+    };
+    wrapped.__folio = 1;
+    window.openSheet = wrapped;
+  })();
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-open="folio"]');
+    if (b) setTimeout(open, 60);
+  }, true);
+
+  return { open: open, load: load, paint: paint, editor: editor, keepFile: keepFile,
+           rows: function () { return S.rows; }, CAPS: CAPS, isFile: isFile, fileMeta: fileMeta };
 })();
 </script>
 </body>
