@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFFDF6">
+<meta name="robots" content="noindex,nofollow">
+<title>Ivory · the glass — what the house thinks</title>
+<style>
+  :root{--ivory:#FFFDF6;--cream:#FCF3E0;--sand:#F6E6C6;--burg:#5C1226;--wine:#7E0E23;--red:#A8162F;
+        --gold:#A98545;--ink:#3A2007;--soft:#6E4A1C;
+        --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+        --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{min-height:100vh;padding:22px 16px 40px;color:var(--ink);font-family:var(--serif);
+       background:linear-gradient(180deg,var(--ivory) 0,var(--cream) 48%,var(--sand) 100%)}
+  .wrap{max-width:560px;margin:0 auto}
+  .mark{font:600 9.5px/1 var(--ui);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+  h1{font-style:italic;font-weight:700;font-size:25px;line-height:1.15;color:var(--burg);margin:0 0 8px}
+  .lede{font-size:13.5px;line-height:1.6;color:var(--soft);margin:0 0 16px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,250,238,.9));
+        border:1px solid rgba(180,132,44,.34);border-radius:15px;padding:15px;margin:0 0 12px;
+        box-shadow:0 5px 14px rgba(92,18,38,.05)}
+  h2{font-style:italic;font-size:16.5px;color:var(--burg);margin:0 0 8px}
+  label{display:block;margin:0 0 10px}
+  label span{display:block;font:600 8.6px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;
+             color:var(--gold);margin:0 0 6px}
+  input{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(180,132,44,.45);
+        background:rgba(255,255,255,.9);font-family:var(--serif);font-size:15px;color:var(--ink)}
+  .btn{width:100%;padding:14px;border:0;border-radius:12px;color:#FFF7E2;font:700 15px var(--serif);
+       background:linear-gradient(180deg,var(--red),var(--wine));box-shadow:0 6px 14px rgba(126,14,35,.22)}
+  .grey{margin:0;padding:13px;border-radius:11px;background:#F4EFE4;border:1px solid rgba(180,132,44,.35);
+        font:11.5px/1.62 ui-monospace,Menlo,Consolas,monospace;color:#3F2A10;
+        white-space:pre-wrap;word-break:break-word;max-height:52vh;overflow:auto}
+  .err{color:#8E1230;font-size:12.5px;line-height:1.55;margin:8px 0 0}
+  .ok{color:#0A6B45;font-size:12.5px;line-height:1.55;margin:8px 0 0}
+  .note{font-size:11.5px;line-height:1.6;color:#8A6A3A;font-style:italic;margin:10px 0 0}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="mark">Ivory · one instrument, not a door</p>
+  <h1>What the house thinks of this member.</h1>
+  <p class="lede">This page asks the house four questions and prints the answers in one grey block: which
+    membership this account holds, what the newest room says it needs, what the room list thinks it is entitled
+    to, and what the token service answers when this member asks to walk in. Send the grey block back and the
+    guessing ends.</p>
+
+  <div class="card" id="door">
+    <h2>Sign in as the member</h2>
+    <label><span>the member&rsquo;s email</span><input type="email" id="email" inputmode="email" autocomplete="username" placeholder="member@…"></label>
+    <label><span>the member&rsquo;s password</span><input type="password" id="pass" autocomplete="current-password"></label>
+    <button class="btn" id="go">Ask the house</button>
+    <p class="err hide" id="err"></p>
+    <p class="note">Nothing is stored beyond this tab, and nothing here is shown to anyone but you.</p>
+  </div>
+
+  <div class="card hide" id="out">
+    <h2>The answer</h2>
+    <pre class="grey" id="report">…</pre>
+    <button class="btn" id="copy" style="margin-top:10px">Copy this</button>
+    <p class="ok hide" id="copied">Copied.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLwhw_QO4DXeQM';
+  var S={sess:null};
+  function $(id){ return document.getElementById(id); }
+
+  function call(path,body,opt){
+    opt=opt||{};
+    var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token;
+    var r={method:opt.method||(body===null?'GET':'POST'),headers:h};
+    if(body!==null&&body!==undefined) r.body=JSON.stringify(body);
+    if(opt.headers) for(var k in opt.headers) h[k]=opt.headers[k];
+    return fetch(SB+path,r).then(function(res){
+      return res.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+        if(!res.ok){
+          var m=(j&&(j.message||j.error||j.msg))||t||('HTTP '+res.status);
+          var e=new Error(String(m)); e.status=res.status; e.body=j; throw e;
+        }
+        return j;
+      });
+    });
+  }
+
+  function login(email,password){
+    return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:password})})
+      .then(function(r){ return r.json().then(function(j){
+        if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That did not work.');
+        S.sess=j; return j; }); });
+  }
+
+  function line(label,value){ return label+': '+value+'\n'; }
+
+  function compact(rows,max){
+    if(!rows||!rows.length) return 'none';
+    return JSON.stringify(rows.slice(0,max||1));
+  }
+
+  function run(){
+    var email=($('email').value||'').trim(), pass=$('pass').value||'';
+    if(!email||!pass){ $('err').textContent='Both the email and the password, please.'; $('err').classList.remove('hide'); return; }
+    var b=$('go'); b.disabled=true; b.innerHTML='Asking…'; $('err').classList.add('hide');
+    var out='';
+    login(email,pass)
+      .then(function(){
+        out+=line('signed in as', (S.sess.user&&S.sess.user.id)||'?');
+        return call('/rest/v1/my_membership?select=*&limit=1',null,{method:'GET'}).catch(function(e){ return {__err:e.message}; });
+      })
+      .then(function(m){
+        var row=Array.isArray(m)?m[0]:m;
+        out+='\n-- my_membership ---------------------------------\n';
+        out+=(row? (row.__err? 'error: '+row.__err : JSON.stringify(row)) : 'none')+'\n';
+        return call('/rest/v1/profiles?select=*&limit=1',null,{method:'GET'}).catch(function(e){ return {__err:e.message}; });
+      })
+      .then(function(p){
+        var row=Array.isArray(p)?p[0]:p;
+        out+='\n-- profiles (own row) ----------------------------\n';
+        out+=(row? (row.__err? 'error: '+row.__err : JSON.stringify(row)) : 'none')+'\n';
+        return call('/rest/v1/user_subscriptions?select=*&limit=3',null,{method:'GET'}).catch(function(e){ return {__err:e.message}; });
+      })
+      .then(function(sub){
+        out+='\n-- user_subscriptions (own rows) -----------------\n';
+        out+=(Array.isArray(sub)? (sub.length? JSON.stringify(sub) : 'none visible') : ('error: '+(sub&&sub.__err||'?')))+'\n';
+        return call('/rest/v1/live_passes?select=*&limit=3',null,{method:'GET'}).catch(function(e){ return {__err:e.message}; });
+      })
+      .then(function(lp){
+        out+='\n-- live_passes (own rows) ------------------------\n';
+        out+=(Array.isArray(lp)? (lp.length? JSON.stringify(lp) : 'none visible') : ('error: '+(lp&&lp.__err||'?')))+'\n';
+        return call('/rest/v1/live_public?select=id,title,access,min_tier,allowed_tiers,price_inr,status,tier_name,is_entitled&order=id.desc&limit=3',null,{method:'GET'})
+          .catch(function(e){ return [{__err:e.message}]; });
+      })
+      .then(function(rooms){
+        out+='\n-- live_public (three newest) --------------------\n';
+        (rooms||[]).forEach(function(r){
+          out+= (r.__err? 'error: '+r.__err :
+            'id '+r.id+' | '+r.status+' | access '+r.access+' | min_tier '+r.min_tier+
+            ' | allowed '+JSON.stringify(r.allowed_tiers)+' | tier_name '+r.tier_name+
+            ' | is_entitled '+r.is_entitled)+'\n';
+        });
+        var live=(rooms||[]).filter(function(r){ return r&&r.status==='live'; })[0] || (rooms||[])[0];
+        if(!live||!live.id){ out+='\nno room to ask about.\n'; return; }
+        out+='\n-- the token service, asked about room '+live.id+' --\n';
+        return call('/functions/v1/agora-token',{mode:'live',id:live.id})
+          .then(function(tk){
+            out+='answered: '+(tk&&tk.token?'A TICKET WAS GIVEN (it would open)':JSON.stringify(tk))+'\n';
+          })
+          .catch(function(e){
+            out+='refused: "'+e.message+'"'+(e.status?(' (HTTP '+e.status+')'):'')+'\n';
+            if(e.body&&typeof e.body==='object') out+='raw: '+JSON.stringify(e.body)+'\n';
+            return call('/functions/v1/agora-token',{mode:'guest',id:live.id})
+              .then(function(tk){ out+='as a guest it answered: '+(tk&&tk.token?'A TICKET (guests are let in)':JSON.stringify(tk))+'\n'; })
+              .catch(function(g){ out+='as a guest it refused: "'+g.message+'"\n'; });
+          });
+      })
+      .then(function(){
+        $('report').textContent=out.trim();
+        $('out').classList.remove('hide');
+        $('out').scrollIntoView({behavior:'smooth',block:'start'});
+      })
+      .catch(function(e){
+        $('err').textContent=(e&&e.message)||String(e);
+        $('err').classList.remove('hide');
+      })
+      .then(function(){ b.disabled=false; b.textContent='Ask the house'; });
+  }
+
+  $('go').addEventListener('click',run);
+  $('copy').addEventListener('click',function(){
+    var t=$('report').textContent, b=this;
+    var done=function(){ $('copied').classList.remove('hide'); setTimeout(function(){ $('copied').classList.add('hide'); },1600); };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done).catch(fb); } else fb();
+    function fb(){ try{ var i=document.createElement('textarea'); i.value=t; document.body.appendChild(i); i.select();
+      document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+  });
+})();
+</script>
+</body>
+</html>
