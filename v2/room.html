@@ -444,6 +444,8 @@
       messages(true);
       S.msgTick=setInterval(function(){ messages(false); }, 3500);
       S.tick=setInterval(function(){ heartbeat(); }, 7000);
+      enterRoom();
+      setTimeout(function(){ heartbeat(); }, 900);
     }).catch(function(x){
       var m=x.message||String(x);
       var plain=/not included|not entitled|membership/i.test(m)
@@ -491,7 +493,7 @@
     var div=document.createElement('div');
     div.className='msg'+(m.is_host?' host':'');
     var who=m.sender_name || (m.is_host?'Ivory':'a member');
-    div.innerHTML='<b>'+escapeHtml(who)+(mine?'<span class="mine">you</span>':'')+'</b>'+escapeHtml(m.body||'');
+    div.innerHTML='<b>'+escapeHtml(who)+(mine?' <span class="mine">you</span>':'')+'</b>'+escapeHtml(m.body||'');
     var chat=$('chat');
     var atBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
     chat.appendChild(div);
@@ -509,18 +511,29 @@
   });
 
   /* ---------- 5 · the room's own clock ---------- */
+  /* The house counts who is in the room from its attendance book. Agora only
+     counts phones that publish, and a member only listens — so without this the
+     host's screen says zero while she is sitting right there. */
+  function enterRoom(){
+    if(!S.session) return;
+    call('/rest/v1/rpc/live_enter',{session_id_in:S.session.id}).catch(function(){});
+  }
+
   function heartbeat(){
     if(!S.session) return;
+    call('/rest/v1/rpc/live_enter',{session_id_in:S.session.id}).catch(function(){});
     get('/rest/v1/live_public?select=*&id=eq.'+S.session.id).then(function(rows){
       var r=rows&&rows[0];
       if(!r) return;
       S.session=r;
-      $('watch').textContent=(r.viewer_count||0)+' watching';
+      var n=Number(r.viewer_count||0);
+      $('watch').textContent = n===1 ? 'you, and no one else yet' : (n+' in the room');
       if(r.status!=='live'){ closed('The room has closed.'); }
     }).catch(function(){});
   }
 
   function closed(reason){
+    try{ if(S.session) call('/rest/v1/rpc/leave_live',{session_id_in:S.session.id}).catch(function(){}); }catch(e){}
     stopTicks();
     if(S.client){ try{ S.client.leave(); }catch(e){} S.client=null; }
     S.session=null; chip(false);
@@ -534,6 +547,7 @@
   $('leave').addEventListener('click',function(){
     var id=S.session&&S.session.id;
     var done=function(){ stopTicks(); if(S.client){ try{ S.client.leave(); }catch(e){} S.client=null; }
+      try{ if(S.session) call('/rest/v1/rpc/leave_live',{session_id_in:S.session.id}).catch(function(){}); }catch(e){}
       S.session=null; chip(false); show('v-list'); rooms(); };
     if(!id){ done(); return; }
     call('/rest/v1/rpc/leave_live',{session_id_in:id}).catch(function(){}).then(done);
