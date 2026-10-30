@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF7E2">
+<title>Ivory · On Air</title>
+<style>
+  :root{
+    --paper:#FFFDF6; --paper2:#FBF2DE; --paper3:#F7E8CB;
+    --ink:#3A2007; --ink-soft:#6E4A1C; --gold:#C49A45; --gold-2:#96610F;
+    --bu:#B81A34; --bu-deep:#6E0C24; --cream:#FFF7E2;
+    --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:var(--serif);color:var(--ink);
+    background:
+      radial-gradient(120% 70% at 50% -10%, #FFF6DE 0%, rgba(255,246,222,0) 60%),
+      linear-gradient(180deg,#FFFDF6 0%,#FCF3E0 48%,#F6E6C6 100%);
+    background-attachment:fixed;
+    min-height:100svh;display:flex;justify-content:center;
+    padding:0 0 env(safe-area-inset-bottom);
+  }
+  .wrap{width:100%;max-width:560px;padding:18px 20px 34px;position:relative}
+  .wrap:before{content:'';position:fixed;inset:8px;border:1px solid rgba(180,132,44,.28);
+    border-radius:20px;pointer-events:none;z-index:0}
+
+  /* ---------- head ---------- */
+  .top{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
+  .mark{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.42em;color:#5C1226;text-indent:.42em}
+  .top .sp{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--ui);font-size:8.6px;letter-spacing:.18em;text-transform:uppercase;color:#8A6A3A}
+  .dot{width:6px;height:6px;border-radius:50%;background:#C7A97A;box-shadow:0 0 0 3px rgba(199,169,122,.18)}
+  .chip.live{border-color:rgba(184,26,52,.5);color:#8E1230;background:rgba(255,244,240,.75)}
+  .chip.live .dot{background:var(--bu);box-shadow:0 0 0 3px rgba(184,26,52,.18);animation:beat 1.6s ease-in-out infinite}
+  @keyframes beat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
+
+  h1{margin:0 0 6px;font-size:27px;line-height:1.12;font-weight:700;font-style:italic;color:var(--bu-deep);letter-spacing:.004em}
+  .lede{margin:0 0 18px;font-size:13.2px;line-height:1.6;color:var(--ink-soft);font-style:italic}
+  .kicker{margin:0 0 8px;font-family:var(--ui);font-size:8.4px;letter-spacing:.3em;text-transform:uppercase;color:#A98545}
+
+  /* ---------- cards ---------- */
+  .card{position:relative;z-index:1;border:1px solid rgba(180,132,44,.36);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(90,42,6,.6);
+    padding:16px 16px 15px;margin:0 0 14px}
+  .card h2{margin:0 0 4px;font-size:16.5px;font-weight:700;font-style:italic;color:#5C1226}
+  .card p{margin:0 0 12px;font-size:12.8px;line-height:1.6;color:var(--ink-soft)}
+  .card p:last-child{margin-bottom:0}
+
+  label.f{display:block;margin:0 0 11px}
+  label.f span{display:block;font-family:var(--ui);font-size:8.4px;letter-spacing:.22em;
+    text-transform:uppercase;color:#96703A;margin:0 0 5px}
+  input[type=email],input[type=password],input[type=text]{
+    width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);
+    background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);
+    outline:none;-webkit-appearance:none}
+  input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px 16px;
+    border:0;border-radius:13px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:700;
+    letter-spacing:.02em;color:var(--cream);
+    background:linear-gradient(180deg,#A8162F,#7E0E23);
+    box-shadow:0 1px 0 rgba(255,255,255,.22) inset,0 12px 24px -16px rgba(110,12,36,.9);
+    transition:transform .18s var(--ease),filter .18s}
+  .btn:active{transform:translateY(1px) scale(.995)}
+  .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.gold{color:#3A2007;background:linear-gradient(180deg,#F7D77F,#D9A93F);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 12px 24px -18px rgba(120,74,14,.9)}
+  .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);
+    box-shadow:none;font-weight:400}
+  .btn.sm{padding:11px 14px;font-size:13px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+
+  .note{margin:12px 0 0;font-size:11.6px;line-height:1.55;color:#8A6A3A;font-style:italic}
+  .err{margin:12px 0 0;padding:11px 12px;border-radius:11px;font-size:12.6px;line-height:1.55;
+    background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
+  .ok{margin:12px 0 0;padding:11px 12px;border-radius:11px;font-size:12.6px;line-height:1.55;
+    background:rgba(23,197,126,.08);border:1px solid rgba(7,153,92,.28);color:#0A6B45}
+  .hide{display:none !important}
+
+  /* ---------- the glass ---------- */
+  .glass{position:relative;border-radius:18px;overflow:hidden;background:#160D28;
+    border:1px solid rgba(180,132,44,.5);
+    box-shadow:0 22px 50px -30px rgba(40,16,4,.75),0 0 0 6px rgba(255,255,255,.35) inset;
+    aspect-ratio:3/4;display:grid;place-items:center}
+  .glass video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+  .glass.mirror-off video{transform:none}
+  .glass .placeholder{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;
+    background:radial-gradient(120% 80% at 50% 30%,#2A1B44,#140C22 70%);color:rgba(255,247,226,.72);
+    font-style:italic;font-size:13px;line-height:1.6}
+  .glass .badge{position:absolute;top:10px;left:10px;display:none;align-items:center;gap:6px;
+    padding:5px 10px;border-radius:100px;background:rgba(110,12,36,.86);color:#FFE9C0;
+    font-family:var(--ui);font-size:8.4px;letter-spacing:.2em;text-transform:uppercase}
+  .glass.on .badge{display:inline-flex}
+  .glass .clock{position:absolute;top:10px;right:10px;padding:5px 9px;border-radius:100px;
+    background:rgba(10,6,18,.55);color:#FFE9C0;font-family:var(--ui);font-size:10.5px;letter-spacing:.12em;
+    font-variant-numeric:tabular-nums}
+
+  .tools{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0 0}
+  .tool{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px 9px;cursor:pointer;
+    border:1px solid rgba(180,132,44,.4);border-radius:13px;background:rgba(255,255,255,.62);
+    font-family:var(--ui);font-size:8.2px;letter-spacing:.12em;text-transform:uppercase;color:#7A4A12}
+  .tool svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tool.off{background:rgba(184,26,52,.07);border-color:rgba(184,26,52,.35);color:#8E1230}
+  .tool.off svg{opacity:.55}
+
+  .stats{margin:12px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+  .stats div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;
+    border-bottom:1px dashed rgba(180,132,44,.28);font-family:var(--ui);font-size:10px;
+    letter-spacing:.06em;color:#8A6A3A}
+  .stats b{font-family:var(--serif);font-size:12.5px;color:#5C1226;letter-spacing:0}
+
+  .foot{margin:18px 0 0;text-align:center;font-family:var(--ui);font-size:8.4px;
+    letter-spacing:.2em;text-transform:uppercase;color:#A98545}
+  .foot a{color:#8A6A3A;text-decoration:none;border-bottom:1px solid rgba(180,132,44,.45)}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (max-width:380px){h1{font-size:24px}.wrap{padding:14px 16px 28px}}
+</style>
+</head>
+<body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/live.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
+<div class="wrap">
+
+  <div class="top">
+    <span class="mark">IVORY</span>
+    <span class="sp"></span>
+    <span class="chip" id="chip"><i class="dot"></i><b id="chip-t">off air</b></span>
+  </div>
+
+  <p class="kicker">the on-air room &middot; a working proof</p>
+  <h1>Your phone, on air.</h1>
+  <p class="lede">One tap, one camera, and this phone is the broadcaster &mdash; the same Agora room the app
+    already uses. Nothing is recorded, here or anywhere.</p>
+
+  <!-- ── 1 · the house signs in ─────────────────────────────── -->
+  <section class="card" id="s-door">
+    <h2>The door</h2>
+    <p>Only the house signs in here: the account that runs Ivory. The password stays in this tab and is never
+      written down anywhere.</p>
+    <label class="f"><span>email</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
+    <label class="f"><span>password</span><input type="password" id="pass" autocomplete="current-password"></label>
+    <button class="btn" id="signin">Unlock the room</button>
+    <p class="note" id="door-note">If you are already signed in on this phone, the room opens straight away.</p>
+    <p class="err hide" id="door-err"></p>
+  </section>
+
+  <!-- ── 2 · the glass, before anyone is watching ───────────── -->
+  <section class="card hide" id="s-prepare">
+    <h2 id="prep-name">The glass</h2>
+    <p>First, prove the camera. This shows you to yourself only &mdash; nothing leaves the phone until you open
+      the broadcast below.</p>
+    <div class="glass mirror-off" id="preview">
+      <video id="pv" playsinline muted autoplay></video>
+      <span class="placeholder" id="pv-ph">the camera is off</span>
+      <span class="badge"><i class="dot"></i>preview</span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn gold sm" id="trycam">Try the camera</button>
+      <button class="btn quiet sm" id="stopcam">Put it down</button>
+    </div>
+    <p class="err hide" id="prep-err"></p>
+  </section>
+
+  <!-- ── 3 · open the broadcast ─────────────────────────────── -->
+  <section class="card hide" id="s-open">
+    <h2>Open the broadcast</h2>
+    <p>This writes a live entry exactly the way the app does, so the app can find it. Ended the moment you tap
+      End &mdash; and the last thing on this page is the button that ends it.</p>
+    <label class="f"><span>what is it called</span><input type="text" id="title" maxlength="70" placeholder="A word after dark"></label>
+    <label class="f"><span>who may walk in</span>
+      <select id="who" style="width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);-webkit-appearance:none">
+        <option value="public">Anyone signed in &mdash; no tier (works tonight)</option>
+        <option value="1">Any member</option>
+      </select>
+    </label>
+    <button class="btn" id="golive">Step into the room</button>
+    <p class="note">The list comes from the house&rsquo;s own tier table, so add or rename a plan in the app and
+      this follows on the next visit. What is sent is what the app sends: the floor <i>and</i> the list of tiers
+      allowed in &mdash; and the house&rsquo;s view reads the list, so a room whose list could not be stored lets nobody
+      in. <i>Anyone signed in</i> consults no list at all: that is the one shape that works before the one line of
+      SQL is run.</p>
+    <p class="err hide" id="open-err"></p>
+  </section>
+
+  <!-- ── 4 · on air ─────────────────────────────────────────── -->
+  <section class="card hide" id="s-air">
+    <h2 id="air-name">On air</h2>
+    <div class="glass" id="stage">
+      <video id="live-video" playsinline muted autoplay></video>
+      <span class="badge"><i class="dot"></i>on air</span>
+      <span class="clock" id="air-clock">00:00</span>
+    </div>
+    <div class="tools">
+      <button class="tool" id="t-mic"><svg viewBox="0 0 24 24"><path d="M12 3.6a2.6 2.6 0 0 1 2.6 2.6v5a2.6 2.6 0 0 1-5.2 0v-5A2.6 2.6 0 0 1 12 3.6Z"/><path d="M6.4 11.2a5.6 5.6 0 0 0 11.2 0M12 16.8V20M8.8 20h6.4"/></svg>voice</button>
+      <button class="tool" id="t-cam"><svg viewBox="0 0 24 24"><rect x="3" y="6.6" width="12.4" height="10.8" rx="2.4"/><path d="M15.4 10.6l5.2-2.6v8l-5.2-2.6"/></svg>picture</button>
+      <button class="tool" id="t-flip"><svg viewBox="0 0 24 24"><path d="M4.2 9.2A8 8 0 0 1 19 6.6M19.8 14.8A8 8 0 0 1 5 17.4"/><path d="M4.2 5.4v3.8h3.8M19.8 18.6v-3.8h-3.8"/></svg>turn</button>
+      <button class="tool" id="t-lamp"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg>light</button>
+    </div>
+    <div class="stats">
+      <div><span>room</span><b id="st-room">—</b></div>
+      <div><span>Watching</span><b id="st-viewers">0</b></div>
+      <div><span>uplink</span><b id="st-kbps">—</b></div>
+      <div><span>Agora</span><b id="st-conn">—</b></div>
+      <div style="grid-column:1/-1"><span>open to</span><b id="air-open">—</b></div>
+      <div style="grid-column:1/-1"><span>this page is</span><b id="air-me">—</b></div>
+    </div>
+    <p class="note" id="air-hint">Open Ivory on a second phone and look in Live &mdash; this broadcast should be
+      there, already on air. That is the whole test.</p>
+    <button class="btn" id="endlive" style="margin-top:14px">End the broadcast</button>
+    <p class="err hide" id="air-err"></p>
+    <div id="air-fix" class="hide" style="margin-top:12px;padding:12px;border-radius:11px;background:rgba(233,179,60,.14);border:1px solid rgba(180,132,44,.4)">
+      <p id="air-why" style="margin:0 0 8px;font-size:12px;line-height:1.55;color:#5C1226;font-style:italic">Reading who holds this room…</p>
+      <div id="air-sqlwrap" class="hide">
+        <pre id="air-sql" style="margin:0;padding:9px;border-radius:8px;background:#fff;border:1px solid rgba(180,132,44,.3);font:10.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">—</pre>
+      </div>
+      <button class="btn quiet sm" id="air-retry" style="margin-top:9px;width:100%">Write the list again</button>
+      <button class="btn quiet sm hide" id="air-out" style="margin-top:8px;width:100%">Sign in as the account that holds the rooms</button>
+    </div>
+  </section>
+
+  <!-- ── 5 · the receipt ────────────────────────────────────── -->
+  <section class="card hide" id="s-done">
+    <h2>The room is closed</h2>
+    <p id="done-line">Nothing is left on air, and nothing was recorded.</p>
+    <button class="btn quiet sm" id="again">Open another</button>
+  </section>
+
+  <p class="foot"><a href="./">back into the house</a> &nbsp;&middot;&nbsp; ivory &middot; the on-air room</p>
+</div>
+
+<script src="media/agora/AgoraRTC_N-4.23.4.js"></script>
+<script>
+/* the SDK, if the local copy did not arrive (a downloaded page has no media folder) */
+(function(){
+  if(window.AgoraRTC) return;
+  var s=document.createElement('script');
+  s.src='https://download.agora.io/sdk/release/AgoraRTC_N-4.23.4.js';
+  s.onerror=function(){ window.__AGORA_MISSING=true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script>
+/* ============================================================
+   THE ON-AIR ROOM  ·  a phone becomes the broadcaster
+   Sign in as the house → prove the camera → open a real Agora
+   room with a real token from the same Edge Function the app
+   uses → publish → end.
+   ============================================================ */
+(function(){
+  'use strict';
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+
+  var $=function(id){ return document.getElementById(id); };
+  var chip=$('chip'), chipT=$('chip-t');
+  var S={sess:null, sessionId:null, ticket:null, client:null, cam:null, mic:null,
+         camId:null, t0:0, tick:null, stat:null};
+
+  function show(id){ [].forEach.call(document.querySelectorAll('section.card'),function(s){ s.classList.add('hide'); }); if(id) $(id).classList.remove('hide'); }
+  function err(id,msg){ var e=$(id); if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=msg; e.classList.remove('hide'); }
+  function onair(on){ chip.classList.toggle('live',!!on); chipT.textContent=on?'on air':'off air'; }
+
+  /* ---------- the session, kept only in this tab ---------- */
+  function saveSess(s){ S.sess=s; try{ if(s) sessionStorage.setItem('ivory.live.sess',JSON.stringify(s)); else sessionStorage.removeItem('ivory.live.sess'); }catch(e){} }
+  function loadSess(){ try{ var raw=sessionStorage.getItem('ivory.live.sess'); S.sess=raw?JSON.parse(raw):null; }catch(e){ S.sess=null; } return S.sess; }
+
+  function meId(){ return (S.sess&&S.sess.user&&S.sess.user.id)||''; }
+  function authHeaders(){ var h={'apikey':KEY,'Content-Type':'application/json'}; if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+
+  function signIn(email,pass){
+    return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:pass})
+    }).then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.'); return j; }); });
+  }
+  function refresh(){
+    if(!S.sess||!S.sess.refresh_token) return Promise.reject(new Error('Sign in again.'));
+    return fetch(SB+'/auth/v1/token?grant_type=refresh_token',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:S.sess.refresh_token})
+    }).then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error('The session has run out. Sign in again.'); saveSess(j); return j; }); });
+  }
+  /* every call goes through here, so a lapsed token is repaired once and retried */
+  function call(path,body,opt){
+    opt=opt||{};
+    var go=function(){
+      return fetch(SB+path,{method:opt.method||'POST',headers:authHeaders(),body:body?JSON.stringify(body):undefined})
+        .then(function(r){
+          return r.text().then(function(t){
+            var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+            if(r.ok) return j;
+            if(r.status===401 && !opt.retried){ opt.retried=true; return refresh().then(go); }
+            var msg=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
+            throw new Error(typeof msg==='string'?msg:'That did not work.');
+          });
+        });
+    };
+    return go();
+  }
+
+
+  /* ============================================================
+     THE BEAUTY SEAM  ·  reserved, off by default
+     Everything the house publishes goes through one question:
+     the camera track, or a track drawn from a canvas we control?
+     A canvas can carry any filter we ever build — smoothing,
+     brightening, blush, a slimming warp, a change of iris — and
+     Agora never knows the difference. Today the canvas is a plain
+     mirror. When the filter arrives it is written inside render()
+     and nothing else in this page changes.
+     ============================================================ */
+  var IvoryBeauty=(function(){
+    var cv=document.createElement('canvas');
+    cv.width=720; cv.height=960;
+    var cx=cv.getContext('2d',{alpha:false});
+    var src=null, stream=null, track=null, running=false, raf=0;
+    var cfg={enabled:false, smooth:0, brighten:0, blush:0, slim:0, iris:null};
+
+    function size(){
+      var w=src.videoWidth||0, h=src.videoHeight||0;
+      if(w&&h&&(cv.width!==w||cv.height!==h)){ cv.width=w; cv.height=h; }
+    }
+    /* the only place a filter will ever be written */
+    function render(){
+      if(!src||!src.videoWidth) return;
+      size();
+      cx.save();
+      /* the seam: a mirrored frame, and, later, the passes in order —
+         smooth (edge-preserving blur masked to skin) → brighten (lifted
+         midtones, untouched highlights) → blush (two soft rose gradients
+         where the landmarks say the cheeks are) → slim (a horizontal
+         pinch between cheekbones) → iris (a coloured ring inside the
+         eye landmarks). All five are uniforms on one shader. */
+      cx.translate(cv.width,0); cx.scale(-1,1);
+      if(cfg.enabled && cfg.brighten>0){ cx.filter='brightness('+(1+cfg.brighten*0.22).toFixed(3)+') saturate('+(1+cfg.blush*0.06).toFixed(3)+')'; }
+      cx.drawImage(src,0,0,cv.width,cv.height);
+      cx.restore();
+      if(cfg.enabled && cfg.blush>0){
+        var g=cx.createRadialGradient(cv.width*0.30,cv.height*0.56,2,cv.width*0.30,cv.height*0.56,cv.width*0.16);
+        g.addColorStop(0,'rgba(226,96,110,'+(0.10*cfg.blush).toFixed(3)+')');
+        g.addColorStop(1,'rgba(226,96,110,0)');
+        cx.fillStyle=g; cx.fillRect(0,0,cv.width,cv.height);
+        var g2=cx.createRadialGradient(cv.width*0.70,cv.height*0.56,2,cv.width*0.70,cv.height*0.56,cv.width*0.16);
+        g2.addColorStop(0,'rgba(226,96,110,'+(0.10*cfg.blush).toFixed(3)+')');
+        g2.addColorStop(1,'rgba(226,96,110,0)');
+        cx.fillStyle=g2; cx.fillRect(0,0,cv.width,cv.height);
+      }
+    }
+    function loop(){ if(!running) return; render(); raf=requestAnimationFrame(loop); }
+
+    function start(videoEl){
+      src=videoEl||src;
+      if(!src) return null;
+      if(!stream){
+        stream=cv.captureStream ? cv.captureStream(30) : null;
+        if(!stream) return null;
+        track=stream.getVideoTracks()[0]||null;
+      }
+      if(!running){ running=true; loop(); }
+      return track;
+    }
+    function stop(){
+      running=false; if(raf) cancelAnimationFrame(raf); raf=0;
+      try{ if(track) track.stop(); }catch(e){}
+      try{ if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); } }catch(e){}
+      stream=null; track=null;
+    }
+    function set(o){ for(var k in o){ if(k in cfg) cfg[k]=o[k]; } if(cfg.enabled && src) start(src); return cfg; }
+    function state(){ var c={}; for(var k in cfg) c[k]=cfg[k]; return c; }
+
+    return { start:start, stop:stop, set:set, state:state, config:cfg,
+             canvas:cv, enabled:function(){ return !!cfg.enabled; } };
+  })();
+  window.IvoryBeauty=IvoryBeauty;
+
+  /* ---------- 1 · the door ---------- */
+  $('signin').addEventListener('click',function(){
+    var e=$('email').value.trim(), p=$('pass').value;
+    err('door-err');
+    if(!e||!p){ err('door-err','Both lines, please.'); return; }
+    var b=this; b.disabled=true; b.innerHTML='<span class="spin"></span> Unlocking';
+    signIn(e,p).then(function(s){
+      saveSess(s); $('pass').value='';
+      ready();
+    }).catch(function(x){ err('door-err',x.message); })
+      .then(function(){ b.disabled=false; b.textContent='Unlock the room'; });
+  });
+  $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+
+  function ready(){
+    var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
+    if(who) $('door-note').textContent='Signed in as '+who+'.';
+    try{ $('air-me').textContent = who ? (who + ' · ' + String(meId()).slice(0,8)) : '—'; }catch(e){}
+    show('s-prepare');
+    $('s-open').classList.remove('hide');
+  }
+
+  /* ---------- 2 · the glass ---------- */
+  var pv=$('pv'), pvph=$('pv-ph');
+  function camUp(){
+    if(location.protocol!=='http:'&&location.protocol!=='https:')
+      return Promise.reject(new Error('This page was opened as a downloaded file, and a browser never gives a file a camera. Open it at its own address instead.'));
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)
+      return Promise.reject(new Error('This browser will not give a camera to a page. Chrome on Android, or Safari on iOS 15 and later.'));
+    var want={video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},audio:false};
+    return navigator.mediaDevices.getUserMedia(want).catch(function(){
+      return navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    }).then(function(stream){
+      pv.srcObject=stream; pvph.style.display='none';
+      $('preview').classList.add('on');
+      var tr=stream.getVideoTracks()[0];
+      if(tr&&tr.getSettings) S.camId=tr.getSettings().deviceId||null;
+      pv.play&&pv.play().catch(function(){});
+      return stream;
+    });
+  }
+  function camDown(){ try{ var s=pv.srcObject; if(s){ s.getTracks().forEach(function(t){ t.stop(); }); } }catch(e){} pv.srcObject=null; pvph.style.display=''; $('preview').classList.remove('on'); }
+
+  $('trycam').addEventListener('click',function(){
+    var b=this; err('prep-err'); b.disabled=true;
+    camUp().then(function(){ err('prep-err'); })
+      .catch(function(x){ err('prep-err',cameraWords(x)); })
+      .then(function(){ b.disabled=false; });
+  });
+  $('stopcam').addEventListener('click',camDown);
+
+  /* ---------- the house's own tier table ---------- */
+  var TIERS=[];
+  function loadTiers(){
+    return call('/rest/v1/subscription_tiers?select=id,name,price_inr,level&is_active=eq.true&order=level.asc',null,{method:'GET'})
+      .then(function(rows){
+        TIERS=(rows||[]).filter(function(t){ return t&&t.level!=null; });
+        var sel=$('who'); if(!sel) return;
+        var keep=sel.value;
+        sel.innerHTML='';
+        var pub=document.createElement('option');
+        pub.value='public'; pub.textContent='Anyone signed in — no tier (works tonight)';
+        sel.appendChild(pub);
+        var top=TIERS.length?Math.max.apply(null,TIERS.map(function(t){return Number(t.level);})):4;
+        TIERS.forEach(function(t){
+          var o=document.createElement('option');
+          o.value=String(t.level);
+          o.textContent=Number(t.level)>=top? (t.name+' only') : (t.name+' and above');
+          sel.appendChild(o);
+        });
+        var n=document.createElement('option');
+        n.value='none'; n.textContent='Nobody but the house — a private run-through';
+        sel.appendChild(n);
+        if(keep && sel.querySelector('option[value="'+keep+'"]')) sel.value=keep;
+        else sel.value='public';
+      })
+      .catch(function(){ /* the single fallback option still works */ });
+  }
+
+  /* ---------- 3 · open the broadcast ---------- */
+  $('golive').addEventListener('click',function(){
+    var b=this; err('open-err');
+    if(!window.AgoraRTC){
+      err('open-err','The broadcast engine did not load. That happens when this page is opened as a downloaded file — open its own address instead and it arrives on its own.');
+      return;
+    }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    if(window.IvoryBeauty && IvoryBeauty.enabled() && !$('pv').srcObject){
+      camUp().catch(function(x){ err('open-err','The camera did not open: '+(x.message||x)); });
+    }
+    var title=($('title').value||'').trim()||'A word after dark';
+    var choice=$('who').value;
+    var noOne = choice==='none';
+    var isPublic = choice==='public';
+    var floor = noOne ? 9 : (parseInt(choice,10)||1);
+    /* every tier at or above the floor, from the house's own table — the app
+       sends this same list, and the server reads the list, not just the floor */
+    function levelsFrom(f){
+      var lv=TIERS.map(function(t){return Number(t.level);}).filter(function(n){return n>=f;});
+      lv.sort(function(a,b){return a-b;});
+      return lv.length?lv:[f];
+    }
+
+    /* The house's own table decides which shapes it will hold, and it has
+       never told anyone what they are. So we ask it, politely, in the order
+       that leaks the least: the top tier for a private run-through, the
+       bottom tier for an open room. The first shape it accepts is remembered
+       on this phone, so the second night is a single call. */
+    function body(access,minTier,price,allowed){
+      return {title_in:title, subtitle_in:null, access_in:access, min_tier_in:minTier,
+              price_in:price||0, cover_in:null, allowed_tiers_in:(allowed||[]), guest_price_in:0};
+    }
+    /* start at the floor she asked for, then try the neighbouring floors,
+       and only in the last resort the price shape. The order never opens
+       the room wider than she asked without saying so. */
+    var ladder;
+    if(isPublic){
+      /* two shapes consult no guest list at all; try both before giving up */
+      ladder=[body('public',0,0,[]), body('price',0,0,[])];
+    } else if(noOne){
+      ladder=[body('tier',9,0,[])];          /* the app's own "nobody": floor 9, empty list */
+    } else {
+      ladder=[body('tier',floor,0,levelsFrom(floor))];
+      [1,2,3,4].forEach(function(n){
+        if(n>=floor && !ladder.some(function(b){ return b.min_tier_in===n; }))
+          ladder.push(body('tier',n,0,levelsFrom(n)));
+      });
+      ladder.push(body('price',0,Math.max(1,Number((S.tier&&S.tier.price_inr)||100)),[]));
+      ladder.push(body('public',0,0,[]));
+    }
+
+    var remembered=null;
+    try{ remembered=localStorage.getItem('ivory.live.shape.f'+floor); }catch(e){}
+    if(remembered){
+      try{
+        var r=JSON.parse(remembered);
+        ladder=[r].concat(ladder.filter(function(b){
+          return !(b.access_in===r.access_in && b.min_tier_in===r.min_tier_in);
+        }));
+      }catch(e){}
+    }
+
+    var lastErr=null;
+    function walk(i){
+      if(i>=ladder.length) return Promise.reject(lastErr||new Error('The house refused every shape.'));
+      return startLive(ladder[i]).then(function(r){
+        /* only the shape the house accepted is worth remembering */
+        try{ localStorage.setItem('ivory.live.shape.f'+floor,JSON.stringify(ladder[i])); }catch(e){}
+        return {res:r, shape:ladder[i], tries:i+1};
+      }).catch(function(x){
+        lastErr=x;
+        /* a refusal about anything other than the shape is not worth retrying */
+        if(!/check constraint|violates|invalid input|constraint/i.test((x&&x.message)||'')) throw x;
+        return walk(i+1);
+      });
+    }
+    var startLive=function(payload){ return call('/rest/v1/rpc/start_live_with_guests',payload); };
+    walk(0)
+      .then(function(win){
+        var res=win.res, id=null;
+        if(!noOne && win.shape.access_in==='tier' && win.shape.min_tier_in<floor){
+          S.wide='The table would not hold a floor of '+floor+', so this room is open from level '+win.shape.min_tier_in+' upward — wider than you asked.';
+          err('open-err',S.wide);
+        }
+        else if(win.shape.access_in!=='tier')
+          err('open-err','The table would only take this room as a “'+win.shape.access_in+'” room, not as a tier floor. Check who can walk in.');
+        if(Array.isArray(res)&&res.length) id=res[0].id;
+        else if(res&&typeof res==='object') id=res.id;
+        else if(typeof res==='number') id=res;
+        if(!id) throw new Error('The broadcast was made but the house did not return its number.');
+        S.sessionId=id;
+        $('air-name').textContent=title;
+        /* The start function saves the floor but drops the list — and the
+           house's own view reads the list. So we write it ourselves, then
+           read the room back and say what the house now holds. */
+        if(win.shape.access_in==='public'){
+          $('air-open').textContent='anyone signed in';
+          return null;
+        }
+        return writeList(id, win.shape);
+      })
+      .then(function(){
+        return call('/functions/v1/agora-token',{mode:'live',id:S.sessionId});
+      })
+      .then(function(tk){
+        if(!tk||!tk.token) throw new Error((tk&&tk.error)||'No token came back.');
+        S.ticket=tk;
+        return publish(tk);
+      })
+      .then(function(){
+        return call('/rest/v1/rpc/activate_live_start',{session_id_in:S.sessionId}).catch(function(){/* cosmetic */});
+      })
+      .then(function(){
+        camDown();
+        show('s-air');
+        onair(true);
+        S.t0=Date.now();
+        S.tick=setInterval(function(){
+          var s=Math.floor((Date.now()-S.t0)/1000);
+          var m=Math.floor(s/60), r=s%60;
+          $('air-clock').textContent=(m<10?'0':'')+m+':'+(r<10?'0':'')+r;
+          if(S.client&&S.client.remoteUsers) $('st-viewers').textContent=Object.keys(S.client.remoteUsers).length;
+          try{
+            var v=AgoraRTC.getLocalVideoStats&&AgoraRTC.getLocalVideoStats();
+            if(v&&v.sendBitrate!=null) $('st-kbps').textContent=Math.round(v.sendBitrate)+' kbps';
+          }catch(e){}
+        },1000);
+      })
+      .catch(function(x){
+        var said=(x&&x.message)||String(x);
+        if(/refused every shape/i.test(said))
+          said='The house would not open a room in any shape this page knows how to ask for — not the tiered one, not the open one. Nothing is on air. The shapes it accepts have changed since this page was written.';
+        err('open-err',(S.wide?S.wide+' ':'')+agoraWords(said));
+        if(S.sessionId){ call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); S.sessionId=null; }
+      })
+      .then(function(){ b.disabled=false; b.textContent='Step into the room'; });
+  });
+
+  /* the engine speaks in codes; a person needs a sentence */
+  function agoraWords(x){
+    var m=(x&&x.message)||String(x);
+    if(/CAN_NOT_GET_GATEWAY_SERVER|invalid vendor key|can not find appid/i.test(m))
+      return 'The room was made, but the broadcast engine would not take it — the token it was given does not belong to this app. Nothing is on air. (Agora: '+m.slice(0,90)+')';
+    if(/PERMISSION_DENIED/i.test(m)) return 'The engine refused the microphone or camera permission at the last moment. Try again; if it repeats, reopen the page in Chrome.';
+    if(/token.*expire|TOKEN_EXPIRED/i.test(m)) return 'The entry ticket to the room had expired. Tap once more — a fresh one is asked for.';
+    if(/UID_CONFLICT/i.test(m)) return 'That phone already has a broadcast open. End it first, then open this one.';
+    if(/network|Network|UNAVAILABLE/i.test(m)) return 'The network dropped before the room opened. Nothing is on air — try once more on a steadier signal.';
+    return m;
+  }
+
+  /* ---------- writing the list the start function drops ---------- */
+  function writeList(id, shape){
+    window.__ivList=(shape.allowed_tiers_in||[]).join(',');
+    window.__ivFloor=shape.min_tier_in;
+    var patch={ allowed_tiers: shape.allowed_tiers_in||[], min_tier: shape.min_tier_in };
+    return call('/rest/v1/live_sessions?id=eq.'+id, patch, {method:'PATCH', headers:{'Prefer':'return=representation'}})
+      .then(function(){
+        return call('/rest/v1/live_public?id=eq.'+id+'&select=id,access,min_tier,allowed_tiers',null,{method:'GET'});
+      })
+      .then(function(rows){
+        var r=(rows&&rows[0])||null;
+        S.opened=r;
+        if(r && Array.isArray(r.allowed_tiers) && r.allowed_tiers.length){
+          var names=r.allowed_tiers.map(function(lv){
+            var t=TIERS.filter(function(x){return Number(x.level)===Number(lv);})[0];
+            return t? t.name : ('level '+lv);
+          });
+          $('air-open').textContent = names.join(' · ');
+        } else {
+          $('air-open').textContent = 'nobody on the list yet';
+          err('open-err','The house would not keep the guest list on this room, so a member will be kept out even though the floor says otherwise. The list is what the view reads.');
+        }
+        return r;
+      })
+      .then(function(r){
+        if(r && Array.isArray(r.allowed_tiers) && !r.allowed_tiers.length)
+          throw new Error('the update was accepted and the list stayed empty — the house may not write this row');
+        try{ err('air-err'); }catch(e){}
+        return r;
+      })
+      .catch(function(x){
+        try{ $('air-open').textContent='nobody on the list yet'; }catch(e){}
+        var msg='The guest list would not stay on this room: '+(x.message||x)+'.';
+        try{ err('air-err',msg+' Use “write the list again” below, or run the one line with this room’s number.'); }catch(e){}
+        try{ $('air-fix').classList.remove('hide'); }catch(e){}
+        try{ $('air-sql').textContent='update public.live_sessions set allowed_tiers = array'+'['+(window.__ivList||'1')+'], min_tier = '+(window.__ivFloor||1)+' where id = '+S.sessionId+';'; }catch(e){}
+        /* which account holds this row, and which account is this page? */
+        var sid=S.sessionId;
+        call('/rest/v1/live_sessions?select=host_id&id=eq.'+sid,null,{method:'GET'})
+          .then(function(rows){
+            var host=(rows&&rows[0]&&rows[0].host_id)||'';
+            var me=meId();
+            if(host && me && host.toLowerCase()!==me.toLowerCase()){
+              $('air-why').textContent='This room is held by another account ('+host.slice(0,8)+'), but this page is signed in as '+
+                ((S.sess&&S.sess.user&&S.sess.user.email)||'a different account')+' ('+String(me).slice(0,8)+'). '+
+                'The house only lets the account that holds a room change it — so nothing this page writes will stay. '+
+                'Open this page and sign in with the account that holds the rooms.';
+              try{ $('air-sqlwrap').classList.add('hide'); }catch(e){}
+              try{ $('air-out').classList.remove('hide'); }catch(e){}
+            } else {
+              $('air-why').textContent='The room is held by this account, so the house itself is dropping the list. '+
+                'If you have already run the policy, run this one line once in the Supabase SQL editor, then tap the button below:';
+              try{ $('air-sqlwrap').classList.remove('hide'); }catch(e){}
+              try{ $('air-out').classList.add('hide'); }catch(e){}
+            }
+          })
+          .catch(function(){
+            $('air-why').textContent='The room would not say whose it is. Run this one line in the Supabase SQL editor, then tap the button below:';
+            try{ $('air-sqlwrap').classList.remove('hide'); }catch(e){}
+          });
+        return null;
+      });
+  }
+
+  /* ---------- the Agora room ---------- */
+  function publish(tk){
+    var client=AgoraRTC.createClient({mode:'live',codec:'vp8'});
+    S.client=client;
+    client.on('connection-state-change',function(cur){ $('st-conn').textContent=String(cur||'').toLowerCase()||'—'; });
+    client.on('user-published',function(){ $('st-viewers').textContent=Object.keys(client.remoteUsers).length; });
+    client.on('user-left',function(){ $('st-viewers').textContent=Object.keys(client.remoteUsers).length; });
+    var uid=Number(tk.uid)||0;
+
+    return client.setClientRole('host')
+      .then(function(){ return client.join(tk.appId||tk.app_id, tk.channel, tk.token, uid||null); })
+      .then(function(){
+        $('st-room').textContent=String(tk.channel||'').slice(-10);
+        var camOpt={encoderConfig:'480p_1'};
+        if(S.camId) camOpt.cameraId=S.camId;
+        /* the seam: a filtered canvas track if the house has asked for one, the bare camera if not */
+        var picture;
+        if(window.IvoryBeauty && IvoryBeauty.enabled()){
+          var mt=IvoryBeauty.start($('pv'));
+          picture = mt ? AgoraRTC.createCustomVideoTrack({mediaStreamTrack:mt})
+                       : AgoraRTC.createCameraVideoTrack(camOpt);
+        } else {
+          picture = AgoraRTC.createCameraVideoTrack(camOpt);
+        }
+        return Promise.all([picture, AgoraRTC.createMicrophoneAudioTrack()]);
+      })
+      .then(function(tr){
+        S.cam=tr[0]; S.mic=tr[1];
+        S.cam.play('live-video');
+        return client.publish([S.cam,S.mic]);
+      });
+  }
+
+  function cameraWords(x){
+    var n=(x&&(x.name||''))+' '+((x&&x.message)||'');
+    if(/NotAllowedError|Permission|denied/i.test(n))
+      return 'The browser said no to the camera. If this page was opened from a downloaded file it can never say yes — open its address instead. Otherwise tap the padlock by the address and allow the camera, then try again.';
+    if(/NotFoundError|DevicesNotFound/i.test(n)) return 'No camera on this device was found.';
+    if(/NotReadableError|TrackStartError/i.test(n)) return 'The camera is busy in another app. Close it and try again.';
+    if(/SecurityError/i.test(n)) return 'The page is not on a secure address, so the camera is refused.';
+    return (x&&x.message)||String(x);
+  }
+
+  /* ---------- 4 · the four tools ---------- */
+  $('t-mic').addEventListener('click',function(){
+    if(!S.mic) return;
+    var muted=S.mic.enabled; S.mic.setEnabled(!muted);
+    this.classList.toggle('off',muted);
+  });
+  $('t-cam').addEventListener('click',function(){
+    if(!S.cam) return;
+    var off=S.cam.enabled; S.cam.setEnabled(!off);
+    this.classList.toggle('off',off);
+  });
+  $('t-flip').addEventListener('click',function(){
+    if(!S.cam) return;
+    var cam=S.cam, stage=$('stage');
+    AgoraRTC.getCameras().then(function(cams){
+      if(!cams||cams.length<2) return;
+      var cur=null; try{ cur=cam.getMediaStreamTrack().getSettings().deviceId; }catch(e){}
+      var next=null;
+      for(var i=0;i<cams.length;i++){ if(cams[i].deviceId!==cur){ next=cams[i].deviceId; break; } }
+      if(next) cam.setDevice(next);
+      stage.classList.toggle('mirror-off');
+    }).catch(function(){});
+  });
+  $('t-lamp').addEventListener('click',function(){
+    var stage=$('stage');
+    stage.style.filter = stage.style.filter ? '' : 'brightness(1.08) contrast(1.02) saturate(1.02)';
+    this.classList.toggle('off');
+  });
+
+  /* ---------- 5 · ending it ---------- */
+  $('air-retry').addEventListener('click',function(){
+    if(!S.sessionId) return;
+    var b=this; b.disabled=true; b.innerHTML='<span class="spin"></span> Writing';
+    writeList(S.sessionId,{allowed_tiers_in:String(window.__ivList||'1').split(',').map(Number),min_tier_in:window.__ivFloor||1})
+      .then(function(r){
+        if(r&&Array.isArray(r.allowed_tiers)&&r.allowed_tiers.length){
+          err('air-err'); $('air-fix').classList.add('hide');
+          err('air-err','The list is on the room now — a member can walk in.');
+          setTimeout(function(){ err('air-err'); },2600);
+        }
+      })
+      .catch(function(){/* writeList already reported */})
+      .then(function(){ b.disabled=false; b.textContent='Write the list again'; });
+  });
+
+  $('air-out').addEventListener('click',function(){
+    saveSess(null); S.sessionId=null;
+    $('air-out').classList.add('hide'); $('air-fix').classList.add('hide');
+    err('air-err'); $('door-note').textContent='';
+    show('s-door');
+  });
+
+  $('endlive').addEventListener('click',function(){
+    var b=this; b.disabled=true; b.innerHTML='<span class="spin"></span> Closing';
+    var mins=S.t0?Math.floor((Date.now()-S.t0)/60000):0;
+    var secs=S.t0?Math.floor((Date.now()-S.t0)/1000)%60:0;
+    var shut=function(){ return call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); };
+    var leave=function(){
+      if(!S.client) return Promise.resolve();
+      return S.client.unpublish().catch(function(){}).then(function(){ return S.client.leave(); }).catch(function(){});
+    };
+    leave()
+      .then(function(){ try{ S.cam&&S.cam.close(); }catch(e){} try{ S.mic&&S.mic.close(); }catch(e){} })
+      .then(shut)
+      .then(function(){
+        clearInterval(S.tick); S.sessionId=null; S.client=null; S.cam=null; S.mic=null; S.ticket=null;
+        onair(false);
+        $('done-line').textContent='On air for '+(mins?mins+' min ':'')+secs+' s. The room is closed, nothing was '+
+          'recorded, and the broadcast is off every list in the app.';
+        show('s-done');
+        err('air-err');
+      })
+      .then(function(){ b.disabled=false; b.textContent='End the broadcast'; });
+  });
+  $('again').addEventListener('click',function(){ show('s-prepare'); $('s-open').classList.remove('hide'); });
+
+  /* ---------- boot ---------- */
+  var s=loadSess();
+  /* the camera can be proved before anyone signs in — that is the first thing worth knowing */
+  show('s-door'); $('s-prepare').classList.remove('hide');
+  if(s&&s.access_token){
+    refresh().then(ready).catch(function(){ saveSess(null); show('s-door'); $('s-prepare').classList.remove('hide'); });
+  }
+  loadTiers();
+  window.addEventListener('pagehide',function(){ camDown(); });
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+</body>
+</html>
