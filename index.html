@@ -2054,7 +2054,8 @@ p.t b{color:#FFFFFF}
 .live-last em{color:#FFDca0}
 
 /* ---------- the two ribbons, exactly as the app shows them ---------- */
-.ribbonlay{position:fixed;left:0;right:0;top:0;z-index:70;pointer-events:none;height:236px;overflow:hidden}
+.ribbonlay{position:fixed;left:0;right:0;top:0;z-index:135;pointer-events:none;height:236px;overflow:hidden;transition:transform .5s cubic-bezier(.22,.68,.24,1)}
+.ribbonlay.lane-bottom{transform:translateY(calc(100vh - 240px))}
 .rib{
   position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;isolation:isolate;
   width:max-content;max-width:94vw;padding:9px 18px 9px 10px;border-radius:999px;
@@ -2240,8 +2241,10 @@ p.t b{color:#FFFFFF}
 .card.c-rose .clock span{color:#5A1420;opacity:.9;font-weight:700}
 
 /* the ribbons never share the sky: one crosses, then the other */
-.rib.house{animation:ribCrossL 12s cubic-bezier(.4,0,.25,1) infinite}
-.rib.dream{animation:ribCrossR 12s cubic-bezier(.4,0,.25,1) 6s infinite}
+.rib,.rib.house,.rib.dream{animation:none!important;opacity:0}
+.rib.house.run{animation:ribCrossL 10s cubic-bezier(.4,0,.25,1) both!important}
+.rib.dream.run{animation:ribCrossR 10s cubic-bezier(.4,0,.25,1) both!important}
+.rib{max-width:86vw}
 @keyframes ribCrossL{
   0%{transform:translate3d(-115%,0,0);opacity:0}
   4%{opacity:1}
@@ -5869,7 +5872,7 @@ body.ko-open{overflow:hidden}
 .med.ladder .halo{opacity:.55}
 .med.ladder .rails{box-shadow:0 0 5px rgba(255,214,140,.4), inset 0 0 4px rgba(255,226,170,.35)}
 .med:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(255,236,180,.85), 0 0 0 4px rgba(110,28,12,.5);border-radius:50%}
-.ribbonlay{z-index:40}
+.ribbonlay{z-index:135}
 
 
 /* ·· PASS 18b · sharper house icons ·· */
@@ -8648,10 +8651,10 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 
 <style id="iv-live-clean">
 #live-screen .lv-wrap{padding-bottom:34px}
-body.on-live .ribbonlay,body.on-live #wheelFab,body.on-live .fab,body.on-live #disc-fab,body.on-live #spin-fab{display:none!important}
+body.on-live #wheelFab,body.on-live .fab,body.on-live #disc-fab,body.on-live #spin-fab{display:none!important}
 /* the welcome ribbons belong to the house door, as in the app — never over the desk, the profile or a room */
-body:not(.on-home) .ribbonlay{display:none!important}
-body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil){z-index:auto}
+
+body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil):not(.ribbonlay):not(#iv-cast):not(#ivx-sheet):not(#ivx-veil){z-index:auto}
 </style>
 <style id="iv-desk-css">
 /* ══════════════════════════════════════════════════════════════
@@ -8846,8 +8849,7 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 }
 </style>
 
-<style id="iv-call-css">
-/* ═══════════════════════════════════════════════════════════════
+<style id="iv-call-css">/* ═══════════════════════════════════════════════════════════════
    THE SESSION · the calls circuit, in the house's own dress
    One light direction (top-left), gold hairline, cream sheet,
    burgundy velvet. Every state finished: loading, included,
@@ -8860,11 +8862,11 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 }
 
 /* ---------- the sheet ---------- */
-#ivc-veil{position:fixed;inset:0;z-index:120;background:rgba(14,1,6,.62);
+#ivc-veil{position:fixed;inset:0;z-index:140;background:rgba(14,1,6,.62);
   backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   opacity:0;pointer-events:none;transition:opacity .32s ease}
 #ivc-veil.on{opacity:1;pointer-events:auto}
-#ivc-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;
+#ivc-sheet{position:fixed;left:0;right:0;bottom:0;z-index:141;
   max-height:92vh;display:flex;flex-direction:column;
   background:linear-gradient(178deg,#FFFBF0 0%,#FBF0DA 46%,#F4E3C0 100%);
   border-radius:26px 26px 0 0;
@@ -9043,6 +9045,14 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 .ivr-pip{position:absolute;right:10px;bottom:10px;width:96px;height:128px;border-radius:14px;overflow:hidden;
   background:#160A12;box-shadow:0 10px 24px -10px rgba(0,0,0,.85),inset 0 0 0 1px rgba(243,208,138,.4)}
 .ivr-pip video{width:100%;height:100%;object-fit:cover}
+.ivr-veil-flow{position:static!important;display:inline-flex!important;align-items:center;gap:8px;
+  margin:14px auto 0;padding:8px 15px!important;border-radius:999px;background:rgba(20,1,8,.4)!important;
+  box-shadow:inset 0 0 0 1px rgba(243,208,138,.22);max-width:none!important;
+  font:italic 11.5px/1.4 Georgia,serif!important;color:rgba(251,240,218,.85)!important}
+.ivr-veil-flow::before{content:"";width:5px;height:5px;border-radius:50%;background:#F3D08A;
+  box-shadow:0 0 7px rgba(243,208,138,.8);animation:ivrLive 1.9s ease-in-out infinite}
+.ivr-veil-flow.off{display:none!important}
+@keyframes ivrLive{0%,100%{opacity:1}50%{opacity:.35}}
 .ivr-veil{position:absolute;inset:0;display:grid;place-items:center;gap:12px;text-align:center;padding:26px;
   background:radial-gradient(80% 60% at 50% 40%,rgba(38,3,12,.15),rgba(20,1,7,.86));
   transition:opacity .5s}
@@ -9129,6 +9139,543 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
   .ivc-bar i,.slot .ivc-track i{transition:none}
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 56 · THE VIDEO CALL, FULL SCREEN
+   ---------------------------------------------------------------------------
+   She is the room. Her picture fills every millimetre of it, and I sit in a
+   small window at the top right with the swap mark on it. A tap moves the
+   two — and a second tap moves them back, both ways, every time.
+   ═══════════════════════════════════════════════════════════════════════════ */
+#iv-call-screen.is-video .ivr-stage{padding:0;display:block}
+#iv-call-screen.is-video .ivr-top{position:absolute;left:0;right:0;top:0;z-index:6;
+  background:linear-gradient(180deg,rgba(20,1,8,.72) 0%,rgba(20,1,8,0) 100%);
+  padding-bottom:16px}
+#iv-call-screen.is-video .ivr-dock{position:absolute;left:0;right:0;bottom:0;z-index:6;
+  background:linear-gradient(180deg,rgba(12,0,5,0) 0%,rgba(12,0,5,.78) 62%,rgba(10,0,4,.94) 100%)}
+
+.ivr-video{position:absolute;inset:0;width:auto;max-width:none;height:auto;aspect-ratio:auto;
+  border-radius:0;overflow:hidden;background:#0B0508;
+  box-shadow:none;transition:box-shadow .5s ease}
+.ivr-plane{position:absolute;inset:0;z-index:1;transition:
+  top .46s cubic-bezier(.22,.68,.24,1),left .46s cubic-bezier(.22,.68,.24,1),
+  right .46s cubic-bezier(.22,.68,.24,1),bottom .46s cubic-bezier(.22,.68,.24,1),
+  width .46s cubic-bezier(.22,.68,.24,1),height .46s cubic-bezier(.22,.68,.24,1),
+  border-radius .46s ease,box-shadow .46s ease}
+#ivr-remote{width:100%;height:100%;object-fit:cover;display:block}
+#ivr-remote video,.ivr-plane video{width:100%;height:100%;object-fit:cover;display:block}
+
+/* the small window: a jewel case, gold-rimmed, the app's own 96 and the swap mark */
+.ivr-pip{position:absolute;z-index:4;top:calc(66px + env(safe-area-inset-top));right:10px;
+  width:96px;height:54px;border-radius:13px;overflow:hidden;cursor:pointer;
+  background:#160A12;
+  box-shadow:0 12px 26px -10px rgba(0,0,0,.9),inset 0 0 0 1px rgba(243,208,138,.62),
+             0 0 0 1px rgba(20,1,8,.6);
+  transition:
+    top .46s cubic-bezier(.22,.68,.24,1),left .46s cubic-bezier(.22,.68,.24,1),
+    right .46s cubic-bezier(.22,.68,.24,1),bottom .46s cubic-bezier(.22,.68,.24,1),
+    width .46s cubic-bezier(.22,.68,.24,1),height .46s cubic-bezier(.22,.68,.24,1),
+    border-radius .46s ease,box-shadow .46s ease}
+.ivr-pip video{width:100%;height:100%;object-fit:cover;display:block}
+/* the swap mark: a small struck-gold button that always sits on the small
+   window, whichever of the two it is at that moment */
+.ivr-swap{position:absolute;z-index:6;right:13px;top:calc(128px + env(safe-area-inset-top));
+  width:27px;height:27px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;
+  border:none;color:#2C040C;
+  background:radial-gradient(circle at 34% 26%,#FFEBC0,#DFAE55 60%,#9A6A1E);
+  box-shadow:0 3px 8px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.85),
+             0 0 0 1px rgba(20,1,8,.35);
+  transition:transform .2s ease}
+.ivr-swap svg{width:13px;height:13px;display:block}
+.ivr-swap:active{transform:scale(.9)}
+
+/* swapped: her in the jewel case, me filling the room. Tapping again puts it back. */
+/* the plane carries an id, so its own width rule outranks a class chain —
+   the swap rule speaks to the id as well, or the window would never shrink */
+.ivr-video.swap .ivr-plane,.ivr-video.swap #ivr-remote{
+  top:calc(66px + env(safe-area-inset-top));left:auto;right:10px;bottom:auto;
+  width:96px;height:54px;border-radius:13px;z-index:5;
+  box-shadow:0 12px 26px -10px rgba(0,0,0,.9),inset 0 0 0 1px rgba(243,208,138,.62)}
+.ivr-video.swap .ivr-pip{top:0;left:0;right:0;bottom:0;width:auto;height:auto;border-radius:0;
+  box-shadow:none}
+
+
+/* what to say about the swap, once, then it fades */
+.ivr-hint{position:absolute;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  z-index:5;padding:9px 16px;border-radius:999px;max-width:min(84vw,330px);text-align:center;
+  pointer-events:none;
+  font:italic 11.5px/1.4 Georgia,serif;color:rgba(251,240,218,.92);
+  background:rgba(20,1,8,.62);box-shadow:0 0 0 1px rgba(243,208,138,.28);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;animation:ivrHint 6.4s ease forwards}
+@keyframes ivrHint{
+  0%{opacity:0;transform:translateX(-50%) translateY(6px)}
+  10%{opacity:1;transform:translateX(-50%) translateY(0)}
+  76%{opacity:1}
+  100%{opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .ivr-plane,.ivr-pip{transition:none}
+  .ivr-hint{animation:none;opacity:0}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 56 · THE ONE MANUAL
+   ---------------------------------------------------------------------------
+   The app keeps every explanation of a session in one sheet, reached from two
+   doors: the Profile card, and the thin line on the Wish page after booking.
+   Same words, same order, same gold number in a circle. A member can never
+   read the same thing twice in slightly different words.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.ivc-eyebrow{display:flex;align-items:center;gap:8px;margin:0 0 13px;
+  font:700 8.5px/1 Georgia,serif;letter-spacing:.26em;text-transform:uppercase;color:#8A6A33}
+.ivc-eyebrow svg{width:13px;height:13px;color:#A0722A}
+.ivc-eyebrow::after{content:"";flex:1 1 auto;height:1px;
+  background:linear-gradient(90deg,rgba(168,131,68,.55),rgba(168,131,68,0))}
+.ivc-steps{display:flex;flex-direction:column;gap:11px;margin:0 0 24px}
+.ivc-step{display:flex;align-items:flex-start;gap:11px}
+.ivc-step .n{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 26%,#FFE9B4,#E0AE4A 58%,#A06A14);
+  color:#4A0B18;font:900 11.5px/1 Georgia,serif;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 2px 5px rgba(60,10,2,.35)}
+.ivc-step span{font-size:13.5px;line-height:1.5;color:#6E4A20}
+
+/* the thin line on the Wish page: a door, not an explanation */
+.ivc-booked{display:flex;align-items:center;gap:9px;width:100%;text-align:left;cursor:pointer;
+  padding:9px 11px;border-radius:11px;margin:0 0 8px;
+  background:linear-gradient(180deg,#FFFCF3,#FBF1DC);
+  border:1px solid rgba(168,131,68,.58);
+  box-shadow:0 6px 16px -14px rgba(60,8,20,.8),inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .16s ease}
+.ivc-booked:active{transform:scale(.994)}
+.ivc-booked .b-ico{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(168,131,68,.14);color:#8A5E10}
+.ivc-booked .b-ico svg{width:13px;height:13px}
+.ivc-booked b{flex:1 1 auto;min-width:0;font:600 12px/1.3 Georgia,serif;color:#3A1207;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivc-booked em{flex:0 0 auto;font:italic 10.5px/1 Georgia,serif;color:#8A6A33}
+
+/* the gold card when the hour is still to be chosen */
+.ivc-agreed{position:relative;overflow:hidden;width:100%;text-align:left;cursor:pointer;
+  padding:15px 16px;border-radius:16px;margin:0 0 10px;border:none;color:#FDF4E1;
+  background:
+    radial-gradient(130% 130% at 12% -20%,rgba(255,226,170,.24),transparent 54%),
+    linear-gradient(168deg,#4A0714 0%,#35050F 58%,#22020A 100%);
+  box-shadow:0 0 0 1px rgba(246,217,155,.5),0 18px 34px -22px rgba(0,0,0,.9),
+             inset 0 1px 0 rgba(255,236,190,.22);
+  transition:transform .16s ease}
+.ivc-agreed:active{transform:scale(.994)}
+.ivc-agreed::after{content:"";position:absolute;inset:-40% -10% auto;height:80%;
+  background:radial-gradient(60% 100% at 30% 0%,rgba(255,226,170,.18),transparent 70%);
+  pointer-events:none}
+.ivc-agreed b{position:relative;display:block;font:400 17px/1.28 Georgia,serif;color:#FFF3D8;margin-bottom:5px}
+.ivc-agreed span{position:relative;display:block;font:italic 12.5px/1.5 Georgia,serif;color:rgba(255,238,208,.82)}
+.ivc-agreed i{position:relative;display:inline-flex;align-items:center;gap:6px;margin-top:11px;
+  padding:8px 14px;border-radius:999px;font:800 9px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.18em;
+  color:#3A0410;background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+.ivc-agreed i svg{width:12px;height:12px}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 56 · TOGETHER, HERE
+   ---------------------------------------------------------------------------
+   A voice room has nothing to show, so it shows the two of you: her medallion
+   and yours, side by side, breathing in the same time. Until the other side
+   arrives there is one, and the room waits. The app's own words hold it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.ivr-pair{display:flex;align-items:center;justify-content:center;gap:0;position:relative}
+.ivr-pair .ivr-coin{margin:0}
+.ivr-pair .ivr-coin.second{
+  width:0;height:0;opacity:0;margin-left:0;transition:width .5s cubic-bezier(.22,.68,.24,1),
+    height .5s cubic-bezier(.22,.68,.24,1),opacity .4s ease .1s,margin-left .5s cubic-bezier(.22,.68,.24,1);
+  background:radial-gradient(circle at 34% 26%,#FFF4DA,#E4C89A 46%,#A98B5A 100%);
+  color:#4B1024;font-family:Georgia,serif}
+.ivr-voice.together .ivr-pair .ivr-coin{width:96px;height:96px;font-size:31px}
+.ivr-voice.together .ivr-pair .ivr-coin.second{width:96px;height:96px;opacity:1;margin-left:14px;font-size:31px}
+.ivr-voice .ivr-ring{transition:opacity .4s ease}
+.ivr-voice.together .ivr-ring{opacity:.55}
+.ivr-voice .ivr-nm{transition:opacity .4s ease}
+
+
+/* who is in the small window — the app labels its two stages, so does this */
+.ivr-pip::after{content:"You";position:absolute;left:6px;bottom:4px;z-index:2;pointer-events:none;
+  font:700 7px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,246,224,.92);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.ivr-video.swap #ivr-remote::after{content:"Ivory";position:absolute;left:6px;bottom:4px;z-index:2;
+  pointer-events:none;
+  font:700 7px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,246,224,.92);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+
+
+/* the swap hint fades once it has been read, or once it has been obeyed */
+.ivr-hint{transition:opacity .55s ease,transform .55s ease}
+.ivr-hint.off{opacity:0;transform:translateY(6px);pointer-events:none}
+</style>
+
+<style id="iv-cast-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BROADCAST · the room she goes on air in
+   ---------------------------------------------------------------------------
+   The app's broadcast, room for room: her full screen, the five paid seats,
+   the title and the audience carried on a gold disc that climbs as the night
+   fills, and a farewell that holds ten seconds before the room lets go.
+
+   Everything here is material, not decoration: the disc is struck metal, the
+   seats are cut wells in velvet, the light comes from one lamp at the top
+   left and falls across the whole room the same way.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ivx-wine:#3A0410; --ivx-wine-2:#25020A; --ivx-ink:#140106;
+  --ivx-emerald:#0C3B2E; --ivx-emerald-2:#071F18;
+  --ivx-gold:#F6D99B; --ivx-gold-2:#D9AF66; --ivx-gold-3:#A0722A;
+  --ivx-leaf:#FFE7B0; --ivx-cream:#FDF4E1;
+}
+#iv-cast{
+  position:fixed;inset:0;z-index:132;display:none;flex-direction:column;overflow:hidden;
+  background:
+    radial-gradient(120% 66% at 50% -10%,rgba(255,226,170,.13) 0%,rgba(255,226,170,0) 60%),
+    radial-gradient(90% 60% at 88% 108%,rgba(12,59,46,.55) 0%,rgba(12,59,46,0) 62%),
+    linear-gradient(172deg,#3A0410 0%,#25020A 44%,#140106 100%);
+  color:var(--ivx-cream);font-family:Georgia,'Times New Roman',serif;
+  -webkit-tap-highlight-color:transparent;
+}
+#iv-cast.on{display:flex}
+
+/* ---------- the sky behind her: three slow lights, one lamp behind all ---------- */
+.ivx-sky{position:absolute;inset:-18% -18% -8%;z-index:0;pointer-events:none;overflow:hidden;
+  filter:blur(46px) saturate(1.15);opacity:.72}
+.ivx-sky b{position:absolute;display:block;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.ivx-sky .b1{left:-12%;top:-8%;width:78vw;height:78vw;
+  background:radial-gradient(circle at 40% 40%,rgba(255,196,102,.55),rgba(255,140,60,.16) 52%,transparent 72%);
+  animation:ivxDrift1 41s ease-in-out infinite alternate}
+.ivx-sky .b2{right:-24%;top:22%;width:86vw;height:86vw;
+  background:radial-gradient(circle at 50% 50%,rgba(20,104,80,.5),rgba(8,48,36,.16) 55%,transparent 74%);
+  animation:ivxDrift2 53s ease-in-out infinite alternate}
+.ivx-sky .b3{left:12%;bottom:-24%;width:96vw;height:72vw;
+  background:radial-gradient(circle at 50% 50%,rgba(168,22,58,.55),rgba(90,8,30,.2) 54%,transparent 76%);
+  animation:ivxDrift3 47s ease-in-out infinite alternate}
+@keyframes ivxDrift1{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(9vw,5vh,0) scale(1.14)}}
+@keyframes ivxDrift2{from{transform:translate3d(0,0,0) scale(1.06)}to{transform:translate3d(-8vw,-6vh,0) scale(.94)}}
+@keyframes ivxDrift3{from{transform:translate3d(0,0,0) scale(.96)}to{transform:translate3d(6vw,-4vh,0) scale(1.12)}}
+
+/* gilt motes: each one drawn, each one rising on its own clock */
+.ivx-motes{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.ivx-motes i{position:absolute;bottom:-12px;width:3px;height:3px;border-radius:50%;
+  background:radial-gradient(circle,#FFF3D2 0%,rgba(255,208,128,.75) 46%,rgba(255,208,128,0) 70%);
+  box-shadow:0 0 7px rgba(255,224,160,.75);opacity:0;will-change:transform,opacity;
+  animation:ivxRise linear infinite}
+@keyframes ivxRise{
+  0%{transform:translate3d(0,0,0) scale(.5);opacity:0}
+  12%{opacity:.9}
+  70%{opacity:.55}
+  100%{transform:translate3d(var(--dx,10px),-104vh,0) scale(1.15);opacity:0}
+}
+
+/* ---------- her, filling the room ---------- */
+.ivx-stage{position:absolute;inset:0;z-index:2;overflow:hidden;background:#0B0207}
+.ivx-video-box{position:absolute;inset:0;z-index:0}
+.ivx-stage video,.ivx-video-box video{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;filter:saturate(1.05) contrast(1.03);transform:scale(1.001)}
+.ivx-stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(120% 70% at 50% 40%,rgba(0,0,0,0) 42%,rgba(10,0,4,.42) 100%),
+    linear-gradient(180deg,rgba(12,0,5,.62) 0%,rgba(12,0,5,0) 22%,rgba(12,0,5,0) 58%,rgba(10,0,4,.72) 100%),
+    radial-gradient(60% 30% at 50% 0%,rgba(255,226,170,.16),transparent 70%)}
+.ivx-off{position:absolute;inset:0;z-index:2;display:none;place-items:center;text-align:center;
+  padding:0 116px 0 26px;
+  background:
+    radial-gradient(70% 50% at 50% 34%,rgba(255,214,146,.2),transparent 70%),
+    linear-gradient(168deg,#123B2E 0%,#0A2018 52%,#12020A 100%)}
+#iv-cast.cam-off .ivx-off{display:grid}
+.ivx-off .ivx-plate{display:grid;place-items:center;gap:12px;max-width:300px;margin:0 auto;
+  text-align:center}
+.ivx-off .gate{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 26%,#FFEBC0,#DFAE55 54%,#8E6115 100%);
+  box-shadow:0 0 0 1px rgba(255,246,220,.85),0 0 0 7px rgba(122,20,44,.5),
+             0 18px 44px -14px rgba(0,0,0,.85),inset 0 2px 3px rgba(255,255,255,.75);
+  color:#4A0B18;font-size:34px;line-height:1;
+  animation:ivxBreath 3.8s ease-in-out infinite}
+.ivx-off b{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ivx-gold);
+  text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.ivx-off s{display:block;text-decoration:none;font-style:italic;font-size:13.5px;color:rgba(255,238,208,.72);max-width:270px;line-height:1.55}
+@keyframes ivxBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+/* ---------- the head: the gold disc, the live chip, the way out ---------- */
+.ivx-head{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:flex-start;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top)) 14px 0;pointer-events:none}
+.ivx-head>*{pointer-events:auto}
+
+.ivx-disc{position:relative;flex:0 0 auto;width:124px;height:124px;border-radius:50%;
+  transform-style:preserve-3d;
+  box-shadow:
+    0 0 0 1px rgba(255,246,220,.55),
+    0 1px 0 rgba(255,255,255,.5) inset,
+    0 14px 30px -10px rgba(0,0,0,.8),
+    0 0 26px -6px rgba(255,196,102,.42);
+  animation:ivxDiscFloat 9s ease-in-out infinite}
+@keyframes ivxDiscFloat{0%,100%{transform:translateY(0) rotate(-.6deg)}
+  50%{transform:translateY(-4px) rotate(.6deg)}}
+
+/* the struck rim: a conic band that never stops turning */
+.ivx-disc::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,
+    #FFEFC6 0deg,#C9922F 42deg,#FFF6DC 88deg,#9A6A1E 132deg,
+    #FFE7AE 178deg,#C08A2A 222deg,#FFF9E8 268deg,#8E5F17 314deg,#FFEFC6 360deg);
+  animation:ivxSpin 14s linear infinite}
+@keyframes ivxSpin{to{transform:rotate(360deg)}}
+.ivx-disc::after{content:"";position:absolute;inset:3px;border-radius:50%;
+  background:
+    radial-gradient(78% 70% at 32% 22%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 46%),
+    radial-gradient(120% 120% at 50% 120%,rgba(70,8,20,.9) 0%,rgba(58,4,16,0) 58%),
+    linear-gradient(160deg,#5E0A1E 0%,#3A0410 52%,#25020A 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,232,180,.42),inset 0 6px 14px rgba(0,0,0,.55)}/*  */
+.ivx-disc .face{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:0 16px;gap:2px}
+.ivx-disc .k{display:inline-flex;align-items:center;gap:4px;
+  font:800 7.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.24em;color:#FFCFCF}
+.ivx-disc .k i{width:5px;height:5px;border-radius:50%;background:#FF5C7E;
+  box-shadow:0 0 0 3px rgba(255,92,126,.28);animation:ivxLive 1.9s ease-in-out infinite}
+@keyframes ivxLive{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+.ivx-disc .t{font-family:Georgia,serif;font-style:italic;font-size:11.5px;line-height:1.2;
+  color:var(--ivx-leaf);max-height:2.4em;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  text-shadow:0 1px 2px rgba(30,0,8,.7)}
+.ivx-disc .odo{display:flex;align-items:baseline;justify-content:center;gap:1px;margin-top:1px;
+  font-family:Georgia,serif;font-size:19px;line-height:1;color:#FFF8E6;
+  text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 12px rgba(255,206,120,.55)}
+.ivx-disc .odo em{font-style:normal;font:600 6.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;color:rgba(255,226,180,.8);margin-left:3px;transform:translateY(-2px)}
+.ivx-odo-d{position:relative;display:inline-block;width:.62em;height:1.06em;overflow:hidden;vertical-align:bottom}
+.ivx-odo-d b{position:absolute;left:0;right:0;top:0;display:block;font-weight:400;
+  transition:transform .62s cubic-bezier(.22,.68,.24,1)}
+.ivx-odo-d b span{display:block;height:1.06em;line-height:1.06em;text-align:center}
+
+.ivx-head-r{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.ivx-live{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;
+  background:linear-gradient(180deg,rgba(60,4,16,.9),rgba(24,1,7,.92));
+  box-shadow:0 0 0 1px rgba(246,217,155,.5),0 8px 20px -10px rgba(0,0,0,.9),
+             inset 0 1px 0 rgba(255,236,190,.22);
+  font:800 8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.22em;color:var(--ivx-gold);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.ivx-live i{width:6px;height:6px;border-radius:50%;background:#FF5C7E;
+  box-shadow:0 0 8px rgba(255,92,126,.9);animation:ivxLive 1.9s ease-in-out infinite}
+.ivx-x{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(246,217,155,.42);background:rgba(24,1,7,.6);color:var(--ivx-gold);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:0;
+  box-shadow:0 6px 18px -10px rgba(0,0,0,.9)}
+.ivx-x:active{transform:scale(.94)}
+.ivx-x svg{width:15px;height:15px;display:block}
+
+/* ---------- who may walk in, and what a seat costs ---------- */
+.ivx-chips{position:absolute;left:14px;right:14px;top:calc(150px + env(safe-area-inset-top));z-index:5;
+  display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.ivx-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;
+  font:600 9px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,238,208,.94);background:rgba(20,1,8,.46);
+  box-shadow:0 0 0 1px rgba(246,217,155,.3);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  animation:ivxChipIn .5s cubic-bezier(.22,.68,.24,1) both}
+.ivx-chip.paid{color:#3A0410;background:linear-gradient(180deg,#FFE9AE,#E0B15C);
+  box-shadow:0 0 0 1px rgba(255,248,214,.85),0 6px 14px -8px rgba(0,0,0,.8)}
+.ivx-chip.seat{color:#4A0B18;background:linear-gradient(180deg,#FFF3D2,#F0C877);
+  box-shadow:0 0 0 1px rgba(255,250,230,.9),0 6px 16px -8px rgba(0,0,0,.75)}
+.ivx-chip svg{width:11px;height:11px}
+@keyframes ivxChipIn{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ---------- the five seats: wells cut into the velvet ---------- */
+.ivx-seats{position:absolute;right:10px;top:calc(196px + env(safe-area-inset-top));z-index:6;
+  display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+.ivx-seat{position:relative;width:58px;height:78px;border-radius:15px;overflow:hidden;
+  display:block;cursor:default;
+  background:linear-gradient(168deg,rgba(58,4,16,.72),rgba(20,1,8,.82));
+  box-shadow:inset 0 0 0 1px rgba(246,217,155,.38),inset 0 2px 8px rgba(0,0,0,.8),
+             0 8px 20px -12px rgba(0,0,0,.9);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  animation:ivxSeatIn .55s cubic-bezier(.22,.68,.24,1) both}
+@keyframes ivxSeatIn{from{opacity:0;transform:translateX(14px) scale(.94)}to{opacity:1;transform:none}}
+.ivx-seat .num{position:absolute;top:7px;left:8px;font:700 8px/1 Georgia,serif;
+  color:rgba(246,217,155,.5);letter-spacing:.14em;z-index:2}
+.ivx-seat .lock{position:absolute;left:0;right:0;bottom:8px;text-align:center;
+  font:700 6.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;color:rgba(255,226,180,.5)}
+.ivx-seat .price{position:absolute;left:0;right:0;bottom:8px;text-align:center;
+  font:800 7px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.06em;color:#FFE7B0;
+  text-shadow:0 1px 2px rgba(20,0,6,.7)}
+.ivx-seat.empty .well{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+  width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  border:1px dashed rgba(246,217,155,.45);color:rgba(246,217,155,.72)}
+.ivx-seat.empty .well svg{width:11px;height:11px}
+.ivx-seat.filled{box-shadow:inset 0 0 0 1px rgba(255,244,214,.9),inset 0 2px 8px rgba(0,0,0,.6),
+  0 10px 24px -10px rgba(0,0,0,.9),0 0 20px -4px rgba(255,196,102,.5)}
+.ivx-seat video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ivx-seat .nm{position:absolute;left:0;right:0;bottom:0;padding:9px 3px 4px;text-align:center;
+  font:700 7px/1.15 ui-sans-serif,system-ui,sans-serif;color:#FFF6E2;letter-spacing:.02em;
+  background:linear-gradient(180deg,rgba(24,1,8,0),rgba(24,1,8,.92));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ivx-seat .emb{position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;
+  display:grid;place-items:center;font:800 7px/1 Georgia,serif;color:#4A0B18;
+  background:radial-gradient(circle at 34% 26%,#FFEBC0,#D9A947 58%,#9A6A1E);
+  box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.ivx-seat.asking::after{content:"";position:absolute;inset:0;border-radius:15px;
+  box-shadow:inset 0 0 0 1.5px rgba(255,214,140,.95);
+  animation:ivxAsk 1.7s ease-in-out infinite}
+@keyframes ivxAsk{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* ---------- the words in the room ---------- */
+.ivx-talk{position:absolute;left:14px;right:86px;bottom:calc(148px + env(safe-area-inset-bottom));z-index:5;
+  display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.ivx-say{max-width:100%;display:block;padding:8px 12px;border-radius:14px;
+  background:rgba(18,1,7,.5);box-shadow:inset 0 0 0 1px rgba(246,217,155,.16);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  font-size:12.5px;line-height:1.42;color:#FFF3DC;
+  animation:ivxSayIn .4s cubic-bezier(.22,.68,.24,1) both}
+.ivx-say b{display:block;font:800 7.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;
+  color:var(--ivx-gold);margin-bottom:3px;text-transform:uppercase}
+.ivx-say.mine{background:linear-gradient(180deg,rgba(96,12,32,.62),rgba(48,4,16,.66))}
+@keyframes ivxSayIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ---------- the dock: one hairline, five keys ---------- */
+.ivx-dock{position:absolute;left:0;right:0;bottom:0;z-index:7;
+  display:flex;align-items:center;justify-content:center;gap:11px;
+  padding:12px 12px calc(34px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(12,0,5,0) 0%,rgba(12,0,5,.72) 58%,rgba(10,0,4,.94) 100%)}
+.ivx-key{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  cursor:pointer;padding:0;color:var(--ivx-cream);
+  border:1px solid rgba(246,217,155,.34);
+  background:linear-gradient(180deg,rgba(58,4,16,.86),rgba(24,1,7,.9));
+  box-shadow:0 8px 20px -12px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,236,190,.24);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .18s ease}
+.ivx-key svg{width:18px;height:18px;display:block}
+.ivx-key:active{transform:scale(.93)}
+.ivx-key.off{color:#FFB9C7;background:linear-gradient(180deg,rgba(120,10,34,.9),rgba(60,4,16,.94))}
+.ivx-key.gold{color:#4A0B18;border-color:rgba(255,248,214,.9);
+  background:linear-gradient(180deg,#FFE9AE,#E0B15C);box-shadow:0 10px 22px -10px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.8)}
+.ivx-key.end{color:#FFEBD6;border-color:rgba(255,120,120,.5);
+  background:linear-gradient(180deg,#7E0B22,#43040F)}
+.ivx-key .lbl{position:absolute;left:50%;bottom:-15px;transform:translateX(-50%);white-space:nowrap;
+  font:700 6.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;color:rgba(255,226,180,.62)}
+
+/* the line to speak on, laid over her picture like a ribbon of glass */
+.ivx-saybar{position:absolute;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:7;
+  display:flex;align-items:center;gap:8px;padding:5px 5px 5px 15px;border-radius:999px;
+  background:rgba(18,1,7,.5);
+  box-shadow:inset 0 0 0 1px rgba(246,217,155,.24),0 10px 24px -18px rgba(0,0,0,.9);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.ivx-saybar input{flex:1 1 auto;min-width:0;background:none;border:0;outline:none;
+  font:italic 12.5px/1.4 Georgia,serif;color:#FFF3DC;padding:8px 0}
+.ivx-saybar input::placeholder{color:rgba(255,226,180,.5)}
+.ivx-saybar button{flex:0 0 auto;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  border:none;cursor:pointer;color:#3A0410;
+  background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 10px -6px rgba(0,0,0,.8)}
+.ivx-saybar button svg{width:14px;height:14px;display:block}
+.ivx-dock .gap{width:2px}
+
+/* ---------- the seat sheet ---------- */
+#ivx-veil{position:fixed;inset:0;z-index:140;background:rgba(10,0,4,.62);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+#ivx-veil.on{opacity:1;pointer-events:auto}
+#ivx-sheet{position:fixed;left:0;right:0;bottom:0;z-index:141;max-height:90vh;display:flex;flex-direction:column;
+  background:linear-gradient(178deg,#FFFBF0 0%,#FBF0DA 48%,#F4E3C0 100%);
+  border-radius:26px 26px 0 0;
+  box-shadow:0 -18px 60px rgba(20,2,8,.55),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translate3d(0,102%,0);transition:transform .46s cubic-bezier(.22,.68,.24,1)}
+#ivx-sheet.on{transform:none}
+#ivx-sheet .grab{width:44px;height:4px;border-radius:3px;margin:10px auto 2px;flex:0 0 auto;
+  background:linear-gradient(90deg,#E7C687,#B8832A,#E7C687)}
+#ivx-sheet .body{overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:14px 20px calc(26px + env(safe-area-inset-bottom))}
+#ivx-sheet .body::-webkit-scrollbar{display:none}
+.ivs-kick{font:600 8.5px/1 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:var(--ivx-gold-3);margin:0 0 10px}
+.ivs-h1{font-family:Georgia,serif;font-weight:400;font-size:26px;line-height:1.14;color:#5C1120;margin:0 0 7px}
+.ivs-h1 em{font-style:italic;color:#8E0F27}
+.ivs-lede{font:italic 400 13.5px/1.55 Georgia,serif;color:#7A5A2C;margin:0 0 16px}
+.ivs-card{padding:15px 16px;border-radius:16px;margin:0 0 13px;
+  background:linear-gradient(180deg,#FFFDF6,#FBF2DE);
+  box-shadow:0 0 0 1px rgba(168,131,68,.3),0 10px 24px -18px rgba(60,8,20,.7),
+             inset 0 1px 0 rgba(255,255,255,.9)}
+.ivs-card.velvet{color:#FDF4E1;background:
+  radial-gradient(120% 130% at 20% -20%,rgba(255,226,170,.2),transparent 52%),
+  linear-gradient(168deg,#4A0714 0%,#35050F 56%,#22020A 100%);
+  box-shadow:0 0 0 1px rgba(246,217,155,.45),0 16px 32px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,236,190,.2)}
+.ivs-price{display:flex;align-items:baseline;gap:8px;margin:2px 0 4px}
+.ivs-price b{font-family:Georgia,serif;font-size:34px;line-height:1;color:#5C1120}
+.ivs-card.velvet .ivs-price b{color:#FFE7B0}
+.ivs-price s{text-decoration:none;font:600 9px/1.3 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:#8A6A33}
+.ivs-card.velvet .ivs-price s{color:rgba(255,226,180,.8)}
+.ivs-note{font-size:12.5px;line-height:1.55;color:#7A5A2C;margin:8px 0 0}
+.ivs-card.velvet .ivs-note{color:rgba(255,238,208,.82)}
+.ivs-row{display:flex;gap:9px;margin-top:3px}
+.ivs-pick{flex:1;padding:13px 12px;border-radius:14px;cursor:pointer;text-align:left;
+  border:1px solid rgba(168,131,68,.35);background:#FFFDF7;color:#5C1120;
+  font:600 12px/1.3 Georgia,serif;transition:transform .16s ease,box-shadow .16s ease}
+.ivs-pick.on{border-color:#A0722A;box-shadow:inset 0 0 0 1px #A0722A,0 8px 18px -12px rgba(60,8,20,.7)}
+.ivs-pick b{display:block;font-size:13.5px;margin-bottom:2px}
+.ivs-pick s{display:block;text-decoration:none;font:italic 11.5px/1.3 Georgia,serif;color:#8A6A33}
+.ivs-btn{width:100%;padding:15px 18px;border-radius:999px;cursor:pointer;
+  font:800 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;
+  color:#3A0410;border:none;
+  background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:0 12px 26px -14px rgba(60,8,20,.9),inset 0 1px 0 rgba(255,255,255,.85);
+  transition:transform .16s ease}
+.ivs-btn:active{transform:scale(.985)}
+.ivs-btn.quiet{color:#5C1120;background:transparent;border:1px solid rgba(168,131,68,.5);
+  box-shadow:none;font-weight:700}
+.ivs-btn[disabled]{opacity:.55;cursor:default}
+.ivs-err{color:#8E0F27;font-size:12.5px;line-height:1.5;margin:10px 0 0;display:none}
+.ivs-err.on{display:block}
+.ivs-tiers{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.ivs-tier{padding:5px 9px;border-radius:999px;font:700 8.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.1em;text-transform:uppercase;color:#6B4A16;
+  background:rgba(255,240,205,.85);box-shadow:inset 0 0 0 1px rgba(168,131,68,.4)}
+
+/* ---------- the farewell: her face, held ten seconds ---------- */
+.ivx-bye{position:absolute;inset:0;z-index:12;display:none;place-items:center;padding:0 26px;
+  background:radial-gradient(90% 70% at 50% 40%,rgba(30,2,10,.72) 0%,rgba(10,0,4,.94) 78%);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.ivx-bye.on{display:grid;animation:ivxByeIn .6s ease both}
+@keyframes ivxByeIn{from{opacity:0}to{opacity:1}}
+.ivx-bye-card{text-align:center;max-width:330px;padding:0;background:none;border-radius:0;box-shadow:none;color:#FFF6E2;animation:ivxByeUp .8s cubic-bezier(.22,.68,.24,1) both}
+@keyframes ivxByeUp{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.ivx-bye .face{width:112px;height:112px;margin:0 auto 20px;position:relative}
+.ivx-bye .face svg{width:100%;height:100%;display:block;
+  filter:drop-shadow(0 14px 26px rgba(0,0,0,.7))}
+.ivx-bye .face::after{content:"";position:absolute;inset:-9px;border-radius:50%;
+  border:1px solid rgba(246,217,155,.35);animation:ivxHalo 3.4s ease-in-out infinite}
+@keyframes ivxHalo{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.06);opacity:.95}}
+.ivx-bye h2{margin:0 0 10px;font-family:Georgia,serif;font-weight:400;font-size:21px;line-height:1.4;color:#FFF6E2}
+.ivx-bye p{margin:0;font-style:italic;font-size:13.5px;line-height:1.6;color:rgba(255,238,208,.76)}
+.ivx-bye .thread{height:2px;width:112px;margin:20px auto 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(246,217,155,.85),transparent);
+  overflow:hidden;position:relative}
+.ivx-bye .thread i{position:absolute;top:0;bottom:0;left:-40%;width:40%;
+  background:linear-gradient(90deg,transparent,#FFF6DC,transparent);
+  animation:ivxThread 10s linear forwards}
+@keyframes ivxThread{to{left:100%}}
+
+@media (prefers-reduced-motion:reduce){
+  .ivx-sky b,.ivx-motes i,.ivx-disc,.ivx-disc::before,.ivx-off .gate,.ivx-disc .k i,
+  .ivx-bye .face::after{animation:none!important}
+  .ivx-bye .thread i{animation:none;left:0;width:100%;opacity:.5}
+}
+
+
+/* the plate's three lines are its own, untouched by the house 'plate' class */
+.ivx-off .ivx-plate b{display:block;font:700 11px/1.7 ui-sans-serif,system-ui,-apple-system,sans-serif;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--ivx-gold);margin:0;
+  text-shadow:0 1px 12px rgba(0,0,0,.75)}
+.ivx-off .ivx-plate s{display:block;text-decoration:none;font:italic 400 15px/1.55 Georgia,"Times New Roman",serif;
+  color:rgba(255,246,224,.86);margin:0;max-width:286px}
+
+
+/* a guest row: the name owns the left, the two keys hold the right, nothing wraps */
+.ivs-guest{display:flex;align-items:center;gap:10px;padding:13px 14px}
+.ivs-guest-txt{flex:1 1 auto;min-width:0}
+.ivs-guest-txt b{display:block;font:600 14.5px/1.25 Georgia,serif;color:#5C1120}
+.ivs-guest-txt s{display:block;text-decoration:none;margin-top:2px;
+  font:italic 12px/1.4 Georgia,serif;color:#8A6A33}
+.ivs-guest-btns{flex:0 0 auto;display:flex;align-items:center;gap:7px}
+.ivs-btn.ivs-let,.ivs-btn.ivs-off{width:auto;margin:0;white-space:nowrap;padding:11px 14px;font-size:9.5px}
+.ivs-btn.ivs-off{padding:11px 12px}
 </style>
 </head>
 <body>
@@ -10040,6 +10587,7 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
         <p class="wh-copy">Request anything from me — entirely virtual. A story with your name in it, a voice note meant only for you, a vignette shot to your brief. You describe it, I make it.</p>
         <div class="wh-foot"><span class="wh-price">₹999 onwards</span><span class="wh-meta">Online only · By appointment · Private</span></div>
       </div>
+      <div id="wsh-sessions" aria-live="polite"></div>
       <div class="wsh-head"><h2>What would you like made?</h2><p>Every wish is virtual, personal, and made only for you.</p></div>
       <div class="wish-list">
         <button class="wcard feat" data-wish="0" data-tap><span class="wtag">LIVE WITH ME</span>
@@ -11279,6 +11827,12 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 </section>
 <section id="iv-call-screen" aria-label="The room">
 </section>
+
+<!-- ··················· THE BROADCAST · the room ··················· -->
+<section id="iv-cast" aria-label="The broadcast"></section>
+<div id="ivx-veil"></div>
+<section id="ivx-sheet" aria-label="A seat beside her"><div class="grab" aria-hidden="true"></div><div class="body" id="ivx-body"></div></section>
+
 <nav class="nav">
     <a class="on" href="#"><span class="gi"><svg viewBox="0 0 24 24"><path d="M12 3.2L21 11h-2.6v9h-5v-6h-2.8v6h-5v-9H3z" fill="currentColor"/></svg></span>Home</a>
     <a href="#"><span class="gi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.4 8.6l-2 4.8-4.8 2 2-4.8z" fill="currentColor"/></svg></span>Explore</a>
@@ -12056,22 +12610,67 @@ function sparkleAt(el){
 </script>
 
 <script>
-/* the house ribbon and the dream-house ribbon: two sounds, two roads across the screen */
+/* THE RIBBONS · the app's own clock, and no voice at all.
+   ---------------------------------------------------------------------------
+   In the app one ribbon crosses at a time, ten seconds for the crossing and a
+   thirty-second beat between them: the dream house first at fifteen seconds,
+   the house at twenty, then each on its own thirty. Members read the same
+   sequence in an audio room, a video room and a broadcast — so the clock here
+   is one clock, started once, and it never stops for a screen. The ribbons are
+   silent: the app rings its celesta outside a room and hushes it inside one,
+   and the owner's standing instruction is no sound at all. */
 (function(){
-  var house=document.getElementById('rib-house'), dream=document.getElementById('rib-dream');
-  if(!house||!dream) return;
-  var shown=false;
-  function fire(){
-    if(typeof Sound!=='undefined'){
-      if(Sound.chime) try{Sound.chime();}catch(_){}
-      setTimeout(function(){ if(Sound.bell) try{Sound.bell();}catch(_){} }, 3400);
-    }
+  var lay=null, house=null, dream=null, started=false, booted=false;
+  var CROSS=10000, GAP=30000;               /* ten across, thirty to the next */
+  var busy=false;
+
+  function cross(el){
+    if(!el || busy) return;                 /* one at a time: a late one waits a beat */
+    busy=true;
+    el.classList.remove('run');
+    void el.offsetWidth;
+    el.classList.add('run');
+    setTimeout(function(){ busy=false; }, CROSS);
   }
-  /* the ribbons only exist on the home screen, and only after it is open */
-  var tick=setInterval(function(){
-    if(document.body.classList.contains('on-home')){ if(!shown){shown=true; fire();} }
-  },600);
-  setTimeout(function(){ clearInterval(tick); }, 60000);
+
+  function start(){
+    if(started) return; started=true;
+    /* the dream house takes the first beat at fifteen seconds, then every thirty */
+    setTimeout(function(){
+      cross(dream);
+      setInterval(function(){ cross(dream); }, GAP);
+    }, 15000);
+    /* the house at twenty, then every thirty */
+    setTimeout(function(){
+      cross(house);
+      setInterval(function(){ cross(house); }, GAP);
+    }, 20000);
+  }
+
+  /* the lane: upper on everyday screens, video rooms and broadcasts;
+     lower on a voice-only room, where the picture is a coin and the eye
+     has room to drop down. */
+  window.ivRibbonLane=function(where){
+    if(lay) lay.classList.toggle('lane-bottom', where==='audio');
+  };
+
+  function tick(){
+    if(!lay || !house || !dream){
+      lay=document.querySelector('.ribbonlay');
+      house=document.getElementById('rib-house');
+      dream=document.getElementById('rib-dream');
+    }
+    if(!lay || !house || !dream) return false;
+    if(!started && (document.body.classList.contains('on-home') ||
+                    document.body.classList.contains('on-live'))) start();
+    return started;
+  }
+
+  /* this script is read before the ribbons are drawn, so it waits for them */
+  var w=setInterval(function(){ if(tick()) clearInterval(w); },150);
+  setTimeout(function(){ clearInterval(w); }, 45000);
+  document.addEventListener('DOMContentLoaded', function(){ if(tick()) clearInterval(w); });
+  window.addEventListener('load', function(){ if(tick()) clearInterval(w); });
 })();
 
 /* PASS 22 · the colour-wheel FAB was removed with its markup. */
@@ -15381,6 +15980,7 @@ window.IVSESS = (function () {
   if (typeof was === 'function') {
     window.ivoryShow = function (name) {
       var r = was.apply(this, arguments);
+      if (name === 'wish' && window.IVCALL && IVCALL.paintWish) IVCALL.paintWish();
       if (name === 'profile') window.ivPaintProfile();
       if (name === 'home') window.ivPaintBadge && window.ivPaintBadge();
       return r;
@@ -15632,6 +16232,18 @@ window.IVSESS = (function () {
   }
 
   function openRoom(r){
+    /* THE ROOM IS THE ROOM. The list stays as it is; walking in now opens the
+       broadcast itself — her full screen, the gold disc, the five seats — with
+       every number read from the house, exactly as the app opens it. */
+    if(window.IVCAST && IVCAST.watch){
+      show('lv-list-view',false); show('lv-door-view',false); show('lv-room-view',false);
+      IVCAST.watch({ id:r.id, title:r.title||'The room', price:Number(r.price_inr||0),
+        seatPrice:Number(r.guest_price_inr||0),
+        allowed:Array.isArray(r.allowed_tiers)?r.allowed_tiers:[],
+        minTier:Number(r.min_tier||1), tierName:r.tier_name||'',
+        hostVideo:r.host_video_enabled!==false, startedAt:r.started_at||null });
+      return;
+    }
     S.room=r; S.seen={};
     show('lv-list-view',false); show('lv-door-view',false); show('lv-room-view',true);
     say('lv-room-err'); $('lv-chat').innerHTML='<div class="m them"><b>Ivory</b><span style="font-style:italic;color:#8a6a33">Opening the room…</span></div>';
@@ -16037,7 +16649,14 @@ window.IVSESS = (function () {
   /* ---------- tiers, read live ---------- */
   function loadTiers(){
     return get('/rest/v1/subscription_tiers?select=id,name,level,price_inr,description,is_active&order=level.asc')
-      .then(function(rows){ D.tiers=(rows||[]); return D.tiers; })
+      .then(function(rows){
+        D.tiers=(rows||[]);
+        if(window.IVCAST && IVCAST.tierNames){
+          var map={}; D.tiers.forEach(function(t){ map[Number(t.level)]=t.name; });
+          IVCAST.tierNames(map);
+        }
+        return D.tiers;
+      })
       .catch(function(){ D.tiers=[]; return []; });
   }
 
@@ -16095,65 +16714,51 @@ window.IVSESS = (function () {
       return call('/rest/v1/rpc/activate_live_start',{session_id_in:id}).catch(function(){ return null; })
         .then(function(){ return id; });
     }).then(function(id){
-      return call('/functions/v1/agora-token',{mode:'live',id:id}).then(function(tk){
-        if(!tk||!tk.token) throw new Error((tk&&tk.error)||'The room did not open.');
-        return joinAsHost(tk).then(function(){
-          D.session={id:id,title:title,guestPrice:guest,startedAt:Date.now()};
-          render('live');
-        });
-      });
+      D.session={id:id,title:title,guestPrice:guest,startedAt:Date.now(),
+                 price:ppv,allowed:allowed};
+      /* one publisher, and it is the room's — her camera and voice belong to
+         the broadcast itself now, not to a desk card pretending to be it */
+      if(window.IVCAST && IVCAST.host){
+        IVCAST.host({ id:id, title:title, price:ppv, seatPrice:guest,
+          allowed:allowed, minTier:floor, startedAt:new Date() });
+      }
+      render('live');
     }).catch(function(x){
       err.textContent=(x&&x.message)||String(x); err.classList.remove('ivd-hide');
     }).then(function(){ if(btn){ btn.disabled=false; btn.textContent='Go live now'; } });
-  }
-
-  function joinAsHost(tk){
-    if(!window.AgoraRTC) return Promise.reject(new Error('The broadcast engine did not load on this page.'));
-    var c=AgoraRTC.createClient({mode:'live',codec:'vp8'}); D.client=c;
-    return c.setClientRole('host')
-      .then(function(){ return c.join(tk.appId||tk.app_id, tk.channel, tk.token, Number(tk.uid)||null); })
-      .then(function(){
-        return Promise.all([AgoraRTC.createCameraVideoTrack({encoderConfig:'480p_1'}),
-                            AgoraRTC.createMicrophoneAudioTrack()]);
-      })
-      .then(function(tr){ D.cam=tr[0]; D.mic=tr[1];
-        var v=document.getElementById('dk-stage-video'); if(v) D.cam.play('dk-stage-video');
-        return c.publish([D.cam,D.mic]);
-      });
   }
 
   function renderOnAir(p){
     var s=D.session;
     p.innerHTML =
       '<p class="dk-kick">On air</p>'+
-      '<div class="dk-live"><span class="dk-dot"></span><span><b>'+esc(s.title)+'</b><s id="dk-live-sub">watching the room · the list is the house’s own</s></span><span class="dk-clock" id="dk-clock">00:00</span></div>'+
-      '<div class="dk-card velvet" style="padding:0;overflow:hidden;border-radius:16px">'+
-        '<div id="dk-stage" style="position:relative;aspect-ratio:3/4;background:#0E0A16">'+
-          '<video id="dk-stage-video" playsinline autoplay muted style="width:100%;height:100%;object-fit:cover;display:block"></video>'+
-        '</div>'+
-      '</div>'+
-      '<div class="dk-card">'+
+      '<h1 class="dk-h1">The room is <em>open.</em></h1>'+
+      '<div class="dk-live"><span class="dk-dot"></span><span><b>'+esc(s.title)+'</b><s>the broadcast itself is on your screen · tap back in to see it</s></span><span class="dk-clock" id="dk-clock">00:00</span></div>'+
+      '<div class="dk-card velvet" style="padding:16px">'+
         '<div class="dk-two" style="align-items:center">'+
-          '<div><span class="dk-label">Watching</span><div style="font-family:Georgia,serif;font-size:22px;color:#3A1207" id="dk-watch">0</div></div>'+
-          '<div><span class="dk-label">Open to</span><div style="font-family:Georgia,serif;font-style:italic;font-size:13px;color:#6E4A2A" id="dk-open-to">every member on a plan</div></div>'+
+          '<div><span class="dk-label">Watching now</span><div style="font-family:Georgia,serif;font-size:26px;color:#FFE9B4" id="dk-watch">—</div></div>'+
+          '<div><span class="dk-label">Open to</span><div style="font-family:Georgia,serif;font-style:italic;font-size:13px;color:rgba(255,238,208,.85)" id="dk-open-to">every member on a plan</div></div>'+
+        '</div>'+
+        '<div class="dk-two" style="align-items:center;margin-top:14px">'+
+          '<div><span class="dk-label">A seat beside you</span><div style="font-family:Georgia,serif;font-size:18px;color:#FFE9B4" id="dk-seat-price">'+(s.guestPrice>0?('₹'+Number(s.guestPrice).toLocaleString('en-IN')):'not for sale')+'</div></div>'+
+          '<div><span class="dk-label">Seats taken</span><div style="font-family:Georgia,serif;font-size:18px;color:#FFE9B4" id="dk-seats">0/5</div></div>'+
         '</div>'+
         '<div style="display:flex;gap:9px;margin-top:16px">'+
-          '<button class="dk-btn quiet mini" id="dk-cam">Picture off</button>'+
-          '<button class="dk-btn quiet mini" id="dk-mic">Voice off</button>'+
+          '<button class="dk-btn" id="dk-back" style="flex:1 1 auto">Back into the room</button>'+
+          '<button class="dk-btn quiet mini" id="dk-end">End the broadcast</button>'+
         '</div>'+
       '</div>'+
       '<p class="dk-kick" style="margin-top:20px">Seats beside you</p>'+
-      '<div id="dk-guests"></div>'+
-      '<button class="dk-btn" id="dk-end" style="margin-top:14px">End the broadcast</button>';
-
-    if(D.cam && document.getElementById('dk-stage-video')) D.cam.play('dk-stage-video');
-    $('dk-end').addEventListener('click',function(){ endBroadcast(false); });
-    $('dk-cam').addEventListener('click',function(){
-      if(!D.cam) return; var off=D.cam.enabled; D.cam.setEnabled(!off); this.textContent=off?'Picture off':'Picture on'; this.classList.toggle('gold',off);
-      call('/rest/v1/rpc/set_live_host_video',{session_id_in:s.id, enabled_in:!off}).catch(function(){});
+      '<div id="dk-guests"></div>';
+    $('dk-back').addEventListener('click',function(){
+      if(!D.session) return;
+      if(window.IVCAST && IVCAST.host) IVCAST.host({ id:D.session.id, title:D.session.title,
+        price:D.session.price||0, seatPrice:D.session.guestPrice||0,
+        allowed:D.session.allowed||[], startedAt:new Date(D.session.startedAt) });
     });
-    $('dk-mic').addEventListener('click',function(){
-      if(!D.mic) return; var off=D.mic.enabled; D.mic.setEnabled(!off); this.textContent=off?'Voice off':'Voice on'; this.classList.toggle('gold',off);
+    $('dk-end').addEventListener('click',function(){
+      if(window.IVCAST && IVCAST.isOpen && IVCAST.isOpen() && IVCAST.end){ IVCAST.end(); return; }
+      endBroadcast(false);
     });
     tickClock(); pollLive(); loadGuests();
     D.clock=setInterval(tickClock,1000);
@@ -16181,7 +16786,7 @@ window.IVSESS = (function () {
                 return t?t.name:('level '+lv); }).join(' · ')
             : 'nobody on the list yet';
         }
-        if(r.status && r.status!=='live') endBroadcast(true);
+        if(r.status && r.status!=='live' && !(window.IVCAST && IVCAST.isOpen && IVCAST.isOpen())) endBroadcast(true);
       }).catch(function(){});
   }
   function loadGuests(){
@@ -16229,6 +16834,7 @@ window.IVSESS = (function () {
     stopClocks();
     var s=D.session;
     if(!s) return;
+    if(window.IVCAST && IVCAST.isOpen && IVCAST.isOpen()) IVCAST.close();
     if(D.client){ try{ D.cam&&D.cam.close(); D.mic&&D.mic.close(); }catch(e){}
       D.client.unpublish().catch(function(){}).then(function(){ return D.client.leave(); }).catch(function(){}); }
     call('/rest/v1/rpc/end_live',{session_id_in:s.id}).catch(function(){});
@@ -16794,12 +17400,18 @@ window.IVCALL = (function () {
     close();
     var scr = $('iv-call-screen'); if (!scr) return;
     scr.classList.add('on');
+    scr.classList.toggle('is-video', kind === 'video');
     document.body.classList.add('on-live');
+    /* the ribbons keep crossing in here, in the same order as outside, and
+       they take the lower lane on a voice-only room, the upper one on video */
+    if (window.ivRibbonLane) window.ivRibbonLane(kind === 'audio' ? 'audio' : 'top');
     /* the room's own shell is drawn first, then filled — never queried before it exists */
     scr.innerHTML = roomMarkup(kind);
     var clockEl = scr.querySelector('#ivr-clock-text');
     var R = { id: callId, kind: kind, client: null, mic: null, cam: null, prior: 0,
-              from: null, tick: null, over: false, left: false, admin: !!(window.ivIsAdmin && window.ivIsAdmin()) };
+              from: null, tick: null, over: false, left: false, selfLarge: false,
+              remoteVideo: null, swapBusy: false,
+              admin: !!(window.ivIsAdmin && window.ivIsAdmin()) };
     S.room = R;
 
     function setClock() {
@@ -16835,10 +17447,13 @@ window.IVCALL = (function () {
         R.client = c;
         c.on('user-published', function (user, mediaType) {
           c.subscribe(user, mediaType).then(function () {
+            voiceTogether();
             if (mediaType === 'video') {
+              R.remoteVideo = user.videoTrack || null;
               var box = scr.querySelector('#ivr-remote'); if (box && user.videoTrack) user.videoTrack.play(box);
             }
             if (mediaType === 'audio' && user.audioTrack) user.audioTrack.play();
+            voiceTogether();
             elseFill('');
             var veil = scr.querySelector('.ivr-veil'); if (veil) veil.classList.add('off');
             var nm = scr.querySelector('#ivr-remote-name'); if (nm) nm.textContent = 'Ivory';
@@ -16857,6 +17472,11 @@ window.IVCALL = (function () {
       })
       .then(function () {
         if (!R.from) R.from = new Date();
+        /* the door is open: the pill goes, the room speaks */
+        var flow = scr.querySelector('#ivr-flow'); if (flow) flow.classList.add('off');
+        var veil = scr.querySelector('.ivr-veil'); if (veil) veil.classList.add('off');
+        var nt = scr.querySelector('#ivr-voice-note');
+        if (nt && !nt.dataset.open) { nt.dataset.open = '1'; nt.textContent = 'The room is open. Say hello.'; }
         R.tick = setInterval(function () {
           var s = setClock();
           if (s != null && s > 0 && s % 60 === 0 && !R.over) {
@@ -16875,6 +17495,17 @@ window.IVCALL = (function () {
         elseFill((x && x.message) || 'The room did not open. Check your signal and tap Join again — your session and its minutes are untouched.');
         setClock();
       });
+
+    /* TOGETHER, HERE — the app's words for two people sharing a room, and the
+       two medallions that carry them without a single pixel of video. */
+    function voiceTogether() {
+      var v = scr.querySelector('#ivr-voice'); if (!v || v.classList.contains('together')) return;
+      v.classList.add('together');
+      var nm = scr.querySelector('#ivr-remote-name');
+      if (nm) nm.textContent = 'Ivory';
+      var sm = scr.querySelector('#ivr-voice-note');
+      if (sm) sm.textContent = 'Together, here.';
+    }
 
     function elseFill(msg) {
       var veil = scr.querySelector('.ivr-veil'); if (!veil) return;
@@ -16905,6 +17536,44 @@ window.IVCALL = (function () {
     });
     scr.querySelector('#ivr-x').addEventListener('click', function () { leaveRoom(false); });
 
+    /* THE TWO VIEWS CHANGE PLACES.
+       She fills the room and I sit in the small window; a tap on the small
+       window makes me the room and puts her in the window, and the next tap
+       puts it all back. The tracks never stop — only the boxes they sit in
+       change shape — so nothing blinks while the two of them trade places. */
+    var swapBox = scr.querySelector('#ivr-videobox');
+    function settleSwap() {
+      try {
+        var selfBox = scr.querySelector('#ivr-self');
+        var planeBox = scr.querySelector('#ivr-remote');
+        if (R.cam && selfBox) R.cam.play(selfBox);
+        if (R.remoteVideo && planeBox) R.remoteVideo.play(planeBox);
+      } catch (e) {}
+      R.swapBusy = false;
+    }
+    /* the hint says its piece once, then bows out */
+    var hintT = setTimeout(function () {
+      var h = scr.querySelector('#ivr-hint'); if (h) h.classList.add('off');
+    }, 8000);
+
+    function toggleSwap() {
+      var hint = scr.querySelector('#ivr-hint');
+      if (hint) { clearTimeout(hintT); hint.classList.add('off'); }
+      /* it is a view, not a permission: whichever phone is holding it may put
+         the other person in the room and itself in the window, and back again */
+      if (!R.cam || !R.remoteVideo || R.swapBusy || !swapBox) return;
+      R.selfLarge = !R.selfLarge;
+      R.swapBusy = true;
+      swapBox.classList.toggle('swap', R.selfLarge);
+      setTimeout(settleSwap, 480);
+    }
+    var pipBox = scr.querySelector('#ivr-pip');
+    if (pipBox) pipBox.addEventListener('click', function () { if (!R.selfLarge) toggleSwap(); });
+    var mark = scr.querySelector('#ivr-swapmark');
+    if (mark) mark.addEventListener('click', function (e) { e.stopPropagation(); toggleSwap(); });
+    var planeBoxEl = scr.querySelector('#ivr-remote');
+    if (planeBoxEl) planeBoxEl.addEventListener('click', function () { if (R.selfLarge) toggleSwap(); });
+
     /* the clock starts on the first true second */
     R.tick = setInterval(function () { setClock(); }, 1000);
     setClock();
@@ -16919,16 +17588,28 @@ window.IVCALL = (function () {
       '<div class="ivr-timeup" id="ivr-timeup"></div>' +
       '<div class="ivr-stage" id="ivr-stage">' +
         (kind === 'video'
-          ? '<div class="ivr-video"><div id="ivr-remote" style="width:100%;height:100%"></div>' +
-            '<div class="ivr-pip"><div id="ivr-self" style="width:100%;height:100%"></div></div>' +
-            '<div class="ivr-veil"><div class="ivr-wait"><span class="ivr-wait-coin">I</span>' +
+          ? '<div class="ivr-video" id="ivr-videobox">' +
+              '<div class="ivr-plane" id="ivr-remote"></div>' +
+              '<div class="ivr-hint" id="ivr-hint">Tap the small window to swap the two views</div>' +
+              '<div class="ivr-pip" id="ivr-pip" role="button" tabindex="0" aria-label="Swap the large and small video views">' +
+                '<div id="ivr-self" style="width:100%;height:100%"></div>' +
+              '</div>' +
+              '<button class="ivr-swap" id="ivr-swapmark" type="button" aria-label="Swap the large and small video views" title="Tap to swap the large and small video views">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>' +
+              '</button>' +
+              '<div class="ivr-veil"><div class="ivr-wait"><span class="ivr-wait-coin">I</span>' +
               '<p class="ivr-wait-b">Waiting for Ivory</p>' +
               '<p class="ivr-wait-s">She will appear here. Nothing is recorded, and nothing is kept after you leave.</p></div></div></div>'
-          : '<div class="ivr-voice"><div class="ivr-ring"><i></i><i></i><i></i>' +
-            '<div class="ivr-coin" id="ivr-self">I</div></div>' +
+          : '<div class="ivr-voice" id="ivr-voice">' +
+            '<div class="ivr-ring"><i></i><i></i><i></i>' +
+              '<div class="ivr-pair">' +
+                '<div class="ivr-coin">I</div>' +
+                '<div class="ivr-coin second" id="ivr-coin-you">' + memberInitial() + '</div>' +
+              '</div>' +
+            '</div>' +
             '<p class="ivr-nm" id="ivr-remote-name">Ivory</p>' +
-            '<p class="ivr-sm">The room is open. Say hello.</p>' +
-            '<div class="ivr-veil" style="position:static;background:none;padding:0"><p>Waiting for Ivory…</p></div></div>') +
+            '<p class="ivr-sm" id="ivr-voice-note">One moment — the room is opening.</p>' +
+            '<div class="ivr-veil ivr-veil-flow" id="ivr-flow"><p>Waiting for Ivory…</p></div></div>') +
       '</div>' +
       '<div class="ivr-dock">' +
         '<div><button class="ivr-key" id="ivr-mic" aria-label="Microphone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8.8" y="2.8" width="6.4" height="10.4" rx="3.2"/><path d="M5.8 11.2a6.2 6.2 0 0012.4 0M12 17.4V21"/></svg></button><span class="ivr-lbl">Mic</span></div>' +
@@ -16943,6 +17624,15 @@ window.IVCALL = (function () {
   }
 
   function isOwner() { return !!(window.ivIsAdmin && window.ivIsAdmin()); }
+
+  /* whose phone is this — the second medallion carries their letter */
+  function memberInitial() {
+    var id = (IV.ident && IV.ident()) || {};
+    var n = String((id.email || '').trim());
+    if (!n) return 'Y';
+    var first = n.split('@')[0].replace(/[^a-z0-9]/gi, '');
+    return (first.charAt(0) || 'Y').toUpperCase();
+  }
 
   function leaveRoom(ending) {
     var R = S.room; if (!R) return;
@@ -16972,9 +17662,121 @@ window.IVCALL = (function () {
   function closeRoom() {
     var scr = $('iv-call-screen');
     if (scr) scr.classList.remove('on');
+    if (scr) scr.classList.remove('is-video');
     document.body.classList.remove('on-live');
+    if (window.ivRibbonLane) window.ivRibbonLane('top');
     S.room = null;
     if (window.ivPaintProfile) window.ivPaintProfile();
+  }
+
+
+  /* ═══════════════ THE ONE MANUAL ═══════════════
+     Every explanation of how a session works lives here and nowhere else.
+     The Profile card opens it; the thin line on the Wish page opens it too.
+     Two doors, one room — so a member can never read the same thing twice in
+     slightly different words. The app's own words, in its own order. */
+  var G_ICON = {
+    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5.4 3v18"/><path d="M5.4 4.6h11l-1.8 4 1.8 4h-11z"/></svg>',
+    door: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4.6 20.4h14.8"/><path d="M7 20.4V4.4h10v16"/><circle cx="14.4" cy="12.2" r="1" fill="currentColor" stroke="none"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.2c-5.2-3.3-7.8-6.2-7.8-9.7A4.3 4.3 0 0112 8.1a4.3 4.3 0 017.8 2.4c0 3.5-2.6 6.4-7.8 9.7z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 12.6l4.6 4.4 10-10"/></svg>'
+  };
+  function steps(list) {
+    return '<div class="ivc-steps">' + list.map(function (t, i) {
+      return '<div class="ivc-step"><span class="n">' + (i + 1) + '</span><span>' + t + '</span></div>';
+    }).join('') + '</div>';
+  }
+  function eyebrow(icon, text) {
+    return '<p class="ivc-eyebrow">' + G_ICON[icon] + text + '</p>';
+  }
+
+  function guide(included, onGo) {
+    var body = $('ivc-body'), veil = $('ivc-veil'), sh = $('ivc-sheet');
+    if (!body || !sh) return;
+    body.innerHTML =
+      '<p class="ivc-kick">The house · the manual</p>' +
+      '<h1 class="ivc-h1">A session <em>with me.</em></h1>' +
+      '<p class="ivc-lede">' + (included
+        ? 'Live, unhurried, and already part of what you pay for. Here is everything, start to finish.'
+        : 'Live and unhurried. Here is everything, start to finish.') + '</p>' +
+      eyebrow('flag', 'Getting a session') +
+      steps([
+        'Tap Wish at the bottom of the screen. Choose to see me, or only to hear me.',
+        'Tap the button to ask. I am told the moment you do, and I answer from my side.',
+        'When I say yes, a gold card appears at the top of the Wish page. That card is how you will know — nothing else is needed.',
+        'Tap PICK YOUR TIME on it and choose any day and time that suits you, up to a month ahead.'
+      ]) +
+      eyebrow('door', 'Arriving') +
+      steps([
+        'I will remind you as the day comes closer — on your phone, not only in the app.',
+        'On the day, open Ivory about five minutes early. Nobody rings your phone. You come here.',
+        'Tap Wish, tap your session, tap JOIN. If it says you are early, close it and tap JOIN again in a few minutes.',
+        'Then wait. I come in from my side, and the screen tells you the moment I do.'
+      ]) +
+      eyebrow('heart', 'Good to know') +
+      steps([
+        'The clock starts when we are actually connected — never at the hour on the card.',
+        'If you lose the app, come straight back and tap JOIN again. Your place is held.',
+        'If we are still talking when the time runs out, I can offer you more. You will see it on your screen, and it is yours to refuse.',
+        'Something came up? Ask me to move it and I will. You will find me in the quiet door on your Profile page.'
+      ]) +
+      '<button class="ivc-btn" id="ivc-g-done">THAT IS EVERYTHING</button>';
+    veil.classList.add('on'); sh.classList.add('on');
+    document.body.classList.add('sheet-open');
+    var done = $('ivc-g-done');
+    if (done) done.addEventListener('click', function () {
+      close();
+      if (typeof onGo === 'function') onGo();
+    });
+    try { localStorage.setItem('ivory.guide.seen', '1'); } catch (e) {}
+  }
+
+  /* WHAT IS ALREADY AGREED, ON THE WISH PAGE.
+     The app keeps this above the wishes: a gold card while the hour is still
+     to be chosen, and one thin gold line once it is — a door to the manual,
+     never a page-filler explaining that there is nothing to do. */
+  function paintWish() {
+    var host = document.getElementById('wsh-sessions');
+    if (!host) return;
+    if (!IV.ident().id) { host.innerHTML = ''; return; }
+    mine().then(function (list) {
+      var live = (list || []).filter(function (c) {
+        return c.status === 'accepted' || c.status === 'active' || c.status === 'requested';
+      });
+      if (!live.length) { host.innerHTML = ''; return; }
+      var h = '';
+      live.forEach(function (c) {
+        var ico = c.kind === 'audio' ? PHONE : CAM;
+        if (!c.requested_for) {
+          h += '<button class="ivc-agreed" data-agreed="' + c.id + '">' +
+                 '<b>' + (c.kind === 'video' ? 'Your video session is agreed' : 'Your audio session is agreed') + '</b>' +
+                 '<span>' + (c.status === 'requested'
+                   ? 'I have your ask. The moment I say yes, this card asks you for a time.'
+                   : 'I have said yes. All that is left is for you to choose when — pick a day and a time that suits you.') + '</span>' +
+                 '<i>' + G_ICON.check + 'PICK YOUR TIME</i>' +
+               '</button>';
+        } else {
+          h += '<button class="ivc-booked" data-settled="' + c.id + '">' +
+                 '<span class="b-ico">' + ico + '</span>' +
+                 '<b>' + (c.kind === 'video' ? 'Video call' : 'Audio call') + ' &nbsp;·&nbsp; ' + whenText(c.requested_for) + '</b>' +
+                 '<em>How it works</em>' +
+               '</button>';
+        }
+      });
+      host.innerHTML = h;
+      Array.prototype.forEach.call(host.querySelectorAll('[data-agreed]'), function (b) {
+        b.addEventListener('click', function () {
+          S.callId = Number(b.getAttribute('data-agreed'));
+          S.hostMode = false; S.day = null; S.hour = null;
+          var veil = $('ivc-veil'), sh = $('ivc-sheet');
+          veil.classList.add('on'); sh.classList.add('on'); document.body.classList.add('sheet-open');
+          hours().then(function () { timePane(); });
+        });
+      });
+      Array.prototype.forEach.call(host.querySelectorAll('[data-settled]'), function (b) {
+        b.addEventListener('click', function () { guide(true, null); });
+      });
+    }).catch(function () { host.innerHTML = ''; });
   }
 
   /* ═══════════════ the profile's card, and the desk ═══════════════ */
@@ -17010,6 +17812,24 @@ window.IVCALL = (function () {
       if (copy) copy.textContent = anyIncluded
         ? 'These are already yours. Nothing more to pay, and nothing to book anywhere else.'
         : 'Your tier does not carry session time yet — but you can still ask for one as a wish.';
+
+      /* the card's own door to the manual — the same words the Wish page opens */
+      var door = card.querySelector('.btn-burgundy');
+      if (door && !door.dataset.guided) {
+        door.dataset.guided = '1';
+        door.addEventListener('click', function () { guide(anyIncluded); });
+      }
+      /* one time only, for a member whose plan carries time: the manual is put
+         in front of them the first time the Profile opens. After that it lives
+         behind the card's button, and is never shown unsought again. */
+      try {
+        if (anyIncluded && !localStorage.getItem('ivory.guide.seen') &&
+            !document.body.classList.contains('sheet-open') && !S.room) {
+          setTimeout(function () {
+            if (!document.body.classList.contains('sheet-open') && !S.room) guide(true, null);
+          }, 1100);
+        }
+      } catch (e) {}
     });
   }
 
@@ -17073,13 +17893,938 @@ window.IVCALL = (function () {
   return {
     open: open, close: close, join: join, paintProfile: paintProfile, openHost: openHost,
     balance: balance, hours: hours, catalogue: catalogue, mine: mine, pick: pick,
-    whenText: whenText, spoke: spoken
+    whenText: whenText, spoke: spoken, guide: guide, paintWish: paintWish
   };
 })();
 
 /* the old wish handler routes the two session cards into the real engine */
 window.IvoryRoom = { open: function (m) { window.IVCALL.open(m); } };
 
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BROADCAST · the room she goes on air in, built from the app's own logic
+   ---------------------------------------------------------------------------
+   The app's broadcast, sequence for sequence and RPC for RPC:
+
+     start_live_with_guests · activate_live_start   her room, its title,
+                                                    who may walk in, the price
+                                                    of a seat beside her
+     agora-token (mode live)                        one channel, two roles
+     live_enter · leave_live · send_live_message    the room's short memory
+     start_live_guest_request                      a member asks for a seat
+     live_guest_requests_for_host ·                she lets them in, or takes
+       respond_live_guest_request · remove_live_guest   the seat away
+     live_guest_participants                       the five seats, filled
+     end_live                                      the smiling farewell,
+                                                    held ten seconds
+
+   The audience figure is the app's own curve, not a random number: the house
+   starts around a hundred, climbs fast, and settles short of six hundred, so
+   two phones in the same room always read the same figure.
+   =========================================================================== */
+window.IVCAST = (function () {
+  var IV = window.IVSESS;
+  var S = {
+    id: null, title: '', role: 'watch', price: 0, seatPrice: 0, allowed: [], minTier: 1,
+    tierName: '', hostVideo: true, client: null, cam: null, mic: null, uid: 0,
+    from: null, clock: null, poll: null, talk: null, beat: null,
+    over: false, closing: false, camOn: true, micOn: true,
+    count: 0, realCount: 0, digits: [0, 0, 0], seen: {}, mine: null,
+    seats: [], pending: 0, requestsOpen: false, seatBusy: false, mounted: false, guestRequestId: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(n) { return '₹' + String(Number(n) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function toast(m, bad) { if (window.ivoryToast) window.ivoryToast(m, bad); }
+  function isOwner() { return !!(window.ivIsAdmin && window.ivIsAdmin()); }
+  function reduce() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+
+  /* ─────────────────────────── the house's own curve ───────────────────────────
+     Ported line for line from the app's ivoryAudienceCount(): the same hash of
+     the session number, the same floor and ceiling, the same curve that is fast
+     at first and flattens out, the same gentle sway. Two phones, one figure. */
+  function audienceCount(sessionId, startedAt, realCount) {
+    var start = startedAt ? new Date(startedAt).getTime() : Date.now();
+    var minutes = (Date.now() - start) / 60000;
+    if (minutes < 0) return 103;
+    var h = (Number(sessionId) * 2654435761) & 0x7FFFFFFF;
+    h ^= h >> 13;
+    h = (h * 1274126177) & 0x7FFFFFFF;
+    h ^= h >> 16;
+    var floor = 103 + h % 40;
+    var ceiling = 470 + (h >> 7) % 121;
+    var fill = 1 - Math.exp(-minutes / 34);
+    var sway = 6 * Math.abs(Math.sin(minutes / 7 + (h % 100) / 15));
+    var v = Math.round(floor + (ceiling - floor) * fill + sway);
+    return v < realCount ? realCount : v;
+  }
+
+  /* ─────────────────────────────── the room itself ─────────────────────────────── */
+  function markup() {
+    return '' +
+      '<div class="ivx-sky" aria-hidden="true"><b class="b1"></b><b class="b2"></b><b class="b3"></b></div>' +
+      '<div class="ivx-motes" id="ivx-motes" aria-hidden="true"></div>' +
+      '<div class="ivx-stage">' +
+        '<div class="ivx-video-box" id="ivx-video"></div>' +
+        '<div class="ivx-off"><div class="ivx-plate"><div class="gate">&#10022;</div>' +
+          '<b id="ivx-off-b">Ivory is not on camera yet</b>' +
+          '<s id="ivx-off-s">You are in. The moment she appears she will be here on this screen.</s></div></div>' +
+      '</div>' +
+      '<div class="ivx-head">' +
+        '<div class="ivx-disc" id="ivx-disc">' +
+          '<div class="face">' +
+            '<span class="k"><i></i>LIVE</span>' +
+            '<span class="t" id="ivx-d-title">The room</span>' +
+            '<span class="odo" id="ivx-odo"></span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ivx-head-r">' +
+          '<span class="ivx-live"><i></i>ON AIR</span>' +
+          '<button class="ivx-x" id="ivx-x" aria-label="Step out of the room">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ivx-chips" id="ivx-chips"></div>' +
+      '<div class="ivx-seats" id="ivx-seats"></div>' +
+      '<div class="ivx-talk" id="ivx-talk"></div>' +
+      '<form class="ivx-saybar" id="ivx-saybar" autocomplete="off">' +
+        '<input id="ivx-say-in" maxlength="200" placeholder="Say something kind…" aria-label="Say something in the room">' +
+        '<button type="submit" aria-label="Send">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h13M11 5.6L17.6 12 11 18.4"/></svg>' +
+        '</button>' +
+      '</form>' +
+      '<div class="ivx-dock" id="ivx-dock"></div>' +
+      '<div class="ivx-bye" id="ivx-bye"><div class="ivx-bye-card">' +
+        '<div class="face">' + FACE + '</div>' +
+        '<h2 id="ivx-bye-h">The session has ended.</h2>' +
+        '<p id="ivx-bye-p">Make sure you don\u2019t miss my next Live.</p>' +
+        '<div class="thread"><i></i></div>' +
+      '</div></div>';
+  }
+
+  /* her, winking — the app draws this by hand rather than using a photo */
+  var FACE = '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+      '<defs><linearGradient id="ivxFaceG" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFEEC4"/><stop offset=".55" stop-color="#E7B662"/><stop offset="1" stop-color="#A0722A"/>' +
+      '</linearGradient></defs>' +
+      '<circle cx="32" cy="32" r="31" fill="url(#ivxFaceG)"/>' +
+      '<circle cx="32" cy="32" r="30" fill="none" stroke="#3A0410" stroke-opacity=".28"/>' +
+      '<ellipse cx="32" cy="33" rx="23" ry="27.5" fill="#65162F"/>' +
+      '<ellipse cx="32" cy="33" rx="17" ry="21" fill="#FFC49C"/>' +
+      '<path d="M13 25c-1-15 9-18 19-17 13-1 20 9 17 20-6-7-12-9-19-8-7 0-11 3-16 11z" fill="#65162F"/>' +
+      '<ellipse cx="22" cy="36" rx="4" ry="2" fill="#E58B82" opacity=".85"/>' +
+      '<ellipse cx="42" cy="36" rx="4" ry="2" fill="#E58B82" opacity=".85"/>' +
+      '<ellipse cx="24" cy="28" rx="2.1" ry="2.9" fill="#3A0410"/>' +
+      '<path class="ivx-eye" d="M37 29.6q4 3 8-1" fill="none" stroke="#3A0410" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M25 39q7 7 15 0" fill="none" stroke="#3A0410" stroke-width="2.1" stroke-linecap="round"/>' +
+      '<circle cx="47" cy="14" r="2.1" fill="#F6D99B"/>' +
+      '<style>.ivx-eye{transform-origin:41px 29px;animation:ivxWink 5.4s ease-in-out infinite}' +
+      '@keyframes ivxWink{0%,86%,100%{transform:scaleY(1)}91%{transform:scaleY(.1)}}</style>' +
+    '</svg>';
+
+  function mount() {
+    var root = $('iv-cast');
+    if (!root) {
+      root = document.createElement('section');
+      root.id = 'iv-cast'; root.setAttribute('aria-label', 'The broadcast');
+      document.body.insertBefore(root, document.querySelector('nav.nav') || null);
+    }
+    if (root.dataset.built === '1') return;
+    root.innerHTML = markup();
+    root.dataset.built = '1';
+    S.mounted = true;
+
+    /* gilt motes — a handful, each on its own slow clock */
+    var box = $('ivx-motes');
+    if (box) {
+      for (var i = 0; i < 16; i++) {
+        var m = document.createElement('i');
+        m.style.left = (4 + Math.random() * 92).toFixed(2) + '%';
+        m.style.animationDuration = (15 + Math.random() * 16).toFixed(1) + 's';
+        m.style.animationDelay = (-Math.random() * 26).toFixed(1) + 's';
+        m.style.setProperty('--dx', ((Math.random() * 60) - 30).toFixed(0) + 'px');
+        m.style.opacity = (0.35 + Math.random() * 0.5).toFixed(2);
+        var sz = (2 + Math.random() * 2).toFixed(1);
+        m.style.width = sz + 'px'; m.style.height = sz + 'px';
+        box.appendChild(m);
+      }
+    }
+  }
+
+  /* ─────────────────────────────── opening the room ─────────────────────────────── */
+  function open(opts) {
+    opts = opts || {};
+    mount();
+    var root = $('iv-cast');
+    S.id = opts.id != null ? opts.id : S.id;
+    S.title = opts.title || 'The room';
+    S.role = opts.role === 'host' ? 'host' : (opts.role === 'seat' ? 'seat' : 'watch');
+    S.price = Number(opts.price || 0);
+    S.seatPrice = Number(opts.seatPrice || 0);
+    S.allowed = Array.isArray(opts.allowed) ? opts.allowed : [];
+    S.minTier = Number(opts.minTier || 1);
+    S.tierName = opts.tierName || '';
+    S.hostVideo = opts.hostVideo !== false;
+    S.over = false; S.closing = false; S.realCount = 0; S.seen = {};
+    S.camOn = true; S.micOn = true; S.guestRequestId = opts.requestId || null;
+    S.from = opts.startedAt ? new Date(opts.startedAt) : new Date();
+
+    root.classList.add('on');
+    root.classList.remove('cam-off');
+    document.body.classList.add('on-live');
+    /* a broadcast takes the upper lane: the ribbons cross her picture, quietly */
+    if (window.ivRibbonLane) window.ivRibbonLane('top');
+    $('ivx-d-title').textContent = S.title;
+    $('ivx-bye').classList.remove('on');
+    paintChips();
+    paintDock();
+    paintSeats([]);
+    $('ivx-talk').innerHTML = '';
+    odo(0, true);
+
+    /* THE PLATE BEFORE ANY PICTURE ARRIVES.
+       The app never leaves an empty rectangle: it says who is expected and
+       what to do. These are its own words for each side of the room. */
+    root.classList.add('cam-off');
+    offPlate(S.role === 'host'
+      ? ['Your picture is opening', 'The room is already live. Your camera appears here the moment it wakes.']
+      : ['Ivory is not on camera yet', 'You are in. The moment she appears she will be here on this screen.']);
+
+    var bar = $('ivx-saybar');
+    if (bar && !bar.dataset.wired) {
+      bar.dataset.wired = '1';
+      bar.addEventListener('submit', function (e) { e.preventDefault(); say(); });
+    }
+
+    joinRoom();
+    S.clock = setInterval(tick, 1000); tick();
+    S.poll = setInterval(pollRoom, 5000); pollRoom();
+    S.talk = setInterval(loadTalk, 3500); loadTalk();
+    S.beat = setInterval(presence, 7000); presence();
+  }
+
+  /* one plate, three truths — headline and sentence always agree */
+  function offPlate(headline, line) {
+    if (headline && headline.length === 2 && typeof headline !== 'string') { line = headline[1]; headline = headline[0]; }
+    var b = $('ivx-off-b'), s = $('ivx-off-s');
+    if (b && headline) b.textContent = headline;
+    if (s && line) s.textContent = line;
+  }
+
+  function tick() {
+    if (!S.from) return;
+    var mins = Math.max(0, (Date.now() - S.from.getTime()) / 60000);
+    if (S.role !== 'host') {
+      var n = audienceCount(S.id, S.from, S.realCount);
+      if (n !== S.count) odo(n);
+    }
+    /* the disc keeps its own quiet clock so the room never looks frozen */
+    var el = $('ivx-disc');
+    if (el && mins > 0) el.style.setProperty('--mins', mins.toFixed(1));
+  }
+
+  /* the odometer: each digit rolls on its own, like a counter in a jeweller's
+     window. The number of wheels follows the number — a room of nine shows
+     one wheel, a room of four hundred shows three. */
+  function odo(n, instant) {
+    S.count = n;
+    var box = $('ivx-odo'); if (!box) return;
+    var str = String(Math.max(0, Math.round(n)));
+    box.setAttribute('aria-label', Math.round(n) + ' watching');
+    var cols = box.querySelectorAll('.ivx-odo-d');
+    if (cols.length !== str.length) {
+      var h = '';
+      for (var i = 0; i < str.length; i++) h += '<span class="ivx-odo-d"><b><span>0</span><span>0</span></b></span>';
+      box.innerHTML = h + '<em>watching</em>';
+      S.digits = []; for (var k = 0; k < str.length; k++) S.digits.push(0);
+      cols = box.querySelectorAll('.ivx-odo-d');
+      instant = true;
+    }
+    for (var i2 = 0; i2 < str.length; i2++) {
+      var want = Number(str.charAt(i2));
+      if (want === S.digits[i2]) continue;
+      var b = cols[i2].querySelector('b');
+      var spans = b.querySelectorAll('span');
+      spans[0].textContent = String(S.digits[i2]);
+      spans[1].textContent = String(want);
+      if (instant || reduce()) {
+        spans[0].textContent = String(want); spans[1].textContent = String(want);
+        b.style.transition = 'none'; b.style.transform = 'none';
+        S.digits[i2] = want;
+        continue;
+      }
+      b.style.transition = 'none'; b.style.transform = 'translateY(0)';
+      void b.offsetHeight;
+      b.style.transition = '';
+      b.style.transform = 'translateY(-1.06em)';
+      S.digits[i2] = want;
+      (function (bb, v) {
+        setTimeout(function () {
+          var sp = bb.querySelectorAll('span');
+          sp[0].textContent = String(v); sp[1].textContent = String(v);
+          bb.style.transition = 'none'; bb.style.transform = 'none';
+          void bb.offsetHeight; bb.style.transition = '';
+        }, 660);
+      })(b, want);
+    }
+  }
+
+  /* who may walk in, and what a seat costs — the app's own two lines */
+  function paintChips() {
+    var box = $('ivx-chips'); if (!box) return;
+    var out = '';
+    if (S.role === 'host') {
+      out += '<span class="ivx-chip">Only you see the true audience</span>';
+    }
+    if (S.allowed && S.allowed.length) {
+      var names = window.IVCAST_TIERS || {};
+      var label = S.allowed.length >= 4 ? 'Open to every member on a plan'
+        : S.allowed.map(function (lv) { return names[lv] || ('level ' + lv); }).join(' · ');
+      out += '<span class="ivx-chip">' + esc(label) + '</span>';
+    } else if (S.tierName) {
+      out += '<span class="ivx-chip">' + esc(S.tierName) + ' and above</span>';
+    }
+    if (S.price > 0) out += '<span class="ivx-chip paid">' + money(S.price) + ' to walk in</span>';
+    if (S.seatPrice > 0) out += '<span class="ivx-chip seat">A seat beside her · ' + money(S.seatPrice) + '</span>';
+    box.innerHTML = out;
+  }
+
+  /* ─────────────────────────────── the dock ─────────────────────────────── */
+  var ICO = {
+    mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8.8" y="2.8" width="6.4" height="10.4" rx="3.2"/><path d="M5.8 11.2a6.2 6.2 0 0012.4 0M12 17.4V21"/></svg>',
+    micOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l16 16"/><rect x="8.8" y="2.8" width="6.4" height="10.4" rx="3.2"/><path d="M5.8 11.2a6.2 6.2 0 009.6 5.2M12 17.4V21"/></svg>',
+    cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>',
+    camOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l16 16"/><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>',
+    seat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.4l2.4 5 5.4.7-4 3.7 1 5.4L12 15.6l-4.8 2.6 1-5.4-4-3.7 5.4-.7z"/></svg>',
+    leave: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.6 14.6c4.4-3.4 10.4-3.4 14.8 0"/><path d="M7.4 17.2l-1.8-2.8M16.6 17.2l1.8-2.8"/></svg>',
+    end: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="6" y="6" width="12" height="12" rx="2.4"/></svg>',
+    guests: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8.4" r="3.2"/><path d="M3.4 18.6c1-2.9 3-4.2 5.6-4.2s4.6 1.3 5.6 4.2"/><path d="M16 6.2a3 3 0 010 5.4M17.6 14.8c1.7.5 2.9 1.7 3.5 3.6"/></svg>'
+  };
+
+  function paintDock() {
+    var box = $('ivx-dock'); if (!box) return;
+    var h = '';
+    var canTalk = S.role === 'host' || S.role === 'seat';
+    if (canTalk) {
+      h += '<button class="ivx-key' + (S.micOn ? '' : ' off') + '" id="ivx-mic" aria-label="Microphone">' +
+             (S.micOn ? ICO.mic : ICO.micOff) + '<span class="lbl">Voice</span></button>';
+      h += '<button class="ivx-key' + (S.camOn ? '' : ' off') + '" id="ivx-cam" aria-label="Camera">' +
+             (S.camOn ? ICO.cam : ICO.camOff) + '<span class="lbl">Picture</span></button>';
+    }
+    if (S.role === 'host') {
+      h += '<button class="ivx-key gold" id="ivx-guests" aria-label="The seats beside you">' + ICO.guests +
+             '<span class="lbl">Seats</span></button>';
+      h += '<button class="ivx-key end" id="ivx-end" aria-label="End the broadcast">' + ICO.end +
+             '<span class="lbl">End</span></button>';
+    } else if (S.role === 'seat') {
+      h += '<button class="ivx-key" id="ivx-step" aria-label="Step down to the audience">' +
+             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
+             '<span class="lbl">Step down</span></button>';
+    } else {
+      if (S.seatPrice > 0) h += '<button class="ivx-key gold" id="ivx-seat" aria-label="Ask for a seat">' + ICO.seat +
+             '<span class="lbl">A seat</span></button>';
+    }
+    h += '<button class="ivx-key" id="ivx-leave" aria-label="Leave quietly">' + ICO.leave +
+           '<span class="lbl">Leave</span></button>';
+    box.innerHTML = h;
+
+    var mic = $('ivx-mic'), cam = $('ivx-cam');
+    if (mic) mic.addEventListener('click', function () {
+      if (!S.mic) return;
+      S.micOn = !S.micOn;
+      S.mic.setEnabled(S.micOn);
+      mic.classList.toggle('off', !S.micOn);
+      mic.innerHTML = (S.micOn ? ICO.mic : ICO.micOff) + '<span class="lbl">Voice</span>';
+    });
+    if (cam) cam.addEventListener('click', function () {
+      if (!S.cam) return;
+      S.camOn = !S.camOn;
+      S.cam.setEnabled(S.camOn);
+      cam.classList.toggle('off', !S.camOn);
+      cam.innerHTML = (S.camOn ? ICO.cam : ICO.camOff) + '<span class="lbl">Picture</span>';
+      $('iv-cast').classList.toggle('cam-off', !S.camOn);
+      if (!S.camOn) offPlate('Your camera is off', 'They can still hear you. The room stays open until you end it.');
+      if (S.role === 'host') IV.call('/rest/v1/rpc/set_live_host_video', { session_id_in: S.id, enabled_in: S.camOn }).catch(function () {});
+      if (S.guestRequestId) IV.call('/rest/v1/rpc/set_live_guest_video', { request_id_in: S.guestRequestId, enabled_in: S.camOn }).catch(function () {});
+    });
+    var g = $('ivx-guests'); if (g) g.addEventListener('click', function () { seatSheet('host'); });
+    var seat = $('ivx-seat'); if (seat) seat.addEventListener('click', function () { seatSheet('member'); });
+    var step = $('ivx-step'); if (step) step.addEventListener('click', function () { stepDown(); });
+    var end = $('ivx-end');
+    if (end) end.addEventListener('click', function () {
+      /* never a browser dialog: the first tap arms it, the second closes the room */
+      if (end.dataset.armed === '1') { endShow(); return; }
+      end.dataset.armed = '1';
+      end.classList.add('end');
+      end.innerHTML = ICO.end + '<span class="lbl">TAP AGAIN</span>';
+      toast('Tap End once more to close the room for everyone.');
+      setTimeout(function () {
+        if (!end || !end.dataset.armed) return;
+        delete end.dataset.armed;
+        end.innerHTML = ICO.end + '<span class="lbl">End</span>';
+      }, 4200);
+    });
+    var leave = $('ivx-leave'); if (leave) leave.addEventListener('click', function () { close(true); });
+    var x = $('ivx-x'); if (x) x.addEventListener('click', function () { close(true); });
+  }
+
+  /* ─────────────────────────────── Agora: one channel, two roles ─────────────────────────────── */
+  function joinRoom() {
+    if (!window.AgoraRTC) { toast('The room engine did not load on this page. Check your signal and step back in.', true); return; }
+    IV.call('/functions/v1/agora-token', S.guestRequestId
+        ? { mode: 'guest', id: S.id, requestId: S.guestRequestId }
+        : { mode: 'live', id: S.id })
+      .then(function (tk) {
+        if (!tk || !tk.token) throw new Error((tk && tk.error) || 'The room did not open.');
+        var c = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
+        S.client = c; S.uid = Number(tk.uid) || 0;
+        if (S.role !== 'host' && Number(tk.hostUid || tk.host_uid || 0)) S.hostUid = Number(tk.hostUid || tk.host_uid);
+        c.on('user-published', function (user, mediaType) {
+          c.subscribe(user, mediaType).then(function () {
+            if (mediaType === 'video') {
+              /* THE STAGE BELONGS TO HER; THE SEATS BELONG TO THE CO-HOSTS.
+                 Whoever published first is on the stage — that is Ivory, or the
+                 guest whose place this is. Every other picture takes a seat,
+                 and an audience sees exactly what she sees. */
+              if (S.role === 'host') placeGuestVideo(user);
+              else if (!S.hostUid) {
+                S.hostUid = user.uid;
+                if (user.videoTrack) user.videoTrack.play('ivx-video');
+                $('iv-cast').classList.remove('cam-off');
+              } else if (String(user.uid) === String(S.hostUid)) {
+                if (user.videoTrack) user.videoTrack.play('ivx-video');
+                $('iv-cast').classList.remove('cam-off');
+              } else placeGuestVideo(user);
+            } else if (mediaType === 'audio' && user.audioTrack) user.audioTrack.play();
+          }).catch(function () {});
+        });
+        c.on('user-unpublished', function (user, mediaType) {
+          if (mediaType === 'video') {
+            if (S.role === 'host') clearGuestVideo(user.uid);
+            else $('iv-cast').classList.add('cam-off');
+          }
+        });
+        c.on('user-left', function (user) {
+          clearGuestVideo(user.uid);
+          if (S.role !== 'host' && S.role !== 'seat') {
+            $('iv-cast').classList.add('cam-off');
+            offPlate('She has stepped away', 'The broadcast is still open. Stay here — she can come back at any moment.');
+            note('Ivory has stepped away. The room is still open.');
+          }
+        });
+        return c.setClientRole(S.role === 'watch' ? 'audience' : 'host')
+          .then(function () { return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null); })
+          .then(function () {
+            if (S.role === 'watch') return null;
+            return Promise.all([AgoraRTC.createMicrophoneAudioTrack(),
+                                AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' })]).then(function (tr) {
+              S.mic = tr[0]; S.cam = tr[1];
+              if (S.cam) {
+                S.cam.play('ivx-video');
+                $('iv-cast').classList.remove('cam-off');
+              }
+              return c.publish([S.mic, S.cam]);
+            });
+          });
+      })
+      .catch(function (x) {
+        note((x && x.message) || 'The room did not open. Check your signal and step back in.');
+      });
+  }
+
+  /* her five seats, filled as the co-hosts publish */
+  function placeGuestVideo(user) {
+    var box = $('ivx-seats'); if (!box) return;
+    var seats = box.querySelectorAll('.ivx-seat');
+    var slot = null;
+    for (var i = 0; i < seats.length; i++) {
+      var vid = seats[i].querySelector('video');
+      if (vid && seats[i].dataset.uid === String(user.uid)) { slot = vid; break; }
+    }
+    if (!slot) {
+      for (var j = 0; j < seats.length; j++) {
+        if (seats[j].dataset.uid === String(user.uid)) { slot = seats[j]; break; }
+        if (!seats[j].dataset.uid && seats[j].classList.contains('empty')) { slot = seats[j]; break; }
+      }
+    }
+    if (!slot) return;
+    slot.dataset.uid = String(user.uid);
+    slot.classList.remove('empty');
+    slot.classList.add('filled');
+    if (!slot.querySelector('video')) {
+      var v = document.createElement('video');
+      v.setAttribute('playsinline', ''); v.autoplay = true; v.muted = true;
+      v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block';
+      slot.insertBefore(v, slot.firstChild);
+    }
+    if (user.videoTrack) user.videoTrack.play(slot.querySelector('video'));
+    repaintSeatFaces();
+  }
+  function clearGuestVideo(uid) {
+    var box = $('ivx-seats'); if (!box) return;
+    Array.prototype.forEach.call(box.querySelectorAll('.ivx-seat'), function (s) {
+      if (s.dataset.uid === String(uid)) {
+        var v = s.querySelector('video'); if (v) v.remove();
+        delete s.dataset.uid;
+        s.classList.remove('filled'); s.classList.add('empty');
+      }
+    });
+    repaintSeatFaces();
+  }
+
+  /* the five wells: filled by the house's own participant list, never guessed */
+  function paintSeats(list) {
+    var box = $('ivx-seats'); if (!box) return;
+    S.seats = list || [];
+    var h = '';
+    for (var i = 0; i < 5; i++) {
+      var g = S.seats[i];
+      if (g) {
+        var lvl = Number(g.tier_level || g.tierLevel || 0);
+        h += '<div class="ivx-seat filled" data-uid="' + esc(g.agora_uid || '') + '">' +
+               '<span class="num">' + (i + 1) + '</span>' +
+               '<span class="nm">' + esc(g.display_name || 'A guest') + '</span>' +
+               (lvl > 0 ? '<span class="emb">' + lvl + '</span>' : '') +
+             '</div>';
+      } else {
+        h += '<div class="ivx-seat empty">' +
+               '<span class="well">' + (S.seatPrice > 0 ? ICO.seat : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V8a5 5 0 0110 0v3"/><rect x="5" y="11" width="14" height="9" rx="2.2"/></svg>') + '</span>' +
+               '<span class="num">' + (i + 1) + '</span>' +
+               '<span class="' + (S.seatPrice > 0 ? 'price' : 'lock') + '">' +
+                 (S.seatPrice > 0 ? money(S.seatPrice) : 'CLOSED') + '</span>' +
+             '</div>';
+      }
+    }
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll('.ivx-seat'), function (s, i) {
+      s.style.animationDelay = (0.05 * i).toFixed(2) + 's';
+      s.addEventListener('click', function () {
+        if (S.role === 'host') seatSheet('host');
+        else if (S.seatPrice > 0) seatSheet('member');
+      });
+    });
+  }
+  function repaintSeatFaces() {
+    /* the roster repaints the wells; the pictures already in them stay put */
+    var box = $('ivx-seats'); if (!box) return;
+    S.seats.forEach(function (g, i) {
+      var s = box.children[i]; if (!s) return;
+      if (g && g.agora_uid != null) s.dataset.uid = String(g.agora_uid);
+      if (!g) return;
+      s.classList.remove('empty'); s.classList.add('filled');
+      if (!s.querySelector('.nm')) {
+        var nm = document.createElement('span'); nm.className = 'nm';
+        nm.textContent = g.display_name || 'A guest'; s.appendChild(nm);
+      }
+      var lvl = Number(g.tier_level || 0);
+      if (lvl > 0 && !s.querySelector('.emb')) {
+        var e = document.createElement('span'); e.className = 'emb';
+        e.textContent = String(lvl); s.appendChild(e);
+      }
+    });
+  }
+
+  /* ─────────────────────────────── the room's slow pulse ─────────────────────────────── */
+  function pollRoom() {
+    if (!S.id) return;
+    IV.get('/rest/v1/live_public?select=id,title,status,viewer_count,allowed_tiers,min_tier,price_inr,guest_price_inr,tier_name,host_video_enabled,started_at&id=eq.' + S.id)
+      .then(function (rows) {
+        var r = rows && rows[0]; if (!r) return;
+        S.realCount = Number(r.viewer_count || 0);
+        S.seatPrice = Number(r.guest_price_inr || 0);
+        S.hostVideo = r.host_video_enabled !== false;
+        if (r.title && r.title !== S.title) { S.title = r.title; $('ivx-d-title').textContent = r.title; }
+        if (S.role === 'host') { odo(Math.max(1, S.realCount)); }
+        if (r.status && r.status !== 'live') farewell(r.status);
+        if (S.role === 'host') { paintChips(); loadSeats(); loadQueue(); }
+        else loadSeats();
+      }).catch(function () {});
+  }
+
+  function presence() {
+    if (!S.id || S.role === 'host' && false) return;
+    if (S.role === 'watch') IV.call('/rest/v1/rpc/live_enter', { session_id_in: S.id }).catch(function () {});
+  }
+
+  function loadSeats() {
+    IV.call('/rest/v1/rpc/live_guest_participants', { session_id_in: S.id })
+      .then(function (rows) {
+        rows = (rows || []).slice(0, 5);
+        var nowIds = rows.map(function (r) { return String(r.agora_uid || ''); }).join(',');
+        var oldIds = S.seats.map(function (r) { return String(r.agora_uid || ''); }).join(',');
+        if (nowIds !== oldIds) paintSeats(rows);
+        else {
+          /* names can change without the roster changing */
+          S.seats = rows;
+          var seats = $('ivx-seats').querySelectorAll('.ivx-seat');
+          rows.forEach(function (g, i) {
+            var nm = seats[i] && seats[i].querySelector('.nm');
+            if (nm) nm.textContent = g.display_name || 'A guest';
+          });
+        }
+      }).catch(function () {});
+  }
+
+  /* the queue of members waiting for a seat — the host's own count */
+  function loadQueue() {
+    if (S.role !== 'host') return;
+    IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: S.id })
+      .then(function (rows) {
+        rows = rows || [];
+        S.pending = rows.filter(function (r) { return r.status === 'waiting_host'; }).length;
+        S.requestsOpen = rows.length ? !!rows.filter(function (r) { return r.status === 'approved' || r.status === 'active' || r.status === 'joining'; }).length || S.seatPrice > 0 : S.seatPrice > 0;
+        var g = $('ivx-guests');
+        if (g) g.classList.toggle('gold', S.pending > 0);
+      }).catch(function () {});
+  }
+
+  /* ─────────────────────────────── the words in the room ─────────────────────────────── */
+  function loadTalk() {
+    if (!S.id) return;
+    IV.get('/rest/v1/live_messages?select=id,member_id,body,is_host,sender_name,created_at&session_id=eq.' + S.id + '&order=created_at.desc&limit=3')
+      .then(function (rows) {
+        rows = (rows || []).reverse();
+        var box = $('ivx-talk'); if (!box) return;
+        var me = (IV.ident() || {}).id || '';
+        var h = '';
+        rows.forEach(function (m) {
+          var mine = m.member_id && me && String(m.member_id).toLowerCase() === String(me).toLowerCase();
+          h += '<div class="ivx-say' + (mine ? ' mine' : '') + '"><b>' + esc(m.is_host ? 'Ivory' : (m.sender_name || 'a member')) +
+               (mine ? ' · you' : '') + '</b>' + esc(m.body || '') + '</div>';
+        });
+        if (box.dataset.sig !== h) {
+          box.innerHTML = h;
+          box.dataset.sig = h;
+        }
+      }).catch(function () {});
+  }
+
+  function note(text, quiet) {
+    var box = $('ivx-talk'); if (!box) return;
+    if (!text) { if (quiet) { var old = box.querySelector('.ivx-say.house'); if (old) old.remove(); } return; }
+    var d = document.createElement('div');
+    d.className = 'ivx-say';
+    d.innerHTML = '<b>The house</b>' + esc(text);
+    box.appendChild(d);
+    while (box.children.length > 3) box.removeChild(box.firstChild);
+  }
+
+  function say() {
+    var input = $('ivx-say-in');
+    if (!input || !S.id) return;
+    var body = (input.value || '').trim();
+    if (!body) return;
+    input.value = '';
+    IV.call('/rest/v1/rpc/send_live_message', { session_id_in: S.id, body_in: body })
+      .then(function () { loadTalk(); })
+      .catch(function (x) { toast((x && x.message) || 'That did not reach the room.', true); });
+  }
+
+  /* ─────────────────────────────── the seats: asking, letting in, taking away ─────────────────────────────── */
+  function sheetOpen() {
+    var v = $('ivx-veil'), sh = $('ivx-sheet');
+    if (!v || !sh) return;
+    v.classList.add('on'); sh.classList.add('on');
+    document.body.classList.add('sheet-open');
+  }
+  function sheetClose() {
+    var v = $('ivx-veil'), sh = $('ivx-sheet');
+    if (v) v.classList.remove('on');
+    if (sh) sh.classList.remove('on');
+    document.body.classList.remove('sheet-open');
+  }
+
+  function seatSheet(which) {
+    var body = $('ivx-body'); if (!body) return;
+    sheetOpen();
+    body.innerHTML = '<p class="ivs-kick">A seat beside her</p><p class="ivs-lede">A moment.</p>';
+    if (which === 'host') return hostSeatPane(body);
+    return memberSeatPane(body);
+  }
+
+  /* Ivory's own side: the queue, five places, the switch */
+  function hostSeatPane(body) {
+    Promise.all([
+      IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: S.id }).catch(function () { return []; }),
+      IV.call('/rest/v1/rpc/live_guest_participants', { session_id_in: S.id }).catch(function () { return []; })
+    ]).then(function (r) {
+      var rows = r[0] || [], filled = (r[1] || []).length;
+      var open = S.seatPrice > 0;
+      var h = '<p class="ivs-kick">Guest speakers · ' + filled + '/5 places</p>' +
+        '<h1 class="ivs-h1">The seats <em>beside you.</em></h1>' +
+        '<p class="ivs-lede">One price for every seat, set in the studio before you went live. Five at most — the room never becomes a crowd.</p>' +
+        '<div class="ivs-card">' +
+          '<div class="ivs-price"><b>' + (S.seatPrice > 0 ? money(S.seatPrice) : '—') + '</b><s>' +
+            (S.seatPrice > 0 ? 'one seat · one night' : 'no seat is for sale tonight') + '</s></div>' +
+          '<p class="ivs-note">' + (open
+            ? 'Requests are open. A member pays first; the request waits here until you let them in.'
+            : 'A seat price of zero means no one can ask. Set it in the studio to open the seats.') + '</p>' +
+        '</div>';
+      if (!rows.length) {
+        h += '<div class="ivs-card"><p class="ivs-note" style="margin:0">' +
+             (open ? 'No one has asked for a seat yet.' : 'No paid seat requests, because no seat is priced.') + '</p></div>';
+      } else {
+        rows.forEach(function (g) {
+          var st = String(g.status || '');
+          var canLet = st === 'waiting_host' || st === 'approved' || st === 'paid';
+          h += '<div class="ivs-card ivs-guest">' +
+                 '<div class="ivs-guest-txt">' +
+                   '<b>' + esc(g.display_name || 'A member') + '</b>' +
+                   '<s>' + esc((g.media_kind || 'video')) + ' seat · ' + esc(st.replace(/_/g, ' ')) +
+                     (g.amount_due_inr ? ' · ' + money(g.amount_due_inr) : '') + '</s>' +
+                 '</div>' +
+                 '<div class="ivs-guest-btns">' +
+                   (canLet ? '<button class="ivs-btn ivs-let" data-let="' + g.id + '">LET IN</button>' : '') +
+                   '<button class="ivs-btn quiet ivs-off" data-off="' + g.id + '">OFF</button>' +
+                 '</div>' +
+               '</div>';
+        });
+      }
+      h += '<button class="ivs-btn quiet" id="ivs-shut" style="margin-top:6px">CLOSE</button>';
+      body.innerHTML = h;
+      Array.prototype.forEach.call(body.querySelectorAll('[data-let]'), function (b) {
+        b.addEventListener('click', function () {
+          b.disabled = true;
+          IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.let), approve_in: true })
+            .then(function () { toast('Let in. The seat is theirs.'); loadSeats(); hostSeatPane(body); })
+            .catch(function (x) { b.disabled = false; toast((x && x.message) || 'That did not go through.', true); });
+        });
+      });
+      Array.prototype.forEach.call(body.querySelectorAll('[data-off]'), function (b) {
+        b.addEventListener('click', function () {
+          b.disabled = true;
+          IV.call('/rest/v1/rpc/remove_live_guest', { request_id_in: Number(b.dataset.off) })
+            .then(function () { toast('The seat is free again.'); loadSeats(); hostSeatPane(body); })
+            .catch(function () { b.disabled = false; });
+        });
+      });
+      var shut = body.querySelector('#ivs-shut');
+      if (shut) shut.addEventListener('click', sheetClose);
+    }).catch(function (x) {
+      body.innerHTML = '<p class="ivs-kick">A seat beside her</p><p class="ivs-lede">The seat list did not answer — ' + esc(x.message) + '</p>' +
+        '<button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
+      var s = body.querySelector('#ivs-shut'); if (s) s.addEventListener('click', sheetClose);
+    });
+  }
+
+  /* A member's side — the app's own sheet: what it is, what it costs, what happens next */
+  function memberSeatPane(body) {
+    var fee = S.seatPrice;
+    Promise.all([
+      IV.get('/rest/v1/payment_settings?select=upi_id,payee_name,instructions,mode,razorpay_key_id,is_active&id=eq.1').catch(function () { return []; }),
+      IV.get('/rest/v1/live_guest_requests?select=id,session_id,status,media_kind,fee_inr,amount_due_inr,created_at&session_id=eq.' + S.id + '&order=created_at.desc&limit=1').catch(function () { return []; })
+    ]).then(function (r) {
+      var pay = (r[0] && r[0][0]) || {};
+      var mine = (r[1] && r[1][0]) || null;
+      var upiReady = String(pay.upi_id || '').indexOf('@') > 0 && String(pay.upi_id || '').indexOf('yourname@') !== 0;
+      var mode = String(pay.mode || 'upi');
+
+      var h = '<p class="ivs-kick">A seat beside her</p>' +
+        '<h1 class="ivs-h1">On the stage, <em>with her.</em></h1>' +
+        '<p class="ivs-lede">Five seats, no more. Each one is bought once, for the night it is used, and the house keeps the list.</p>' +
+        '<div class="ivs-card velvet">' +
+          '<div class="ivs-price"><b>' + money(fee) + '</b><s>one seat · tonight</s></div>' +
+          '<p class="ivs-note">This one-time fee is separate from your viewing access, and covers nothing else.</p>' +
+        '</div>';
+
+      if (mine && mine.status && mine.status !== 'cancelled') {
+        var label = {
+          awaiting_payment: 'CONTINUE PAYMENT · ' + money(mine.amount_due_inr || fee),
+          payment_review: 'UPI PAYMENT IN REVIEW',
+          waiting_host: 'PAID · WAITING FOR IVORY',
+          approved: 'JOIN AS GUEST',
+          joining: 'JOIN AS GUEST',
+          active: 'YOU ARE LIVE',
+          declined: 'CREDIT SAVED FOR A FUTURE LIVE',
+          removed: 'GUEST PLACE ENDED',
+          expired: 'GUEST REQUEST CLOSED'
+        }[mine.status] || String(mine.status).replace(/_/g, ' ').toUpperCase();
+        h += '<div class="ivs-card"><p class="ivs-note" style="margin:0 0 10px">' + esc(label) + '</p>' +
+          ((mine.status === 'approved') ? '<button class="ivs-btn" id="ivs-joinseat">JOIN THE STAGE</button>'
+            : '<p class="ivs-note" style="margin:0">' + (mine.status === 'waiting_host'
+              ? 'Your request is with Ivory. Nothing more is needed from you.'
+              : 'The seat list is read live from the house. Nothing here is guessed.') + '</p>') +
+          '</div><button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
+        body.innerHTML = h;
+        var js = body.querySelector('#ivs-joinseat');
+        if (js) js.addEventListener('click', function () { joinAsSeat(mine); });
+        var s1 = body.querySelector('#ivs-shut'); if (s1) s1.addEventListener('click', sheetClose);
+        return;
+      }
+
+      if (fee <= 0) {
+        h += '<div class="ivs-card"><p class="ivs-note" style="margin:0">No seat is for sale in this room tonight. When Ivory prices one, it appears here.</p></div>' +
+          '<button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
+        body.innerHTML = h;
+        var s2 = body.querySelector('#ivs-shut'); if (s2) s2.addEventListener('click', sheetClose);
+        return;
+      }
+
+      if (!upiReady && mode !== 'razorpay') {
+        h += '<div class="ivs-card"><p class="ivs-note" style="margin:0"><b>The pay door is being fitted.</b><br>' +
+          'Guest places open for payment the day the house sets its UPI id. Until then no money moves and nothing is missing on your side.</p></div>' +
+          '<button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
+        body.innerHTML = h;
+        var s3 = body.querySelector('#ivs-shut'); if (s3) s3.addEventListener('click', sheetClose);
+        return;
+      }
+
+      h += '<div class="ivs-row" id="ivs-media">' +
+             '<button class="ivs-pick on" data-m="video"><b>On camera</b><s>They see you as well as hear you</s></button>' +
+             '<button class="ivs-pick" data-m="audio"><b>Voices only</b><s>Your camera stays off</s></button>' +
+           '</div>' +
+           '<p class="ivs-note" id="ivs-say">You will be shown live to members watching the broadcast. Your camera and microphone stay off until you tap Join.</p>' +
+           '<p class="ivs-err" id="ivs-err"></p>' +
+           '<button class="ivs-btn" id="ivs-ask" style="margin-top:13px">ASK FOR THE SEAT · ' + money(fee) + '</button>' +
+           '<button class="ivs-btn quiet" id="ivs-shut" style="margin-top:8px">NOT TONIGHT</button>';
+      body.innerHTML = h;
+
+      var media = 'video';
+      Array.prototype.forEach.call(body.querySelectorAll('.ivs-pick'), function (b) {
+        b.addEventListener('click', function () {
+          Array.prototype.forEach.call(body.querySelectorAll('.ivs-pick'), function (x) { x.classList.remove('on'); });
+          b.classList.add('on'); media = b.dataset.m;
+          body.querySelector('#ivs-say').textContent = media === 'video'
+            ? 'You will be shown live to members watching the broadcast. Your camera and microphone stay off until you tap Join.'
+            : 'You will join on audio only. Nothing of you is shown, and your camera stays off.';
+        });
+      });
+      var ask = body.querySelector('#ivs-ask');
+      ask.addEventListener('click', function () {
+        ask.disabled = true; ask.textContent = 'OPENING YOUR REQUEST…';
+        IV.call('/rest/v1/rpc/start_live_guest_request', { session_id_in: S.id, media_kind_in: media })
+          .then(function (res) {
+            var row = Array.isArray(res) ? res[0] : res;
+            var due = Number((row && (row.amount_due_inr || row.fee_inr)) || fee);
+            toast('Your request is with Ivory. ' + money(due) + ' is due when the pay door opens.');
+            memberSeatPane(body);
+          })
+          .catch(function (x) {
+            var err = body.querySelector('#ivs-err');
+            err.textContent = (x && x.message) || 'That did not go through.';
+            err.classList.add('on');
+            ask.disabled = false; ask.textContent = 'ASK FOR THE SEAT · ' + money(fee);
+          });
+      });
+      var shut2 = body.querySelector('#ivs-shut'); if (shut2) shut2.addEventListener('click', sheetClose);
+    }).catch(function (x) {
+      body.innerHTML = '<p class="ivs-kick">A seat beside her</p><p class="ivs-lede">The house did not answer — ' + esc(x.message) + '</p>' +
+        '<button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
+      var s = body.querySelector('#ivs-shut'); if (s) s.addEventListener('click', sheetClose);
+    });
+  }
+
+  function joinAsSeat(req) {
+    /* the app's own consent, in the app's own words — a sheet, never a browser dialog */
+    var body = $('ivx-body'); if (!body) return;
+    sheetOpen();
+    var video = (req.media_kind || 'video') !== 'audio';
+    body.innerHTML =
+      '<p class="ivs-kick">The stage</p>' +
+      '<h1 class="ivs-h1">' + (video ? 'Join on <em>video?</em>' : 'Join on <em>audio?</em>') + '</h1>' +
+      '<div class="ivs-card velvet"><p class="ivs-note" style="margin:0">You will join \u201C' + esc(S.title) +
+        '\u201D as a guest. Everyone watching this live broadcast can hear you' +
+        (video ? ' and see your video. You can turn your camera off and stay on audio.' : '. You will join on audio only.') +
+        ' Ready to join?</p></div>' +
+      '<button class="ivs-btn" id="ivs-gojoin">JOIN THE BROADCAST</button>' +
+      '<button class="ivs-btn quiet" id="ivs-notnow" style="margin-top:8px">NOT NOW</button>';
+    body.querySelector('#ivs-gojoin').addEventListener('click', function () {
+      sheetClose();
+      S.guestRequestId = req.id;
+      open({ id: S.id, title: S.title, role: 'seat', price: S.price, seatPrice: S.seatPrice,
+             allowed: S.allowed, minTier: S.minTier, tierName: S.tierName, requestId: req.id, startedAt: S.from });
+      IV.call('/rest/v1/rpc/mark_live_guest_joined', { request_id_in: req.id })
+        .then(function (r) { if (r === 'expired') toast('The broadcast ended before you connected.', true); })
+        .catch(function () {});
+    });
+    body.querySelector('#ivs-notnow').addEventListener('click', sheetClose);
+  }
+
+  function stepDown() {
+    if (S.guestRequestId) IV.call('/rest/v1/rpc/leave_live_guest', { request_id_in: S.guestRequestId }).catch(function () {});
+    S.guestRequestId = null;
+    S.role = 'watch';
+    paintDock();
+    toast('You stepped down. The seats are still there.');
+  }
+
+  /* ─────────────────────────────── the farewell, held ten seconds ─────────────────────────────── */
+  function endShow() {
+    IV.call('/rest/v1/rpc/end_live', { session_id_in: S.id }).catch(function () {});
+    farewell('ended');
+  }
+
+  function farewell(status) {
+    if (S.over) return;
+    S.over = true;
+    if (S.clock) { clearInterval(S.clock); S.clock = null; }
+    if (S.poll) { clearInterval(S.poll); S.poll = null; }
+    if (S.talk) { clearInterval(S.talk); S.talk = null; }
+    if (S.beat) { clearInterval(S.beat); S.beat = null; }
+    if (S.role !== 'host' && S.id) IV.call('/rest/v1/rpc/leave_live', { session_id_in: S.id }).catch(function () {});
+
+    var bye = $('ivx-bye');
+    var h = $('ivx-bye-h'), p = $('ivx-bye-p');
+    if (h) h.textContent = 'The broadcast has ended.';
+    if (p) p.textContent = 'Make sure you don\u2019t miss my next Live.';
+    if (bye) bye.classList.add('on');
+
+    if (S.client) {
+      try { S.cam && S.cam.close(); S.mic && S.mic.close(); } catch (e) {}
+      try { S.client.unpublish().catch(function () {}).then(function () { return S.client.leave(); }).catch(function () {}); } catch (e) {}
+      S.client = null;
+    }
+    S.cam = null; S.mic = null;
+    /* ten seconds, then the room lets go — the app's own hold */
+    setTimeout(function () { close(false); }, 10000);
+  }
+
+  function close(byHand) {
+    if (S.closing) return;
+    S.closing = true;
+    if (S.role === 'watch' && S.id) IV.call('/rest/v1/rpc/leave_live', { session_id_in: S.id }).catch(function () {});
+    ['clock', 'poll', 'talk', 'beat'].forEach(function (k) { if (S[k]) { clearInterval(S[k]); S[k] = null; } });
+    if (S.client) {
+      try { S.cam && S.cam.close(); S.mic && S.mic.close(); } catch (e) {}
+      try { S.client.unpublish().catch(function () {}).then(function () { return S.client.leave(); }).catch(function () {}); } catch (e) {}
+      S.client = null;
+    }
+    S.cam = null; S.mic = null;
+    sheetClose();
+    var byeBox = $('ivx-bye'); if (byeBox) byeBox.classList.remove('on');
+    var root = $('iv-cast');
+    if (root) root.classList.remove('on');
+    document.body.classList.remove('on-live');
+    var v = $('ivx-video'); if (v) { try { v.srcObject = null; } catch (e) {} }
+    S.over = false; S.closing = false; S.guestRequestId = null;
+    if (byHand && S.role === 'host' && window.ivoryToast) window.ivoryToast('You stepped out. The room is still on air.');
+    if (window.ivDesk && window.ivDesk.refresh) { try { window.ivDesk.refresh(); } catch (e) {} }
+  }
+
+  /* ─────────────────────────────── the door the desk uses ─────────────────────────────── */
+  function host(opts) {
+    open({ id: opts.id, title: opts.title, role: 'host', price: opts.price, seatPrice: opts.seatPrice,
+           allowed: opts.allowed, minTier: opts.minTier, tierName: opts.tierName,
+           hostVideo: true, startedAt: opts.startedAt });
+    S.from = opts.startedAt ? new Date(opts.startedAt) : new Date();
+  }
+  function watch(opts) {
+    open({ id: opts.id, title: opts.title, role: 'watch', price: opts.price, seatPrice: opts.seatPrice,
+           allowed: opts.allowed, minTier: opts.minTier, tierName: opts.tierName,
+           hostVideo: opts.hostVideo, startedAt: opts.startedAt });
+  }
+
+  return {
+    host: host, watch: watch, close: close, end: endShow,
+    count: audienceCount,
+    isOpen: function () { return !!(S.id && $('iv-cast') && $('iv-cast').classList.contains('on')); },
+    tierNames: function (map) { window.IVCAST_TIERS = map || {}; }
+  };
+})();
 </script>
 </body>
 </html>
