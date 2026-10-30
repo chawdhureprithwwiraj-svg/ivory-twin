@@ -223,17 +223,13 @@
     <label class="f"><span>what is it called</span><input type="text" id="title" maxlength="70" placeholder="A word after dark"></label>
     <label class="f"><span>who may walk in</span>
       <select id="who" style="width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);-webkit-appearance:none">
-        <option value="1" selected>Any member &mdash; Reader and above</option>
-        <option value="2">Ivory Listener and above</option>
-        <option value="3">Ivory Insider and above</option>
-        <option value="4">Ivory Circle only &mdash; a private run-through</option>
+        <option value="1">Any member</option>
       </select>
     </label>
     <button class="btn" id="golive">Step into the room</button>
-    <p class="note">The floor is enforced by the house&rsquo;s own table, not by this page: a member below it
-      is refused by the server, not by the browser. <i>Circle only</i> is the honest private run-through &mdash;
-      your test member is a Reader, so they will be kept out while you rehearse. The broadcast itself is real:
-      Agora, the same channel, the same token.</p>
+    <p class="note">The list comes from the house&rsquo;s own tier table, so add or rename a plan in the app and
+      this follows on the next visit. What is sent is what the app sends: the floor <i>and</i> the list of tiers
+      allowed in &mdash; the server reads the list, which is why a room sent with an empty list lets nobody in.</p>
     <p class="err hide" id="open-err"></p>
   </section>
 
@@ -467,6 +463,31 @@
   });
   $('stopcam').addEventListener('click',camDown);
 
+  /* ---------- the house's own tier table ---------- */
+  var TIERS=[];
+  function loadTiers(){
+    return call('/rest/v1/subscription_tiers?select=id,name,price_inr,level&is_active=eq.true&order=level.asc',null,{method:'GET'})
+      .then(function(rows){
+        TIERS=(rows||[]).filter(function(t){ return t&&t.level!=null; });
+        var sel=$('who'); if(!sel) return;
+        var keep=sel.value;
+        sel.innerHTML='';
+        var top=TIERS.length?Math.max.apply(null,TIERS.map(function(t){return Number(t.level);})):4;
+        TIERS.forEach(function(t){
+          var o=document.createElement('option');
+          o.value=String(t.level);
+          o.textContent=Number(t.level)>=top? (t.name+' only') : (t.name+' and above');
+          sel.appendChild(o);
+        });
+        var n=document.createElement('option');
+        n.value='none'; n.textContent='Nobody but the house — a private run-through';
+        sel.appendChild(n);
+        if(keep && sel.querySelector('option[value="'+keep+'"]')) sel.value=keep;
+        else sel.value = TIERS[0]?String(TIERS[0].level):'1';
+      })
+      .catch(function(){ /* the single fallback option still works */ });
+  }
+
   /* ---------- 3 · open the broadcast ---------- */
   $('golive').addEventListener('click',function(){
     var b=this; err('open-err');
@@ -479,26 +500,41 @@
       camUp().catch(function(x){ err('open-err','The camera did not open: '+(x.message||x)); });
     }
     var title=($('title').value||'').trim()||'A word after dark';
-    var floor=parseInt($('who').value,10)||1;      /* 1 Reader · 2 Listener · 3 Insider · 4 Circle */
+    var choice=$('who').value;
+    var noOne = choice==='none';
+    var floor = noOne ? 9 : (parseInt(choice,10)||1);
+    /* every tier at or above the floor, from the house's own table — the app
+       sends this same list, and the server reads the list, not just the floor */
+    function levelsFrom(f){
+      var lv=TIERS.map(function(t){return Number(t.level);}).filter(function(n){return n>=f;});
+      lv.sort(function(a,b){return a-b;});
+      return lv.length?lv:[f];
+    }
 
     /* The house's own table decides which shapes it will hold, and it has
        never told anyone what they are. So we ask it, politely, in the order
        that leaks the least: the top tier for a private run-through, the
        bottom tier for an open room. The first shape it accepts is remembered
        on this phone, so the second night is a single call. */
-    function body(access,minTier,price){
+    function body(access,minTier,price,allowed){
       return {title_in:title, subtitle_in:null, access_in:access, min_tier_in:minTier,
-              price_in:price||0, cover_in:null, allowed_tiers_in:[], guest_price_in:0};
+              price_in:price||0, cover_in:null, allowed_tiers_in:(allowed||[]), guest_price_in:0};
     }
     /* start at the floor she asked for, then try the neighbouring floors,
        and only in the last resort the price shape. The order never opens
        the room wider than she asked without saying so. */
-    var ladder=[body('tier',floor)];
-    [floor+1,floor-1,floor+2,floor-2,1,2,3,4].forEach(function(n){
-      if(n>=1&&n<=4&&!ladder.some(function(b){ return b.min_tier_in===n; })) ladder.push(body('tier',n));
-    });
-    ladder.push(body('price',0,Math.max(1,Number((S.tier&&S.tier.price_inr)||100))));
-    ladder.push(body('public',0));
+    var ladder;
+    if(noOne){
+      ladder=[body('tier',9,0,[])];          /* the app's own "nobody": floor 9, empty list */
+    } else {
+      ladder=[body('tier',floor,0,levelsFrom(floor))];
+      [1,2,3,4].forEach(function(n){
+        if(n>=floor && !ladder.some(function(b){ return b.min_tier_in===n; }))
+          ladder.push(body('tier',n,0,levelsFrom(n)));
+      });
+      ladder.push(body('price',0,Math.max(1,Number((S.tier&&S.tier.price_inr)||100)),[]));
+      ladder.push(body('public',0,0,[]));
+    }
 
     var remembered=null;
     try{ remembered=localStorage.getItem('ivory.live.shape.f'+floor); }catch(e){}
@@ -529,7 +565,7 @@
     walk(0)
       .then(function(win){
         var res=win.res, id=null;
-        if(win.shape.access_in==='tier' && win.shape.min_tier_in<floor){
+        if(!noOne && win.shape.access_in==='tier' && win.shape.min_tier_in<floor){
           S.wide='The table would not hold a floor of '+floor+', so this room is open from level '+win.shape.min_tier_in+' upward — wider than you asked.';
           err('open-err',S.wide);
         }
@@ -690,6 +726,7 @@
   if(s&&s.access_token){
     refresh().then(ready).catch(function(){ saveSess(null); show('s-door'); $('s-prepare').classList.remove('hide'); });
   }
+  loadTiers();
   window.addEventListener('pagehide',function(){ camDown(); });
 })();
 </script>

@@ -357,8 +357,9 @@
     b.setAttribute('data-session', String(r.id));
     var live=r.status==='live';
     var floor = r.access==='tier'
-      ? (r.tier_name ? (Number(r.min_tier)>=4 ? r.tier_name+' only' : r.tier_name+' and above')
-                     : 'from level '+(r.min_tier||1))
+      ? ((Array.isArray(r.allowed_tiers)&&r.allowed_tiers.length===1)
+          ? ((r.tier_name||('level '+r.allowed_tiers[0]))+' only')
+          : (r.tier_name ? (r.tier_name+' and above') : 'from level '+(r.min_tier||1)))
       : '';
     var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : 'scheduled'));
     var sub = r.subtitle || ((live ? 'in the room now' : 'opens later') + (floor ? ' · ' + floor : ''));
@@ -394,16 +395,26 @@
     err('room-err');
     chip(true,'on air');
 
-    /* If the house's own view already says this member is not entitled,
-       say it before asking the server, and name both sides — the floor
-       the room needs, and the tier the member holds. A "try anyway"
-       stays, because a view can lag behind an approval. */
-    if(r.access==='tier' && r.is_entitled===false){
+    /* The house's own rule, read the way the app reads it: a tier room
+       is open to the tiers in its list (the floor is only the lowest of
+       them). The view's is_entitled can lag behind an approval, so the
+       list wins when we can work it out — and if we cannot, we ask. */
+    if(r.access==='tier' && !r.price_inr){
       mine().then(function(m){
-        var needed=r.tier_name||('level '+(r.min_tier||1));
+        var lvl=(m&&(m.tier_level!=null?m.tier_level:m.level))||0;
+        var list=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
+        var entitled;
+        if(!lvl) entitled = r.is_entitled!==false;
+        else if(list.length) entitled = list.indexOf(Number(lvl))>=0;
+        else entitled = Number(lvl) >= Number(r.min_tier||1);
+        if(entitled){ openRoom(r); return; }
+        var shut = (Number(r.min_tier)>=9) || !list.length;
         var held=(m&&m.tier_name)||'no membership yet';
+        var said = shut
+          ? 'The house is rehearsing this one privately — no member is on the list yet.'
+          : 'This room is open to '+(r.tier_name||('level '+(r.min_tier||1)))+' members. You hold '+held+'.';
         $('wait').innerHTML='<div style="max-width:272px;margin:0 auto;font-style:italic">'+
-          'This room is open to '+escapeHtml(needed)+' members. You hold '+escapeHtml(held)+'.'+
+          escapeHtml(said)+
           '<button type="button" id="tryany" class="btn quiet" style="margin-top:16px;width:100%;font-style:normal">'+
           'Ask anyway</button></div>';
         var t=$('tryany');
