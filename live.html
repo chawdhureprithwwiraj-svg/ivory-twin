@@ -256,11 +256,20 @@
       <div><span>uplink</span><b id="st-kbps">—</b></div>
       <div><span>Agora</span><b id="st-conn">—</b></div>
       <div style="grid-column:1/-1"><span>open to</span><b id="air-open">—</b></div>
+      <div style="grid-column:1/-1"><span>this page is</span><b id="air-me">—</b></div>
     </div>
     <p class="note" id="air-hint">Open Ivory on a second phone and look in Live &mdash; this broadcast should be
       there, already on air. That is the whole test.</p>
     <button class="btn" id="endlive" style="margin-top:14px">End the broadcast</button>
     <p class="err hide" id="air-err"></p>
+    <div id="air-fix" class="hide" style="margin-top:12px;padding:12px;border-radius:11px;background:rgba(233,179,60,.14);border:1px solid rgba(180,132,44,.4)">
+      <p id="air-why" style="margin:0 0 8px;font-size:12px;line-height:1.55;color:#5C1226;font-style:italic">Reading who holds this room…</p>
+      <div id="air-sqlwrap" class="hide">
+        <pre id="air-sql" style="margin:0;padding:9px;border-radius:8px;background:#fff;border:1px solid rgba(180,132,44,.3);font:10.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">—</pre>
+      </div>
+      <button class="btn quiet sm" id="air-retry" style="margin-top:9px;width:100%">Write the list again</button>
+      <button class="btn quiet sm hide" id="air-out" style="margin-top:8px;width:100%">Sign in as the account that holds the rooms</button>
+    </div>
   </section>
 
   <!-- ── 5 · the receipt ────────────────────────────────────── -->
@@ -309,6 +318,7 @@
   function saveSess(s){ S.sess=s; try{ if(s) sessionStorage.setItem('ivory.live.sess',JSON.stringify(s)); else sessionStorage.removeItem('ivory.live.sess'); }catch(e){} }
   function loadSess(){ try{ var raw=sessionStorage.getItem('ivory.live.sess'); S.sess=raw?JSON.parse(raw):null; }catch(e){ S.sess=null; } return S.sess; }
 
+  function meId(){ return (S.sess&&S.sess.user&&S.sess.user.id)||''; }
   function authHeaders(){ var h={'apikey':KEY,'Content-Type':'application/json'}; if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
 
   function signIn(email,pass){
@@ -434,6 +444,7 @@
   function ready(){
     var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
     if(who) $('door-note').textContent='Signed in as '+who+'.';
+    try{ $('air-me').textContent = who ? (who + ' · ' + String(meId()).slice(0,8)) : '—'; }catch(e){}
     show('s-prepare');
     $('s-open').classList.remove('hide');
   }
@@ -476,6 +487,9 @@
         var sel=$('who'); if(!sel) return;
         var keep=sel.value;
         sel.innerHTML='';
+        var pub=document.createElement('option');
+        pub.value='public'; pub.textContent='Anyone signed in — no tier (works tonight)';
+        sel.appendChild(pub);
         var top=TIERS.length?Math.max.apply(null,TIERS.map(function(t){return Number(t.level);})):4;
         TIERS.forEach(function(t){
           var o=document.createElement('option');
@@ -487,7 +501,7 @@
         n.value='none'; n.textContent='Nobody but the house — a private run-through';
         sel.appendChild(n);
         if(keep && sel.querySelector('option[value="'+keep+'"]')) sel.value=keep;
-        else sel.value = TIERS[0]?String(TIERS[0].level):'1';
+        else sel.value='public';
       })
       .catch(function(){ /* the single fallback option still works */ });
   }
@@ -530,9 +544,8 @@
        the room wider than she asked without saying so. */
     var ladder;
     if(isPublic){
-      /* no list is consulted for a public room, so this is the one shape
-         the house cannot refuse for want of a guest list */
-      ladder=[body('public',0,0,[])];
+      /* two shapes consult no guest list at all; try both before giving up */
+      ladder=[body('public',0,0,[]), body('price',0,0,[])];
     } else if(noOne){
       ladder=[body('tier',9,0,[])];          /* the app's own "nobody": floor 9, empty list */
     } else {
@@ -623,7 +636,10 @@
         },1000);
       })
       .catch(function(x){
-        err('open-err',(S.wide?S.wide+' ':'')+agoraWords(x));
+        var said=(x&&x.message)||String(x);
+        if(/refused every shape/i.test(said))
+          said='The house would not open a room in any shape this page knows how to ask for — not the tiered one, not the open one. Nothing is on air. The shapes it accepts have changed since this page was written.';
+        err('open-err',(S.wide?S.wide+' ':'')+agoraWords(said));
         if(S.sessionId){ call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); S.sessionId=null; }
       })
       .then(function(){ b.disabled=false; b.textContent='Step into the room'; });
@@ -643,6 +659,8 @@
 
   /* ---------- writing the list the start function drops ---------- */
   function writeList(id, shape){
+    window.__ivList=(shape.allowed_tiers_in||[]).join(',');
+    window.__ivFloor=shape.min_tier_in;
     var patch={ allowed_tiers: shape.allowed_tiers_in||[], min_tier: shape.min_tier_in };
     return call('/rest/v1/live_sessions?id=eq.'+id, patch, {method:'PATCH', headers:{'Prefer':'return=representation'}})
       .then(function(){
@@ -664,12 +682,41 @@
         return r;
       })
       .then(function(r){
-        if(r && Array.isArray(r.allowed_tiers) && !r.allowed_tiers.length) throw new Error('the table took the update and kept the list empty');
+        if(r && Array.isArray(r.allowed_tiers) && !r.allowed_tiers.length)
+          throw new Error('the update was accepted and the list stayed empty — the house may not write this row');
+        try{ err('air-err'); }catch(e){}
         return r;
       })
       .catch(function(x){
         try{ $('air-open').textContent='nobody on the list yet'; }catch(e){}
-        err('open-err','The room is on air, but the guest list would not stay on it ('+(x.message||x)+'). The house account is not allowed to write its own live row — one line in the SQL editor fixes that, and it is in the counter under “Which rails are open”.');
+        var msg='The guest list would not stay on this room: '+(x.message||x)+'.';
+        try{ err('air-err',msg+' Use “write the list again” below, or run the one line with this room’s number.'); }catch(e){}
+        try{ $('air-fix').classList.remove('hide'); }catch(e){}
+        try{ $('air-sql').textContent='update public.live_sessions set allowed_tiers = array'+'['+(window.__ivList||'1')+'], min_tier = '+(window.__ivFloor||1)+' where id = '+S.sessionId+';'; }catch(e){}
+        /* which account holds this row, and which account is this page? */
+        var sid=S.sessionId;
+        call('/rest/v1/live_sessions?select=host_id&id=eq.'+sid,null,{method:'GET'})
+          .then(function(rows){
+            var host=(rows&&rows[0]&&rows[0].host_id)||'';
+            var me=meId();
+            if(host && me && host.toLowerCase()!==me.toLowerCase()){
+              $('air-why').textContent='This room is held by another account ('+host.slice(0,8)+'), but this page is signed in as '+
+                ((S.sess&&S.sess.user&&S.sess.user.email)||'a different account')+' ('+String(me).slice(0,8)+'). '+
+                'The house only lets the account that holds a room change it — so nothing this page writes will stay. '+
+                'Open this page and sign in with the account that holds the rooms.';
+              try{ $('air-sqlwrap').classList.add('hide'); }catch(e){}
+              try{ $('air-out').classList.remove('hide'); }catch(e){}
+            } else {
+              $('air-why').textContent='The room is held by this account, so the house itself is dropping the list. '+
+                'If you have already run the policy, run this one line once in the Supabase SQL editor, then tap the button below:';
+              try{ $('air-sqlwrap').classList.remove('hide'); }catch(e){}
+              try{ $('air-out').classList.add('hide'); }catch(e){}
+            }
+          })
+          .catch(function(){
+            $('air-why').textContent='The room would not say whose it is. Run this one line in the Supabase SQL editor, then tap the button below:';
+            try{ $('air-sqlwrap').classList.remove('hide'); }catch(e){}
+          });
         return null;
       });
   }
@@ -747,6 +794,28 @@
   });
 
   /* ---------- 5 · ending it ---------- */
+  $('air-retry').addEventListener('click',function(){
+    if(!S.sessionId) return;
+    var b=this; b.disabled=true; b.innerHTML='<span class="spin"></span> Writing';
+    writeList(S.sessionId,{allowed_tiers_in:String(window.__ivList||'1').split(',').map(Number),min_tier_in:window.__ivFloor||1})
+      .then(function(r){
+        if(r&&Array.isArray(r.allowed_tiers)&&r.allowed_tiers.length){
+          err('air-err'); $('air-fix').classList.add('hide');
+          err('air-err','The list is on the room now — a member can walk in.');
+          setTimeout(function(){ err('air-err'); },2600);
+        }
+      })
+      .catch(function(){/* writeList already reported */})
+      .then(function(){ b.disabled=false; b.textContent='Write the list again'; });
+  });
+
+  $('air-out').addEventListener('click',function(){
+    saveSess(null); S.sessionId=null;
+    $('air-out').classList.add('hide'); $('air-fix').classList.add('hide');
+    err('air-err'); $('door-note').textContent='';
+    show('s-door');
+  });
+
   $('endlive').addEventListener('click',function(){
     var b=this; b.disabled=true; b.innerHTML='<span class="spin"></span> Closing';
     var mins=S.t0?Math.floor((Date.now()-S.t0)/60000):0;
