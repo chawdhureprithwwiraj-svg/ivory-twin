@@ -356,8 +356,12 @@
     var b=document.createElement('button'); b.className='room'; b.type='button';
     b.setAttribute('data-session', String(r.id));
     var live=r.status==='live';
+    var floor = r.access==='tier'
+      ? (r.tier_name ? (Number(r.min_tier)>=4 ? r.tier_name+' only' : r.tier_name+' and above')
+                     : 'from level '+(r.min_tier||1))
+      : '';
     var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : 'scheduled'));
-    var sub = r.subtitle || (live ? 'in the room now' : 'opens later');
+    var sub = r.subtitle || ((live ? 'in the room now' : 'opens later') + (floor ? ' · ' + floor : ''));
     b.innerHTML='<span class="thumb">'+(r.cover_url?'<img alt="" src="'+escapeAttr(r.cover_url)+'">':'<i style="animation:'+(live?'beat 1.7s infinite':'none')+'"></i>')+'</span>'+
       '<span class="txt"><b>'+escapeHtml(r.title||'The room')+'</b><s>'+escapeHtml(sub)+'</s></span>'+
       '<span class="tag '+(live?'live':'')+'">'+escapeHtml(tag)+'</span>';
@@ -370,6 +374,15 @@
   function escapeAttr(t){ return escapeHtml(t).replace(/`/g,'&#96;'); }
 
   /* ---------- 3 · walking in ---------- */
+  /* which tier the member actually holds — needed to say why a door is shut */
+  var MINE={done:false,row:null};
+  function mine(){
+    if(MINE.done) return Promise.resolve(MINE.row);
+    return get('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1')
+      .then(function(r){ MINE={done:true,row:(r&&r[0])||null}; return MINE.row; })
+      .catch(function(){ MINE={done:true,row:null}; return null; });
+  }
+
   function walkIn(r){
     if(r.status!=='live'){ alert('That room is not open yet.'); return; }
     S.session=r; S.lastId=0; S.seen={};
@@ -381,6 +394,28 @@
     err('room-err');
     chip(true,'on air');
 
+    /* If the house's own view already says this member is not entitled,
+       say it before asking the server, and name both sides — the floor
+       the room needs, and the tier the member holds. A "try anyway"
+       stays, because a view can lag behind an approval. */
+    if(r.access==='tier' && r.is_entitled===false){
+      mine().then(function(m){
+        var needed=r.tier_name||('level '+(r.min_tier||1));
+        var held=(m&&m.tier_name)||'no membership yet';
+        $('wait').innerHTML='<div style="max-width:272px;margin:0 auto;font-style:italic">'+
+          'This room is open to '+escapeHtml(needed)+' members. You hold '+escapeHtml(held)+'.'+
+          '<button type="button" id="tryany" class="btn quiet" style="margin-top:16px;width:100%;font-style:normal">'+
+          'Ask anyway</button></div>';
+        var t=$('tryany');
+        if(t) t.addEventListener('click',function(){ openRoom(r); });
+      });
+      return;
+    }
+    openRoom(r);
+  }
+
+  function openRoom(r){
+    $('wait').innerHTML='<div><span class="spin"></span><br>Opening the room…</div>';
     call('/functions/v1/agora-token',{mode:'live',id:r.id}).then(function(tk){
       if(!tk||!tk.token) throw new Error((tk&&tk.error)||'That room did not open.');
       return join(tk);
@@ -390,8 +425,13 @@
       S.msgTick=setInterval(function(){ messages(false); }, 3500);
       S.tick=setInterval(function(){ heartbeat(); }, 7000);
     }).catch(function(x){
-      $('wait').innerHTML='<div style="max-width:260px;margin:0 auto">'+escapeHtml(x.message||String(x))+'</div>';
-      err('room-err',x.message||String(x));
+      var m=x.message||String(x);
+      var plain=/not included|not entitled|membership/i.test(m)
+        ? 'The house keeps you out of this one: it is open to '+(r.tier_name||('level '+(r.min_tier||1)))+
+          ' members, and your membership does not reach it yet.'
+        : m;
+      $('wait').innerHTML='<div style="max-width:272px;margin:0 auto;font-style:italic">'+escapeHtml(plain)+'</div>';
+      err('room-err',plain);
     });
   }
 

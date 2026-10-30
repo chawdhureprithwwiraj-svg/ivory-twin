@@ -233,6 +233,14 @@
         <label class="f"><span>a code, if you were sent one (optional)</span>
           <input type="text" id="code" placeholder="the code, or leave it empty" autocomplete="off"></label>
         <button class="btn" id="rzp-pay">Pay by card or netbanking</button>
+        <p class="note" style="margin-top:14px">If the window would not open &mdash; or Razorpay took the money and
+          never came back to this page &mdash; put the payment id from your receipt here. The house checks it in its
+          own Razorpay account and opens your door by hand.</p>
+        <label class="f"><span>Razorpay's payment id (starts pay_)</span>
+          <input type="text" id="rzp-ref" placeholder="pay_XXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label>
+        <button class="btn quiet" id="rzp-ref-send">Send the payment id to the house</button>
+        <p class="err hide" id="rzp-ref-err"></p>
+        <p class="ok hide" id="rzp-ref-ok"></p>
         <p class="note">The price comes from the house&rsquo;s own table &mdash; never from this page. What is
           paid is checked against the house&rsquo;s Razorpay account before anything opens.</p>
         <p class="err hide" id="rzp-err"></p>
@@ -614,6 +622,23 @@
         err('rzp-err',friendly(x));
       })
       .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Pay by card or netbanking'; });
+  });
+
+  $('rzp-ref-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var b=this, ref=($('rzp-ref').value||'').trim();
+    clear('rzp-ref-err'); clear('rzp-ref-ok'); clear('rzp-err');
+    if(!S.sess){ err('rzp-ref-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(ref.length<8){ err('rzp-ref-err','A Razorpay payment id begins with pay_ and is longer than that. You will find it on the receipt Razorpay sent you.'); return; }
+    S.busy=true; b.disabled=true; b.innerHTML='<span class="spin"></span> Sending';
+    call('/rest/v1/rpc/submit_payment',{tier_id_in:S.tier.id, utr_in:ref, screenshot_url_in:null})
+      .then(function(id){
+        ok('rzp-ref-ok','<b>Sent.</b> The house has '+esc(ref)+(id?' (no. '+esc(id)+')':'')+' and will match it against its Razorpay account before it opens the door.');
+        $('rzp-ref').value='';
+        if(typeof watchPayment==='function') watchPayment(id);
+      })
+      .catch(function(x){ err('rzp-ref-err',friendly(x)); })
+      .then(function(){ S.busy=false; b.disabled=false; b.textContent='Send the payment id to the house'; });
   });
 
   /* ---------- what this member has already sent ---------- */

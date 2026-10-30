@@ -197,7 +197,7 @@
     </div>
 
     <div class="card">
-      <h2>Waiting to be checked</h2>
+      <h2>Waiting to be checked <span id="q-count" style="font:600 10px/1 var(--ui);letter-spacing:.22em;color:var(--gold);vertical-align:middle"></span></h2>
       <div id="queue"><div class="empty">Reading the counter…</div></div>
       <p class="err hide" id="q-err"></p>
     </div>
@@ -286,6 +286,7 @@
   /* ---------- the switches ---------- */
   function panel(){
     $('v-door').classList.add('hide'); $('v-panel').classList.remove('hide');
+    watchQueue();
     return loadSettings().then(queue);
   }
 
@@ -308,7 +309,10 @@
     [].forEach.call($('modes').children,function(b){
       b.classList.toggle('on', b.dataset.mode===S.mode);
     });
-    $('mode-note').textContent = S.mode==='paused'
+    var keyMissing = !((S.settings&&S.settings.razorpay_key_id)||'');
+    $('mode-note').innerHTML = (S.mode==='razorpay'||S.mode==='both') && keyMissing
+      ? 'This is the app&rsquo;s own switch too — but the <b>card rail has no public key yet</b>. Paste it in <i>Where the card window goes</i> below, or the window cannot open for a member.'
+      : S.mode==='paused'
       ? 'Everything is resting: no rail is offered in the app or on the site.'
       : 'This is the app’s own switch too. Change it here and the app follows at once.';
   }
@@ -403,11 +407,23 @@
       .then(function(){ b.disabled=false; b.textContent='Keep this'; });
   });
 
+  /* the queue keeps its own watch: approve one and the next is already here */
+  var QWATCH=null;
+  function watchQueue(){
+    if(QWATCH) return;
+    QWATCH=setInterval(function(){
+      if(!S.sess||$('v-panel').classList.contains('hide')) return;
+      queue().catch(function(){});
+    },20000);
+  }
+
   /* ---------- the queue ---------- */
   function queue(){
     var box=$('queue');
-    return call('/rest/v1/my_payments?select=*&status=eq.pending&order=created_at.asc&limit=40',null,{method:'GET'})
+    return call('/rest/v1/my_payments?select=*&status=eq.pending&order=created_at.desc&limit=60',null,{method:'GET'})
       .then(function(rows){
+        var c=$('q-count');
+        if(c) c.textContent = (rows&&rows.length) ? ('· '+rows.length+' waiting') : '';
         if(!rows||!rows.length){ box.innerHTML='<div class="empty">Nothing waiting. Every reference sent has been answered.</div>'; }
         else { box.innerHTML=''; rows.forEach(function(p){ box.appendChild(row(p)); }); }
         return call('/rest/v1/my_payments?select=*&status=neq.pending&order=created_at.desc&limit=8',null,{method:'GET'});
