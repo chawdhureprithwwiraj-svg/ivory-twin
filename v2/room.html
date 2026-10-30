@@ -360,8 +360,8 @@
       ? ((Array.isArray(r.allowed_tiers)&&r.allowed_tiers.length===1)
           ? ((r.tier_name||('level '+r.allowed_tiers[0]))+' only')
           : (r.tier_name ? (r.tier_name+' and above') : 'from level '+(r.min_tier||1)))
-      : '';
-    var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : 'scheduled'));
+      : (r.access==='public' ? 'open to every member' : '');
+    var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : (r.access==='public' ? 'open room' : 'scheduled')));
     var sub = r.subtitle || ((live ? 'in the room now' : 'opens later') + (floor ? ' · ' + floor : ''));
     b.innerHTML='<span class="thumb">'+(r.cover_url?'<img alt="" src="'+escapeAttr(r.cover_url)+'">':'<i style="animation:'+(live?'beat 1.7s infinite':'none')+'"></i>')+'</span>'+
       '<span class="txt"><b>'+escapeHtml(r.title||'The room')+'</b><s>'+escapeHtml(sub)+'</s></span>'+
