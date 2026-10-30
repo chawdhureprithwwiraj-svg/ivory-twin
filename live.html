@@ -223,14 +223,17 @@
     <label class="f"><span>what is it called</span><input type="text" id="title" maxlength="70" placeholder="A word after dark"></label>
     <label class="f"><span>who may walk in</span>
       <select id="who" style="width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);-webkit-appearance:none">
-        <option value="private" selected>Nobody &mdash; the top tier only</option>
-        <option value="house">Any member &mdash; the house may walk in</option>
+        <option value="1" selected>Any member &mdash; Reader and above</option>
+        <option value="2">Ivory Listener and above</option>
+        <option value="3">Ivory Insider and above</option>
+        <option value="4">Ivory Circle only &mdash; a private run-through</option>
       </select>
     </label>
     <button class="btn" id="golive">Step into the room</button>
-    <p class="note">&ldquo;Nobody&rdquo; opens the room at a tier nobody holds, so no member can walk in while
-      you test &mdash; the house account still can. The broadcast itself is real: Agora, the same channel, the
-      same token.</p>
+    <p class="note">The floor is enforced by the house&rsquo;s own table, not by this page: a member below it
+      is refused by the server, not by the browser. <i>Circle only</i> is the honest private run-through &mdash;
+      your test member is a Reader, so they will be kept out while you rehearse. The broadcast itself is real:
+      Agora, the same channel, the same token.</p>
     <p class="err hide" id="open-err"></p>
   </section>
 
@@ -476,7 +479,7 @@
       camUp().catch(function(x){ err('open-err','The camera did not open: '+(x.message||x)); });
     }
     var title=($('title').value||'').trim()||'A word after dark';
-    var priv=$('who').value==='private';
+    var floor=parseInt($('who').value,10)||1;      /* 1 Reader · 2 Listener · 3 Insider · 4 Circle */
 
     /* The house's own table decides which shapes it will hold, and it has
        never told anyone what they are. So we ask it, politely, in the order
@@ -487,12 +490,18 @@
       return {title_in:title, subtitle_in:null, access_in:access, min_tier_in:minTier,
               price_in:price||0, cover_in:null, allowed_tiers_in:[], guest_price_in:0};
     }
-    var ladder = priv
-      ? [body('tier',4), body('tier',3), body('tier',2), body('price',0,50000), body('tier',0)]
-      : [body('tier',1), body('tier',0), body('public',0), body('price',0,0)];
+    /* start at the floor she asked for, then try the neighbouring floors,
+       and only in the last resort the price shape. The order never opens
+       the room wider than she asked without saying so. */
+    var ladder=[body('tier',floor)];
+    [floor+1,floor-1,floor+2,floor-2,1,2,3,4].forEach(function(n){
+      if(n>=1&&n<=4&&!ladder.some(function(b){ return b.min_tier_in===n; })) ladder.push(body('tier',n));
+    });
+    ladder.push(body('price',0,Math.max(1,Number((S.tier&&S.tier.price_inr)||100))));
+    ladder.push(body('public',0));
 
     var remembered=null;
-    try{ remembered=localStorage.getItem('ivory.live.shape.'+(priv?'private':'open')); }catch(e){}
+    try{ remembered=localStorage.getItem('ivory.live.shape.f'+floor); }catch(e){}
     if(remembered){
       try{
         var r=JSON.parse(remembered);
@@ -507,7 +516,7 @@
       if(i>=ladder.length) return Promise.reject(lastErr||new Error('The house refused every shape.'));
       return startLive(ladder[i]).then(function(r){
         /* only the shape the house accepted is worth remembering */
-        try{ localStorage.setItem('ivory.live.shape.'+(priv?'private':'open'),JSON.stringify(ladder[i])); }catch(e){}
+        try{ localStorage.setItem('ivory.live.shape.f'+floor,JSON.stringify(ladder[i])); }catch(e){}
         return {res:r, shape:ladder[i], tries:i+1};
       }).catch(function(x){
         lastErr=x;
@@ -520,8 +529,12 @@
     walk(0)
       .then(function(win){
         var res=win.res, id=null;
-        if(priv && win.shape.access_in==='tier' && win.shape.min_tier_in<4)
-          err('open-err','The table would not hold a room that only the top tier may enter, so this one is open from level '+win.shape.min_tier_in+' upward. If that is too wide, open it when the house is quiet.');
+        if(win.shape.access_in==='tier' && win.shape.min_tier_in<floor){
+          S.wide='The table would not hold a floor of '+floor+', so this room is open from level '+win.shape.min_tier_in+' upward — wider than you asked.';
+          err('open-err',S.wide);
+        }
+        else if(win.shape.access_in!=='tier')
+          err('open-err','The table would only take this room as a “'+win.shape.access_in+'” room, not as a tier floor. Check who can walk in.');
         if(Array.isArray(res)&&res.length) id=res[0].id;
         else if(res&&typeof res==='object') id=res.id;
         else if(typeof res==='number') id=res;
@@ -555,7 +568,7 @@
         },1000);
       })
       .catch(function(x){
-        err('open-err',agoraWords(x));
+        err('open-err',(S.wide?S.wide+' ':'')+agoraWords(x));
         if(S.sessionId){ call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); S.sessionId=null; }
       })
       .then(function(){ b.disabled=false; b.textContent='Step into the room'; });
