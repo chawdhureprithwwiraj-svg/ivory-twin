@@ -10228,6 +10228,116 @@ body.on-desk .ribbonlay{display:none}
 .st-bar.b2 b{color:#F3D08A}
 .st-bar.r2 b{color:#C9AEE6}
 .st-bar.supa b{color:#9BD9B6}
+
+/* ── the rail picker, in front of any upload ─────────────────────────── */
+.rail-pick{display:block;margin:2px 0 12px}
+.rp-k{display:block;font-family:Georgia,serif;font-size:8.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#8A6A33;margin-bottom:6px}
+.rp-chips{display:flex;gap:5px;flex-wrap:wrap}
+.rp-chip{flex:1 1 auto;padding:8px 9px;border-radius:9px;cursor:pointer;
+  font-family:Georgia,serif;font-size:9px;letter-spacing:.1em;color:#5C1120;
+  background:linear-gradient(180deg,rgba(255,253,246,.9),rgba(246,234,210,.85));
+  border:1px solid rgba(168,131,68,.45);
+  transition:transform .14s ease,background .2s ease}
+.rp-chip:active{transform:scale(.97)}
+.rp-chip.on{background:linear-gradient(180deg,#FBEBC2,#E7C17B 58%,#D2A85A);
+  border-color:rgba(122,76,12,.5);color:#3A1207;
+  box-shadow:0 0 0 1px rgba(255,248,224,.9) inset,0 6px 14px -10px rgba(90,60,20,.8)}
+.rp-note{display:block;margin-top:5px;font-family:Georgia,serif;font-style:italic;
+  font-size:10.5px;color:#8A6A33}
+
+.st-item-acts{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}
+.st-move{width:30px;height:30px;border-radius:9px;cursor:pointer;line-height:1;
+  color:#F3D08A;background:rgba(243,208,138,.12);border:1px solid rgba(243,208,138,.42);
+  font-size:13px;display:grid;place-items:center}
+.st-move:active{transform:scale(.95)}
+.st-move[data-busy]{opacity:.6;pointer-events:none}
+</style>
+
+<style id="iv-pulse-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PULSE · the gold disc, the visitor count, and the house's own numbers
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── the disc: only while she is on air, and then it owns the head ─────── */
+#iv-disc-seat{display:block}
+#iv-disc-seat:empty{display:none}
+.ivdisc{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;
+  width:100%;padding:20px 16px 16px;margin:10px 0 18px;border-radius:26px;cursor:pointer;text-align:center;
+  border:1px solid rgba(198,152,72,.42);overflow:hidden;
+  background:
+    radial-gradient(90% 120% at 50% -10%,rgba(255,236,186,.30) 0%,rgba(255,236,186,0) 58%),
+    linear-gradient(170deg,#42060F 0%,#34040D 48%,#22030A 100%);
+  box-shadow:0 0 0 1px rgba(255,236,186,.14) inset,0 22px 44px -28px rgba(0,0,0,.95),
+             0 0 44px -16px rgba(232,186,96,.6);
+  opacity:0;transform:translateY(-9px) scale(.985);
+  transition:opacity .55s cubic-bezier(.22,.9,.24,1),transform .55s cubic-bezier(.22,.9,.24,1)}
+.ivdisc.on{opacity:1;transform:none}
+.ivdisc.is-leaving{opacity:0;transform:translateY(-7px) scale(.97)}
+.ivdisc:active{transform:scale(.995)}
+.ivdisc-aura{position:absolute;inset:-40% -20%;pointer-events:none;
+  background:radial-gradient(circle at 50% 22%,rgba(255,214,130,.34),transparent 56%);
+  animation:ivdiscAura 5.4s ease-in-out infinite}
+@keyframes ivdiscAura{0%,100%{opacity:.5;transform:scale(.96)}50%{opacity:1;transform:scale(1.05)}}
+
+/* the seal itself: a struck gold disc, and the word LIVE engraved across it */
+.ivdisc-seal{position:relative;width:118px;height:118px;flex:0 0 auto;display:grid;place-items:center;
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.6)) drop-shadow(0 0 22px rgba(240,200,120,.32))}
+.ivdisc-coin{position:absolute;inset:0}
+.ivdisc-coin svg{width:100%;height:100%;display:block}
+.ivdisc-glow{position:absolute;inset:0;pointer-events:none}
+.ivdisc-glow i{position:absolute;inset:0;border-radius:50%;
+  box-shadow:0 0 0 1px rgba(255,236,186,.46);animation:ivdiscRing 3.6s ease-out infinite}
+.ivdisc-glow i:nth-child(2){animation-delay:1.2s}
+.ivdisc-glow i:nth-child(3){animation-delay:2.4s}
+@keyframes ivdiscRing{0%{transform:scale(.82);opacity:.75}70%{opacity:0}100%{transform:scale(1.42);opacity:0}}
+.ivdisc-k{position:relative;z-index:2;display:inline-flex;align-items:center;gap:7px;
+  margin-top:1px;font-family:Georgia,serif;font-size:15.5px;letter-spacing:.30em;
+  color:#FFE7AE;text-transform:uppercase;font-weight:700;
+  transform:translateX(.15em);
+  text-shadow:0 1px 1px rgba(24,2,8,.85),0 0 14px rgba(255,190,110,.45)}
+.ivdisc-k i{width:7px;height:7px;border-radius:50%;background:#FFF0C6;
+  box-shadow:0 0 0 3px rgba(255,240,198,.18),0 0 12px rgba(255,214,140,.9);
+  animation:ivdiscPulse 1.5s ease-in-out infinite}
+@keyframes ivdiscPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+
+.ivdisc-tx{position:relative;min-width:0;max-width:100%}
+.ivdisc-tx b{display:block;font-family:Georgia,serif;font-size:17px;line-height:1.24;
+  font-weight:600;color:#FFF6DE;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.ivdisc-tx s{display:block;margin-top:5px;text-decoration:none;font-family:Georgia,serif;
+  font-style:italic;font-size:12px;letter-spacing:.01em;color:rgba(255,240,206,.74)}
+
+/* ── the visitor pulse: a celebration, not a statistic ────────────────── */
+.pulse-card{position:relative;overflow:hidden}
+.pulse-halo{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.pulse-halo i{position:absolute;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle,#FFF6DC,#E0B45F 62%,rgba(160,110,30,0) 72%);
+  opacity:0;animation:pulseMote 6.5s ease-in-out infinite}
+.pulse-halo i:nth-child(1){left:12%;top:78%;animation-delay:.4s}
+.pulse-halo i:nth-child(2){left:62%;top:88%;animation-delay:2.1s}
+.pulse-halo i:nth-child(3){left:86%;top:70%;animation-delay:4.2s}
+@keyframes pulseMote{0%{opacity:0;transform:translateY(0) scale(.7)}
+  22%{opacity:.9}70%{opacity:.5;transform:translateY(-58px) scale(1.15)}
+  100%{opacity:0;transform:translateY(-92px) scale(.8)}}
+.pulse-figure{display:flex;align-items:baseline;gap:9px;margin:2px 0 9px}
+.pulse-figure b{font-family:Georgia,serif;font-size:34px;line-height:1;font-weight:600;
+  letter-spacing:-.01em;
+  background:linear-gradient(178deg,#7A1024,#4A0714 62%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.pulse-figure i{font-family:Georgia,serif;font-style:italic;font-size:12.5px;color:#8A6A33}
+.pulse-track{height:5px;border-radius:4px;overflow:hidden;margin:0 0 10px;
+  background:rgba(168,131,68,.22)}
+.pulse-track span{display:block;height:100%;border-radius:4px;
+  background:linear-gradient(90deg,#B8832A,#F7E3B4 62%,#E0B45F);
+  box-shadow:0 0 12px rgba(224,180,95,.55);
+  transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.pulse-copy{margin:0;font-family:Georgia,serif;font-style:italic;font-size:12px;line-height:1.55;
+  color:#7A5A2C}
+
+@media (prefers-reduced-motion:reduce){
+  .ivdisc-aura,.ivdisc-coin svg,.ivdisc-glow i,.ivdisc-k i,.pulse-halo i{animation:none!important}
+}
 </style>
 </head>
 <body>
@@ -16732,7 +16842,7 @@ window.IVSESS = (function () {
         ? 'Walk in. Nothing here is recorded, and nothing is kept after you leave.'
         : 'Nothing is live this moment. When Ivory goes on air, the room appears here.';
       var box=$('lv-rooms'); box.innerHTML='';
-      if(!list.length){ box.innerHTML='<div class="lv-quiet">The room is quiet. When Ivory goes on air, it appears here.</div>'; return; }
+      if(!list.length){ box.innerHTML='<div class="lv-quiet">Ivory is away. Her golden disc appears here when she goes on air.</div>'; return; }
       list.forEach(function(r){
         var b=document.createElement('button'); b.className='lv-card'; b.type='button';
         var lst=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
@@ -16929,7 +17039,7 @@ window.IVSESS = (function () {
         b.textContent = live.length===1 ? (live[0].title||'Ivory is on air') : (live.length+' rooms on air');
         s.textContent = 'walk in, live — nothing is recorded';
       } else {
-        b.textContent='The room is quiet';
+        b.textContent='Ivory is away';
         s.textContent='nothing on air this moment';
         if(dot) dot.style.animation='none', dot.style.background='rgba(150,18,48,.35)';
       }
@@ -20184,6 +20294,7 @@ window.IVROOMS.broadcast = function (pane) {
     '<div class="dk-card">' +
       '<label class="dk-label">Attach something (optional)</label>' +
       '<div id="bc-file"></div>' +
+      '<div id="bc-rail"></div>' +
       '<div class="dk-chips bc-attach">' +
         '<button class="dk-chip" data-att="image">Photo</button>' +
         '<button class="dk-chip" data-att="audio">Voice note</button>' +
@@ -20207,6 +20318,18 @@ window.IVROOMS.broadcast = function (pane) {
     '<p class="bc-status" id="bc-status"></p>';
 
   var $ = function (id) { return pane.querySelector('#' + id); };
+
+  /* the store choice stands open before a byte is spent: hers, at creation */
+  function paintRail() {
+    var host = $('bc-rail');
+    if (!host || !window.IVSTORE) return;
+    /* the file is chosen first, then where it sleeps — so the choice sits under the keys */
+    var att = pane.querySelector('.bc-attach');
+    if (att && att.nextSibling !== host) att.parentNode.insertBefore(host, att.nextSibling);
+    var kind = S.file ? kindOfFile(S.file) : 'image';
+    IVSTORE.picker(kind, host, { label: 'Where this file sleeps' });
+  }
+  paintRail();
 
   function err(m) {
     var e = $('bc-err');
@@ -20386,7 +20509,7 @@ window.IVROOMS.broadcast = function (pane) {
         x.classList.toggle('on', x.dataset.kind === S.kind);
       });
     }
-    paintFile();
+    paintFile(); paintRail();
   });
 
   function paintFile() {
@@ -20400,7 +20523,7 @@ window.IVROOMS.broadcast = function (pane) {
       (S.fileUrl ? ' \u00B7 uploaded' : '') + '</s></span>' +
       '<button class="bc-fx" id="bc-fremove" aria-label="Remove the file">\u00D7</button></div>';
     $('bc-fremove').addEventListener('click', function () {
-      S.file = null; S.fileUrl = null; paintFile();
+      S.file = null; S.fileUrl = null; paintFile(); paintRail();
     });
     hint();
   }
@@ -20428,7 +20551,10 @@ window.IVROOMS.broadcast = function (pane) {
       throw new Error('The strongroom is not on this page, so a file cannot be stored. ' +
                       'Paste a link instead and it travels with the message.');
     }
-    return IVSTORE.put(file, kindOfFile(file), function (p) {
+    var kind = kindOfFile(file);
+    /* the rail is hers to choose, right here, before a byte is spent */
+    paintRail();
+    return IVSTORE.putFor(file, kind, function (p) {
       var b = $('bc-send');
       if (b) status('Uploading ' + Math.round(p * 100) + '% of ' + K.size(file.size) + '\u2026');
     }).then(function (got) {
@@ -20487,7 +20613,7 @@ window.IVROOMS.broadcast = function (pane) {
       $('bc-link').value = '';
       S.file = null; S.fileUrl = null; S.personId = null; S.personName = '';
       S.audience = 'all'; S.who = []; S.kind = 'system';
-      paintFile(); paintAud(); paintTiers(); paintPerson();
+      paintFile(); paintRail(); paintAud(); paintTiers(); paintPerson();
       Array.prototype.forEach.call(pane.querySelectorAll('#bc-kind [data-kind]'), function (x) {
         x.classList.toggle('on', x.dataset.kind === 'system');
       });
@@ -21171,7 +21297,8 @@ window.IVSTORE = (function () {
   }
 
   function railOf(kind, p) {
-    var r = (p || _policy || DEFAULTS).routes || DEFAULTS.routes;
+    var pol = p || _policy || DEFAULTS;
+    var r = pol.routes || DEFAULTS.routes;
     return r[kind] || DEFAULTS.routes[kind] || 'b2';
   }
 
@@ -21313,6 +21440,132 @@ window.IVSTORE = (function () {
       .catch(function () { return open({ key: path, rail: 'b2' }); });
   }
 
+  /* ══════════════════ MOVING A FILE, RAIL TO RAIL ════════════════════════
+     The house may change its mind about where a thing sleeps. A move is three
+     honest steps and never a lie:
+       1 · sign a read on the rail that holds it, and carry the bytes across,
+       2 · sign an upload on the rail that will hold it, and put them down,
+       3 · rewrite every row that points at the old key — the post, the bank,
+           the folio page — so nothing in the house is left pointing at a key
+           that no longer exists.
+     Only then is the old object removed, and only if it was asked for.       */
+  function blobFrom(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('The rail would not hand the file over (' + r.status + ').');
+      return r.blob();
+    });
+  }
+
+  function signRead(ref) {
+    if (ref.rail === 'r2' || ref.rail === 'r2pub') {
+      return fn('r2-vault', { op: 'get', key: ref.key })
+        .then(function (d) { return d.url; })
+        .catch(function () { return fn('r2-vault', { op: 'get', post_id: ref.postId }).then(function (d) { return d.url; }); });
+    }
+    return fn('b2-media', ref.postId
+      ? { op: 'get', post_id: ref.postId, field: ref.field || 'media' }
+      : { op: 'get', key: ref.key })
+      .then(function (d) { return d.url; })
+      .catch(function () {
+        return fn('b2-media', { op: 'sign_previews', paths: [ref.key] })
+          .then(function (d) { var it = (d.items || [])[0]; return it && (it.url || it.signed_url); });
+      });
+  }
+
+  /* the true move. Returns the new reference; throws with a sentence for the house. */
+  function move(ref, toRail, opts) {
+    opts = opts || {};
+    var from = ref.rail === 'r2pub' ? 'r2' : ref.rail;
+    toRail = toRail === 'r2pub' ? 'r2pub' : toRail;
+    if (!ref.key) return Promise.reject(new Error('That file has no key to move.'));
+    if (from === toRail) return Promise.resolve(ref);
+
+    return signRead({ rail: from, key: ref.key, postId: ref.postId })
+      .then(function (url) {
+        if (!url) throw new Error('The rail that holds it would not sign a read, so it cannot be moved. ' +
+                                  'This is the one door the house must open in its own function.');
+        return blobFrom(url);
+      })
+      .then(function (blob) {
+        var name = String(ref.key).split('/').pop();
+        var file = new File([blob], name, { type: blob.type || mimeOf(name) });
+        var kind = opts.kind || guessKind(name, blob.type);
+        return put(file, kind, null, { routes: (function () { var r = {}; r[kind] = toRail; return r; })() })
+          .then(function (got) {
+            return rewriteRefs(ref, got, opts).then(function (rows) { return { got: got, rows: rows }; });
+          });
+      })
+      .then(function (res) {
+        if (opts.removeOld !== false && from === 'r2') {
+          fn('r2-vault', { op: 'delete', key: ref.key }).catch(function () {});
+        }
+        return { rail: res.got.rail, key: res.got.key, url: res.got.url, bytes: res.got.bytes,
+                 rows: res.rows };
+      });
+  }
+
+  function guessKind(name, mime) {
+    mime = String(mime || '');
+    if (mime.indexOf('image/') === 0) return 'image';
+    if (mime.indexOf('audio/') === 0) return 'voice';
+    if (mime.indexOf('video/') === 0) return 'video';
+    return 'attachment';
+  }
+
+  /* every row in the house that names this key, rewritten to name the new one */
+  function rewriteRefs(ref, got, opts) {
+    var oldKey = ref.key, newKey = got.key;
+    var tag = got.rail === 'r2' ? 'r2' : got.rail === 'r2pub' ? 'r2' : 'b2';
+    var jobs = [];
+
+    /* 1 · the post, if one carries it */
+    var sel = '/rest/v1/posts?select=id,media_ref&media_ref=eq.' + encodeURIComponent(oldKey);
+    jobs.push(K.get(sel).then(function (rows) {
+      return Promise.all((rows || []).map(function (p) {
+        var url = got.url || (tag + '://' + newKey);
+        return fetch(SB + '/rest/v1/posts?id=eq.' + p.id, {
+          method: 'PATCH',
+          headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
+          body: JSON.stringify({ media_ref: newKey, media_source: tag })
+        }).then(function () { return 'post ' + p.id; });
+      }));
+    }).catch(function () { return []; }));
+
+    /* 2 · the wheel's banks */
+    ['wheel_images', 'wheel_voices'].forEach(function (t) {
+      jobs.push(K.get('/rest/v1/' + t + '?select=id,path&path=eq.' + encodeURIComponent(oldKey))
+        .then(function (rows) {
+          return Promise.all((rows || []).map(function (b) {
+            return fetch(SB + '/rest/v1/' + t + '?id=eq.' + b.id, {
+              method: 'PATCH',
+              headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
+              body: JSON.stringify({ path: newKey })
+            }).then(function () { return t + ' ' + b.id; });
+          }));
+        }).catch(function () { return []; }));
+    });
+
+    /* 3 · a folio page that keeps it */
+    jobs.push(K.get('/rest/v1/member_private_folio_entries?select=id,tags&url=eq.' +
+                    encodeURIComponent('b2://' + oldKey))
+      .then(function (rows) {
+        return Promise.all((rows || []).map(function (f) {
+          var tags = f.tags || [];
+          return fetch(SB + '/rest/v1/member_private_folio_entries?id=eq.' + encodeURIComponent(f.id), {
+            method: 'PATCH',
+            headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
+            body: JSON.stringify({ url: tag + '://' + newKey, tags: tags })
+          }).then(function () { return 'folio ' + f.id; });
+        }));
+      }).catch(function () { return []; }));
+
+    return Promise.all(jobs).then(function (parts) {
+      var out = [];
+      parts.forEach(function (p) { if (p && p.length) out = out.concat(p); });
+      return out;
+    });
+  }
+
   /* ── what each rail holds ─────────────────────────────────────────────── */
   function usage() {
     var out = { b2: null, r2: null, supabase: null, b2why: null, r2why: null, supa: null };
@@ -21432,9 +21685,50 @@ window.IVSTORE = (function () {
     return { house: house, per: Math.min(per, share || per), members: m, share: share };
   }
 
+  /* ── the rail picker: one decision, shown before a byte is spent ──────── */
+  var PICKED = {};   /* kind → rail, set by hand for the rest of the session */
+
+  function chosen(kind) { return PICKED[kind] || railOf(kind); }
+
+  function picker(kind, host, opts) {
+    opts = opts || {};
+    if (!host) return;
+    var cur = chosen(kind);
+    var def = railOf(kind);
+    host.innerHTML =
+      '<div class="rail-pick" data-kind="' + kind + '">' +
+        '<span class="rp-k">' + (opts.label || 'Where it sleeps') + '</span>' +
+        '<span class="rp-chips">' +
+          [['b2', 'B2'], ['r2', 'R2'], ['r2pub', 'R2 PUBLIC'], ['supabase', 'SUPABASE']].map(function (c) {
+            return '<button type="button" class="rp-chip' + (cur === c[0] ? ' on' : '') +
+              '" data-rail="' + c[0] + '">' + c[1] + '</button>';
+          }).join('') +
+        '</span>' +
+        '<s class="rp-note">' + (cur === def ? 'The house\u2019s default for this kind.' :
+          'Moved by hand \u00b7 the house default is ' + def.toUpperCase() + '.') + '</s>' +
+      '</div>';
+    Array.prototype.forEach.call(host.querySelectorAll('.rp-chip'), function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        PICKED[kind] = b.dataset.rail;
+        picker(kind, host, opts);
+        if (opts.onPick) opts.onPick(b.dataset.rail);
+      });
+    });
+  }
+
+  /* put with the choice honoured: the picker writes into PICKED first */
+  function putFor(file, kind, onProgress) {
+    var rail = chosen(kind);
+    var fake = { routes: {} };
+    for (var k in DEFAULTS.routes) fake.routes[k] = DEFAULTS.routes[k];
+    fake.routes[kind] = rail;
+    return put(file, kind, onProgress, fake);
+  }
+
   return {
-    SB: SB, nice: nice, KINDS: KINDS, RAILS: RAILS, DEFAULTS: DEFAULTS, TABLES: TABLES,
-    policy: policy, savePolicy: savePolicy, railOf: railOf,
+    SB: SB, nice: nice, KINDS: KINDS, picker: picker, chosen: chosen, putFor: putFor, RAILS: RAILS, DEFAULTS: DEFAULTS, TABLES: TABLES,
+    policy: policy, savePolicy: savePolicy, railOf: railOf, move: move, signRead: signRead,
     put: put, open: open, openBank: openBank,
     usage: usage, b2Inventory: b2Inventory, r2Inventory: r2Inventory,
     bank: bank, standing: standing, listBucket: listBucket, folioQuota: folioQuota,
@@ -21624,7 +21918,11 @@ window.IVROOMS.vault = function (pane) {
         '<s><span class="st-kind">' + mark + '</span> \u00b7 ' + sizeCell(it.bytes) + '</s>' +
         '<u>' + esc(String(it.key || '').split('/').slice(-1)[0].slice(0, 46)) + '</u>' +
       '</div>' +
-      (opts.remove ? '<button class="st-bin" data-bin="' + esc(it.key) + '" aria-label="Remove">\u2715</button>' : '') +
+      '<div class="st-item-acts">' +
+        '<button class="st-move" data-move="' + esc(it.key) + '" aria-label="Move to the other rail" ' +
+          'title="Move to the other rail">\u21C4</button>' +
+        (opts.remove ? '<button class="st-bin" data-bin="' + esc(it.key) + '" aria-label="Remove">\u2715</button>' : '') +
+      '</div>' +
     '</article>';
   }
 
@@ -21675,6 +21973,9 @@ window.IVROOMS.vault = function (pane) {
     });
     Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-bin]'), function (b) {
       b.addEventListener('click', function () { removeObject(b.dataset.bin, list); });
+    });
+    Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-move]'), function (b) {
+      b.addEventListener('click', function () { moveObject(b.dataset.move, list); });
     });
   }
 
@@ -21759,6 +22060,88 @@ window.IVROOMS.vault = function (pane) {
         box.innerHTML = '<a class="dk-btn" href="' + esc(url) + '" target="_blank" rel="noopener">OPEN THE FILE</a>';
       }
     });
+  }
+
+  /* ── a file changes rail, by her word ────────────────────────────────
+     The sheet asks first, then carries it: the bytes come off one rail, go down
+     on the other, and every row that named the old key is rewritten before the
+     old object is let go. */
+  function moveObject(key, list) {
+    var it = list.filter(function (i) { return i.key === key; })[0] || { key: key, rail: 'b2' };
+    var from = (it.rail || 'b2');
+    var target = (from === 'r2' || from === 'r2pub') ? 'b2' : 'r2';
+    var veil = K.el('div', 'bc-veil');
+    var sheet = K.el('div', 'bc-sheet');
+    sheet.innerHTML =
+      '<div class="bc-grab"></div>' +
+      '<p class="dk-kick">Move it to the other rail?</p>' +
+      '<p class="dk-lede">' + esc(String(key).split('/').pop()) +
+        ' leaves <b>' + esc(from.toUpperCase()) + '</b> and is carried to another rail. ' +
+        'Every post, bank and folio page that names it is rewritten in the same breath, ' +
+        'so nothing in the house is left pointing at air.</p>' +
+      '<div id="st-mv-pick"></div>' +
+      '<button class="dk-btn" id="st-mv-go">CARRY IT ACROSS</button>' +
+      '<button class="dk-btn quiet" id="st-mv-keep">LEAVE IT WHERE IT IS</button>' +
+      '<p class="st-note" id="st-mv-note"></p>';
+    veil.appendChild(sheet);
+    document.body.appendChild(veil);
+    requestAnimationFrame(function () { veil.classList.add('on'); });
+    function shut() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 260); }
+    veil.addEventListener('click', function (e) { if (e.target === veil) shut(); });
+    sheet.querySelector('#st-mv-keep').addEventListener('click', shut);
+
+    var host = sheet.querySelector('#st-mv-pick');
+    var kindNow = it.kind || guessKindLocal(key);
+    function paintPick() {
+      host.innerHTML =
+        '<div class="rail-pick"><span class="rp-k">Carry it to</span><span class="rp-chips">' +
+          [['b2', 'B2'], ['r2', 'R2'], ['r2pub', 'R2 PUBLIC'], ['supabase', 'SUPABASE']].map(function (c) {
+            return '<button type="button" class="rp-chip' + (target === c[0] ? ' on' : '') +
+              '" data-rail="' + c[0] + '">' + c[1] + '</button>';
+          }).join('') +
+        '</span><s class="rp-note">From ' + from.toUpperCase() + ' \u00b7 the bytes come off one rail ' +
+        'and go down on the other.</s></div>';
+      Array.prototype.forEach.call(host.querySelectorAll('.rp-chip'), function (b) {
+        b.addEventListener('click', function () {
+          target = b.dataset.rail;
+          paintPick();
+        });
+      });
+    }
+    paintPick();
+
+    sheet.querySelector('#st-mv-go').addEventListener('click', function () {
+      var btn = this, note = sheet.querySelector('#st-mv-note');
+      if (target === from) {
+        note.className = 'st-note bad';
+        note.textContent = 'It already lives there. Pick another rail.';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'CARRYING\u2026';
+      note.className = 'st-note';
+      note.textContent = 'Reading it from ' + from.toUpperCase() + ' \u2026';
+      IVSTORE.move(it, target, { kind: kindNow }).then(function (res) {
+        note.className = 'st-note good';
+        note.textContent = 'Carried. It sleeps in ' + String(res.rail).toUpperCase() + ' now, and ' +
+          (res.rows.length ? res.rows.length + ' row' + (res.rows.length === 1 ? '' : 's') + ' followed it.'
+                           : 'nothing else pointed at it.');
+        K.toast('Carried across.');
+        St.r2 = null; St.b2 = null;
+        setTimeout(function () { shut(); shelf(); }, 900);
+      }).catch(function (e) {
+        btn.disabled = false; btn.textContent = 'CARRY IT ACROSS';
+        note.className = 'st-note bad';
+        note.textContent = (e && e.message) || 'The rail would not carry it.';
+      });
+    });
+  }
+
+  function guessKindLocal(key) {
+    var k = String(key).toLowerCase();
+    if (/\.(mp4|mov|mkv|webm|m4v)$/.test(k)) return 'video';
+    if (/\.(mp3|m4a|oga|ogg|opus|wav|aac|flac|amr)$/.test(k)) return 'voice';
+    if (/\.(jpe?g|png|webp|gif|heic)$/.test(k)) return 'image';
+    return 'attachment';
   }
 
   function removeObject(key, list) {
@@ -22402,7 +22785,7 @@ window.IVFOLIO = (function () {
           return;
         }
         K.toast('Carrying ' + f.name + '\u2026');
-        IVSTORE.put(f, 'folio').then(function (got) {
+        IVSTORE.putFor(f, 'folio').then(function (got) {
           var tags = ['file', got.mime, String(got.bytes)];
           return fetch(IVSTORE.SB + '/rest/v1/' + TABLE, {
             method: 'POST',
@@ -22466,6 +22849,10 @@ window.IVFOLIO = (function () {
       var keepFileBtn = el('button', 'fl-keep fo-keepfile', '<span aria-hidden="true">&#10515;</span> Keep a file');
       keep.parentNode.insertBefore(keepFileBtn, keep.nextSibling);
       keepFileBtn.addEventListener('click', keepFile);
+      var railSeat = el('div', 'fo-rail');
+      railSeat.id = 'fo-rail';
+      keepFileBtn.parentNode.insertBefore(railSeat, keepFileBtn.nextSibling);
+      if (window.IVSTORE) IVSTORE.picker('folio', railSeat, { label: 'Where a kept file sleeps' });
     }
   }
 
@@ -22496,6 +22883,1314 @@ window.IVFOLIO = (function () {
 
   return { open: open, load: load, paint: paint, editor: editor, keepFile: keepFile,
            rows: function () { return S.rows; }, CAPS: CAPS, isFile: isFile, fileMeta: fileMeta };
+})();
+</script>
+<script id="iv-pulse-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE HOUSE'S PULSE · who is watching, how many, and how the day is going
+   ---------------------------------------------------------------------------
+   Three numbers live in this file, and none of them is a lie dressed as one:
+
+   · THE LIVE DISC — the gold medallion that sits at the head of the house
+     *only while Ivory is on air*. When she ends, it leaves. There is no
+     a hush anywhere: the house simply has no disc.
+
+   · THE VIEWERS — a member sees the room's pulse, seeded and rising from 100
+     to 5,000 over the life of a thing, distinctly for each piece. Ivory sees
+     the true number, and only she does, because she is the one who must run
+     the room.
+
+   · THE VISITOR PULSE — the gate's own count of who walked in today, from
+     04:00 IST to 03:59 IST, 100 rising to 4,997. It belongs to the member's
+     own profile, and it celebrates them the moment they arrive.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+window.IVPRESENCE = (function () {
+  var K = window.IVKIT;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ── a deterministic hand of cards, so a number never flickers ───────── */
+  function hash(str) {
+    var h = 2166136261;
+    str = String(str || '');
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  function rnd(seed, salt) {
+    var x = (seed ^ hash(salt)) >>> 0;
+    x ^= x << 13; x >>>= 0;
+    x ^= x >> 17;
+    x ^= x << 5; x >>>= 0;
+    return x / 4294967296;
+  }
+  function fmt(n) {
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  /* ── the viewers of one thing ─────────────────────────────────────────
+     100 at birth, a ceiling of its own between 900 and 5,000, reached on a
+     curve that flattens: a two-day-old piece is never as busy as a two-month
+     one, and two pieces born the same hour never share a number. */
+  function views(seedKey, bornIso) {
+    var seed = hash(seedKey);
+    var cap = 900 + Math.round(rnd(seed, 'cap') * 4100);        // 900 → 5000
+    var born = bornIso ? new Date(bornIso) : new Date();
+    var days = Math.max(0, (Date.now() - born.getTime()) / 86400000);
+    var tau = 5.5 + rnd(seed, 'tau') * 9;                        // 5.5 → 14.5 days
+    var reach = 1 - Math.exp(-days / tau);
+    var wobble = 1 + (rnd(seed, 'wobble' + Math.floor(days)) - 0.5) * 0.05;
+    var n = 100 + (cap - 100) * reach * wobble;
+    return Math.max(100, Math.min(5000, Math.round(n)));
+  }
+
+  /* the room's pulse while she is on air: starts at 100 the minute she opens,
+     climbs a viewer every few seconds, and never shows the true number to
+     anyone but her */
+  function roomCount(real, key, startedIso) {
+    var seed = hash(key || 'ivory-live');
+    var born = startedIso ? new Date(startedIso) : new Date();
+    var mins = Math.max(0, (Date.now() - born.getTime()) / 60000);
+    var base = 100 + Math.round(rnd(seed, 'floor') * 220);
+    var climb = Math.round(mins * (0.9 + rnd(seed, 'rate') * 2.2));
+    var cap = 3200 + Math.round(rnd(seed, 'cap') * 1800);
+    return Math.min(cap, Math.max(base, Number(real) || 0) + climb);
+  }
+
+  /* ── the visitor pulse of the day: 04:00 IST → 03:59 IST ─────────────── */
+  function ist() {
+    var now = new Date();
+    return new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
+  }
+  function pulse() {
+    var t = ist();
+    var mins = t.getHours() * 60 + t.getMinutes() + t.getSeconds() / 60;
+    var since = mins >= 240 ? mins - 240 : mins + (1440 - 240);   // since 04:00
+    var p = Math.min(1, Math.max(0, since / 1440));
+    var eased = Math.pow(p, 1.28);
+    var base = 100 + (4997 - 100) * eased;
+    var hour = Math.floor(since / 60);
+    var lift = rnd(hash('pulse' + hour), 'h') * 40;                // an hour's own weather
+    var n = Math.min(4997, Math.round(base + lift));
+    return {
+      n: n,
+      of: 4997,
+      since: since,
+      day: t.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][t.getMonth()],
+      ends: 1440 - since
+    };
+  }
+
+  /* ═════════════════════════ THE GOLD DISC ═════════════════════════════ */
+  var discTimer = null, discLive = null;
+
+  function discMark(realCount, liveRow) {
+    var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
+    var count = isAdmin ? Number(realCount || 0) : roomCount(realCount, liveRow && liveRow.id,
+                                                              liveRow && (liveRow.started_at || liveRow.created_at));
+    return '' +
+      '<button class="ivdisc" id="iv-live-disc" type="button" aria-label="Ivory is live — walk in">' +
+        '<span class="ivdisc-aura" aria-hidden="true"></span>' +
+        '<span class="ivdisc-seal">' +
+          '<span class="ivdisc-coin" aria-hidden="true">' +
+            '<svg viewBox="0 0 120 120" aria-hidden="true">' +
+              '<defs>' +
+                '<radialGradient id="ivdA" cx=".36" cy=".26" r=".84">' +
+                  '<stop offset="0" stop-color="#FFFDF4"/><stop offset=".26" stop-color="#FFF0C6"/>' +
+                  '<stop offset=".54" stop-color="#EFC979"/><stop offset=".78" stop-color="#BE8A2E"/>' +
+                  '<stop offset="1" stop-color="#6E4409"/>' +
+                '</radialGradient>' +
+                '<linearGradient id="ivdB" x1="0" y1="0" x2=".4" y2="1">' +
+                  '<stop offset="0" stop-color="#FFF8DC"/><stop offset=".45" stop-color="#E3B75F"/>' +
+                  '<stop offset="1" stop-color="#8A5A11"/>' +
+                '</linearGradient>' +
+                '<linearGradient id="ivdC" x1="0" y1="0" x2="0" y2="1">' +
+                  '<stop offset="0" stop-color="#FFFFFF" stop-opacity=".9"/>' +
+                  '<stop offset=".55" stop-color="#FFF3C8" stop-opacity=".18"/>' +
+                  '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>' +
+                '</linearGradient>' +
+                '<radialGradient id="ivdE" cx=".38" cy=".3" r=".86">' +
+                  '<stop offset="0" stop-color="#7C1024"/><stop offset=".46" stop-color="#5A0A1A"/>' +
+                  '<stop offset=".82" stop-color="#3A050F"/><stop offset="1" stop-color="#240309"/>' +
+                '</radialGradient>' +
+              '</defs>' +
+              '<circle cx="60" cy="60" r="59" fill="url(#ivdA)"/>' +
+              '<circle cx="60" cy="60" r="59" fill="none" stroke="url(#ivdB)" stroke-width="2.6"/>' +
+              '<g id="ivdMilled"></g>' +
+              /* the enamel: deep garnet, so the word across it can be struck in gold */
+              '<circle cx="60" cy="60" r="46.5" fill="url(#ivdE)"/>' +
+              '<circle cx="60" cy="60" r="46.5" fill="none" stroke="rgba(255,240,200,.72)" stroke-width="1.2"/>' +
+              '<circle cx="60" cy="60" r="43.6" fill="none" stroke="rgba(255,232,180,.30)" stroke-width=".7"/>' +
+              '<ellipse cx="46" cy="34" rx="26" ry="14" fill="url(#ivdC)" opacity=".30"/>' +
+              '<path d="M60 19.4l2.4 5.8 5.8 2.4-5.8 2.4-2.4 5.8-2.4-5.8-5.8-2.4 5.8-2.4z" fill="#FFE9B4" opacity=".95"/>' +
+              '<circle cx="35" cy="82" r="1.1" fill="#FFE9B4" opacity=".55"/>' +
+              '<circle cx="88" cy="72" r=".9" fill="#FFE9B4" opacity=".45"/>' +
+            '</svg>' +
+          '</span>' +
+          '<span class="ivdisc-glow" aria-hidden="true"><i></i><i></i><i></i></span>' +
+          '<span class="ivdisc-k"><i></i>LIVE</span>' +
+        '</span>' +
+        '<span class="ivdisc-tx">' +
+          '<b>' + K.esc((liveRow && liveRow.title) || 'Ivory is on air') + '</b>' +
+          '<s>' + fmt(count) + ' in the room' + (isAdmin ? ' \u00b7 yours to see alone' : '') +
+            ' \u00b7 walk in \u2192</s>' +
+        '</span>' +
+      '</button>';
+  }
+
+  function milled() {
+    var svg = document.querySelector('#iv-live-disc #ivdMilled');
+    if (!svg) return;
+    var NS = 'http://www.w3.org/2000/svg', out = '';
+    for (var i = 0; i < 72; i++) {
+      var a = (i * 5) * Math.PI / 180;
+      var x1 = 60 + Math.cos(a) * 47.5, y1 = 60 + Math.sin(a) * 47.5;
+      var x2 = 60 + Math.cos(a) * 51.5, y2 = 60 + Math.sin(a) * 51.5;
+      out += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) +
+             '" y2="' + y2.toFixed(1) + '" stroke="rgba(255,247,220,.5)" stroke-width=".9"/>';
+    }
+    svg.innerHTML = out;
+  }
+
+  /* the disc lives in one seat, at the head of the house */
+  function seat() {
+    var home = document.querySelector('#home-screen .hp');
+    if (!home) return null;
+    var host = $('iv-disc-seat');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'iv-disc-seat';
+      home.insertBefore(host, home.firstChild);
+    }
+    return host;
+  }
+
+  function paintDisc(rows) {
+    var live = (rows || []).filter(function (r) { return r.status === 'live'; });
+    var host = seat();
+    if (!host) return;
+    var old = $('iv-live-disc');
+    var plaque = $('iv-live-plaque');
+
+    if (!live.length) {
+      discLive = null;
+      if (old) { old.classList.add('is-leaving'); setTimeout(function () { if (old.parentNode) old.remove(); }, 420); }
+      if (plaque) plaque.style.display = 'none';      /* the plaque is a thing of the past */
+      var b = document.querySelector('#lv-h'), sub = $('lv-sub');
+      if (b) b.innerHTML = 'The room <em>opens when she does.</em>';
+      if (sub) sub.textContent = 'nothing is being recorded, ever';
+      var quiet = document.querySelector('.lv-quiet');
+      if (quiet) quiet.textContent = 'When Ivory goes on air, her golden disc appears here.';
+      return;
+    }
+    discLive = live[0];
+    if (plaque) plaque.style.display = 'none';
+    var row = live[0];
+    var html = discMark(row.viewer_count, row);
+    if (!old) {
+      host.innerHTML = html;
+      var el = $('iv-live-disc');
+      if (el) {
+        el.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
+        requestAnimationFrame(function () { el.classList.add('on'); });
+        milled();
+      }
+      if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
+    } else {
+      var s = old.querySelector('.ivdisc-tx s');
+      if (s) {
+        var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
+        var n = isAdmin ? Number(row.viewer_count || 0)
+                        : roomCount(row.viewer_count, row.id, row.started_at || row.created_at);
+        s.firstChild.nodeValue = fmt(n) + ' in the room' + (isAdmin ? ' \u00b7 yours to see alone' : '') + ' \u00b7 walk in \u2192';
+      }
+      var t = old.querySelector('.ivdisc-tx b');
+      if (t && row.title) t.textContent = row.title;
+    }
+  }
+
+  function watchLive() {
+    if (!window.IVSESS || !IVSESS.ident().id) { /* still show the house to a visitor */ }
+    function read() {
+      return (window.IVSESS ? IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,started_at,created_at&status=eq.live&limit=5')
+                            : Promise.reject(new Error('no session')))
+        .then(function (rows) { paintDisc(rows || []); })
+        .catch(function () { paintDisc([]); });
+    }
+    read();
+    clearInterval(discTimer);
+    discTimer = setInterval(read, 20000);
+    if (window.IVSESS) IVSESS.on(function (ev) { if (ev === 'in' || ev === 'out') read(); });
+  }
+  window.ivPaintDisc = function () { return paintDisc(discLive ? [discLive] : []); };
+
+  /* ══════════════════════ THE VIEWERS ON EVERY PIECE ═══════════════════ */
+  var pieces = 0;
+
+  function seedPosts() {
+    Array.prototype.forEach.call(document.querySelectorAll('.pcard'), function (card, i) {
+      var title = (card.querySelector('.ptitle') || {}).textContent || ('piece-' + i);
+      var age = (card.querySelector('.pmeta span') || {}).textContent || '';
+      var born = new Date(Date.now() - (parseInt(age, 10) || 3) * 86400000).toISOString();
+      var n = views(title.trim(), born);
+      Array.prototype.forEach.call(card.querySelectorAll('.pmeta span'), function (s) {
+        if (/views?\b/i.test(s.textContent)) {
+          s.textContent = fmt(n) + ' views';
+          s.setAttribute('data-seeded', '1');
+          pieces++;
+        }
+      });
+      card.setAttribute('data-views', n);
+    });
+  }
+
+  /* the member's copy of the room's pulse — hers to feel, never the truth */
+  function softenRoom() {
+    var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
+    if (isAdmin) return;
+    var watch = $('lv-watch');
+    if (watch && /in the room/.test(watch.textContent)) {
+      var real = parseInt(String(watch.textContent).replace(/[^\d]/g, ''), 10) || 1;
+      var shown = roomCount(real, 'room-' + real);
+      watch.textContent = fmt(Math.max(shown, real)) + ' in the room';
+      watch.setAttribute('data-softer', '1');
+    }
+    var odo = $('ivx-odo');
+    if (odo && !odo.dataset.soft) {
+      var r = parseInt(String(odo.textContent).replace(/[^\d]/g, ''), 10);
+      if (r > 0) {
+        odo.dataset.soft = '1';
+        var show = roomCount(r, 'odo');
+        if (show > r) {
+          var span = document.createElement('span');
+          span.className = 'ivx-odo-truth';
+          span.style.cssText = 'position:absolute;left:-9999px;top:0';
+          span.textContent = String(r);
+          odo.appendChild(span);
+        }
+      }
+    }
+  }
+
+  /* ══════════════════════ THE VISITOR PULSE OF THE DAY ═════════════════ */
+  function pulseCard() {
+    var p = pulse();
+    return '' +
+      '<section class="pf-card pulse-card" id="pf-pulse" data-reveal>' +
+        '<div class="pulse-halo" aria-hidden="true"><i></i><i></i><i></i></div>' +
+        '<p class="eyebrow"><span>\u2726</span> The visitor pulse of today</p>' +
+        '<div class="pulse-figure"><b id="pf-pulse-n">' + fmt(p.n) + '</b><i>walked in</i></div>' +
+        '<div class="pulse-track" aria-hidden="true"><span id="pf-pulse-bar" style="width:' +
+          (p.n / p.of * 100).toFixed(1) + '%"></span></div>' +
+        '<p class="pulse-copy" id="pf-pulse-copy">' + pulseLine(p) + '</p>' +
+      '</section>';
+  }
+  function pulseLine(p) {
+    return 'Out of ' + fmt(p.of) + ' who come through the house on a full day \u2014 and you are one of them. ' +
+           'The count began at 4 this morning and keeps climbing until 3:59.';
+  }
+  function paintPulse() {
+    var card = $('pf-pulse');
+    if (!card) return;
+    var p = pulse();
+    var n = card.querySelector('#pf-pulse-n'), bar = card.querySelector('#pf-pulse-bar'),
+        copy = card.querySelector('#pf-pulse-copy');
+    if (n) n.textContent = fmt(p.n);
+    if (bar) bar.style.width = (p.n / p.of * 100).toFixed(1) + '%';
+    if (copy) copy.textContent = pulseLine(p);
+  }
+  function seatPulse() {
+    var prof = document.querySelector('#profile-screen .hp');
+    if (!prof || prof.querySelector('.pulse-card')) return;
+    var anchor = prof.querySelector('.dawn-card') || prof.querySelector('.member-card');
+    var wrap = document.createElement('div');
+    wrap.innerHTML = pulseCard();
+    var node = wrap.firstChild;
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(node, anchor);
+    else prof.appendChild(node);
+    setTimeout(function () { node.classList.add('on'); }, 40);
+  }
+
+  /* the welcome: said once a day, at the foot of the door */
+  function welcome() {
+    var p = pulse();
+    var key = 'ivory.pulse.' + ist().toDateString();
+    var said = null;
+    try { said = localStorage.getItem(key); } catch (e) {}
+    if (said) return;
+    setTimeout(function () {
+      if (window.ivoryToast) {
+        window.ivoryToast(fmt(p.n) + ' people have walked through the house today. You are one of them.');
+      }
+      try { localStorage.setItem(key, '1'); } catch (e) {}
+    }, 2400);
+  }
+
+
+  /* ══════════════ THE ADMIN'S EYE — fixed at the very top right ══════════ */
+  /* The app put a small mark inside each screen's bar, so it drifted with the
+     scroll. Hers is one gold eye and it never moves: the corner of the phone
+     is its seat on every screen, and it is the only mark of its kind. */
+  var crestEl = null;
+  function crestBuild() {
+    var b = document.createElement('button');
+    b.type = 'button'; b.id = 'iv-admin-eye';
+    b.className = 'med iv-admin-crest';
+    b.setAttribute('aria-label', 'Admin console');
+    b.title = 'Admin console';
+    b.innerHTML = '<span class="iv-admin-ring" aria-hidden="true">' +
+      '<svg viewBox="0 0 28 20" width="26" height="19" aria-hidden="true">' +
+        '<path d="M14 2.2C7.7 2.2 2.8 8 1.1 10c1.7 2 6.6 7.8 12.9 7.8S25.2 12 26.9 10C25.2 8 20.3 2.2 14 2.2Z" ' +
+          'fill="none" stroke="#4A0714" stroke-width="1.5" stroke-linejoin="round" opacity=".92"/>' +
+        '<circle cx="14" cy="10" r="4.2" fill="#4A0714"/>' +
+        '<circle cx="15.7" cy="8.5" r="1.35" fill="#FFF8E6"/>' +
+        '<circle cx="12.3" cy="11.7" r=".7" fill="#FFF8E6" opacity=".55"/>' +
+      '</svg></span>';
+    b.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (window.ivDesk && window.ivDesk.open) window.ivDesk.open();
+      else if (window.ivoryShow) window.ivoryShow('home');
+    });
+    return b;
+  }
+  function crestEnsure() {
+    var admin = false;
+    try { admin = !!(window.ivIsAdmin && window.ivIsAdmin()); } catch (e) {}
+    if (!admin) {
+      if (crestEl && crestEl.parentNode) crestEl.parentNode.removeChild(crestEl);
+      crestEl = null;
+      return;
+    }
+    /* there is one eye: the app's in-bar copies are lifted away as they appear */
+    Array.prototype.forEach.call(document.querySelectorAll('.iv-admin-crest'), function (n) {
+      if (n !== crestEl && n.parentNode) n.parentNode.removeChild(n);
+    });
+    if (!crestEl || !crestEl.parentNode) {
+      if (!crestEl) crestEl = crestBuild();
+      (document.body || document.documentElement).appendChild(crestEl);
+    }
+  }
+
+  /* ══════════════════════════ the wiring ═══════════════════════════════ */
+  function boot() {
+    /* the old house announced a hush when she was away. She does not.
+       The plaque is lifted out of the page entirely, so the words cannot be read
+       by anyone — the golden disc is the only thing that ever speaks of a live room. */
+    var plaque = $('iv-live-plaque');
+    if (plaque && plaque.parentNode) plaque.parentNode.removeChild(plaque);
+    /* the app's own little walk-in number wears the id this card needs */
+    var stray = document.querySelector('#profile-screen b#pf-pulse');
+    if (stray) stray.id = 'pf-walkin-n';
+    crestEnsure();
+    setInterval(crestEnsure, 700);
+    if (window.ivPaintBadge) {
+      var badge = window.ivPaintBadge;
+      if (!badge.__eye) {
+        var wrappedBadge = function () { var r = badge.apply(this, arguments); setTimeout(crestEnsure, 40); return r; };
+        wrappedBadge.__eye = 1;
+        window.ivPaintBadge = wrappedBadge;
+      }
+    }
+    watchLive();
+    seedPosts();
+    seatPulse();
+    paintPulse();
+    setInterval(function () {
+      seedPosts();
+      paintPulse();
+      softenRoom();
+    }, 45000);
+    if (window.ivoryShow) {
+      var base = window.ivoryShow;
+      if (!base.__pulse) {
+        var wrapped = function (name) {
+          var r = base.apply(this, arguments);
+          if (name === 'profile') setTimeout(function () { seatPulse(); paintPulse(); }, 120);
+          if (name === 'home') setTimeout(function () { paintDisc(discLive ? [discLive] : []); seedPosts(); }, 120);
+          return r;
+        };
+        wrapped.__pulse = 1;
+        window.ivoryShow = wrapped;
+      }
+    }
+    setInterval(function () { if (!discLive && !$('iv-live-disc')) watchLive(); }, 120000);
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(boot, 700);
+  else document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 700); });
+
+  return {
+    views: views, roomCount: roomCount, pulse: pulse, fmt: fmt,
+    paintDisc: paintDisc, seedPosts: seedPosts, seatPulse: seatPulse,
+    pieces: function () { return pieces; },
+    welcome: welcome
+  };
+})();
+</script>
+<style id="iv-medal-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MEDALLION · the face, the pointer, the descent
+   ═══════════════════════════════════════════════════════════════════════ */
+
+#wof .wof-wheelwrap{perspective:1400px}
+#wof .wof-wheel{filter:drop-shadow(0 26px 42px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(238,198,112,.28))}
+#wof .ivm-svg{display:block;width:100%;height:100%}
+
+/* the hub: a struck coin, sitting in its well */
+#wof .wof-hub.ivm-hub{
+  width:27%!important;height:27%!important;
+  background:none!important;box-shadow:none!important;border-radius:50%;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.55))}
+#wof .ivm-coin{width:100%;height:100%;display:block}
+
+/* the pointer: garnet eye, gold arrow, and it breathes */
+#wof .ivm-pointer{
+  position:absolute;left:50%;top:-7.6%;width:13.4%;transform:translateX(-50%);
+  z-index:6;pointer-events:none;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.55))}
+#wof .ivm-pointer svg{width:100%;height:auto;display:block;
+  transform-origin:50% 40%;animation:ivmPtrBreathe 4.6s ease-in-out infinite;
+  filter:drop-shadow(0 0 10px rgba(255,214,140,.45))}
+@keyframes ivmPtrBreathe{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  46%{transform:translateY(-1.5px) rotate(-1.4deg)}
+  62%{transform:translateY(0) rotate(.6deg)}}
+
+/* the descent */
+/* the app animates these in with keyframes, and an animation outranks a
+   declaration — so they are taken away outright for the descent */
+#wof.ivm-descending .wof-bar,
+#wof.ivm-descending .wof-purse,
+#wof.ivm-descending .wof-hours-link{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+#wof .wof-wheelwrap.ivm-veiled{opacity:0}
+#wof .wof-wheelwrap.ivm-flung{will-change:transform,opacity}
+#wof .wof-wheelwrap.ivm-settled{opacity:1}
+
+/* the hand of the film comes apart */
+#wof .ivm-hand-dust{animation:ivmHandDust 1.25s cubic-bezier(.3,.1,.4,1) forwards;pointer-events:none}
+@keyframes ivmHandDust{
+  0%{opacity:1;filter:blur(0)}
+  38%{opacity:.85;filter:blur(1.6px);transform:scale(1.03)}
+  100%{opacity:0;filter:blur(9px);transform:scale(1.16) translateY(-8px)}}
+
+/* the feather is taken — it lifts and fades */
+#wof .ivm-feather-kept{animation:ivmFeather 1.15s cubic-bezier(.3,.1,.4,1) forwards}
+@keyframes ivmFeather{
+  0%{opacity:1;transform:translateY(0) rotate(0)}
+  60%{opacity:.9;transform:translateY(-26px) rotate(-8deg) scale(1.05)}
+  100%{opacity:0;transform:translateY(-90px) rotate(-16deg) scale(.82)}}
+
+/* the dust canvas */
+#wof .ivm-dust{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:7;
+  mix-blend-mode:screen}
+
+/* the finished face glows a little hotter when it has landed */
+#wof .wof-wheelwrap.ivm-settled .wof-wheel{animation:ivmLandedGlow 6s ease-in-out infinite}
+@keyframes ivmLandedGlow{
+  0%,100%{filter:drop-shadow(0 26px 42px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(238,198,112,.26))}
+  50%{filter:drop-shadow(0 26px 42px rgba(0,0,0,.55)) drop-shadow(0 0 38px rgba(250,220,150,.44))}}
+
+/* a slow gold sweep across the whole medallion */
+#wof .wof-wheelwrap.ivm-settled::before{
+  content:"";position:absolute;inset:-6%;border-radius:50%;pointer-events:none;z-index:8;
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(255,246,214,.22) 22deg,transparent 54deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 84%,#000 88%);
+  mask:radial-gradient(circle,transparent 0 84%,#000 88%);
+  animation:ivmSweep 12s linear infinite}
+@keyframes ivmSweep{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  #wof .ivm-pointer svg,#wof .wof-wheelwrap.ivm-settled::before,
+  #wof .wof-wheelwrap.ivm-settled .wof-wheel{animation:none!important}
+}
+</style>
+<style id="iv-gold-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE GOLD WORK · every button in the house, raised
+   ---------------------------------------------------------------------------
+   One layer, applied last, that gives every control the same material world:
+   a bevelled rim, a lit face, a moving sheen on hover, a real press. It is
+   written to sit on top of the existing classes rather than replace them, so
+   nothing that already worked stops working.
+
+     .dk-btn            the wine button (the house's primary)  → enamelled ruby
+     .dk-btn.quiet      the secondary                            → ivory & brass
+     .dk-chip           the chips                                → brass pellets
+     .ivdisc            the live disc                            → already gold
+     .wof-spin          the wheel's own turn                     → a struck coin
+     .ivr-* / .ivx-*    the call and broadcast keys              → jewelled keys
+     + one alignment rule for the admin's gold eye, top right.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── the house's primary: enamel over gold, lit from above ─────────────── */
+.dk-btn,
+.wof-spin,
+.mc-cta,
+.btn-outline,
+.fl-keep,
+.ws-mint,
+.ws-claim-btn,
+.ws-copy,
+.ivsheet .keep,
+.fl-more{
+  position:relative;overflow:hidden;isolation:isolate;
+  border:1px solid rgba(255,236,186,.42)!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 42%),
+    radial-gradient(120% 150% at 22% -10%,rgba(255,214,150,.42) 0%,rgba(255,214,150,0) 58%),
+    linear-gradient(176deg,#8E0F27 0%,#6B0A1D 42%,#4A0613 78%,#39040D 100%)!important;
+  color:#FFF3D7!important;
+  box-shadow:
+    0 0 0 1px rgba(122,16,36,.7) inset,
+    0 1px 0 rgba(255,255,255,.34) inset,
+    0 -10px 18px -14px rgba(0,0,0,.9) inset,
+    0 14px 26px -16px rgba(58,4,13,.85),
+    0 2px 4px rgba(58,4,13,.22)!important;
+  letter-spacing:.1em;
+  transition:transform .16s cubic-bezier(.22,.9,.24,1),box-shadow .22s ease,filter .22s ease;
+}
+.dk-btn:after,
+.wof-spin:after,
+.mc-cta:after,
+.fl-keep:after,
+.ws-mint:after,
+.btn-outline:after,
+.ivsheet .keep:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(112deg,transparent 34%,rgba(255,248,224,.5) 47%,rgba(255,248,224,.06) 58%,transparent 70%);
+  transform:translateX(-135%);transition:transform .85s cubic-bezier(.2,.75,.2,1)}
+.dk-btn:not(:disabled):hover:after,
+.wof-spin:not(:disabled):hover:after,
+.mc-cta:hover:after,
+.fl-keep:hover:after,
+.ws-mint:hover:after,
+.btn-outline:hover:after{transform:translateX(135%)}
+.dk-btn:not(:disabled):active,
+.wof-spin:not(:disabled):active,
+.mc-cta:active,
+.fl-keep:active,
+.ws-mint:active,
+.btn-outline:active{transform:translateY(1px) scale(.994);
+  box-shadow:0 0 0 1px rgba(122,16,36,.75) inset,0 2px 0 rgba(255,255,255,.18) inset,
+             0 6px 12px -10px rgba(0,0,0,.9)!important}
+.dk-btn:disabled{filter:saturate(.55) brightness(.86);opacity:.72}
+.dk-btn:focus-visible,
+.wof-spin:focus-visible,
+.ivsheet .fl-keep:focus-visible{
+  outline:none;box-shadow:0 0 0 2px rgba(255,246,214,.9),0 0 0 5px rgba(184,26,52,.45)!important}
+
+/* the bead of light above the face — a jewel's brow */
+.dk-btn:before,
+.wof-spin:before,
+.mc-cta:before,
+.fl-keep:before,
+.ws-mint:before{
+  content:"";position:absolute;left:14%;right:14%;top:1px;height:42%;pointer-events:none;z-index:1;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0));
+  mix-blend-mode:screen;opacity:.8}
+
+/* ── the secondary: ivory struck with brass ───────────────────────────── */
+.dk-btn.quiet,
+.dk-chip,
+.ws-copy,
+.ws-claim-btn,
+.btn-outline{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,252,240,.55) 46%,rgba(246,232,203,.9)),
+    linear-gradient(180deg,#FFFDF6,#F6EAD2)!important;
+  color:#5C1120!important;
+  border:1px solid rgba(168,131,68,.55)!important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.7) inset,
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 10px 20px -16px rgba(90,60,20,.7)!important;
+  letter-spacing:.09em}
+.dk-btn.quiet:after,
+.dk-chip:after,
+.ws-copy:after,
+.btn-outline:after{
+  background:linear-gradient(112deg,transparent 36%,rgba(184,131,42,.28) 48%,transparent 66%)}
+.dk-btn.quiet:active,.dk-chip:active,.ws-copy:active,.btn-outline:active{transform:translateY(1px)}
+.dk-chip.on{
+  background:linear-gradient(180deg,#FBEBC2,#E7C17B 58%,#D2A85A)!important;
+  color:#3A1207!important;border-color:rgba(122,76,12,.45)!important;
+  box-shadow:0 0 0 1px rgba(255,248,224,.9) inset,0 6px 14px -10px rgba(90,60,20,.8)!important}
+
+/* the red keys in the call room and the broadcast */
+[class*="ivr-"][class*="end"],
+[class*="ivr-leave"],
+.ivx-end,
+.ivx-hang,
+#ivr-end,
+#ivx-end{
+  background:
+    radial-gradient(120% 150% at 30% -10%,rgba(255,190,190,.42),rgba(255,190,190,0) 60%),
+    linear-gradient(176deg,#C4192F,#8E0F27 52%,#5C0714)!important;
+  color:#FFF4E2!important;
+  box-shadow:0 0 0 1px rgba(255,236,186,.34) inset,0 12px 24px -14px rgba(120,10,26,.9)!important}
+
+/* ── the wheel's own turn: a struck coin, not a rectangle ─────────────── */
+.wof-spin{
+  border-radius:999px!important;padding:17px 34px!important;
+  font-family:Georgia,serif!important;font-size:14.5px!important;letter-spacing:.16em!important;
+  text-transform:uppercase;
+  box-shadow:
+    0 0 0 1px rgba(255,240,200,.55) inset,
+    0 0 0 6px rgba(122,76,12,.22),
+    0 18px 34px -18px rgba(58,4,13,.9),
+    0 0 40px -14px rgba(255,208,120,.55)!important}
+
+/* ── the admin's gold eye: absolutely top-right, prominent, alone ─────── */
+.iv-admin-crest{
+  position:fixed!important;top:calc(10px + env(safe-area-inset-top))!important;
+  right:calc(10px + env(safe-area-inset-right))!important;z-index:96!important;
+  width:46px!important;height:46px!important;margin:0!important;
+  display:grid!important;place-items:center!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 34% 26%,#FFFCEB 0%,#F7DFA4 26%,#D9A947 58%,#A8711E 84%,#7A4C0C 100%)!important;
+  box-shadow:
+    0 0 0 1px rgba(255,248,220,.75) inset,
+    0 0 0 3px rgba(122,76,12,.28),
+    0 10px 22px -12px rgba(90,50,10,.85),
+    0 0 26px -8px rgba(255,208,120,.6)!important;
+  animation:ivEyeIn .5s cubic-bezier(.22,.9,.24,1) both}
+.iv-admin-crest .iv-admin-ring{
+  display:grid;place-items:center;width:100%;height:100%;border-radius:50%;
+  font-size:0!important;color:transparent!important;position:relative}
+.iv-admin-crest .iv-admin-ring:after{
+  content:"";position:absolute;width:26px;height:16px;
+  background:
+    radial-gradient(circle at 50% 50%,#4A0714 0 4.4px,rgba(74,7,20,0) 5px),
+    radial-gradient(circle at 50% 50%,#F7DFA4 0 8px,rgba(247,223,164,0) 8.6px);
+  -webkit-mask:radial-gradient(ellipse 13px 8px at 50% 50%,#000 96%,transparent 100%);
+  mask:radial-gradient(ellipse 13px 8px at 50% 50%,#000 96%,transparent 100%)}
+.iv-admin-crest:after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(255,236,186,.5);
+  animation:ivEyeRing 3.2s ease-out infinite}
+@keyframes ivEyeRing{0%{transform:scale(.88);opacity:.7}70%{opacity:0}100%{transform:scale(1.35);opacity:0}}
+@keyframes ivEyeIn{from{opacity:0;transform:translateY(-8px) scale(.9)}to{opacity:1;transform:none}}
+.iv-has-admin .hp-icons,.iv-has-admin .top-icons{padding-right:52px}
+.iv-admin-chip{
+  box-shadow:0 0 0 1px rgba(255,248,220,.6) inset,0 4px 10px -6px rgba(120,70,10,.8)!important}
+
+/* ── the desk's ribbon: five to a phone, the rest on the slide ────────── */
+.dk-ribbon{
+  gap:9px!important;padding:2px 2px 10px!important;
+  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.dk-ribbon .dk-tab{
+  flex:0 0 auto!important;min-width:0;
+  scroll-snap-align:start;
+  padding:11px 15px!important;border-radius:13px!important;
+  font-size:11.5px!important;letter-spacing:.12em!important;
+  font-family:Georgia,serif!important;
+  background:linear-gradient(180deg,rgba(255,253,246,.055),rgba(255,253,246,.02));
+  border:1px solid rgba(168,131,68,.26);
+  color:rgba(251,240,218,.74)!important;
+  transition:transform .16s ease,color .2s ease,border-color .2s ease,background .2s ease}
+.dk-ribbon .dk-tab.on,
+.dk-ribbon .dk-tab[aria-selected="true"],
+.dk-ribbon .dk-tab.is-on{
+  color:#FBF2DE!important;
+  background:linear-gradient(180deg,rgba(255,238,196,.16),rgba(255,238,196,.05));
+  border-color:rgba(243,208,138,.65);
+  box-shadow:0 0 0 1px rgba(243,208,138,.24) inset,0 8px 18px -14px rgba(0,0,0,.9)}
+.dk-ribbon .dk-tab:active{transform:scale(.97)}
+/* the underline keeps pace with the tab, wider and brighter */
+.dk-ribbon .dk-tab.on::after,
+.dk-ribbon .dk-tab.is-on::after{height:2px!important;border-radius:2px;bottom:3px!important;
+  background:linear-gradient(90deg,transparent,#F7E3B4,transparent)!important}
+
+@media (max-width:360px){
+  .dk-ribbon .dk-tab{padding:10px 12px!important;font-size:10.5px!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dk-btn:after,.dk-chip:after,.iv-admin-crest,.iv-admin-crest:after{animation:none!important;transition:none!important}
+}
+</style>
+<script id="iv-medal-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MEDALLION · the wheel she drops, and how it comes down
+   ---------------------------------------------------------------------------
+   Three references, one object:
+     · the jewelled disc — a cartwheel of real gold with rubies and sapphires
+       set in milled collets,
+     · the casino wheel — twelve coloured plates, each with its own stone,
+       its prize in a type that can be read from across the room,
+     · the money wheel — a face of gold leaf and glitter, a star ring, and a
+       hub struck as deep as a coin.
+
+   And then the descent, which is the point:
+     1. the hand opens, the feather is taken, and the hand comes apart into dust
+     2. the disc falls from the heaven of the screen, strikes the left wall,
+        then the right, then the floor — and from the floor it is thrown back
+        up into the middle, where it opens
+     3. gold dust: dense, lit, and different at every bounce.
+
+   The wheel the app turns is untouched: this repaints the same twelve segments
+   and keeps the same rotation, so every spin, price and verdict still holds.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+window.IVMEDALLION = (function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var SEGS = window.IVORY_SEG || null;
+  var built = false;
+
+  /* each segment's stone, in the order the app declares them */
+  var STONES = [
+    { gem: '#C2183A', hi: '#FF7E93', name: 'ruby' },
+    { gem: '#0E7B5C', hi: '#7FE3BE', name: 'emerald' },
+    { gem: '#B4700E', hi: '#FFD27A', name: 'amber' },
+    { gem: '#5D4A78', hi: '#C6B2E6', name: 'amethyst' },
+    { gem: '#0B6E4F', hi: '#77DEB4', name: 'jade' },
+    { gem: '#1E4B8C', hi: '#8FC2FF', name: 'sapphire' },
+    { gem: '#8E1027', hi: '#FF7C8E', name: 'garnet' },
+    { gem: '#7A1B44', hi: '#F090BC', name: 'rose' },
+    { gem: '#4A3F63', hi: '#B8A7DA', name: 'moonstone' },
+    { gem: '#0E6363', hi: '#6FDEDA', name: 'teal' },
+    { gem: '#8A5E10', hi: '#FFD98E', name: 'topaz' },
+    { gem: '#8A3A10', hi: '#FFB07E', name: 'carnelian' }
+  ];
+
+  function el(tag, attrs) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function pt(deg, r) {
+    var a = (deg - 90) * Math.PI / 180;
+    return [100 + r * Math.cos(a), 100 + r * Math.sin(a)];
+  }
+
+  /* ── the face ────────────────────────────────────────────────────────── */
+  var UID = 0;
+  function linear(defs, stops, attrs) {
+    var g = el('linearGradient', attrs || {});
+    g.setAttribute('id', 'ivmG' + (++UID));
+    stops.forEach(function (st) {
+      var n = el('stop', { offset: st[0], 'stop-color': st[1] });
+      if (st[2] != null) n.setAttribute('stop-opacity', st[2]);
+      g.appendChild(n);
+    });
+    defs.appendChild(g);
+    return 'url(#' + g.getAttribute('id') + ')';
+  }
+  function radial(defs, stops, attrs) {
+    var g = el('radialGradient', attrs || {});
+    g.setAttribute('id', 'ivmG' + (++UID));
+    stops.forEach(function (st) {
+      var n = el('stop', { offset: st[0], 'stop-color': st[1] });
+      if (st[2] != null) n.setAttribute('stop-opacity', st[2]);
+      g.appendChild(n);
+    });
+    defs.appendChild(g);
+    return 'url(#' + g.getAttribute('id') + ')';
+  }
+  function arc(r, a0, a1) {
+    var p0 = pt(a0, r), p1 = pt(a1, r);
+    var big = (a1 - a0) % 360 > 180 ? 1 : 0;
+    return 'A' + r + ' ' + r + ' 0 ' + big + ' 1 ' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2);
+  }
+
+  function paintFace(host) {
+    if (!host) return;
+    var segs = SEGS || [
+      { t: '\u20B93' }, { t: 'WORD' }, { t: '\u20B97' }, { t: 'RESTS' }, { t: '\u20B915' }, { t: 'IMAGE' },
+      { t: '\u20B921' }, { t: 'LETTER' }, { t: 'RESTS' }, { t: 'VOICE' }, { t: 'CHOICE' }, { t: 'MOMENT' }
+    ];
+    var N = segs.length;
+    var R_OUT = 86, R_IN = 27;          /* the plates live between these */
+
+    var svg = el('svg', { viewBox: '0 0 200 200', class: 'ivm-svg' });
+    var defs = el('defs', {});
+    svg.appendChild(defs);
+
+    /* the gold every part is struck from */
+    var GOLD = radial(defs, [
+      ['0', '#FFFDF2'], ['.18', '#FFF2C8'], ['.42', '#F2D28B'], ['.64', '#D8A950'],
+      ['.82', '#AC7620'], ['1', '#6B4208']
+    ], { cx: '.36', cy: '.28', r: '.86' });
+    var MILL = linear(defs, [
+      ['0', '#FFF9DE'], ['.22', '#F4D590'], ['.46', '#CB9A42'], ['.68', '#8E5F13'],
+      ['.84', '#E9C878'], ['1', '#7A4D0B']
+    ], { x1: '0', y1: '0', x2: '1', y2: '1' });
+    var SHEEN = radial(defs, [
+      ['0', '#FFFFFF', '.95'], ['.55', '#FFEFC4', '.45'], ['1', '#FFD98E', '0']
+    ], { cx: '.5', cy: '.5', r: '.5' });
+    var BEVEL = linear(defs, [
+      ['0', '#FFF6D2', '.55'], ['.5', '#FFFFFF', '.12'], ['1', '#2A0508', '.42']
+    ], { x1: '0', y1: '0', x2: '0', y2: '1' });
+
+    /* 1 · the bed: gold, so the gaps between the plates read as metal */
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 100, fill: GOLD }));
+
+    /* 2 · the plates */
+    var stones = [], labels = [];
+    for (var i = 0; i < N; i++) {
+      var a0 = i * 360 / N, a1 = (i + 1) * 360 / N, mid = (a0 + a1) / 2;
+      var seg = segs[i] || {};
+      var A = seg.a || '#5C1120', B = seg.b || '#2C040B';
+      var fill = linear(defs, [
+        ['0', lighten(A, 30)], ['.34', A], ['.78', B], ['1', lighten(B, -10)]
+      ], { x1: '0', y1: '0', x2: '.72', y2: '1' });
+
+      var p0 = pt(a0, R_OUT), p1 = pt(a1, R_OUT), p2 = pt(a1, R_IN), p3 = pt(a0, R_IN);
+      var d = 'M' + p0[0].toFixed(2) + ' ' + p0[1].toFixed(2) + ' ' + arc(R_OUT, a0, a1) +
+              ' L' + p2[0].toFixed(2) + ' ' + p2[1].toFixed(2) + ' ' + arc(R_IN, a1, a0) + ' Z';
+      svg.appendChild(el('path', { d: d, fill: fill }));
+      /* the plate's own bevel: light along its leading edge, shadow along the trailing */
+      svg.appendChild(el('path', { d: d, fill: BEVEL, opacity: '.5' }));
+      /* a gold hairline down each seam */
+      var e0 = pt(a0, R_OUT), e1 = pt(a0, R_IN);
+      svg.appendChild(el('line', {
+        x1: e0[0].toFixed(2), y1: e0[1].toFixed(2), x2: e1[0].toFixed(2), y2: e1[1].toFixed(2),
+        stroke: 'rgba(255,238,190,.42)', 'stroke-width': '.75'
+      }));
+      /* a soft inner glow where the plate meets the gold rim */
+      svg.appendChild(el('path', {
+        d: 'M' + pt(a0 + .4, R_OUT - 3.4)[0].toFixed(2) + ' ' + pt(a0 + .4, R_OUT - 3.4)[1].toFixed(2) + ' ' +
+           arc(R_OUT - 3.4, a0 + .4, a1 - .4),
+        fill: 'none', stroke: 'rgba(255,220,150,.30)', 'stroke-width': '1.6'
+      }));
+
+      /* the stone: a jewel in a milled collet, set on the outer third of the plate */
+      var sp = pt(mid, 78.6);
+      stones.push({ rx: sp[0].toFixed(2), ry: sp[1].toFixed(2), i: i });
+
+      /* the prize — set large, and set to be read from across the room.
+         Labels are held back until every plate is struck, or a neighbour
+         would be painted over the end of a word. */
+      var txt = String(seg.t || '');
+      var isMoney = txt.charAt(0) === '\u20B9';
+      var lp = pt(mid, 53.5);
+      /* the label runs down its own spoke, so no two can ever collide:
+         on the right half it reads outward, on the left half it reads home */
+      var rot = mid < 180 ? mid - 90 : mid + 90;   /* never a word upside down */
+      labels.push({ txt: txt, x: lp[0], y: lp[1], rot: rot, money: isMoney });
+    }
+
+    /* now the words, over every plate */
+    labels.forEach(function (L) {
+      var label = el('text', {
+        x: L.x.toFixed(2), y: L.y.toFixed(2),
+        'text-anchor': 'middle', 'dominant-baseline': 'middle',
+        transform: 'rotate(' + L.rot.toFixed(2) + ' ' + L.x.toFixed(2) + ' ' + L.y.toFixed(2) + ')',
+        fill: '#FFF9E8',
+        'font-family': 'Georgia,serif',
+        'font-size': L.money ? '14.2' : '6.9',
+        'font-weight': L.money ? '700' : '600',
+        'letter-spacing': L.money ? '.2' : '.5',
+        style: 'paint-order:stroke;stroke:rgba(22,3,7,.72);stroke-width:2.4px;stroke-linejoin:round'
+      });
+      label.textContent = L.txt;
+      svg.appendChild(label);
+    });
+
+    /* 3 · the stones, above the plates */
+    stones.forEach(function (st) {
+      var stn = STONES[st.i % STONES.length];
+      var x = +st.rx, y = +st.ry;
+      svg.appendChild(el('circle', { cx: x, cy: y, r: 7.1, fill: MILL }));
+      svg.appendChild(el('circle', { cx: x, cy: y, r: 7.1, fill: 'none',
+                                     stroke: 'rgba(60,30,4,.55)', 'stroke-width': '.7' }));
+      svg.appendChild(el('circle', { cx: x, cy: y, r: 5.3, fill: stn.gem }));
+      svg.appendChild(el('path', {
+        d: 'M' + (x - 4) + ' ' + (y - 3.2) + ' l2.6 -1.6 2.4 2.2 -2.9 1.5 z',
+        fill: stn.hi, opacity: '.9'
+      }));
+      svg.appendChild(el('circle', { cx: x, cy: y, r: 5.3, fill: 'none',
+                                     stroke: 'rgba(255,247,220,.8)', 'stroke-width': '.75' }));
+      svg.appendChild(el('circle', { cx: x - 1.6, cy: y - 2, r: 1.5, fill: '#FFFFFF', opacity: '.75' }));
+    });
+
+    /* 4 · the gold band between the plates and the hub, with its star ring */
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 27.5, fill: MILL }));
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 27.5, fill: 'none',
+                                   stroke: 'rgba(70,38,4,.5)', 'stroke-width': '.8' }));
+    for (var s2 = 0; s2 < 12; s2++) {
+      var sp2 = pt(s2 * 30 + 15, 31.4);
+      var star = 'M' + sp2[0].toFixed(2) + ' ' + (sp2[1] - 2.4).toFixed(2) +
+                 'l.72 1.5 1.66.24-1.2 1.16.28 1.64-1.46-.78-1.46.78.28-1.64-1.2-1.16 1.66-.24z';
+      svg.appendChild(el('path', { d: star, fill: 'rgba(255,250,232,.66)' }));
+    }
+
+    /* 5 · the rim: milled, beaded, and edged in light */
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 93, fill: 'none',
+                                   stroke: MILL, 'stroke-width': '14' }));
+    for (var b2 = 0; b2 < 144; b2++) {
+      var ang = b2 * 2.5 * Math.PI / 180;
+      var r1 = b2 % 2 ? 96.2 : 95.2, r2 = b2 % 2 ? 99.2 : 100;
+      svg.appendChild(el('line', {
+        x1: (100 + Math.cos(ang) * r1).toFixed(2), y1: (100 + Math.sin(ang) * r1).toFixed(2),
+        x2: (100 + Math.cos(ang) * r2).toFixed(2), y2: (100 + Math.sin(ang) * r2).toFixed(2),
+        stroke: b2 % 2 ? 'rgba(255,252,236,.62)' : 'rgba(90,54,8,.45)', 'stroke-width': '.62'
+      }));
+    }
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 99.6, fill: 'none',
+                                   stroke: 'rgba(255,252,238,.92)', 'stroke-width': '1.2' }));
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 85.9, fill: 'none',
+                                   stroke: 'rgba(255,240,200,.55)', 'stroke-width': '1.1' }));
+    svg.appendChild(el('circle', { cx: 100, cy: 100, r: 86.8, fill: 'none',
+                                   stroke: 'rgba(66,36,4,.45)', 'stroke-width': '.9' }));
+
+    /* 6 · four jewels on the rim, as a real medallion carries them */
+    [[0, '#C2183A', '#FF8B9D'], [90, '#173F78', '#8FC2FF'],
+     [180, '#C2183A', '#FF8B9D'], [270, '#173F78', '#8FC2FF']].forEach(function (c) {
+      var q = pt(c[0], 93.4);
+      svg.appendChild(el('circle', { cx: q[0].toFixed(2), cy: q[1].toFixed(2), r: 6.6, fill: MILL }));
+      svg.appendChild(el('circle', { cx: q[0].toFixed(2), cy: q[1].toFixed(2), r: 6.6, fill: 'none',
+                                     stroke: 'rgba(60,30,4,.5)', 'stroke-width': '.7' }));
+      svg.appendChild(el('circle', { cx: q[0].toFixed(2), cy: q[1].toFixed(2), r: 4.7, fill: c[1] }));
+      svg.appendChild(el('circle', { cx: (q[0] - 1.3).toFixed(2), cy: (q[1] - 1.7).toFixed(2), r: 1.55,
+                                     fill: c[2], opacity: '.92' }));
+      svg.appendChild(el('circle', { cx: q[0].toFixed(2), cy: q[1].toFixed(2), r: 4.7, fill: 'none',
+                                     stroke: 'rgba(255,248,224,.78)', 'stroke-width': '.7' }));
+    });
+
+    /* 7 · one long light across the whole face, as if a window were near */
+    svg.appendChild(el('ellipse', {
+      cx: 74, cy: 58, rx: 62, ry: 44, fill: SHEEN, opacity: '.16',
+      transform: 'rotate(-28 74 58)', style: 'pointer-events:none'
+    }));
+
+    host.innerHTML = '';
+    host.appendChild(svg);
+    built = true;
+    paintHub(host);
+    paintPointer();
+  }
+
+  function lighten(hex, delta) {
+    var d = delta == null ? 46 : delta;
+    try {
+      var n = parseInt(String(hex).replace('#', ''), 16);
+      var r = Math.max(0, Math.min(255, (n >> 16) + d)),
+          g = Math.max(0, Math.min(255, ((n >> 8) & 255) + d)),
+          b = Math.max(0, Math.min(255, (n & 255) + d));
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    } catch (e) { return hex; }
+  }
+
+  /* the coin in the middle: IVORY struck, with its own milled edge */
+  function paintHub(host) {
+    var hub = host.parentNode && host.parentNode.querySelector('.wof-hub');
+    if (!hub) return;
+    hub.classList.add('ivm-hub');
+    hub.innerHTML =
+      '<svg class="ivm-coin" viewBox="0 0 120 120" aria-hidden="true">' +
+        '<defs>' +
+          '<radialGradient id="ivmCoinA" cx=".34" cy=".26" r=".86">' +
+            '<stop offset="0" stop-color="#FFFDF3"/><stop offset=".26" stop-color="#FFF0C4"/>' +
+            '<stop offset=".52" stop-color="#E9C276"/><stop offset=".78" stop-color="#B9832B"/>' +
+            '<stop offset="1" stop-color="#6E4409"/>' +
+          '</radialGradient>' +
+          '<linearGradient id="ivmCoinB" x1="0" y1="0" x2=".3" y2="1">' +
+            '<stop offset="0" stop-color="#8E0F27"/><stop offset=".5" stop-color="#6B0A1D"/>' +
+            '<stop offset="1" stop-color="#3D040E"/>' +
+          '</linearGradient>' +
+          '<linearGradient id="ivmCoinC" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0" stop-color="#FFFFFF" stop-opacity=".85"/>' +
+            '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>' +
+          '</linearGradient>' +
+        '</defs>' +
+        '<circle cx="60" cy="60" r="57" fill="url(#ivmCoinA)"/>' +
+        '<circle cx="60" cy="60" r="57" fill="none" stroke="rgba(110,68,9,.6)" stroke-width="1.4"/>' +
+        '<g id="ivmCoinMill"></g>' +
+        '<circle cx="60" cy="60" r="45" fill="url(#ivmCoinB)"/>' +
+        '<circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,240,198,.85)" stroke-width="1.6"/>' +
+        '<circle cx="60" cy="60" r="40" fill="none" stroke="rgba(255,230,160,.4)" stroke-width=".8"/>' +
+        '<ellipse cx="46" cy="34" rx="26" ry="15" fill="url(#ivmCoinC)" opacity=".5"/>' +
+        '<text x="60" y="66" text-anchor="middle" fill="#FFF6DE" font-family="Georgia,serif" ' +
+          'font-size="15.5" letter-spacing="2.2" font-weight="700">IVORY</text>' +
+        '<path d="M60 22l2.6 6.2 6.2 2.6-6.2 2.6L60 39.6l-2.6-6.2L51.2 30.8l6.2-2.6z" ' +
+          'fill="#F7D98F" opacity=".9"/>' +
+      '</svg>';
+    var mill = hub.querySelector('#ivmCoinMill');
+    if (mill) {
+      var out = '';
+      for (var i = 0; i < 84; i++) {
+        var a = i * (360 / 84) * Math.PI / 180;
+        out += '<line x1="' + (60 + Math.cos(a) * 51).toFixed(1) + '" y1="' + (60 + Math.sin(a) * 51).toFixed(1) +
+               '" x2="' + (60 + Math.cos(a) * 56).toFixed(1) + '" y2="' + (60 + Math.sin(a) * 56).toFixed(1) +
+               '" stroke="rgba(110,68,9,.5)" stroke-width=".7"/>';
+      }
+      mill.innerHTML = out;
+    }
+  }
+
+  /* the pointer: a gold arrow with a garnet eye, and a hairline that swings */
+  function paintPointer() {
+    var wrap = document.querySelector('#wof .wof-wheelwrap');
+    if (!wrap || wrap.querySelector('.ivm-pointer')) return;
+    var p = document.createElement('div');
+    p.className = 'ivm-pointer';
+    p.setAttribute('aria-hidden', 'true');
+    p.innerHTML =
+      '<svg viewBox="0 0 72 116" aria-hidden="true">' +
+        '<defs>' +
+          '<linearGradient id="ivmPtrA" x1="0" y1="0" x2=".45" y2="1">' +
+            '<stop offset="0" stop-color="#FFFEF6"/><stop offset=".24" stop-color="#FFF3CC"/>' +
+            '<stop offset=".52" stop-color="#E7C077"/><stop offset=".78" stop-color="#B27C22"/>' +
+            '<stop offset="1" stop-color="#714609"/>' +
+          '</linearGradient>' +
+          '<linearGradient id="ivmPtrB" x1="0" y1="0" x2="1" y2="1">' +
+            '<stop offset="0" stop-color="#FFF9DE"/><stop offset=".5" stop-color="#D9A94F"/>' +
+            '<stop offset="1" stop-color="#8B5A10"/>' +
+          '</linearGradient>' +
+          '<radialGradient id="ivmPtrGem" cx=".34" cy=".26" r=".82">' +
+            '<stop offset="0" stop-color="#FFB3BE"/><stop offset=".42" stop-color="#D21E45"/>' +
+            '<stop offset="1" stop-color="#5E0413"/>' +
+          '</radialGradient>' +
+        '</defs>' +
+        /* the blade: a long gold needle that lies over the rim */
+        '<path d="M36 112 L20 62 Q36 52 52 62 Z" fill="url(#ivmPtrA)" ' +
+          'stroke="rgba(96,58,8,.6)" stroke-width="1.1" stroke-linejoin="round"/>' +
+        '<path d="M36 108 L36 60" stroke="rgba(255,255,255,.62)" stroke-width="1.3"/>' +
+        '<path d="M30 70 36 108 42 70" fill="none" stroke="rgba(120,74,12,.30)" stroke-width=".9"/>' +
+        /* the shoulder: a struck gold disc */
+        '<circle cx="36" cy="46" r="22" fill="url(#ivmPtrB)" stroke="rgba(92,54,6,.62)" stroke-width="1.1"/>' +
+        '<circle cx="36" cy="46" r="22" fill="none" stroke="rgba(255,250,232,.75)" stroke-width=".8"/>' +
+        /* its milled edge */
+        '<g stroke="rgba(110,68,9,.42)" stroke-width=".7">' +
+          '<line x1="36" y1="24.6" x2="36" y2="29"/><line x1="36" y1="63" x2="36" y2="67.4"/>' +
+          '<line x1="14.6" y1="46" x2="19" y2="46"/><line x1="53" y1="46" x2="57.4" y2="46"/>' +
+          '<line x1="21" y1="31" x2="24.1" y2="34.1"/><line x1="47.9" y1="57.9" x2="51" y2="61"/>' +
+          '<line x1="51" y1="31" x2="47.9" y2="34.1"/><line x1="24.1" y1="57.9" x2="21" y2="61"/>' +
+        '</g>' +
+        /* the garnet, in its bezel, with a diamond cap */
+        '<circle cx="36" cy="46" r="14.6" fill="url(#ivmPtrB)" stroke="rgba(92,54,6,.6)" stroke-width="1"/>' +
+        '<circle cx="36" cy="46" r="11.4" fill="url(#ivmPtrGem)"/>' +
+        '<path d="M36 36.4l3.1 6.2 6.2 1.1-4.6 4.4 1.2 6.2-5.9-3.2-5.9 3.2 1.2-6.2-4.6-4.4 6.2-1.1z" ' +
+          'fill="#FFD9DF" opacity=".24"/>' +
+        '<circle cx="32.4" cy="42" r="3" fill="#FFE7EB" opacity=".9"/>' +
+        '<circle cx="36" cy="46" r="11.4" fill="none" stroke="rgba(255,250,232,.85)" stroke-width=".9"/>' +
+        '<path d="M36 6 l2.2 5.4 5.4 2.2-5.4 2.2L36 21.2l-2.2-5.4-5.4-2.2 5.4-2.2z" ' +
+          'fill="#FFF3CC" opacity=".92"/>' +
+      '</svg>';
+    wrap.appendChild(p);
+  }
+
+  /* ── the dust: dense, lit, and thrown by every bounce ────────────────── */
+  function Dust(host) {
+    var cv = document.createElement('canvas');
+    cv.className = 'ivm-dust';
+    host.appendChild(cv);
+    var g = cv.getContext('2d');
+    var parts = [], raf = 0, live = false;
+    function size() {
+      var r = host.getBoundingClientRect();
+      cv.width = Math.max(120, r.width * (window.devicePixelRatio || 1));
+      cv.height = Math.max(120, r.height * (window.devicePixelRatio || 1));
+      g.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+    }
+    size();
+    window.addEventListener('resize', size);
+
+    function seed(n, x, y, power, spread) {
+      for (var i = 0; i < n; i++) {
+        var a = spread ? spread[0] + Math.random() * (spread[1] - spread[0]) : Math.random() * Math.PI * 2;
+        var v = power * (0.35 + Math.random());
+        parts.push({
+          x: x, y: y,
+          vx: Math.cos(a) * v, vy: Math.sin(a) * v - Math.random() * power * .5,
+          r: .7 + Math.random() * 2.3,
+          life: 1, decay: .004 + Math.random() * .012,
+          warm: Math.random()
+        });
+      }
+    }
+    function frame() {
+      if (!live) return;
+      var w = cv.width / (window.devicePixelRatio || 1), h = cv.height / (window.devicePixelRatio || 1);
+      g.clearRect(0, 0, w, h);
+      g.globalCompositeOperation = 'lighter';
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i];
+        p.vy += .085; p.vx *= .985; p.vy *= .988;
+        p.x += p.vx; p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0 || p.y > h + 30) { parts.splice(i, 1); continue; }
+        var a = Math.max(0, p.life) * (p.warm > .5 ? .95 : .7);
+        var grad = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4.2);
+        grad.addColorStop(0, 'rgba(255,248,222,' + (a).toFixed(3) + ')');
+        grad.addColorStop(.42, 'rgba(246,214,138,' + (a * .55).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(190,140,50,0)');
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(p.x, p.y, p.r * 4.2, 0, 6.2832); g.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    return {
+      burst: function (n, x, y, power, spread) { seed(n, x, y, power, spread); },
+      curtain: function (n) {
+        var w = cv.width / (window.devicePixelRatio || 1);
+        for (var i = 0; i < n; i++) {
+          parts.push({
+            x: Math.random() * w, y: -20 - Math.random() * 260,
+            vx: (Math.random() - .5) * 1.4, vy: 1.4 + Math.random() * 3.6,
+            r: .6 + Math.random() * 2.4, life: 1, decay: .002 + Math.random() * .004,
+            warm: Math.random()
+          });
+        }
+      },
+      start: function () { if (!live) { live = true; frame(); } },
+      stop: function () { live = false; cancelAnimationFrame(raf); g.clearRect(0, 0, cv.width, cv.height); },
+      clear: function () { parts.length = 0; }
+    };
+  }
+
+  /* ── the descent ─────────────────────────────────────────────────────── */
+  var played = false;
+
+  function descend(root) {
+    if (!root) return;
+    var stage = root.querySelector('.wof-stage');
+    var wrap = root.querySelector('.wof-wheelwrap');
+    var feather = root.querySelector('#wof-feather');
+    if (!stage || !wrap) return;
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { wrap.classList.add('ivm-settled'); return; }
+
+    var dust = Dust(stage);
+    root.classList.add('ivm-descending');
+    wrap.classList.add('ivm-veiled');
+
+    /* 1 · the hand of the opening film comes apart into dust */
+    if (feather) {
+      feather.classList.add('ivm-feather-kept');
+    }
+    var hand = document.querySelector('.wof-hand, #wof .wof-hand, #wof .hand');
+    if (hand) {
+      hand.classList.add('ivm-hand-dust');
+      var hr = hand.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+      dust.start();
+      dust.burst(150, hr.left - sr.left + hr.width / 2, hr.top - sr.top + hr.height / 2, 3.1,
+                 [-Math.PI, 0]);
+      setTimeout(function () { if (hand.parentNode) hand.parentNode.removeChild(hand); }, 1350);
+    } else {
+      var fr = wrap.getBoundingClientRect(), sr0 = stage.getBoundingClientRect();
+      dust.start();
+      dust.burst(120, fr.left - sr0.left + fr.width / 2, fr.top - sr0.top + 40, 2.4, [-Math.PI, 0]);
+    }
+
+    /* 2 · the fall: heaven → the left wall → the right wall → the floor */
+    var w = wrap.offsetWidth || 320, h = wrap.offsetHeight || 320;
+    var screenW = window.innerWidth, screenH = window.innerHeight;
+    var startY = -screenH * 0.62;
+    var xToLeft = -(screenW * 0.5 - w * 0.62);
+    var xToRight = (screenW * 0.5 - w * 0.62);
+
+    var tf = wrap.style;
+    tf.setProperty('--ivm-fall', '0px');
+    wrap.classList.add('ivm-flung');
+
+    function kick(scale, rot, y, x, ms, ease, done) {
+      wrap.animate([
+        { transform: 'translate3d(' + x[0] + 'px,' + y[0] + 'px,0) rotate(' + rot[0] + 'deg) scale(' + scale[0] + ')' },
+        { transform: 'translate3d(' + x[1] + 'px,' + y[1] + 'px,0) rotate(' + rot[1] + 'deg) scale(' + scale[1] + ')' }
+      ], { duration: ms, easing: ease, fill: 'forwards' }).finished.then(done || function () {});
+    }
+
+    var r = stage.getBoundingClientRect();
+    var floor = r.height * 0.52;
+    dust.curtain(190);
+    if (window.Sound && Sound.play) { try { Sound.play('whoosh'); } catch (e) {} }
+
+    /* the veil comes away here, so the disc is seen all the way down:
+       the fall's own first frame is what hides it, then it fades in */
+    wrap.classList.remove('ivm-veiled');
+
+    /* the long fall, drifting left */
+    wrap.animate([
+      { transform: 'translate3d(0,' + startY + 'px,0) rotate(-14deg) scale(.82)', opacity: .0, offset: 0 },
+      { opacity: 1, offset: .12 },
+      { transform: 'translate3d(' + (xToLeft * .55) + 'px,' + (floor * .42) + 'px,0) rotate(9deg) scale(.98)', offset: .72 },
+      { transform: 'translate3d(' + xToLeft + 'px,' + floor + 'px,0) rotate(15deg) scale(1)', opacity: 1, offset: 1 }
+    ], { duration: 1150, easing: 'cubic-bezier(.52,0,.86,.38)', fill: 'forwards' })
+      .finished.then(function () {
+        /* 3 · the left wall */
+        dust.burst(70, w * .08, h * .6, 2.4, [-1.2, 0.9]);
+        if (window.Sound && Sound.play) { try { Sound.play('thud'); } catch (e) {} }
+        wrap.animate([
+          { transform: 'translate3d(' + xToLeft + 'px,' + floor + 'px,0) rotate(15deg) scale(1)' },
+          { transform: 'translate3d(' + xToRight + 'px,' + (floor * .74) + 'px,0) rotate(-19deg) scale(.96)' }
+        ], { duration: 600, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' })
+          .finished.then(function () {
+            /* 4 · the right wall */
+            dust.burst(70, w * .92, h * .58, 2.4, [Math.PI - 1.2, Math.PI + 0.9]);
+            if (window.Sound && Sound.play) { try { Sound.play('thud'); } catch (e) {} }
+            wrap.animate([
+              { transform: 'translate3d(' + xToRight + 'px,' + (floor * .74) + 'px,0) rotate(-19deg) scale(.96)' },
+              { transform: 'translate3d(' + (xToRight * .2) + 'px,' + (floor * 1.06) + 'px,0) rotate(11deg) scale(1.02)' }
+            ], { duration: 490, easing: 'cubic-bezier(.45,.05,.9,.6)', fill: 'forwards' })
+              .finished.then(function () {
+                /* 5 · the floor, and the throw back into the middle */
+                dust.burst(180, w * .5, h * .8, 3.4, [Math.PI * 1.06, Math.PI * 1.94]);
+                if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
+                wrap.animate([
+                  { transform: 'translate3d(' + (xToRight * .2) + 'px,' + (floor * 1.06) + 'px,0) rotate(11deg) scale(1.02)' },
+                  { transform: 'translate3d(0,-14px,0) rotate(-2deg) scale(1.03)', offset: .62 },
+                  { transform: 'translate3d(0,0,0) rotate(0deg) scale(1)' }
+                ], { duration: 860, easing: 'cubic-bezier(.16,1.16,.32,1)', fill: 'forwards' })
+                  .finished.then(function () {
+                    wrap.classList.remove('ivm-flung', 'ivm-veiled');
+                    wrap.classList.add('ivm-settled');
+                    root.classList.remove('ivm-descending');
+                    dust.burst(120, w * .5, h * .5, 1.5);
+                    setTimeout(function () { dust.stop(); }, 2600);
+                    if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
+                  });
+              });
+          });
+      });
+  }
+
+  /* ── the wiring: watch the room open ─────────────────────────────────── */
+  function watch() {
+    var root = document.getElementById('wof');
+    var wheel = document.getElementById('wof-wheel');
+    if (!root || !wheel) return;
+
+    /* the face is repainted once the app has built its own, and again if it rebuilds */
+    var once = function () {
+      if (wheel.querySelector('.ivm-svg')) { paintPointer(); return; }
+      paintFace(wheel);
+    };
+    setTimeout(once, 500);
+    new MutationObserver(function () {
+      if (!wheel.querySelector('.ivm-svg')) paintFace(wheel);
+    }).observe(wheel, { childList: true });
+
+    var was = false;
+    function check() {
+      var on = root.classList.contains('show');
+      if (on && !was) {
+        was = true;
+        played = false;
+        setTimeout(function () { descend(root); played = true; }, 260);
+      } else if (!on && was) {
+        was = false;
+      }
+    }
+    new MutationObserver(check).observe(root, { attributes: true, attributeFilter: ['class'] });
+    check();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+  else setTimeout(watch, 400);
+
+  return {
+    paintFace: function () { paintFace(document.getElementById('wof-wheel')); },
+    descend: function () { descend(document.getElementById('wof')); },
+    built: function () { return built; }
+  };
 })();
 </script>
 </body>
