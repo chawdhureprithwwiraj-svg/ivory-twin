@@ -21046,9 +21046,11 @@ window.IVSTORE = (function () {
   var RAILS = {
     b2: { id: 'b2', name: 'Backblaze B2', short: 'B2', line: 'The private room',
           note: 'Pictures, voices, receipts and every page kept in a folio.',
+          ceiling: '48 MB a picture \u00b7 5 GB a file',
           cap: 'no house cap \u2014 Backblaze\u2019s own allowance' },
     r2: { id: 'r2', name: 'Cloudflare R2', short: 'R2', line: 'The film vault',
           note: 'Films, and anything too large, because egress costs nothing.',
+          ceiling: 'no per-file limit inside the 9 GB',
           cap: '9 GB of safety' },
     supabase: { id: 'supabase', name: 'Supabase', short: 'SUPABASE', line: 'The public door',
           note: 'The showcase bucket the whole web can see, and the database itself.',
@@ -21817,7 +21819,7 @@ window.IVROOMS.vault = function (pane) {
         (St.use && St.use.b2 != null
           ? S.nice(St.use.b2) + ' kept \u00b7 ' + S.nice(b2free) + ' free of ' + (b2cap / 1e9) + ' GB'
           : 'waiting for the ledger') +
-        ' \u00b7 Backblaze\u2019s own allowance is higher still</s></div>' +
+        ' \u00b7 ' + S.RAILS.b2.ceiling + ' \u00b7 Backblaze\u2019s own allowance is higher still</s></div>' +
       shelfFilters(list) +
       '<p class="st-fine">Everything the house points at in private B2. A file banked before the vault says ' +
       'plainly that its size was never measured \u2014 the vault never guesses.</p>' +
@@ -21837,7 +21839,8 @@ window.IVROOMS.vault = function (pane) {
         '<div class="st-bar r2"><b>R2</b><s>' +
           (St.use && St.use.r2 != null
             ? S.nice(St.use.r2) + ' kept \u00b7 ' + S.nice(r2free) + ' free of the ' + (r2cap / 1e9) + ' GB cap'
-            : 'waiting for the vault') + '</s></div>' +
+            : 'waiting for the vault') +
+          ' \u00b7 ' + S.RAILS.r2.ceiling + '</s></div>' +
         shelfFilters(list) +
         '<p class="st-fine">Every object in the shared R2 vault, including published pictures. ' +
         'Removal is yours alone and is asked for twice.</p>' +
