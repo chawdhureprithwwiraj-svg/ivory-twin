@@ -335,7 +335,16 @@
   function rooms(){
     show('v-list'); chip(false);
     get('/rest/v1/live_public?select=*&order=id.desc&limit=30').then(function(rows){
-      var list=(rows||[]).filter(function(r){ return r.status==='live'||r.status==='scheduled'; });
+      /* a room left open by a closed tab is not on air; six hours is the line */
+      var list=(rows||[]).filter(function(r){
+        if(r.status!=='live'&&r.status!=='scheduled') return false;
+        var since=r.started_at||r.created_at||r.scheduled_at;
+        if(r.status==='live' && since && (Date.now()-Date.parse(since))>6*3600*1000) return false;
+        return true;
+      });
+      /* the same room must never appear twice */
+      var seen={};
+      list=list.filter(function(r){ if(seen[r.id]) return false; seen[r.id]=1; return true; });
       var live=list.filter(function(r){ return r.status==='live'; });
       $('list-h').textContent = live.length? 'Ivory is on air.' : 'What the house is holding.';
       $('list-lede').textContent = live.length
