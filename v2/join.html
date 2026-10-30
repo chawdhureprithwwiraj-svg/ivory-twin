@@ -249,6 +249,18 @@
 
       <div class="paylist hide" id="paylist"></div>
     </div>
+
+    <!-- whichever rail is open, a payment made elsewhere can always be recorded -->
+    <div class="card" style="margin-top:12px">
+      <h2 style="font-style:italic;font-size:17px;color:#5C1226;margin:0 0 6px">Paid another way?</h2>
+      <p class="note" style="margin:0 0 10px">If the window would not open, or the house asked you to send a
+        reference, put it here. The house reads it against its own account and opens your door by hand.</p>
+      <label class="f"><span>the reference, UTR, or payment id</span>
+        <input type="text" id="any-ref" placeholder="12 digits, or pay_…" autocomplete="off" spellcheck="false"></label>
+      <button class="btn quiet" id="any-send">Send the reference to the house</button>
+      <p class="err hide" id="any-err"></p>
+      <p class="ok hide" id="any-ok"></p>
+    </div>
   </section>
 
   <p class="foot"><a href="./">the house</a> &middot; <a href="room.html">the room</a></p>
@@ -639,6 +651,23 @@
       })
       .catch(function(x){ err('rzp-ref-err',friendly(x)); })
       .then(function(){ S.busy=false; b.disabled=false; b.textContent='Send the payment id to the house'; });
+  });
+
+  if($('any-send')) $('any-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var b=this, ref=($('any-ref').value||'').replace(/\s/g,'');
+    clear('any-err'); clear('any-ok');
+    if(!S.sess){ err('any-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(ref.length<6){ err('any-err','That is too short to match. Copy the reference from your receipt.'); return; }
+    S.busy=true; b.disabled=true; b.innerHTML='<span class="spin"></span> Sending';
+    call('/rest/v1/rpc/submit_payment',{tier_id_in:S.tier.id, utr_in:ref, screenshot_url_in:null})
+      .then(function(id){
+        ok('any-ok','Sent. The house has '+esc(ref)+(id?' (no. '+esc(id)+')':'')+' and will check it by hand — your door opens the moment it is approved.');
+        $('any-ref').value='';
+        if(typeof watchPayment==='function') watchPayment(id);
+      })
+      .catch(function(x){ err('any-err',friendly(x)); })
+      .then(function(){ S.busy=false; b.disabled=false; b.textContent='Send the reference to the house'; });
   });
 
   /* ---------- what this member has already sent ---------- */
