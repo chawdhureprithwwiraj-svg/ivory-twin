@@ -252,6 +252,7 @@
       <div><span>Watching</span><b id="st-viewers">0</b></div>
       <div><span>uplink</span><b id="st-kbps">—</b></div>
       <div><span>Agora</span><b id="st-conn">—</b></div>
+      <div style="grid-column:1/-1"><span>open to</span><b id="air-open">—</b></div>
     </div>
     <p class="note" id="air-hint">Open Ivory on a second phone and look in Live &mdash; this broadcast should be
       there, already on air. That is the whole test.</p>
@@ -577,7 +578,13 @@
         if(!id) throw new Error('The broadcast was made but the house did not return its number.');
         S.sessionId=id;
         $('air-name').textContent=title;
-        return call('/functions/v1/agora-token',{mode:'live',id:id});
+        /* The start function saves the floor but drops the list — and the
+           house's own view reads the list. So we write it ourselves, then
+           read the room back and say what the house now holds. */
+        return writeList(id, win.shape);
+      })
+      .then(function(){
+        return call('/functions/v1/agora-token',{mode:'live',id:S.sessionId});
       })
       .then(function(tk){
         if(!tk||!tk.token) throw new Error((tk&&tk.error)||'No token came back.');
@@ -620,6 +627,36 @@
     if(/UID_CONFLICT/i.test(m)) return 'That phone already has a broadcast open. End it first, then open this one.';
     if(/network|Network|UNAVAILABLE/i.test(m)) return 'The network dropped before the room opened. Nothing is on air — try once more on a steadier signal.';
     return m;
+  }
+
+  /* ---------- writing the list the start function drops ---------- */
+  function writeList(id, shape){
+    var patch={ allowed_tiers: shape.allowed_tiers_in||[], min_tier: shape.min_tier_in };
+    return call('/rest/v1/live_sessions?id=eq.'+id, patch, {method:'PATCH', headers:{'Prefer':'return=representation'}})
+      .then(function(){
+        return call('/rest/v1/live_public?id=eq.'+id+'&select=id,access,min_tier,allowed_tiers',null,{method:'GET'});
+      })
+      .then(function(rows){
+        var r=(rows&&rows[0])||null;
+        S.opened=r;
+        if(r && Array.isArray(r.allowed_tiers) && r.allowed_tiers.length){
+          var names=r.allowed_tiers.map(function(lv){
+            var t=TIERS.filter(function(x){return Number(x.level)===Number(lv);})[0];
+            return t? t.name : ('level '+lv);
+          });
+          $('air-open').textContent = names.join(' · ');
+        } else {
+          $('air-open').textContent = 'nobody on the list yet';
+          err('open-err','The house would not keep the guest list on this room, so a member will be kept out even though the floor says otherwise. The list is what the view reads.');
+        }
+        return r;
+      })
+      .catch(function(x){
+        /* the room is still on air; say what could not be written */
+        try{ $('air-open').textContent='nobody on the list yet'; }catch(e){}
+        err('open-err','The room is on air, but the guest list could not be written ('+(x.message||x)+'). A member will be kept out.');
+        return null;
+      });
   }
 
   /* ---------- the Agora room ---------- */
