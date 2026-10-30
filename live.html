@@ -505,7 +505,7 @@
     var lastErr=null;
     function walk(i){
       if(i>=ladder.length) return Promise.reject(lastErr||new Error('The house refused every shape.'));
-      return open(ladder[i]).then(function(r){
+      return startLive(ladder[i]).then(function(r){
         /* only the shape the house accepted is worth remembering */
         try{ localStorage.setItem('ivory.live.shape.'+(priv?'private':'open'),JSON.stringify(ladder[i])); }catch(e){}
         return {res:r, shape:ladder[i], tries:i+1};
@@ -516,12 +516,12 @@
         return walk(i+1);
       });
     }
-    var open=function(payload){ return call('/rest/v1/rpc/start_live_with_guests',payload); };
+    var startLive=function(payload){ return call('/rest/v1/rpc/start_live_with_guests',payload); };
     walk(0)
       .then(function(win){
         var res=win.res, id=null;
-        if(win.shape.access_in==='tier' && win.shape.min_tier_in>=3 && priv)
-          err('open-err','The house would only hold a lower floor than you asked for, so this room is open to '+win.shape.min_tier_in+' and above.');
+        if(priv && win.shape.access_in==='tier' && win.shape.min_tier_in<4)
+          err('open-err','The table would not hold a room that only the top tier may enter, so this one is open from level '+win.shape.min_tier_in+' upward. If that is too wide, open it when the house is quiet.');
         if(Array.isArray(res)&&res.length) id=res[0].id;
         else if(res&&typeof res==='object') id=res.id;
         else if(typeof res==='number') id=res;
@@ -555,11 +555,23 @@
         },1000);
       })
       .catch(function(x){
-        err('open-err',x.message||String(x));
+        err('open-err',agoraWords(x));
         if(S.sessionId){ call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); S.sessionId=null; }
       })
       .then(function(){ b.disabled=false; b.textContent='Step into the room'; });
   });
+
+  /* the engine speaks in codes; a person needs a sentence */
+  function agoraWords(x){
+    var m=(x&&x.message)||String(x);
+    if(/CAN_NOT_GET_GATEWAY_SERVER|invalid vendor key|can not find appid/i.test(m))
+      return 'The room was made, but the broadcast engine would not take it — the token it was given does not belong to this app. Nothing is on air. (Agora: '+m.slice(0,90)+')';
+    if(/PERMISSION_DENIED/i.test(m)) return 'The engine refused the microphone or camera permission at the last moment. Try again; if it repeats, reopen the page in Chrome.';
+    if(/token.*expire|TOKEN_EXPIRED/i.test(m)) return 'The entry ticket to the room had expired. Tap once more — a fresh one is asked for.';
+    if(/UID_CONFLICT/i.test(m)) return 'That phone already has a broadcast open. End it first, then open this one.';
+    if(/network|Network|UNAVAILABLE/i.test(m)) return 'The network dropped before the room opened. Nothing is on air — try once more on a steadier signal.';
+    return m;
+  }
 
   /* ---------- the Agora room ---------- */
   function publish(tk){
