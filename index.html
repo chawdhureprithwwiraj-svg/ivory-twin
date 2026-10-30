@@ -9310,6 +9310,97 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 /* the swap hint fades once it has been read, or once it has been obeyed */
 .ivr-hint{transition:opacity .55s ease,transform .55s ease}
 .ivr-hint.off{opacity:0;transform:translateY(6px);pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MORE TIME · the loudspeaker · the turn of the camera
+   ---------------------------------------------------------------------------
+   The app's two owner keys sit apart from the way out, behind a hairline, and
+   the member's offer card slides over the room for thirty seconds.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* the hairline that keeps her two decisions apart from everybody's way out */
+.ivr-divide{display:block;width:1px;height:36px;flex:0 0 auto;
+  background:linear-gradient(180deg,transparent,rgba(251,240,218,.42),transparent)}
+.ivr-key.own{background:rgba(243,208,138,.12);border-color:rgba(243,208,138,.42)}
+.ivr-key.armed{background:linear-gradient(180deg,#C02341,#8E0F27);border-color:#6E0C24;
+  color:#FFF1D6;animation:ivrArm .9s ease-in-out infinite}
+@keyframes ivrArm{0%,100%{box-shadow:0 0 0 0 rgba(192,35,65,.55)}50%{box-shadow:0 0 0 9px rgba(192,35,65,0)}}
+
+/* ── the member's card ─────────────────────────────────────────────────── */
+.ivr-offer{position:absolute;left:14px;right:14px;bottom:calc(104px + env(safe-area-inset-bottom));
+  z-index:8;opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity .42s ease,transform .42s cubic-bezier(.22,.9,.24,1)}
+.ivr-offer.on{opacity:1;transform:none;pointer-events:auto}
+.ivr-offer-card{padding:15px 16px 14px;border-radius:20px;
+  background:linear-gradient(180deg,#FFFDF6,#FBF2DE);
+  box-shadow:0 0 0 1.4px rgba(168,131,68,.55),0 24px 50px -26px rgba(0,0,0,.9),
+             inset 0 1px 0 rgba(255,255,255,.9)}
+.ivr-offer-top{display:flex;align-items:center;gap:9px}
+.ivr-offer-i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+  color:#5C1120;background:radial-gradient(circle at 34% 26%,#FFEBC0,#DFAE55 62%,#A87C24)}
+.ivr-offer-i svg{width:14px;height:14px}
+.ivr-offer-top b{flex:1;min-width:0;font:700 14.5px/1.2 Georgia,serif;color:#5C1120}
+.ivr-offer-top s{text-decoration:none;font:700 11.5px/1 ui-sans-serif,system-ui,sans-serif;
+  color:rgba(92,17,32,.5)}
+.ivr-offer p{margin:8px 0 13px;font:400 13px/1.5 ui-sans-serif,system-ui,sans-serif;color:#5C3A18}
+.ivr-offer-keys{display:flex;align-items:center;gap:8px}
+.ivr-offer-yes{flex:1;padding:13px 12px;border-radius:999px;border:none;cursor:pointer;
+  font:800 9.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;
+  color:#3A0410;background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:0 10px 22px -12px rgba(60,8,20,.9),inset 0 1px 0 rgba(255,255,255,.85)}
+.ivr-offer-no{padding:13px 14px;border-radius:999px;cursor:pointer;background:transparent;
+  border:1px solid rgba(168,131,68,.45);color:#5C1120;
+  font:700 9.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+
+/* ── her box ───────────────────────────────────────────────────────────── */
+.ivr-mts{position:absolute;left:0;right:0;bottom:0;z-index:9;
+  display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+.ivr-mts.on{pointer-events:auto}
+.ivr-mts-card{width:100%;padding:0 20px calc(22px + env(safe-area-inset-bottom));
+  max-height:78vh;overflow-y:auto;border-radius:24px 24px 0 0;
+  background:linear-gradient(180deg,#FFFDF6,#FBF3E1 60%,#F6EAD2);
+  box-shadow:0 -22px 54px -26px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateY(102%);transition:transform .36s cubic-bezier(.22,.9,.24,1)}
+.ivr-mts.on .ivr-mts-card{transform:none}
+.ivr-mts-grab{width:42px;height:4px;border-radius:3px;margin:10px auto 14px;
+  background:linear-gradient(90deg,#E8C98C,#B98A34,#E8C98C)}
+.ivr-mts-kick{font:600 8.5px/1 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;
+  color:#8A6A33;margin:0 0 8px}
+.ivr-mts-lede{margin:0 0 14px;font:400 12.5px/1.55 ui-sans-serif,system-ui,sans-serif;color:#7A5A2C}
+.ivr-mts-lab{display:block;font:700 8.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.18em;text-transform:uppercase;color:#8A6A33;margin:0 0 6px}
+.ivr-mts-in{width:100%;box-sizing:border-box;padding:13px 14px;border-radius:13px;margin:0 0 12px;
+  border:1px solid rgba(168,131,68,.45);background:#FFFDF7;color:#3A1207;
+  font:600 17px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}
+.ivr-mts-in:focus{outline:none;border-color:#A0722A;box-shadow:inset 0 0 0 1px #A0722A}
+.ivr-mts-hint{margin:0 0 12px;font:400 11.5px/1.5 ui-sans-serif,system-ui,sans-serif;color:#8A6A33}
+.ivr-mts-err{margin:0 0 10px;font:400 12.5px/1.5 ui-sans-serif,system-ui,sans-serif;
+  color:#8E0F27;display:none}
+.ivr-mts-err.on{display:block}
+.ivr-mts-send{width:100%;padding:15px;border-radius:999px;border:none;cursor:pointer;
+  font:800 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;
+  color:#3A0410;background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:0 12px 26px -14px rgba(60,8,20,.9),inset 0 1px 0 rgba(255,255,255,.85)}
+.ivr-mts-with,.ivr-mts-shut{width:100%;margin-top:9px;padding:13px;border-radius:999px;cursor:pointer;
+  background:transparent;border:1px solid rgba(168,131,68,.45);color:#5C1120;
+  font:700 9.5px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.ivr-mts-shut{border-color:transparent;color:#8A6A33}
+
+@media (prefers-reduced-motion:reduce){
+  .ivr-offer{transition:none}
+  .ivr-mts-card{transition:none}
+  .ivr-key.armed{animation:none}
+}
+
+/* five keys and a hairline have to sit in one hand's width — measured, not guessed */
+.ivr-dock{gap:11px;padding:10px 12px calc(18px + env(safe-area-inset-bottom))}
+.ivr-key{width:52px;height:52px}
+.ivr-key svg{width:19px;height:19px}
+.ivr-key.end{width:58px;height:58px}
+.ivr-key.finish{background:linear-gradient(180deg,#3A0410,#22020A);border-color:rgba(243,208,138,.42);
+  color:#F0CE8A}
+.ivr-lbl{white-space:nowrap;font-size:7px;letter-spacing:.13em;margin-top:4px}
+.ivr-divide{height:32px}
 </style>
 
 <style id="iv-cast-css">
@@ -9676,6 +9767,126 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 .ivs-guest-btns{flex:0 0 auto;display:flex;align-items:center;gap:7px}
 .ivs-btn.ivs-let,.ivs-btn.ivs-off{width:auto;margin:0;white-space:nowrap;padding:11px 14px;font-size:9.5px}
 .ivs-btn.ivs-off{padding:11px 12px}
+</style>
+
+<style id="iv-pay-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PAY DOOR · one door for every paid thing in the house
+   ---------------------------------------------------------------------------
+   Whatever payment_settings says (upi · razorpay · both), every paid surface
+   asks this door instead of inventing its own. The sheet is parchment, the
+   keys are struck gold, and nothing here ever names a price on its own.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+#ivp-veil{position:fixed;inset:0;z-index:196 !important;background:rgba(20,2,8,.62);
+  backdrop-filter:blur(9px) saturate(.9);-webkit-backdrop-filter:blur(9px) saturate(.9);
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+#ivp-veil.on{opacity:1;pointer-events:auto}
+
+#ivp-sheet{position:fixed;left:0;right:0;bottom:0;z-index:197 !important;
+  max-height:88vh;display:flex;flex-direction:column;
+  border-radius:26px 26px 0 0;overflow:hidden;
+  background:linear-gradient(180deg,#FFFDF6 0%,#FBF3E1 58%,#F6EAD2 100%);
+  box-shadow:0 -24px 60px -30px rgba(30,2,8,.9),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateY(102%);transition:transform .38s cubic-bezier(.22,.9,.24,1)}
+#ivp-sheet.on{transform:translateY(0)}
+
+#ivp-sheet .grab{width:44px;height:4px;border-radius:3px;margin:10px auto 0;flex:0 0 auto;
+  background:linear-gradient(90deg,#E8C98C,#B98A34,#E8C98C)}
+#ivp-sheet .body{padding:14px 20px calc(26px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch}
+#ivp-sheet .body::-webkit-scrollbar{display:none}
+
+.ivp-kick{font:600 8.5px/1 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;
+  color:#8A6A33;margin:0 0 9px}
+.ivp-h1{font-family:Georgia,serif;font-weight:400;font-size:25px;line-height:1.15;
+  color:#5C1120;margin:0 0 6px}
+.ivp-h1 em{font-style:italic;color:#8E0F27}
+.ivp-sub{font:italic 400 13.5px/1.55 Georgia,serif;color:#7A5A2C;margin:0 0 15px}
+
+.ivp-card{padding:15px 16px;border-radius:16px;margin:0 0 12px;
+  background:linear-gradient(180deg,#FFFDF6,#FBF2DE);
+  box-shadow:0 0 0 1px rgba(168,131,68,.3),0 10px 24px -18px rgba(60,8,20,.7),
+             inset 0 1px 0 rgba(255,255,255,.9)}
+.ivp-card.velvet{color:#FDF4E1;background:
+  radial-gradient(120% 130% at 20% -20%,rgba(255,226,170,.2),transparent 52%),
+  linear-gradient(168deg,#4A0714 0%,#35050F 56%,#22020A 100%);
+  box-shadow:0 0 0 1px rgba(246,217,155,.45),0 16px 32px -20px rgba(0,0,0,.9),
+             inset 0 1px 0 rgba(255,236,190,.2)}
+.ivp-due{display:flex;align-items:baseline;gap:9px;margin:0 0 4px}
+.ivp-due b{font-family:Georgia,serif;font-weight:400;font-size:33px;line-height:1;
+  color:#5C1120}
+.ivp-card.velvet .ivp-due b{color:#FFE7B0}
+.ivp-due s{text-decoration:none;font:600 9px/1.3 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.15em;text-transform:uppercase;color:#8A6A33}
+.ivp-card.velvet .ivp-due s{color:rgba(255,226,180,.8)}
+.ivp-note{font:400 12.5px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif;
+  color:#7A5A2C;margin:7px 0 0}
+.ivp-card.velvet .ivp-note{color:rgba(255,238,208,.84)}
+
+.ivp-tabs{display:flex;gap:8px;margin:0 0 12px}
+.ivp-tab{flex:1;padding:11px 8px;border-radius:13px;cursor:pointer;text-align:center;
+  border:1px solid rgba(168,131,68,.35);background:#FFFDF7;color:#5C1120;
+  font:700 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;
+  text-transform:uppercase;transition:box-shadow .16s ease,transform .16s ease}
+.ivp-tab.on{border-color:#A0722A;box-shadow:inset 0 0 0 1px #A0722A,
+  0 8px 18px -12px rgba(60,8,20,.7)}
+
+.ivp-upi{display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:13px;
+  cursor:pointer;background:#FFF9EC;border:1px dashed rgba(168,131,68,.55);
+  margin:0 0 12px}
+.ivp-upi b{flex:1;min-width:0;font:600 13.5px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:#3A1207;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ivp-upi i{font-style:normal;font:600 8.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:#8A6A33;flex:0 0 auto}
+.ivp-upi svg{width:15px;height:15px;flex:0 0 auto;color:#8A6A33}
+
+.ivp-field{width:100%;box-sizing:border-box;padding:13px 14px;border-radius:13px;
+  border:1px solid rgba(168,131,68,.45);background:#FFFDF7;color:#3A1207;
+  font:400 14px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;
+  outline:none;margin:0 0 12px}
+.ivp-field::placeholder{color:#B9A177;letter-spacing:0}
+.ivp-field:focus{border-color:#A0722A;box-shadow:inset 0 0 0 1px #A0722A}
+
+.ivp-btn{width:100%;padding:15px 18px;border-radius:999px;cursor:pointer;border:none;
+  font:800 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;
+  color:#3A0410;background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);
+  box-shadow:0 12px 26px -14px rgba(60,8,20,.9),inset 0 1px 0 rgba(255,255,255,.85);
+  transition:transform .16s ease,opacity .2s ease}
+.ivp-btn:active{transform:scale(.985)}
+.ivp-btn[disabled]{opacity:.55;cursor:default}
+.ivp-btn.quiet{margin-top:8px;color:#5C1120;background:transparent;
+  border:1px solid rgba(168,131,68,.5);box-shadow:none;font-weight:700}
+
+.ivp-err{color:#8E0F27;font:400 12.5px/1.5 ui-sans-serif,system-ui,sans-serif;
+  margin:10px 0 0;display:none}
+.ivp-err.on{display:block}
+.ivp-small{font:400 12px/1.55 ui-sans-serif,system-ui,sans-serif;color:#8A6A33;
+  margin:11px 0 0;text-align:center}
+
+/* the door being fitted — and the one honest way to walk it anyway */
+.ivp-shut{padding:15px 16px;border-radius:16px;margin:0 0 12px;
+  background:repeating-linear-gradient(135deg,#FDF3DF,#FDF3DF 9px,#F8EAD0 9px,#F8EAD0 18px);
+  box-shadow:inset 0 0 0 1px rgba(168,131,68,.35)}
+.ivp-shut b{display:block;font:700 13px/1.4 Georgia,serif;color:#5C1120;margin:0 0 5px}
+.ivp-shut p{margin:0;font:400 12.5px/1.55 ui-sans-serif,system-ui,sans-serif;color:#7A5A2C}
+.ivp-test{margin:12px 0 0;padding:11px 14px;border-radius:12px;cursor:pointer;width:100%;
+  border:1px dashed rgba(140,18,38,.45);background:rgba(140,18,38,.05);color:#7A0E22;
+  font:700 9.5px/1.3 ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.ivp-done{text-align:center;padding:6px 0 2px}
+.ivp-done .tick{width:58px;height:58px;border-radius:50%;margin:0 auto 12px;display:grid;
+  place-items:center;color:#0E5B3E;
+  background:radial-gradient(circle at 34% 26%,#EBFFF4,#B8EBD2 58%,#7FCFAA);
+  box-shadow:0 0 0 1px rgba(255,255,255,.85),0 0 0 7px rgba(14,91,62,.12),
+             0 14px 30px -16px rgba(14,91,62,.6)}
+.ivp-done .tick svg{width:26px;height:26px}
+.ivp-done h3{font:400 21px/1.2 Georgia,serif;color:#5C1120;margin:0 0 6px}
+.ivp-done p{font:400 13px/1.55 ui-sans-serif,system-ui,sans-serif;color:#7A5A2C;margin:0}
+
+@media (prefers-reduced-motion:reduce){
+  #ivp-sheet{transition:none}
+  #ivp-veil{transition:none}
+}
 </style>
 </head>
 <body>
@@ -17515,11 +17726,91 @@ window.IVCALL = (function () {
 
     /* controls */
     scr.querySelector('#ivr-leave').addEventListener('click', function () { leaveRoom(false); });
+
+    /* END is final, so it is armed rather than confirmed: the first tap turns
+       the key into its own question, the second closes the room. No browser
+       dialog ever appears — the house does not speak in those. */
     var endB = scr.querySelector('#ivr-end');
-    if (endB) endB.addEventListener('click', function () {
-      if (!confirm('End the session for both of you?')) return;
-      leaveRoom(true);
+    if (endB) {
+      var armT = null;
+      endB.addEventListener('click', function () {
+        if (endB.dataset.armed !== '1') {
+          endB.dataset.armed = '1';
+          var lbl = endB.parentNode.querySelector('.ivr-lbl');
+          if (lbl) lbl.textContent = 'End it?';
+          endB.classList.add('armed');
+          armT = setTimeout(function () {
+            endB.dataset.armed = '0';
+            endB.classList.remove('armed');
+            if (lbl) lbl.textContent = 'End';
+          }, 4000);
+          return;
+        }
+        clearTimeout(armT);
+        endB.dataset.armed = '0';
+        leaveRoom(true);
+      });
+    }
+
+    /* THE LOUDSPEAKER AND THE EAR — an audio session is held to the ear or
+       across a room, and the app lets them choose. The engine takes the route
+       where the browser allows it; the key always tells the truth. */
+    R.speaker = true;
+    var spkB = scr.querySelector('#ivr-speaker');
+    if (spkB) spkB.addEventListener('click', function () {
+      R.speaker = !R.speaker;
+      spkB.classList.toggle('off', !R.speaker);
+      var lbl = scr.querySelector('#ivr-speaker-lbl');
+      if (lbl) lbl.textContent = R.speaker ? 'Speaker' : 'Earpiece';
+      applyRoute();
     });
+
+    function applyRoute() {
+      try {
+        if (R.mic && R.mic.setPlaybackDevice) {
+          R.mic.setPlaybackDevice(R.speaker ? 'speaker' : 'earpiece');
+          return true;
+        }
+        if (window.AgoraRTC && AgoraRTC.setAudioPlaybackDevice) {
+          AgoraRTC.setAudioPlaybackDevice(R.speaker ? 'speaker' : 'earpiece');
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    /* THE CAMERA TURNS AROUND, as the app's cameraswitch key does */
+    var flipB = scr.querySelector('#ivr-flip');
+    if (flipB) flipB.addEventListener('click', function () {
+      if (!R.cam || flipB.dataset.busy === '1') return;
+      flipB.dataset.busy = '1';
+      R.facing = R.facing === 'environment' ? 'user' : 'environment';
+      flipCam(R.facing).catch(function () {}).then(function () { flipB.dataset.busy = '0'; });
+    });
+
+    function flipCam(facing) {
+      try {
+        if (R.cam && R.cam.setDevice && R.cams && R.cams.length > 1) {
+          var other = R.cams.filter(function (d) { return d.deviceId !== R.cam._deviceId; })[0] || R.cams[1];
+          return R.cam.setDevice(other.deviceId);
+        }
+        return AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1', facingMode: facing })
+          .then(function (t) {
+            var old = R.cam;
+            var self = scr.querySelector('#ivr-self');
+            R.cam = t;
+            if (self) t.play(self);
+            return R.client.unpublish(old).catch(function () {}).then(function () {
+              try { old.close(); } catch (e) {}
+              return R.client.publish(t);
+            });
+          });
+      } catch (e) { return Promise.reject(e); }
+    }
+
+    /* MORE TIME — hers to send, whenever she likes, as often as she likes */
+    var mtB = scr.querySelector('#ivr-moretime');
+    if (mtB) mtB.addEventListener('click', function () { moreTimeSheet(); });
     var micB = scr.querySelector('#ivr-mic');
     if (micB) micB.addEventListener('click', function () {
       if (!R.mic) return;
@@ -17577,7 +17868,187 @@ window.IVCALL = (function () {
     /* the clock starts on the first true second */
     R.tick = setInterval(function () { setClock(); }, 1000);
     setClock();
+
+    /* ═══════════ MORE TIME — the house's offer, and the member's card ═══════════
+       The app has two halves of one moment: her box (a price and a duration,
+       SEND) and their card (thirty seconds, then it steps aside). Nothing is
+       worked out here that the database does not decide — the price, the
+       minutes and the cap all live in the house's own settings and functions.
+       ═══════════════════════════════════════════════════════════════════ */
+    var MT = { row: null, shownFor: '', timer: null, poll: null };
+
+    function readCall() {
+      return IV.get('/rest/v1/call_requests?select=id,kind,minutes,price_inr,status,' +
+                    'extension_price,extension_minutes,extension_offered_at,extension_paid' +
+                    '&id=eq.' + callId).then(function (rows) {
+        MT.row = (rows && rows[0]) || null;
+        return MT.row;
+      }).catch(function () { return null; });
+    }
+
+    /* THE LANE LAW — while an offer stands it owns the bottom of the room, so
+       the ribbons climb above it. They come back down when it goes. */
+    function lane(up) {
+      if (!window.ivRibbonLane) return;
+      window.ivRibbonLane(up ? 'top' : (R.kind === 'audio' ? 'audio' : 'top'));
+    }
+
+    function offerLive() {
+      var r = MT.row || {};
+      var price = Number(r.extension_price || 0);
+      var when = String(r.extension_offered_at || '');
+      if (!when || r.extension_paid) return null;
+      if (price < 0) return null;
+      return { price: price, minutes: Number(r.extension_minutes || 30), when: when };
+    }
+
+    /* THE MEMBER'S CARD — it holds thirty seconds, then bows out. Nothing is
+       lost when it does: the offer stays on the row until she takes it back. */
+    function showOffer(force) {
+      var o = offerLive();
+      var box = scr.querySelector('#ivr-offer');
+      if (!box) return;
+      if (!o || R.admin) { box.classList.remove('on'); lane(false); return; }
+      if (!force && MT.shownFor === o.when) return;
+      MT.shownFor = o.when;
+      var free = o.price <= 0;
+      box.innerHTML =
+        '<div class="ivr-offer-card">' +
+          '<div class="ivr-offer-top">' +
+            '<span class="ivr-offer-i">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.4 4h11.2M6.4 20h11.2M7.6 4c0 4 8.8 5.6 8.8 8s-8.8 4-8.8 8M16.4 4c0 4-8.8 5.6-8.8 8s8.8 4 8.8 8"/></svg></span>' +
+            '<b>A little more time?</b>' +
+            '<s id="ivr-offer-left">30s</s>' +
+          '</div>' +
+          '<p>' + (free
+            ? 'Ivory has offered you ' + o.minutes + ' more minutes. Nothing to pay.'
+            : 'Ivory has offered you ' + o.minutes + ' more minutes for ' + money(o.price) +
+              '. The conversation simply carries on.') + '</p>' +
+          '<div class="ivr-offer-keys">' +
+            '<button class="ivr-offer-yes" id="ivr-offer-yes">' + (free ? 'THANK YOU' : 'YES, ADD THE TIME') + '</button>' +
+            '<button class="ivr-offer-no" id="ivr-offer-no">NOT NOW</button>' +
+          '</div>' +
+        '</div>';
+      box.classList.add('on');
+      lane(true);            /* an offer owns the bottom; the ribbons ride above it */
+
+      var left = 30;
+      clearInterval(MT.timer);
+      MT.timer = setInterval(function () {
+        left -= 1;
+        var t = scr.querySelector('#ivr-offer-left');
+        if (t) t.textContent = left + 's';
+        if (left <= 0) { clearInterval(MT.timer); box.classList.remove('on'); lane(false); }
+      }, 1000);
+
+      var no = scr.querySelector('#ivr-offer-no');
+      if (no) no.addEventListener('click', function () { clearInterval(MT.timer); box.classList.remove('on'); lane(false); });
+      var yes = scr.querySelector('#ivr-offer-yes');
+      if (yes) yes.addEventListener('click', function () {
+        clearInterval(MT.timer);
+        if (free) { box.classList.remove('on'); lane(false); toast('It is added. Stay as long as you like.'); return; }
+        if (!window.IVPAY) { toast('The pay door did not load. Try once more.', true); return; }
+        window.IVPAY.open({
+          eyebrow: 'A little more time?',
+          heading: 'More time, <em>once.</em>',
+          sub: 'Your session is running. Pay now and the conversation simply continues.',
+          amount: o.price,
+          amountNote: 'more time',
+          note: 'Ivory has offered you ' + o.minutes + ' more minutes for ' + money(o.price) +
+                '. This is separate from what you already pay for.',
+          purpose: 'call_extension',
+          callRequestId: callId,
+          label: 'More time with Ivory',
+          doneTitle: 'The time is being added.',
+          doneLine: 'Thank you. Your extension is being confirmed — your time will not be cut while it verifies.',
+          onPaid: function () {
+            box.classList.remove('on');
+            lane(false);
+            toast('Thank you. Your extension is being confirmed.');
+            readCall().then(function (r) {
+              if (r && r.minutes) R.minutes = Number(r.minutes) || R.minutes;
+              R.over = false;
+              var t = scr.querySelector('#ivr-timeup'); if (t) t.classList.remove('on');
+            });
+          }
+        });
+      });
+    }
+
+    /* HER BOX — price and minutes, filled from the house's own defaults */
+    function moreTimeSheet() {
+      var box = scr.querySelector('#ivr-mts');
+      if (!box) return;
+      if (box.classList.contains('on')) { box.classList.remove('on'); return; }
+      box.innerHTML = '<div class="ivr-mts-card"><div class="ivr-mts-grab"></div>' +
+        '<p class="ivr-mts-kick">Offer more time</p>' +
+        '<p class="ivr-mts-lede">This appears on their screen straight away and their phone is notified at the same moment. ' +
+          'You can send it again as often as you like. It stays on their screen for thirty seconds.</p>' +
+        '<label class="ivr-mts-lab">Price in rupees</label>' +
+        '<input class="ivr-mts-in" id="ivr-mts-price" inputmode="numeric" autocomplete="off" value="0">' +
+        '<label class="ivr-mts-lab">How many more minutes</label>' +
+        '<input class="ivr-mts-in" id="ivr-mts-mins" inputmode="numeric" autocomplete="off" value="30">' +
+        '<p class="ivr-mts-hint">Between 30 and 120. The house sets the ceiling on how many blocks one session may take.</p>' +
+        '<p class="ivr-mts-err" id="ivr-mts-err"></p>' +
+        '<button class="ivr-mts-send" id="ivr-mts-send">SEND</button>' +
+        '<button class="ivr-mts-with" id="ivr-mts-with">TAKE THE OFFER BACK</button>' +
+        '<button class="ivr-mts-shut" id="ivr-mts-shut">CLOSE</button></div>';
+      box.classList.add('on');
+
+      var err = function (m) { var e = scr.querySelector('#ivr-mts-err'); if (e) { e.textContent = m || ''; e.classList.toggle('on', !!m); } };
+
+      /* the defaults the house last used, exactly as the app reads them */
+      if (window.IVPAY) {
+        window.IVPAY.settings().then(function (st) {
+          var price = Number(st.ext_price_inr || 0);
+          var mins = Number(st.ext_block_minutes || 30);
+          var p = scr.querySelector('#ivr-mts-price'), m = scr.querySelector('#ivr-mts-mins');
+          if (p) p.value = String(price);
+          if (m) m.value = String(mins);
+        }).catch(function () {});
+      }
+
+      scr.querySelector('#ivr-mts-shut').addEventListener('click', function () { box.classList.remove('on'); });
+
+      scr.querySelector('#ivr-mts-with').addEventListener('click', function () {
+        var b = scr.querySelector('#ivr-mts-with');
+        b.disabled = true; b.textContent = 'TAKING IT BACK…';
+        IV.call('/rest/v1/rpc/withdraw_call_extension', { call_id_in: callId })
+          .then(function () { toast('Taken back. Their card goes at once.'); box.classList.remove('on'); readCall(); })
+          .catch(function (x) {
+            b.disabled = false; b.textContent = 'TAKE THE OFFER BACK';
+            err((x && x.message) || 'That did not go through.');
+          });
+      });
+
+      scr.querySelector('#ivr-mts-send').addEventListener('click', function () {
+        var price = parseInt(String((scr.querySelector('#ivr-mts-price') || {}).value || '').trim(), 10);
+        var mins = parseInt(String((scr.querySelector('#ivr-mts-mins') || {}).value || '').trim(), 10);
+        if (isNaN(price) || price < 0) { err('Put a price in, even if it is 0.'); return; }
+        if (isNaN(mins) || mins < 30 || mins > 120) { err('Choose between 30 and 120 minutes.'); return; }
+        var b = scr.querySelector('#ivr-mts-send');
+        b.disabled = true; b.textContent = 'SENDING…';
+        IV.call('/rest/v1/rpc/offer_call_extension',
+                { call_id_in: callId, price_in: price, minutes_in: mins })
+          .then(function () {
+            toast('Sent. It is on their screen now.');
+            box.classList.remove('on');
+            readCall();
+          })
+          .catch(function (x) {
+            b.disabled = false; b.textContent = 'SEND';
+            err((x && x.message) || 'That did not go through.');
+          });
+      });
+    }
+
+    /* the room watches the row, so an offer lands without a refresh */
+    readCall().then(function (r) { showOffer(true); });
+    MT.poll = setInterval(function () {
+      readCall().then(function () { showOffer(false); });
+    }, 5000);
+
   }
+
 
   function roomMarkup(kind) {
     return '<div class="ivr-top">' +
@@ -17614,11 +18085,18 @@ window.IVCALL = (function () {
       '<div class="ivr-dock">' +
         '<div><button class="ivr-key" id="ivr-mic" aria-label="Microphone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8.8" y="2.8" width="6.4" height="10.4" rx="3.2"/><path d="M5.8 11.2a6.2 6.2 0 0012.4 0M12 17.4V21"/></svg></button><span class="ivr-lbl">Mic</span></div>' +
         (kind === 'video'
-          ? '<div><button class="ivr-key" id="ivr-cam" aria-label="Camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg></button><span class="ivr-lbl">Camera</span></div>'
-          : '') +
+          ? '<div><button class="ivr-key" id="ivr-cam" aria-label="Camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg></button><span class="ivr-lbl">Camera</span></div>' +
+            '<div><button class="ivr-key" id="ivr-flip" aria-label="Turn the camera around"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 9.4A8 8 0 0119 7.2"/><path d="M19.4 3.9v3.6h-3.6"/><path d="M19.6 14.6A8 8 0 015 16.8"/><path d="M4.6 20.1v-3.6h3.6"/></svg></button><span class="ivr-lbl">Flip</span></div>'
+          : '<div><button class="ivr-key" id="ivr-speaker" aria-label="Speaker or earpiece"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.4v5.2h3.4L13.2 19V5L7.4 9.4z"/><path d="M16.6 9a4.2 4.2 0 010 6"/><path d="M19 6.6a7.6 7.6 0 010 10.8"/></svg></button><span class="ivr-lbl" id="ivr-speaker-lbl">Speaker</span></div>') +
         '<div><button class="ivr-key end" id="ivr-leave" aria-label="Leave the room"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.6 14.6c4.4-3.4 10.4-3.4 14.8 0"/><path d="M7.4 17.2l-1.8-2.8M16.6 17.2l1.8-2.8"/></svg></button><span class="ivr-lbl">Leave</span></div>' +
-        (isOwner() ? '<div><button class="ivr-key" id="ivr-end" aria-label="End the session" style="background:linear-gradient(180deg,#3A0410,#22020A);border-color:rgba(243,208,138,.35)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="6" y="6" width="12" height="12" rx="2.4"/></svg></button><span class="ivr-lbl">End</span></div>' : '') +
+        (isOwner()
+          ? '<span class="ivr-divide" aria-hidden="true"></span>' +
+            '<div><button class="ivr-key own" id="ivr-moretime" aria-label="Offer more time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="7.6"/><path d="M12 9.6V13l2.6 1.8M9.4 3.4h5.2"/></svg></button><span class="ivr-lbl">More time</span></div>' +
+            '<div><button class="ivr-key finish" id="ivr-end" aria-label="End the session"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="6" y="6" width="12" height="12" rx="2.4"/></svg></button><span class="ivr-lbl">End</span></div>'
+          : '') +
       '</div>' +
+      '<div class="ivr-offer" id="ivr-offer" role="dialog" aria-label="More time with Ivory"></div>' +
+      '<div class="ivr-mts" id="ivr-mts" role="dialog" aria-label="Offer more time"></div>' +
       '<div class="ivr-bye" id="ivr-bye"><div><div class="face"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="24" cy="26" r="2.6" fill="currentColor" stroke="none"/><circle cx="40" cy="26" r="2.6" fill="currentColor" stroke="none"/><path d="M22 38c3.2 4.2 6.8 6.2 10 6.2S38.8 42.2 42 38"/></svg></div>' +
       '<h2>Thank you for this.</h2><p>The minutes you used are taken from what was yours, and the rest waits for you.</p></div></div>';
   }
@@ -18612,6 +19090,33 @@ window.IVCAST = (function () {
   }
 
   /* A member's side — the app's own sheet: what it is, what it costs, what happens next */
+  /* THE ONE DOOR, called from two places: asking for a seat, and coming back
+     to pay for one already asked for. Nothing here knows a price or a method —
+     both come from the house. */
+  function paySeat(requestId, due) {
+    if (!window.IVPAY) { toast('The pay door did not load. Try once more.', true); return; }
+    window.IVPAY.open({
+      eyebrow: 'A seat beside her',
+      heading: 'One seat, <em>once.</em>',
+      sub: (S.title || 'The broadcast') + ' \u00B7 ' + money(due) + ' for one guest connection',
+      amount: due,
+      amountNote: 'one seat \u00B7 one night',
+      note: 'This one-time fee is separate from your viewing access, which you still need. ' +
+            'After payment is verified, Ivory reviews your request.',
+      purpose: 'live_guest_slot',
+      guestRequestId: Number(requestId),
+      label: 'Live guest place \u00B7 ' + (S.title || 'Ivory'),
+      doneTitle: 'Payment confirmed.',
+      doneLine: 'Your paid guest request is with Ivory. If approved, tap JOIN to go live.',
+      onPaid: function () { memberSeatPane(document.querySelector('#ivx-body')); refreshSeatPane(); }
+    });
+  }
+
+  function refreshSeatPane() {
+    var b = document.querySelector('#ivx-body');
+    if (b && document.querySelector('#ivx-sheet.on')) memberSeatPane(b);
+  }
+
   function memberSeatPane(body) {
     var fee = S.seatPrice;
     Promise.all([
@@ -18620,8 +19125,8 @@ window.IVCAST = (function () {
     ]).then(function (r) {
       var pay = (r[0] && r[0][0]) || {};
       var mine = (r[1] && r[1][0]) || null;
-      var upiReady = String(pay.upi_id || '').indexOf('@') > 0 && String(pay.upi_id || '').indexOf('yourname@') !== 0;
       var mode = String(pay.mode || 'upi');
+      var doorReady = !!(window.IVPAY && window.IVPAY.doorOpen());
 
       var h = '<p class="ivs-kick">A seat beside her</p>' +
         '<h1 class="ivs-h1">On the stage, <em>with her.</em></h1>' +
@@ -18643,15 +19148,24 @@ window.IVCAST = (function () {
           removed: 'GUEST PLACE ENDED',
           expired: 'GUEST REQUEST CLOSED'
         }[mine.status] || String(mine.status).replace(/_/g, ' ').toUpperCase();
+        var under = mine.status === 'waiting_host'
+          ? 'Your request is with Ivory. Nothing more is needed from you.'
+          : mine.status === 'payment_review'
+            ? 'Your payment is waiting for verification. Your request appears in Ivory’s guest queue after she verifies it.'
+            : mine.status === 'awaiting_payment'
+              ? 'One payment is all that stands between you and the queue.'
+              : 'The seat list is read live from the house. Nothing here is guessed.';
         h += '<div class="ivs-card"><p class="ivs-note" style="margin:0 0 10px">' + esc(label) + '</p>' +
           ((mine.status === 'approved') ? '<button class="ivs-btn" id="ivs-joinseat">JOIN THE STAGE</button>'
-            : '<p class="ivs-note" style="margin:0">' + (mine.status === 'waiting_host'
-              ? 'Your request is with Ivory. Nothing more is needed from you.'
-              : 'The seat list is read live from the house. Nothing here is guessed.') + '</p>') +
+            : (mine.status === 'awaiting_payment'
+              ? '<button class="ivs-btn" id="ivs-continue">CONTINUE PAYMENT · ' + money(mine.amount_due_inr || fee) + '</button>'
+              : '<p class="ivs-note" style="margin:0">' + esc(under) + '</p>')) +
           '</div><button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
         body.innerHTML = h;
         var js = body.querySelector('#ivs-joinseat');
         if (js) js.addEventListener('click', function () { joinAsSeat(mine); });
+        var cont = body.querySelector('#ivs-continue');
+        if (cont) cont.addEventListener('click', function () { paySeat(mine.id, Number(mine.amount_due_inr) || fee); });
         var s1 = body.querySelector('#ivs-shut'); if (s1) s1.addEventListener('click', sheetClose);
         return;
       }
@@ -18664,7 +19178,7 @@ window.IVCAST = (function () {
         return;
       }
 
-      if (!upiReady && mode !== 'razorpay') {
+      if (!doorReady) {
         h += '<div class="ivs-card"><p class="ivs-note" style="margin:0"><b>The pay door is being fitted.</b><br>' +
           'Guest places open for payment the day the house sets its UPI id. Until then no money moves and nothing is missing on your side.</p></div>' +
           '<button class="ivs-btn quiet" id="ivs-shut">CLOSE</button>';
@@ -18699,9 +19213,15 @@ window.IVCAST = (function () {
         IV.call('/rest/v1/rpc/start_live_guest_request', { session_id_in: S.id, media_kind_in: media })
           .then(function (res) {
             var row = Array.isArray(res) ? res[0] : res;
-            var due = Number((row && (row.amount_due_inr || row.fee_inr)) || fee);
-            toast('Your request is with Ivory. ' + money(due) + ' is due when the pay door opens.');
-            memberSeatPane(body);
+            var due = Number((row && (row.amount_due_inr !== undefined ? row.amount_due_inr : row.fee_inr)) || 0);
+            var reqId = Number(row && row.request_id) || null;
+            S.guestRequestId = reqId;
+            if (!reqId) { toast('Your request is with Ivory.'); memberSeatPane(body); return; }
+            if (!(due > 0)) { toast('Your guest request is with Ivory.'); memberSeatPane(body); return; }
+
+            ask.textContent = 'OPENING THE DOOR…';
+            paySeat(reqId, due);
+            ask.disabled = false; ask.textContent = 'ASK FOR THE SEAT \u00B7 ' + money(fee);
           })
           .catch(function (x) {
             var err = body.querySelector('#ivs-err');
@@ -18824,6 +19344,407 @@ window.IVCAST = (function () {
     isOpen: function () { return !!(S.id && $('iv-cast') && $('iv-cast').classList.contains('on')); },
     tierNames: function (map) { window.IVCAST_TIERS = map || {}; }
   };
+})();
+</script>
+<script id="iv-pay-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PAY DOOR · one door for every paid thing in the house
+   ---------------------------------------------------------------------------
+   The app never invents a payment method per screen: every paid surface reads
+   `payment_settings.mode` and shows what the house has chosen — UPI, Razorpay,
+   or both. This is that same door, in one file, so a seat beside Ivory, a
+   block of more time on a call, and everything still to come all charge the
+   same way.
+
+     IVPAY.settings()      the house's own row, cached
+     IVPAY.mode()          'upi' | 'razorpay' | 'both'
+     IVPAY.open(opts)      the sheet; opts below
+     IVPAY.razorpay(opts)  the card window alone, for screens that do it inline
+     IVPAY.upi(opts)       the UTR form alone
+
+   opts = {
+     purpose        'live_guest_slot' | 'call_extension'
+     amount         rupees, a number
+     label          what it buys, in the house's voice
+     title, sub     the sheet's own heading
+     callRequestId  for an extension
+     guestRequestId for a seat
+     onPaid         called once the money (or its test) is written
+     onCancel       called when the sheet is put away unpaid
+   }
+
+   Razorpay goes through the app's own two Edge Functions — rzp-create-order
+   makes the order, rzp-verify-unlock checks the signature — so the secret key
+   never comes near this page. The UPI path writes the member's reference
+   straight onto the thing being bought, exactly as the app's forms do.
+   ═══════════════════════════════════════════════════════════════════════ */
+window.IVPAY = (function () {
+  'use strict';
+
+  var SB  = 'https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY = 'sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+
+  var S = { sheet: null, veil: null, opts: null, settings: null, loading: null,
+            rzpLoading: false, method: null };
+
+  function el(id) { return document.getElementById(id); }
+  function money(n) { return '\u20B9' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function get(p)  { return window.IVSESS ? IVSESS.get(p)  : Promise.reject(new Error('no session')); }
+  function call(p, b) { return window.IVSESS ? IVSESS.call(p, b || {}) : Promise.reject(new Error('no session')); }
+  function toast(m, bad) { if (window.ivoryToast) window.ivoryToast(m, bad); }
+  function isAdmin() { return !!(window.ivIsAdmin && window.ivIsAdmin()); }
+
+  /* ── the house's switch ───────────────────────────────────────────────── */
+  function settings(force) {
+    if (S.settings && !force) return Promise.resolve(S.settings);
+    if (S.loading && !force) return S.loading;
+    S.loading = get('/rest/v1/payment_settings?select=upi_id,payee_name,instructions,' +
+                    'is_active,mode,razorpay_key_id,ext_price_inr,ext_block_minutes,' +
+                    'ext_price_inr_premium,ext_block_minutes_premium,max_ext_per_call&id=eq.1')
+      .then(function (rows) {
+        S.settings = (rows && rows[0]) || { mode: 'upi', is_active: false };
+        return S.settings;
+      })
+      .catch(function () { S.settings = { mode: 'upi', is_active: false, _cold: true }; return S.settings; });
+    return S.loading;
+  }
+
+  function mode() {
+    var m = String((S.settings && S.settings.mode) || 'upi').toLowerCase();
+    return (m === 'razorpay' || m === 'both') ? m : 'upi';
+  }
+
+  /* the door is open when the house has set the thing that mode needs */
+  function doorOpen() {
+    var m = mode();
+    if (!S.settings || S.settings.is_active === false) return false;
+    var upi = String(S.settings.upi_id || '').trim();
+    var key = String(S.settings.razorpay_key_id || '').trim();
+    var upiOk = !!upi && upi.indexOf('@') > 0;
+    if (m === 'upi') return upiOk;
+    if (m === 'razorpay') return !!key;
+    return upiOk || !!key;
+  }
+
+  /* ── the shell ────────────────────────────────────────────────────────── */
+  function shell() {
+    if (S.sheet && document.body.contains(S.sheet)) return;
+    S.veil = document.createElement('div');
+    S.veil.id = 'ivp-veil';
+    S.sheet = document.createElement('section');
+    S.sheet.id = 'ivp-sheet';
+    S.sheet.setAttribute('aria-label', 'The house\u2019s pay door');
+    S.sheet.innerHTML = '<div class="grab" aria-hidden="true"></div><div class="body" id="ivp-body"></div>';
+    document.body.appendChild(S.veil);
+    document.body.appendChild(S.sheet);
+    S.veil.addEventListener('click', function () { shut(true); });
+  }
+
+  function body() { return el('ivp-body'); }
+
+  function show() {
+    shell();
+    requestAnimationFrame(function () {
+      S.veil.classList.add('on');
+      S.sheet.classList.add('on');
+    });
+  }
+
+  function shut(cancelled) {
+    if (!S.sheet) return;
+    S.sheet.classList.remove('on');
+    S.veil.classList.remove('on');
+    if (cancelled && S.opts && S.opts.onCancel) { try { S.opts.onCancel(); } catch (e) {} }
+  }
+
+  /* ── the pieces ───────────────────────────────────────────────────────── */
+  function head(o) {
+    return '<p class="ivp-kick">' + esc(o.eyebrow || 'The house\u2019s door') + '</p>' +
+           '<h1 class="ivp-h1">' + (o.heading || 'A payment, <em>once.</em>') + '</h1>' +
+           '<p class="ivp-sub">' + esc(o.sub || '') + '</p>';
+  }
+
+  function dueCard(o) {
+    return '<div class="ivp-card velvet">' +
+        '<div class="ivp-due"><b>' + money(o.amount) + '</b><s>' + esc(o.amountNote || 'one payment') + '</s></div>' +
+        '<p class="ivp-note">' + esc(o.note || 'This is separate from what you already pay for, and covers nothing else.') + '</p>' +
+      '</div>';
+  }
+
+  function upiBlock() {
+    var upi = String((S.settings && S.settings.upi_id) || '');
+    var payee = String((S.settings && S.settings.payee_name) || 'Ivory');
+    var ins = String((S.settings && S.settings.instructions) || '').trim();
+    return '<div class="ivp-upi" id="ivp-upi-copy" role="button" tabindex="0" ' +
+             'aria-label="Copy the UPI id">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+          '<rect x="9" y="9" width="11" height="11" rx="2.4"/><path d="M6.4 15H5a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1.4"/></svg>' +
+        '<b>' + esc(upi || 'The house has not set its UPI id yet') + '</b>' +
+        '<i>tap to copy</i>' +
+      '</div>' +
+      '<p class="ivp-note" style="margin:-4px 0 12px">' + esc(payee ? 'To ' + payee + '. ' : '') +
+        esc(ins || 'Pay with any UPI app, then come back and enter the reference number from your receipt.') + '</p>' +
+      '<input class="ivp-field" id="ivp-utr" inputmode="text" autocomplete="off" spellcheck="false" ' +
+        'placeholder="The UPI reference (UTR)">' +
+      '<button class="ivp-btn" id="ivp-upi-send">SEND FOR CONFIRMING</button>';
+  }
+
+  function razorBlock() {
+    return '<div class="ivp-card">' +
+        '<p class="ivp-note" style="margin:0">Pay with UPI, cards or netbanking \u2014 it unlocks the moment the payment lands.</p>' +
+        '<button class="ivp-btn" id="ivp-rzp" style="margin-top:12px">PAY SECURELY</button>' +
+      '</div>';
+  }
+
+  function shutBlock(o) {
+    var test = isAdmin()
+      ? '<button class="ivp-test" id="ivp-test">Run a test payment \u00B7 nothing is charged</button>' +
+        '<p class="ivp-small">A test writes the same reference the door will write. It waits in your desk ' +
+        'exactly like a real one, and you approve it there \u2014 the whole circuit, no money.</p>'
+      : '<p class="ivp-small">Every paid door wakes in one update. Nothing is missing on your side.</p>';
+    return '<div class="ivp-card"><div class="ivp-shut">' +
+        '<b>The pay door is being fitted</b>' +
+        '<p>The house has not set the ' +
+          (mode() === 'razorpay' ? 'Razorpay key' : 'UPI id') +
+        ' yet. Until it does, no money moves and nothing is lost.</p>' +
+      '</div>' + test + '</div>' +
+      '<button class="ivp-btn quiet" id="ivp-close">NOT NOW</button>';
+  }
+
+  function doneBlock(o, test) {
+    return '<div class="ivp-done">' +
+        '<div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+          'stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.7l4.6 4.6L19.5 6.9"/></svg></div>' +
+        '<h3>' + esc(o.doneTitle || 'It is with the house.') + '</h3>' +
+        '<p>' + esc(test ? 'A test payment. It waits in the desk exactly like a real one \u2014 approve it there and the rest of the circuit runs.' : (o.doneLine || 'Thank you. The house has your payment.')) + '</p>' +
+      '</div>' +
+      '<button class="ivp-btn quiet" id="ivp-close">CLOSE</button>';
+  }
+
+  function errorLine(msg) {
+    var e = el('ivp-err');
+    if (!e) return;
+    e.textContent = msg || '';
+    e.classList.toggle('on', !!msg);
+  }
+
+  /* ── writing the money down ───────────────────────────────────────────── */
+  function submitUpi(utr) {
+    var o = S.opts;
+    if (o.purpose === 'call_extension') {
+      return call('/rest/v1/rpc/submit_call_extension_payment', { call_id_in: o.callRequestId, utr_in: utr });
+    }
+    return call('/rest/v1/rpc/submit_live_guest_payment',
+      { request_id_in: o.guestRequestId, utr_in: utr, shot_in: null });
+  }
+
+  function loadRazorpay() {
+    if (window.Razorpay) return Promise.resolve(true);
+    if (S.rzpLoading) return S.rzpLoading;
+    S.rzpLoading = new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.async = true;
+      s.onload = function () { res(true); };
+      s.onerror = function () { rej(new Error('The card window did not load. Check your signal.')); };
+      document.head.appendChild(s);
+    });
+    return S.rzpLoading;
+  }
+
+  /* the real order, made by the app's own Edge Function */
+  function order(o) {
+    var payload = {
+      purpose: o.purpose,
+      call_request_id: o.callRequestId || null,
+      live_guest_request_id: o.guestRequestId || null
+    };
+    var t = window.IVSESS ? IVSESS.headers() : { apikey: KEY };
+    return fetch(SB + '/functions/v1/rzp-create-order', {
+      method: 'POST',
+      headers: t,
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    });
+  }
+
+  function verify(res) {
+    var t = window.IVSESS ? IVSESS.headers() : { apikey: KEY };
+    return fetch(SB + '/functions/v1/rzp-verify-unlock', {
+      method: 'POST',
+      headers: t,
+      body: JSON.stringify({
+        razorpay_order_id: res.razorpay_order_id,
+        razorpay_payment_id: res.razorpay_payment_id,
+        razorpay_signature: res.razorpay_signature
+      })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+  }
+
+  function payWithRazorpay(o) {
+    var btn = el('ivp-rzp');
+    if (btn) { btn.disabled = true; btn.textContent = 'OPENING THE CARD WINDOW\u2026'; }
+    errorLine('');
+    return order(o).then(function (r) {
+      if (!r.ok || !r.d || !r.d.order_id) {
+        var msg = (r.d && (r.d.error || r.d.message)) || 'The door jammed \u2014 try once more.';
+        throw new Error(msg);
+      }
+      return loadRazorpay().then(function () {
+        return new Promise(function (res, rej) {
+          var win = new window.Razorpay({
+            key: r.d.key_id,
+            amount: r.d.amount_paise,
+            order_id: r.d.order_id,
+            currency: 'INR',
+            name: 'Ivory',
+            description: o.label || 'Ivory',
+            theme: { color: '#4A0E17' },
+            handler: function (resp) {
+              verify(resp).then(function (v) {
+                if (v.ok && v.d && v.d.ok === true) res(true);
+                else rej(new Error((v.d && v.d.error) || 'Verification hiccup \u2014 write to the house with your receipt.'));
+              }).catch(rej);
+            },
+            modal: { ondismiss: function () { res(false); } }
+          });
+          win.on('payment.failed', function (x) {
+            rej(new Error((x && x.error && x.error.description) || 'The payment did not finish. Nothing was taken.'));
+          });
+          win.open();
+        });
+      });
+    });
+  }
+
+  /* ── the sheet ────────────────────────────────────────────────────────── */
+  function paint() {
+    var o = S.opts;
+    var m = mode();
+    var open = doorOpen();
+    var h = head(o);
+
+    if (!open) {
+      h += shutBlock(o);
+      body().innerHTML = h;
+      wireShut(o);
+      return;
+    }
+
+    h += dueCard(o);
+
+    var wanted = S.method || (m === 'both' ? 'razorpay' : m);
+    if (m === 'both') {
+      h += '<div class="ivp-tabs" id="ivp-tabs">' +
+             '<button class="ivp-tab' + (wanted === 'razorpay' ? ' on' : '') + '" data-m="razorpay">Card \u00B7 netbanking</button>' +
+             '<button class="ivp-tab' + (wanted === 'upi' ? ' on' : '') + '" data-m="upi">UPI \u00B7 reference</button>' +
+           '</div>';
+    }
+    h += wanted === 'razorpay' ? razorBlock() : upiBlock();
+    h += '<p class="ivp-small" id="ivp-err"></p>' +
+         '<button class="ivp-btn quiet" id="ivp-close">NOT NOW</button>';
+    body().innerHTML = h;
+
+    var close = el('ivp-close'); if (close) close.addEventListener('click', function () { shut(true); });
+
+    var tabs = el('ivp-tabs');
+    if (tabs) {
+      Array.prototype.forEach.call(tabs.querySelectorAll('.ivp-tab'), function (b) {
+        b.addEventListener('click', function () {
+          S.method = b.dataset.m;
+          paint();
+        });
+      });
+    }
+
+    var copy = el('ivp-upi-copy');
+    if (copy) copy.addEventListener('click', function () {
+      var upi = String((S.settings && S.settings.upi_id) || '');
+      if (!upi) return;
+      try {
+        if (navigator.clipboard) navigator.clipboard.writeText(upi);
+        else {
+          var t = document.createElement('textarea'); t.value = upi; document.body.appendChild(t);
+          t.select(); document.execCommand('copy'); t.remove();
+        }
+        toast('UPI id copied.');
+      } catch (e) { toast('The id is ' + upi); }
+    });
+
+    var send = el('ivp-upi-send');
+    if (send) send.addEventListener('click', function () {
+      var utr = String((el('ivp-utr') || {}).value || '').trim();
+      if (utr.length < 8) { errorLine('Enter the UPI reference number from your app.'); return; }
+      send.disabled = true; send.textContent = 'SENDING\u2026';
+      submitUpi(utr).then(function () {
+        finished(false);
+      }).catch(function (x) {
+        send.disabled = false; send.textContent = 'SEND FOR CONFIRMING';
+        errorLine((x && x.message) || 'That did not go through.');
+      });
+    });
+
+    var rzp = el('ivp-rzp');
+    if (rzp) rzp.addEventListener('click', function () {
+      payWithRazorpay(o).then(function (ok) {
+        if (ok === true) finished(false);
+        else if (ok === false) { rzp.disabled = false; rzp.textContent = 'PAY SECURELY'; }
+      }).catch(function (x) {
+        rzp.disabled = false; rzp.textContent = 'PAY SECURELY';
+        errorLine((x && x.message) || 'The door jammed \u2014 try once more.');
+      });
+    });
+  }
+
+  function wireShut(o) {
+    var t = el('ivp-test');
+    if (t) t.addEventListener('click', function () {
+      t.disabled = true; t.textContent = 'WRITING THE TEST\u2026';
+      var ref = 'TEST-' + Date.now().toString(36).toUpperCase();
+      submitUpi(ref).then(function () { finished(true); })
+        .catch(function (x) {
+          t.disabled = false; t.textContent = 'Run a test payment \u00B7 nothing is charged';
+          var e = document.createElement('p');
+          e.className = 'ivp-err on';
+          e.textContent = (x && x.message) || 'The test did not go through.';
+          t.parentNode.appendChild(e);
+        });
+    });
+    var close = el('ivp-close'); if (close) close.addEventListener('click', function () { shut(true); });
+  }
+
+  function finished(test) {
+    var o = S.opts;
+    body().innerHTML = doneBlock(o, test);
+    var c = el('ivp-close'); if (c) c.addEventListener('click', function () { shut(false); });
+    if (o.onPaid) { try { o.onPaid(test); } catch (e) {} }
+  }
+
+  /* ── the public surface ───────────────────────────────────────────────── */
+  function open(opts) {
+    S.opts = opts || {};
+    S.method = null;
+    S.opts.heading = S.opts.heading || 'A payment, <em>once.</em>';
+    shell();                                  /* the shell first, always */
+    body().innerHTML = '<p class="ivp-kick">' +
+      esc(S.opts.eyebrow || 'The house\u2019s door') + '</p><p class="ivp-sub">One moment\u2026</p>';
+    show();
+    return settings().then(function () { paint(); return true; });
+  }
+
+  /* what a screen needs to know before it offers a door at all */
+  function ready() {
+    return settings().then(function () { return { mode: mode(), open: doorOpen(), settings: S.settings }; });
+  }
+
+  return { open: open, ready: ready, settings: settings, mode: mode, doorOpen: doorOpen,
+           close: function () { shut(false); }, isOpen: function () { return !!(S.sheet && S.sheet.classList.contains('on')); } };
 })();
 </script>
 </body>
