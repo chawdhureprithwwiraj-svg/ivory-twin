@@ -8651,7 +8651,7 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 body.on-live .ribbonlay,body.on-live #wheelFab,body.on-live .fab,body.on-live #disc-fab,body.on-live #spin-fab{display:none!important}
 /* the welcome ribbons belong to the house door, as in the app — never over the desk, the profile or a room */
 body:not(.on-home) .ribbonlay{display:none!important}
-body.on-live #live-screen ~ *{z-index:auto}
+body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil){z-index:auto}
 </style>
 <style id="iv-desk-css">
 /* ══════════════════════════════════════════════════════════════
@@ -8846,6 +8846,290 @@ body.on-live #live-screen ~ *{z-index:auto}
 }
 </style>
 
+<style id="iv-call-css">
+/* ═══════════════════════════════════════════════════════════════
+   THE SESSION · the calls circuit, in the house's own dress
+   One light direction (top-left), gold hairline, cream sheet,
+   burgundy velvet. Every state finished: loading, included,
+   as-a-wish, asked, agreed, in the room, over.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --ivc-wine:#43060F; --ivc-wine-2:#2C040C; --ivc-ink:#1E0208;
+  --ivc-gold:#F3D08A; --ivc-gold-2:#D8AE68; --ivc-gold-3:#A88344;
+  --ivc-cream:#FBF0DA; --ivc-cream-2:#FFF9EC; --ivc-plum:#5C1120;
+}
+
+/* ---------- the sheet ---------- */
+#ivc-veil{position:fixed;inset:0;z-index:120;background:rgba(14,1,6,.62);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .32s ease}
+#ivc-veil.on{opacity:1;pointer-events:auto}
+#ivc-sheet{position:fixed;left:0;right:0;bottom:0;z-index:121;
+  max-height:92vh;display:flex;flex-direction:column;
+  background:linear-gradient(178deg,#FFFBF0 0%,#FBF0DA 46%,#F4E3C0 100%);
+  border-radius:26px 26px 0 0;
+  box-shadow:0 -18px 60px rgba(20,2,8,.55),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translate3d(0,102%,0);
+  transition:transform .46s cubic-bezier(.22,.68,.24,1);
+  will-change:transform}
+#ivc-sheet.on{transform:none}
+#ivc-sheet::before{content:"";position:absolute;inset:0 0 auto;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(168,131,68,.85),transparent)}
+.ivc-grab{width:44px;height:4px;border-radius:3px;margin:10px auto 2px;flex:0 0 auto;
+  background:linear-gradient(90deg,#E7C687,#B8832A,#E7C687)}
+.ivc-body{overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:14px 20px calc(26px + env(safe-area-inset-bottom))}
+.ivc-body::-webkit-scrollbar{display:none}
+
+.ivc-kick{font:600 8.5px/1 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--ivc-gold-3);margin:0 0 10px}
+.ivc-h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:27px;line-height:1.14;
+  color:var(--ivc-plum);margin:0 0 7px;letter-spacing:-.01em}
+.ivc-h1 em{font-style:italic;color:#8E0F27}
+.ivc-lede{font:italic 400 13.5px/1.55 Georgia,serif;color:#7A5A2C;margin:0 0 16px}
+
+/* medium choice */
+.ivc-meds{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
+.ivc-med{position:relative;display:flex;align-items:center;gap:10px;padding:13px 12px;
+  border-radius:15px;border:1px solid rgba(168,131,68,.42);background:#FFFCF4;cursor:pointer;
+  text-align:left;transition:box-shadow .3s,border-color .3s,transform .3s,background .3s}
+.ivc-med:active{transform:scale(.985)}
+.ivc-med .ico{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+  background:radial-gradient(circle at 34% 28%,#FFF3CF,#EBD9A8);color:#7A4A0C;
+  box-shadow:inset 0 0 0 1px rgba(168,131,68,.4)}
+.ivc-med .ico svg{width:15px;height:15px}
+.ivc-med b{display:block;font:700 11px/1.2 Georgia,serif;letter-spacing:.1em;text-transform:uppercase;color:#5C1120}
+.ivc-med s{display:block;text-decoration:none;font:italic 400 11.5px/1.3 Georgia,serif;color:#8A6A3A;margin-top:2px}
+.ivc-med.on{border-color:#6E0C24;background:linear-gradient(180deg,#FFF9E9,#F7E7C4);
+  box-shadow:0 10px 26px -16px rgba(110,20,44,.65),inset 0 0 0 1px rgba(110,12,36,.28)}
+.ivc-med.on::after{content:"";position:absolute;top:8px;right:9px;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#FFF6D8,#C8922F);box-shadow:0 0 0 3px rgba(200,146,47,.16)}
+
+/* length chips */
+.ivc-lens{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.ivc-len{border:1px solid rgba(168,131,68,.45);background:#FFFCF4;border-radius:999px;
+  padding:8px 14px;cursor:pointer;font:600 11px/1 Georgia,serif;letter-spacing:.06em;color:#7A4A0C;
+  transition:all .26s}
+.ivc-len.on{background:linear-gradient(180deg,#B81A34,#8E0F27);border-color:#6E0C24;color:#FFF1D6;
+  box-shadow:0 8px 20px -12px rgba(110,20,44,.9)}
+
+/* the allowance card */
+.ivc-allow{position:relative;overflow:hidden;border-radius:18px;padding:17px 16px 15px;margin:0 0 15px;
+  background:linear-gradient(165deg,#FFFCF3 0%,#F9EBCB 100%);
+  border:1px solid rgba(168,131,68,.45);
+  box-shadow:0 12px 30px -22px rgba(90,50,10,.6),inset 0 1px 0 rgba(255,255,255,.95)}
+.ivc-allow.included{
+  background:
+    radial-gradient(120% 90% at 12% -10%,rgba(255,226,160,.22),rgba(255,226,160,0) 60%),
+    linear-gradient(165deg,#5A0A1C 0%,#3A0410 58%,#26020A 100%);
+  border-color:rgba(216,174,104,.55);
+  box-shadow:0 18px 40px -24px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,228,168,.3)}
+.ivc-eyebrow{display:flex;align-items:center;gap:7px;font:700 8.5px/1 Georgia,serif;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--ivc-gold-3)}
+.ivc-allow.included .ivc-eyebrow{color:var(--ivc-gold)}
+.ivc-eyebrow .dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.85}
+.ivc-big{display:flex;align-items:flex-end;gap:8px;margin:12px 0 2px}
+.ivc-big b{font-family:Georgia,serif;font-size:38px;line-height:.9;font-weight:400;letter-spacing:-.02em}
+.ivc-allow.included .ivc-big b{color:#FFF3D4}
+.ivc-big span{font:italic 400 12.5px/1.35 Georgia,serif;color:#8A6A3A;padding-bottom:3px}
+.ivc-allow.included .ivc-big span{color:rgba(251,240,218,.72)}
+.ivc-bar{height:7px;border-radius:6px;overflow:hidden;margin:11px 0 9px;
+  background:rgba(168,131,68,.22)}
+.ivc-allow.included .ivc-bar{background:rgba(255,236,196,.16)}
+.ivc-bar i{display:block;height:100%;border-radius:6px;
+  background:linear-gradient(90deg,#E7C687,#C8922F 55%,#F6E2B4);
+  transition:width .8s cubic-bezier(.22,.68,.24,1)}
+.ivc-fine{font:italic 400 11.5px/1.5 Georgia,serif;color:#8A6A3A;margin:0}
+.ivc-allow.included .ivc-fine{color:rgba(251,240,218,.6)}
+.ivc-price{display:flex;align-items:baseline;gap:8px;margin:10px 0 0}
+.ivc-price b{font-family:Georgia,serif;font-size:25px;font-weight:400;color:#8E0F27}
+.ivc-price span{font:italic 400 12px/1.4 Georgia,serif;color:#8A6A3A}
+
+/* buttons */
+.ivc-btn{display:flex;width:100%;align-items:center;justify-content:center;gap:9px;
+  border:0;border-radius:15px;padding:16px 18px;cursor:pointer;
+  font:700 11.5px/1 Georgia,serif;letter-spacing:.16em;text-transform:uppercase;
+  background:linear-gradient(180deg,#B81A34,#8E0F27 60%,#6E0C24);color:#FFF3D8;
+  box-shadow:0 14px 30px -16px rgba(110,12,36,.85),inset 0 1px 0 rgba(255,220,170,.28);
+  transition:transform .2s,box-shadow .3s,opacity .2s}
+.ivc-btn:active{transform:translateY(1px) scale(.995)}
+.ivc-btn[disabled]{opacity:.6}
+.ivc-btn.gold{background:linear-gradient(180deg,#FFF4D2,#F2D492 38%,#D9AE5C 74%,#B98428);
+  color:#45;
+  color:#43060F;box-shadow:0 14px 30px -16px rgba(150,101,18,.85),inset 0 1px 0 rgba(255,255,255,.8)}
+.ivc-btn.quiet{background:transparent;border:1px solid rgba(110,12,36,.34);color:#6E0C24;
+  box-shadow:none}
+.ivc-btn.mini{padding:11px 13px;font-size:10px;letter-spacing:.12em;border-radius:12px;width:auto}
+.ivc-row{display:flex;gap:9px;margin-top:11px}
+.ivc-row>*{flex:1 1 0}
+.ivc-note{font:italic 400 12.5px/1.55 Georgia,serif;color:#7A5A2C;margin:12px 0 0;
+  padding:12px 14px;border-radius:13px;background:rgba(255,252,240,.85);
+  box-shadow:inset 0 0 0 1px rgba(168,131,68,.28)}
+.ivc-err{font:italic 400 12.5px/1.5 Georgia,serif;color:#8E0F27;margin:12px 0 0;
+  padding:11px 13px;border-radius:12px;background:rgba(184,26,52,.07);
+  box-shadow:inset 0 0 0 1px rgba(184,26,52,.24)}
+.ivc-hide{display:none!important}
+
+/* your sessions */
+.ivc-sec{font:700 8.5px/1 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--ivc-gold-3);margin:22px 0 10px}
+.ivc-sess{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;margin:0 0 9px;
+  background:linear-gradient(180deg,rgba(255,250,236,.97),rgba(250,236,206,.95));
+  border:1px solid rgba(168,131,68,.4)}
+.ivc-sess .ico{width:34px;height:34px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 28%,#5E0A20,#32040E 76%);color:var(--ivc-gold)}
+.ivc-sess .ico svg{width:15px;height:15px}
+.ivc-sess .tx{min-width:0;flex:1 1 auto}
+.ivc-sess b{display:block;font:700 13px/1.25 Georgia,serif;color:#5C1120}
+.ivc-sess s{display:block;text-decoration:none;font:italic 400 11.5px/1.4 Georgia,serif;color:#8A6A3A;margin-top:2px}
+.ivc-sess em{display:block;font-style:normal;font:700 10.5px/1.45 Georgia,serif;letter-spacing:.02em;
+  color:#8E6A2C;margin-top:5px}
+
+/* ---------- the time picker ---------- */
+.ivc-days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;margin:0 0 6px}
+.ivc-days::-webkit-scrollbar{display:none}
+.ivc-day{flex:0 0 auto;width:60px;padding:10px 0 9px;border-radius:14px;cursor:pointer;text-align:center;
+  border:1px solid rgba(168,131,68,.4);background:#FFFCF4;transition:all .26s}
+.ivc-day i{display:block;font:600 8.5px/1 Georgia,serif;letter-spacing:.16em;font-style:normal;
+  text-transform:uppercase;color:#A88344}
+.ivc-day b{display:block;font-family:Georgia,serif;font-size:20px;font-weight:400;color:#5C1120;margin:5px 0 3px}
+.ivc-day s{display:block;text-decoration:none;font:italic 400 10px/1 Georgia,serif;color:#9A7A48}
+.ivc-day.on{background:linear-gradient(180deg,#B81A34,#8E0F27);border-color:#6E0C24;
+  box-shadow:0 12px 26px -14px rgba(110,20,44,.8)}
+.ivc-day.on i,.ivc-day.on s{color:rgba(255,241,214,.72)}
+.ivc-day.on b{color:#FFF1D6}
+.ivc-hours{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}
+.ivc-hr{padding:11px 0;border-radius:12px;cursor:pointer;border:1px solid rgba(168,131,68,.4);
+  background:#FFFCF4;font:600 11.5px/1 Georgia,serif;color:#7A4A0C;transition:all .24s}
+.ivc-hr.on{background:linear-gradient(180deg,#B81A34,#8E0F27);border-color:#6E0C24;color:#FFF1D6;
+  box-shadow:0 10px 22px -14px rgba(110,20,44,.85)}
+.ivc-hr[disabled]{opacity:.32;cursor:not-allowed}
+.ivc-chosen{display:flex;align-items:baseline;gap:8px;margin:2px 0 14px;padding:13px 15px;border-radius:14px;
+  background:rgba(255,252,240,.9);box-shadow:inset 0 0 0 1px rgba(168,131,68,.3)}
+.ivc-chosen b{font-family:Georgia,serif;font-size:16px;font-weight:400;color:#5C1120}
+.ivc-chosen span{font:italic 400 11.5px/1.4 Georgia,serif;color:#8A6A3A}
+
+/* ---------- the call room ---------- */
+#iv-call-screen{position:fixed;inset:0;z-index:130;display:none;flex-direction:column;overflow:hidden;
+  background:
+    radial-gradient(120% 62% at 50% -14%,rgba(255,238,200,.16) 0%,rgba(255,238,200,0) 62%),
+    linear-gradient(178deg,#43060F 0%,#2C040C 46%,#1A0207 100%);
+  color:var(--ivc-cream)}
+#iv-call-screen.on{display:flex}
+#iv-call-screen::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,224,170,.06) 1px,transparent 1px);background-size:25px 25px}
+.ivr-top{position:relative;z-index:3;display:flex;align-items:center;gap:11px;
+  padding:calc(14px + env(safe-area-inset-top)) 16px 0}
+.ivr-who{flex:1 1 auto;min-width:0}
+.ivr-who b{display:block;font-family:Georgia,serif;font-size:13px;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--ivc-gold)}
+.ivr-who s{display:block;text-decoration:none;font:italic 400 11.5px/1.4 Georgia,serif;
+  color:rgba(251,240,218,.55);margin-top:3px}
+.ivr-clock{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;
+  background:rgba(255,246,220,.07);box-shadow:inset 0 0 0 1px rgba(243,208,138,.28);
+  font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.04em;color:#FFF3D6}
+.ivr-clock .dot{width:6px;height:6px;border-radius:50%;background:#E9B949;
+  box-shadow:0 0 0 4px rgba(233,185,73,.14);animation:ivrPulse 2.4s ease-in-out infinite}
+@keyframes ivrPulse{0%,100%{opacity:.55}50%{opacity:1}}
+.ivr-x{border:1px solid rgba(243,208,138,.26);background:transparent;border-radius:50%;
+  width:33px;height:33px;display:grid;place-items:center;color:rgba(243,208,138,.8);cursor:pointer;flex:0 0 auto}
+.ivr-x svg{width:13px;height:13px}
+
+.ivr-stage{position:relative;z-index:2;flex:1 1 auto;display:grid;place-items:center;padding:14px 16px;min-height:0}
+.ivr-video{position:relative;width:100%;max-width:520px;aspect-ratio:3/4;border-radius:22px;overflow:hidden;
+  background:#0D0710;box-shadow:0 30px 70px -30px rgba(0,0,0,.9),inset 0 0 0 1px rgba(243,208,138,.22)}
+.ivr-video video{width:100%;height:100%;object-fit:cover;display:block;background:#0D0710}
+#ivr-remote{width:100%;height:100%;object-fit:cover}
+.ivr-pip{position:absolute;right:10px;bottom:10px;width:96px;height:128px;border-radius:14px;overflow:hidden;
+  background:#160A12;box-shadow:0 10px 24px -10px rgba(0,0,0,.85),inset 0 0 0 1px rgba(243,208,138,.4)}
+.ivr-pip video{width:100%;height:100%;object-fit:cover}
+.ivr-veil{position:absolute;inset:0;display:grid;place-items:center;gap:12px;text-align:center;padding:26px;
+  background:radial-gradient(80% 60% at 50% 40%,rgba(38,3,12,.15),rgba(20,1,7,.86));
+  transition:opacity .5s}
+.ivr-veil.off{opacity:0;pointer-events:none}
+.ivr-veil p{font:italic 400 14.5px/1.6 Georgia,serif;color:rgba(251,240,218,.82);max-width:280px;margin:0}
+.ivr-wait{display:grid;justify-items:center;gap:13px}
+.ivr-wait-coin{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
+  font-family:Georgia,serif;font-size:26px;color:#2C040C;
+  background:conic-gradient(from 205deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4);
+  box-shadow:0 16px 36px -16px rgba(0,0,0,.85),inset 0 2px 6px rgba(255,255,255,.55);
+  animation:ivrBreath 3.6s ease-in-out infinite}
+@keyframes ivrBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+.ivr-wait-b{font:400 17px/1.3 Georgia,serif;color:#FFF3D6;margin:0}
+.ivr-wait-s{font:italic 400 12.5px/1.55 Georgia,serif;color:rgba(251,240,218,.6);max-width:250px;margin:0}
+
+/* the audio room */
+.ivr-voice{display:grid;place-items:center;gap:20px;text-align:center}
+.ivr-ring{position:relative;width:186px;height:186px;display:grid;place-items:center}
+.ivr-ring i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(243,208,138,.28);
+  animation:ivrRing 4.4s ease-out infinite}
+.ivr-ring i:nth-child(2){animation-delay:1.4s}
+.ivr-ring i:nth-child(3){animation-delay:2.8s}
+@keyframes ivrRing{0%{transform:scale(.62);opacity:0}22%{opacity:.85}100%{transform:scale(1.06);opacity:0}}
+.ivr-coin{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;
+  font-family:Georgia,serif;font-size:38px;color:#2C040C;
+  background:conic-gradient(from 205deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4);
+  box-shadow:0 18px 40px -16px rgba(0,0,0,.8),inset 0 2px 6px rgba(255,255,255,.6)}
+.ivr-nm{font-family:Georgia,serif;font-size:22px;letter-spacing:.06em;color:#FFF3D6;margin:0}
+.ivr-sm{font:italic 400 13px/1.5 Georgia,serif;color:rgba(251,240,218,.6);margin:0;max-width:270px}
+
+/* controls */
+.ivr-dock{position:relative;z-index:3;display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:10px 16px calc(20px + env(safe-area-inset-bottom))}
+.ivr-key{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(243,208,138,.3);background:rgba(255,246,220,.06);color:#F3D08A;
+  transition:transform .2s,background .3s,color .3s}
+.ivr-key svg{width:21px;height:21px}
+.ivr-key:active{transform:scale(.94)}
+.ivr-key.off{background:rgba(184,26,52,.22);color:#FFD9C8;border-color:rgba(184,26,52,.6)}
+.ivr-key.end{width:64px;height:64px;background:linear-gradient(180deg,#C02341,#8E0F27);
+  border-color:#6E0C24;color:#FFF1D6;box-shadow:0 16px 34px -16px rgba(160,20,50,.9)}
+.ivr-lbl{display:block;font:600 7.5px/1 Georgia,serif;letter-spacing:.16em;text-transform:uppercase;
+  margin-top:5px;color:rgba(251,240,218,.5)}
+
+/* the calm line when the booked time has run out */
+.ivr-timeup{position:absolute;left:16px;right:16px;top:calc(64px + env(safe-area-inset-top));z-index:4;
+  padding:13px 15px;border-radius:14px;text-align:center;
+  background:linear-gradient(180deg,rgba(255,246,220,.96),rgba(246,231,196,.94));color:#5C1120;
+  font:italic 400 13px/1.5 Georgia,serif;box-shadow:0 16px 34px -20px rgba(0,0,0,.7);
+  opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .45s,transform .45s}
+.ivr-timeup.on{opacity:1;transform:none}
+
+/* the farewell — the app's smiling card, held */
+.ivr-bye{position:absolute;inset:0;z-index:9;display:none;place-items:center;text-align:center;
+  background:radial-gradient(90% 70% at 50% 34%,#6B1024 0%,#3A0410 62%,#1E0208 100%)}
+.ivr-bye.on{display:grid}
+.ivr-bye .face{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;margin:0 auto 20px;
+  background:conic-gradient(from 200deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4);
+  box-shadow:0 24px 60px -22px rgba(0,0,0,.85);
+  animation:ivrSmile 2.8s ease-in-out infinite}
+@keyframes ivrSmile{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+.ivr-bye .face svg{width:74px;height:74px;color:#4A0B18}
+.ivr-bye h2{font-family:Georgia,serif;font-weight:400;font-size:26px;color:#FFF3D6;margin:0 0 8px}
+.ivr-bye p{font:italic 400 13.5px/1.6 Georgia,serif;color:rgba(251,240,218,.72);margin:0 auto;max-width:290px}
+
+/* ---------- the profile's two meters, now real ---------- */
+.slot .ivc-min{display:block;font-family:Georgia,serif;font-size:27px;line-height:1;color:#5C1120}
+.slot .ivc-min i{font-style:normal;font-size:11px;color:#8A6A3A;letter-spacing:.05em}
+.slot .ivc-track{display:block;height:6px;border-radius:6px;margin-top:8px;overflow:hidden;
+  background:rgba(168,131,68,.22)}
+.slot .ivc-track i{display:block;height:100%;border-radius:6px;
+  background:linear-gradient(90deg,#E7C687,#C8922F);transition:width .9s cubic-bezier(.22,.68,.24,1)}
+.slot .ivc-sub{display:block;font:italic 400 10.5px/1.4 Georgia,serif;color:#8A6A3A;margin-top:6px}
+.slot.filled{display:flex !important;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  padding:11px 12px 12px;text-align:left;place-items:stretch}
+.slot .ivc-track{width:100%;align-self:stretch;margin-top:9px}
+.slot .ivc-name{display:flex;align-items:center;gap:6px;font:700 9.5px/1 Georgia,serif;letter-spacing:.14em;
+  text-transform:uppercase;color:#8A6A3A;margin-bottom:8px}
+.slot .ivc-name svg{width:12px;height:12px;flex:0 0 auto;color:#B8832A}
+
+@media (prefers-reduced-motion:reduce){
+  #ivc-sheet{transition:none}
+  .ivr-ring i,.ivr-clock .dot,.ivr-bye .face{animation:none}
+  .ivc-bar i,.slot .ivc-track i{transition:none}
+}
+
+</style>
 </head>
 <body>
 <svg width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
@@ -10986,6 +11270,15 @@ body.on-live #live-screen ~ *{z-index:auto}
   <div class="dk-dlist" id="dk-dlist"></div>
 </aside>
 
+
+<!-- ··················· THE SESSION · calls ··················· -->
+<div id="ivc-veil"></div>
+<section id="ivc-sheet" aria-label="The session">
+  <div class="ivc-grab" aria-hidden="true"></div>
+  <div class="ivc-body" id="ivc-body"></div>
+</section>
+<section id="iv-call-screen" aria-label="The room">
+</section>
 <nav class="nav">
     <a class="on" href="#"><span class="gi"><svg viewBox="0 0 24 24"><path d="M12 3.2L21 11h-2.6v9h-5v-6h-2.8v6h-5v-9H3z" fill="currentColor"/></svg></span>Home</a>
     <a href="#"><span class="gi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.4 8.6l-2 4.8-4.8 2 2-4.8z" fill="currentColor"/></svg></span>Explore</a>
@@ -15068,9 +15361,19 @@ window.IVSESS = (function () {
       });
   }
 
+  /* a sheet is a moment, not a place: changing screen closes it */
+  var wasShow2 = window.ivoryShow;
+  if (typeof wasShow2 === 'function') {
+    window.ivoryShow = function (name) {
+      if (window.IVCALL && IVCALL.close) IVCALL.close();
+      return wasShow2.apply(this, arguments);
+    };
+  }
+
   window.ivPaintProfile = function () {
     paintIdentity();
     if (IV.ident().id) readProfile();
+    if (window.IVCALL) window.IVCALL.paintProfile();   /* the two session meters, from call_balance */
   };
 
   /* the house's screen switcher, wrapped — nothing else changes */
@@ -15936,13 +16239,22 @@ window.IVSESS = (function () {
   function stopClocks(){ if(D.clock) clearInterval(D.clock), D.clock=null; if(D.poll) clearInterval(D.poll), D.poll=null; }
 
   /* ---------- CALLS · the bookings ---------- */
+  /* the app's ivoryWhen: 31 Oct, 7:30 pm — never a raw timestamp */
+  function whenText(d){
+    if(!d||isNaN(d.getTime())) return '';
+    var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var h=d.getHours(), ap=h<12?'am':'pm', hh=h%12||12, mm=d.getMinutes();
+    return d.getDate()+' '+MO[d.getMonth()]+', '+hh+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap;
+  }
   function renderCalls(p){
     p.innerHTML =
       '<p class="dk-kick">The bookings</p>'+
       '<h1 class="dk-h1">Who is <em>waiting.</em></h1>'+
       '<p class="dk-lede">A member asks for audio or video, for a number of minutes. Nothing is confirmed until you accept it — exactly as in the app.</p>'+
       '<div id="dk-calls-body"><div class="dk-empty">Reading the book…</div></div>';
-    call('/rest/v1/rpc/list_calls',{status_in:null})
+    call('/rest/v1/rpc/sweep_missed_calls',{})
+      .catch(function(){ return 0; })
+      .then(function(){ return call('/rest/v1/rpc/list_calls',{status_in:null}); })
       .then(function(rows){ paintCalls(rows||[]); })
       .catch(function(x){
         $('dk-calls-body').innerHTML='<div class="dk-empty">The call book did not answer — '+esc(x.message)+'</div>';
@@ -15962,16 +16274,34 @@ window.IVSESS = (function () {
       head.style.marginTop='18px'; head.textContent=shelf[1]; box.appendChild(head);
       list.forEach(function(c){
         var when=c.requested_for? new Date(c.requested_for):null;
-        var what=(c.kind==='video'?'Video':'Audio')+' · '+c.minutes+' minutes';
-        var whenTxt=(when? when.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})
-                          : 'a time not chosen yet')+
-                    (c.price_inr? ' · ₹'+c.price_inr : ' · from the plan');
+        var what=(c.kind==='video'?'Video':'Audio')+' · '+c.minutes+' minutes'+
+                 (c.price_inr? ' · ₹'+String(c.price_inr).replace(/\B(?=(\d{3})+(?!\d))/g,',') : ' · from the plan');
+        var whenTxt=c.requested_for? '' : '';
         var row=el('<div class="dk-rowcard"><div class="dk-ava">'+
           esc(((c.display_name||'A').slice(0,1)).toUpperCase())+'</div>'+
-          '<div class="dk-main"><b>'+esc(c.display_name||'A member')+'</b><s>'+esc(what)+'</s>'+
-          '<s class="dk-when">'+esc(whenTxt)+'</s></div>'+
+          '<div class="dk-main"><b>'+esc(c.display_name||'A member')+'</b><s>'+esc(what)+'</s></div>'+
           '<div class="dk-acts"></div></div>');
+        /* the line under the name: what was agreed, or what is still open */
+        var line=document.createElement('s');
+        line.className='dk-when';
+        line.textContent = c.requested_for
+          ? 'Agreed for '+whenText(new Date(c.requested_for))
+          : (c.status==='accepted' ? 'Waiting for them to choose their time' : 'No time agreed yet');
+        row.querySelector('.dk-main').appendChild(line);
+        if(c.status==='missed'){
+          var miss=document.createElement('s'); miss.className='dk-when';
+          miss.textContent = c.price_inr>0 ? 'Missed — this one was paid for.'
+            : (c.charged ? 'Missed — minutes were used.' : 'Missed — forgiven, no minutes used.');
+          row.querySelector('.dk-main').appendChild(miss);
+        }
         var acts=row.querySelector('.dk-acts');
+        if(c.status==='accepted'||c.status==='active'){
+          var ch=el('<button class="dk-btn quiet mini">Change time</button>');
+          ch.addEventListener('click',function(){
+            if(window.IVCALL&&IVCALL.openHost) IVCALL.openHost(c.id,function(){ render('calls'); });
+          });
+          acts.appendChild(ch);
+        }
         if(c.status==='requested'){
           var yes=el('<button class="dk-btn gold mini">Accept</button>');
           yes.addEventListener('click',function(){
@@ -16000,12 +16330,8 @@ window.IVSESS = (function () {
   }
 
   function joinCall(c){
-    call('/functions/v1/agora-token',{mode:'call',id:c.id}).then(function(tk){
-      if(!tk||!tk.token) throw new Error((tk&&tk.error)||'The call did not open.');
-      return joinAsHost(tk);
-    }).then(function(){
-      if(window.ivoryToast) window.ivoryToast('You are in the '+(c.kind==='video'?'video':'audio')+' session.');
-    }).catch(function(x){ dkToast(String(x.message||x),true); });
+    /* one room, one engine — the same one the member's JOIN opens */
+    if(window.IVCALL&&IVCALL.join){ IVCALL.join(c.id, c.kind||'video'); }
   }
 
   /* ---------- TIERS ---------- */
@@ -16056,6 +16382,703 @@ window.IVSESS = (function () {
   /* let the member side ask who is here */
   load();
 })();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SESSION · the calls circuit, built from the app's own sequence
+   ---------------------------------------------------------------------------
+   ask → Ivory agrees → choose the day and the hour → both walk in → the
+   clock runs from the moment the database stamped, and stops when she ends it.
+
+   Every rule here is the database's, read and mirrored, never invented:
+     call_policy   notice · the noon-to-three window · how far ahead
+     call_balance  what a plan carries, and what is left of it
+     request_call · member_pick_slot · respond_call · set_call_time
+     call_enter · call_exit · call_time_up · call_finish · end_call
+   =========================================================================== */
+window.IVCALL = (function () {
+  var IV = window.IVSESS;
+  var S = {
+    hours: null, hoursAt: 0,
+    cat: null, catAt: 0,
+    mine: [], allow: {}, busy: false, step: 1,
+    medium: 'video', minutes: 30, price: 0, name: '', note: '',
+    callId: null, backFrom: null,
+    day: null, hour: null,
+    room: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function num(v, d) { var n = Number(v); return isFinite(n) ? n : d; }
+  function money(n) { return '₹' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function toast(m, bad) { if (window.ivoryToast) window.ivoryToast(m, bad); }
+
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  /* the app's own way of saying an hour */
+  function spoken(h) {
+    h = ((h % 24) + 24) % 24;
+    if (h === 0) return 'midnight';
+    if (h === 12) return 'noon';
+    if (h < 12) return h + ' in the morning';
+    if (h < 17) return (h - 12) + ' in the afternoon';
+    if (h < 21) return (h - 12) + ' in the evening';
+    return (h - 12) + ' at night';
+  }
+  function clock(h, m) {
+    var ap = h < 12 ? 'am' : 'pm', hh = h % 12; if (hh === 0) hh = 12;
+    return hh + (m ? ':' + String(m).padStart(2, '0') : '') + ' ' + ap;
+  }
+  function whenText(d) {
+    if (!d) return '';
+    var t = new Date(d);
+    return t.getDate() + ' ' + MON[t.getMonth()] + ', ' + clock(t.getHours(), t.getMinutes());
+  }
+
+  /* ---------- the house's numbers ---------- */
+  function hours() {
+    if (S.hours && Date.now() - S.hoursAt < 120000) return Promise.resolve(S.hours);
+    return IV.get('/rest/v1/call_policy?select=min_notice_hours,open_from_hour,open_to_hour,max_days_ahead&id=eq.1')
+      .then(function (rows) {
+        var m = (rows && rows[0]) || {};
+        S.hours = { notice: num(m.min_notice_hours, 0), open: num(m.open_from_hour, 12),
+                    close: num(m.open_to_hour, 3), days: num(m.max_days_ahead, 30) };
+        S.hoursAt = Date.now(); return S.hours;
+      })
+      .catch(function () {
+        S.hours = { notice: 0, open: 12, close: 3, days: 30 }; S.hoursAt = Date.now(); return S.hours;
+      });
+  }
+
+  function catalogue() {
+    if (S.cat && Date.now() - S.catAt < 300000) return Promise.resolve(S.cat);
+    return IV.get('/rest/v1/wish_categories?select=id,name,tagline,base_price_inr,minutes,call_kind&call_kind=not.is.null&is_active=eq.true&order=sort_order.asc')
+      .then(function (rows) {
+        var map = {};
+        (rows || []).forEach(function (r) {
+          map[r.call_kind] = { id: r.id, name: r.name, tagline: r.tagline || '',
+            price: num(r.base_price_inr, 0), minutes: num(r.minutes, 30) };
+        });
+        S.cat = map; S.catAt = Date.now(); return map;
+      })
+      .catch(function () { S.cat = {}; S.catAt = Date.now(); return {}; });
+  }
+
+  function balance(kind) {
+    return IV.call('/rest/v1/rpc/call_balance', { kind_in: kind }).then(function (res) {
+      var m = Array.isArray(res) ? res[0] : res;
+      if (!m) return null;
+      var allowed = num(m.allowed, 0), used = num(m.used, 0);
+      return {
+        kind: m.kind || kind, allowed: allowed, used: used,
+        remaining: num(m.remaining, Math.max(0, allowed - used)),
+        period: m.period || 'month',
+        resetsAt: m.resets_at || null,
+        noShows: num(m.no_shows, 0),
+        included: allowed > 0
+      };
+    }).catch(function () { return null; });
+  }
+
+  function periodLabel(p) {
+    if (p === 'day') return 'in this 24 hours';
+    if (p === 'week') return 'in this 7-day cycle';
+    if (p === 'year') return 'in this year';
+    if (p === 'membership') return 'while this membership lasts';
+    return 'in this 30-day cycle';
+  }
+
+  /* a session whose window closed more than six hours ago is over, whatever the row still says */
+  function lapse(r) {
+    var st = String(r.status || '');
+    if (st !== 'accepted' && st !== 'active') return r;
+    var at = r.window_end ? new Date(r.window_end) : (r.requested_for ? new Date(r.requested_for) : null);
+    if (!at || isNaN(at.getTime())) return r;
+    if (Date.now() < at.getTime() + 6 * 3600 * 1000) return r;
+    var o = {}; for (var k in r) o[k] = r[k]; o.status = 'expired'; return o;
+  }
+
+  function mine() {
+    var id = IV.ident();
+    if (!id.id) return Promise.resolve([]);
+    return IV.get('/rest/v1/call_requests?select=*&member_id=eq.' + id.id + '&order=created_at.desc&limit=30')
+      .then(function (rows) { S.mine = (rows || []).map(lapse); return S.mine; })
+      .catch(function () { S.mine = []; return []; });
+  }
+
+  function ask(kind, minutes, price, note) {
+    return IV.call('/rest/v1/rpc/request_call', {
+      kind_in: kind, minutes_in: minutes, price_in: price, note_in: note, when_in: null
+    }).then(function (r) { return Number(r); });
+  }
+
+  function pick(callId, when) {
+    return IV.call('/rest/v1/rpc/member_pick_slot', {
+      call_id_in: callId, slot_in: new Date(when).toISOString()
+    }).then(function (r) { return (typeof r === 'string' && r) || 'Your time is set. You will get a reminder before it.'; });
+  }
+
+  /* ═══════════════ THE SHEET ═══════════════ */
+  function open(medium) {
+    if (!IV || !IV.ident().id) { if (window.ivDesk && window.ivDesk.door) window.ivDesk.door('The sessions are for the signed in. The door is here.'); return; }
+    S.medium = (medium === 'audio') ? 'audio' : 'video';
+    S.step = 1; S.callId = null; S.day = null; S.hour = null;
+    var veil = $('ivc-veil'), sh = $('ivc-sheet');
+    if (!sh) return;
+    veil.classList.add('on'); sh.classList.add('on');
+    document.body.classList.add('sheet-open');
+    askPane();
+  }
+  function close() {
+    var veil = $('ivc-veil'), sh = $('ivc-sheet');
+    if (veil) veil.classList.remove('on');
+    if (sh) sh.classList.remove('on');
+    document.body.classList.remove('sheet-open');
+  }
+
+  function askPane() {
+    var body = $('ivc-body'); if (!body) return;
+    body.innerHTML = '<div class="ivc-load">A moment.</div>';
+    Promise.all([catalogue(), balance(S.medium), mine(), hours()]).then(function (r) {
+      var cat = r[0] || {}, bal = r[1], list = r[2] || [], hrs = r[3];
+      var c = cat[S.medium] || { name: S.medium === 'video' ? 'A live session' : 'A call', tagline: '', price: 0, minutes: 30 };
+      S.name = c.name; S.minutes = c.minutes || 30; S.price = c.price || 0;
+      S.allow[S.medium] = bal;
+      S.hours = hrs;
+      var included = !!(bal && bal.included);
+      var enough = included && bal.remaining >= S.minutes;
+
+      var h = '';
+      h += '<p class="ivc-kick">' + (S.medium === 'video' ? 'Face to face' : 'Voice only') + '</p>';
+      h += '<h1 class="ivc-h1">' + (S.medium === 'video' ? 'A live <em>session.</em>' : 'A call, <em>just us.</em>') + '</h1>';
+      h += '<p class="ivc-lede">' + esc(c.tagline || (S.medium === 'video'
+            ? 'A scheduled video session with me — live, unhurried, at a time we agree.'
+            : 'My voice, your questions — completely unhurried.')) + '</p>';
+
+      h += '<div class="ivc-meds">' +
+        medBtn('video', 'Face to face', 'with the camera') +
+        medBtn('audio', 'Voice only', 'no camera') + '</div>';
+
+      h += '<div class="ivc-lens">' + [15, 30, 60].map(function (m) {
+        return '<button class="ivc-len' + (m === S.minutes ? ' on' : '') + '" data-len="' + m + '">' + m + ' minutes</button>';
+      }).join('') + '</div>';
+
+      /* the allowance card — a jewel when it is already yours, cream when it is a wish */
+      if (included) {
+        var pc = bal.allowed ? Math.max(0, Math.min(100, Math.round((1 - bal.used / bal.allowed) * 100))) : 0;
+        h += '<div class="ivc-allow included">' +
+          '<div class="ivc-eyebrow"><span class="dot"></span>Included with your membership</div>' +
+          '<div class="ivc-big"><b>' + bal.remaining + '</b><span>of ' + bal.allowed + ' minutes left ' + periodLabel(bal.period) + '</span></div>' +
+          '<div class="ivc-bar"><i style="width:' + pc + '%"></i></div>';
+        if (bal.resetsAt) {
+          var rd = new Date(bal.resetsAt);
+          h += '<p class="ivc-fine">' + (bal.period === 'membership'
+            ? 'This cycle ends when your membership ends. Minutes do not carry over.'
+            : 'Your cycle renews on ' + rd.getDate() + ' ' + MON[rd.getMonth()] + ' ' + rd.getFullYear() +
+              ' — counted from the day you joined this tier, not the calendar month.') + '</p>';
+        } else {
+          h += '<p class="ivc-fine">These are already yours. A paid wish never touches them.</p>';
+        }
+        if (bal.noShows > 0) {
+          h += '<p class="ivc-fine" style="margin-top:8px">' + (bal.noShows === 1
+            ? 'One session was missed this cycle. Missing a second is still free — after that, a missed session uses its minutes.'
+            : 'Two sessions have been missed this cycle. The next one that is missed will use its minutes.') + '</p>';
+        }
+        h += '</div>';
+
+        if (enough) {
+          h += '<button class="ivc-btn" id="ivc-ask">Ask for this session</button>';
+        } else {
+          h += '<div class="ivc-allow" style="margin-top:0"><div class="ivc-eyebrow"><span class="dot"></span>Available as a wish</div>' +
+            '<div class="ivc-price"><b>' + money(S.price) + '</b><span>for ' + S.minutes + ' minutes</span></div>' +
+            '<p class="ivc-fine" style="margin-top:9px">' + (bal.remaining > 0
+              ? 'Only ' + bal.remaining + ' minutes are left ' + periodLabel(bal.period) + ', and this session needs ' + S.minutes +
+                '. A wish does not touch your allowance.'
+              : 'Your tier carries no ' + S.medium + ' minutes this cycle. A wish does not touch your allowance.') + '</p></div>' +
+            '<button class="ivc-btn" id="ivc-ask">Make this a wish</button>';
+        }
+      } else {
+        h += '<div class="ivc-allow">' +
+          '<div class="ivc-eyebrow"><span class="dot"></span>Available as a wish</div>' +
+          '<div class="ivc-price"><b>' + money(S.price) + '</b><span>for ' + S.minutes + ' minutes</span></div>' +
+          '<p class="ivc-fine" style="margin-top:9px">Your tier does not carry ' + S.medium + ' minutes yet. You can still have this session by making it a wish.</p>' +
+          '</div>' +
+          '<button class="ivc-btn" id="ivc-ask">Make this a wish</button>';
+      }
+
+      var open_ = list.filter(function (c2) { return c2.status === 'requested' || c2.status === 'accepted' || c2.status === 'active'; });
+      if (open_.length) {
+        h += '<p class="ivc-sec">Your sessions</p>' + open_.map(row).join('');
+      }
+      h += '<p class="ivc-note">Nothing is confirmed until I say yes. When I do, you pick the day and the hour here — and the call happens inside Ivory, never on another app.</p>';
+
+      var msg = S.msg; S.msg = null;
+      if (msg) h += '<p class="' + (msg.bad ? 'ivc-err' : 'ivc-note') + '">' + esc(msg.t) + '</p>';
+
+      body.innerHTML = h;
+      wireAsk();
+    });
+  }
+
+  function medBtn(k, title, sub) {
+    return '<button class="ivc-med' + (S.medium === k ? ' on' : '') + '" data-med="' + k + '">' +
+      '<span class="ico">' + (k === 'video'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6.4 3.6h3l1.6 4-2 1.4a9.4 9.4 0 004.6 4.6l1.4-2 4 1.6v3a2 2 0 01-2.2 2A15.6 15.6 0 013.4 5.8a2 2 0 012-2.2z"/></svg>') +
+      '</span><span><b>' + title + '</b><s>' + sub + '</s></span></button>';
+  }
+
+  function row(c) {
+    var joinable = c.status === 'accepted' || c.status === 'active';
+    var ico = c.kind === 'audio'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6.4 3.6h3l1.6 4-2 1.4a9.4 9.4 0 004.6 4.6l1.4-2 4 1.6v3a2 2 0 01-2.2 2A15.6 15.6 0 013.4 5.8a2 2 0 012-2.2z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>';
+    var head = c.status === 'requested' ? 'Waiting for Ivory'
+             : c.status === 'active' ? 'In the room now'
+             : c.status === 'expired' ? 'The window has closed'
+             : 'Agreed';
+    var sub = (c.kind === 'video' ? 'Video' : 'Audio') + ' · ' + c.minutes + ' minutes · ' +
+              (c.price_inr ? money(c.price_inr) : 'from your plan');
+    var line;
+    if (c.status === 'requested') line = 'Asked ' + whenText(c.created_at || Date.now());
+    else if (c.requested_for) line = 'For ' + whenText(c.requested_for) +
+      (c.window_end ? ' to ' + clock(new Date(c.window_end).getHours(), new Date(c.window_end).getMinutes()) : '') +
+      ' — join a little before.';
+    else line = 'Pick your day and hour when you are ready.';
+
+    var btn = '';
+    if (!c.requested_for && (c.status === 'requested' || c.status === 'accepted')) {
+      btn = '<button class="ivc-btn gold mini" data-book="' + c.id + '">Book time</button>';
+    } else if (joinable) {
+      btn = '<button class="ivc-btn mini" data-join="' + c.id + '" data-kind="' + esc(c.kind) + '">Join</button>';
+    }
+    return '<div class="ivc-sess"><span class="ico">' + ico + '</span><span class="tx"><b>' + esc(head) + '</b>' +
+      '<s>' + esc(sub) + '</s><em>' + esc(line) + '</em></span>' + btn + '</div>';
+  }
+
+  function wireAsk() {
+    var body = $('ivc-body'); if (!body) return;
+    [].forEach.call(body.querySelectorAll('[data-med]'), function (b) {
+      b.addEventListener('click', function () { S.medium = b.getAttribute('data-med'); S.msg = null; askPane(); });
+    });
+    [].forEach.call(body.querySelectorAll('[data-len]'), function (b) {
+      b.addEventListener('click', function () { S.minutes = Number(b.getAttribute('data-len')); S.msg = null; askPane(); });
+    });
+    var ask_ = $('ivc-ask');
+    if (ask_) ask_.addEventListener('click', function () { doAsk(ask_); });
+    [].forEach.call(body.querySelectorAll('[data-book]'), function (b) {
+      b.addEventListener('click', function () { S.callId = Number(b.getAttribute('data-book')); timePane(); });
+    });
+    [].forEach.call(body.querySelectorAll('[data-join]'), function (b) {
+      b.addEventListener('click', function () { join(Number(b.getAttribute('data-join')), b.getAttribute('data-kind')); });
+    });
+  }
+
+  function doAsk(btn) {
+    var bal = S.allow[S.medium];
+    var included = !!(bal && bal.included);
+    var enough = included && bal.remaining >= S.minutes;
+    var price = enough ? 0 : S.price;
+    var note = enough ? 'Included with membership' : 'Wish: ' + S.name;
+    btn.disabled = true; btn.textContent = 'Asking…';
+    ask(S.medium, S.minutes, price, note).then(function (id) {
+      S.callId = id;
+      S.msg = { t: 'Asked. Now pick a time that suits you both.' };
+      return mine().then(function () { timePane(); });
+    }).catch(function (x) {
+      btn.disabled = false; btn.textContent = enough ? 'Ask for this session' : 'Make this a wish';
+      var e = $('ivc-err'); if (!e) { e = document.createElement('p'); e.id = 'ivc-err'; e.className = 'ivc-err'; $('ivc-body').appendChild(e); }
+      e.textContent = x.message || String(x);
+    });
+  }
+
+  /* ---------- choosing the day and the hour ---------- */
+  function inside(h, hrs) { return h >= hrs.open || h < hrs.close; }
+  function firstOpening(d, hrs) {
+    if (inside(d.getHours(), hrs)) return d;
+    var n = new Date(d); n.setHours(hrs.open, 0, 0, 0);
+    if (n < d) n.setDate(n.getDate() + 1);
+    return n;
+  }
+  function candidateHours(hrs) {
+    var out = [], h = hrs.open;
+    for (var i = 0; i < 24; i++) {
+      if (inside(h, hrs)) out.push(h);
+      h = (h + 1) % 24;
+      if (out.length >= 24) break;
+    }
+    return out;
+  }
+
+  function timePane() {
+    var body = $('ivc-body'); if (!body) return;
+    hours().then(function (hrs) {
+      var now = new Date();
+      var earliest = firstOpening(new Date(now.getTime() + hrs.notice * 3600 * 1000), hrs);
+      var horizon = new Date(now.getTime() + hrs.days * 86400 * 1000);
+      var days = [];
+      for (var d = new Date(earliest.getFullYear(), earliest.getMonth(), earliest.getDate()); d <= horizon && days.length < 21; d.setDate(d.getDate() + 1)) {
+        days.push(new Date(d));
+      }
+      if (!S.day) S.day = days[0] ? days[0].getTime() : null;
+      var call = (S.mine || []).filter(function (c) { return c.id === S.callId; })[0] || {};
+      var kind = call.kind || S.medium;
+      S.medium = kind;
+
+      var h = '';
+      h += '<p class="ivc-kick">' + (kind === 'video' ? 'Video' : 'Audio') + ' · ' + (call.minutes || S.minutes) + ' minutes</p>';
+      h += '<h1 class="ivc-h1">Pick your <em>time.</em></h1>';
+      h += '<p class="ivc-lede">Sessions run from ' + spoken(hrs.open) + ' through to ' + spoken(hrs.close) +
+           '. The earliest you can choose is ' + whenText(earliest) + ', and you can book up to ' + hrs.days + ' days ahead.</p>';
+
+      h += '<div class="ivc-days" id="ivc-days">' + days.map(function (d) {
+        var on = S.day === d.getTime();
+        return '<button class="ivc-day' + (on ? ' on' : '') + '" data-day="' + d.getTime() + '">' +
+          '<i>' + DOW[d.getDay()] + '</i><b>' + d.getDate() + '</b><s>' + MON[d.getMonth()] + '</s></button>';
+      }).join('') + '</div>';
+
+      var sel = S.day ? new Date(S.day) : earliest;
+      var slots = candidateHours(hrs);
+      h += '<div class="ivc-hours" id="ivc-hours">' + slots.map(function (hr) {
+        var at = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), hr, 0, 0, 0);
+        var ok = at.getTime() >= earliest.getTime();
+        var on = S.hour === hr;
+        return '<button class="ivc-hr' + (on ? ' on' : '') + '" data-hr="' + hr + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
+      }).join('') + '</div>';
+
+      var chosen = null;
+      if (S.day != null && S.hour != null) {
+        chosen = new Date(S.day); chosen.setHours(S.hour, 0, 0, 0);
+      }
+      h += '<div class="ivc-chosen"><b>' + (chosen ? whenText(chosen) : 'Choose a day and an hour') + '</b>' +
+        '<span>' + (chosen ? 'Together, here.' : 'Nothing is booked until you confirm.') + '</span></div>';
+      h += '<button class="ivc-btn" id="ivc-confirm"' + (chosen ? '' : ' disabled') + '>Confirm this time</button>';
+      h += '<div class="ivc-row"><button class="ivc-btn quiet" id="ivc-back">Back to the room</button></div>';
+      h += '<p class="ivc-note">Ivory is told the moment you confirm, and can move the time if she must. Open Ivory a little before — JOIN appears in your sessions.</p>';
+      body.innerHTML = h;
+
+      [].forEach.call(body.querySelectorAll('[data-day]'), function (b) {
+        b.addEventListener('click', function () { S.day = Number(b.getAttribute('data-day')); S.hour = null; timePane(); });
+      });
+      [].forEach.call(body.querySelectorAll('[data-hr]'), function (b) {
+        if (b.disabled) return;
+        b.addEventListener('click', function () { S.hour = Number(b.getAttribute('data-hr')); timePane(); });
+      });
+      $('ivc-back').addEventListener('click', function () { askPane(); });
+      var conf = $('ivc-confirm');
+      if (chosen) conf.addEventListener('click', function () { doConfirm(chosen, conf); });
+    });
+  }
+
+  function doConfirm(chosen, btn) {
+    btn.disabled = true; btn.textContent = 'Setting it…';
+    pick(S.callId, chosen).then(function (word) {
+      return mine().then(function () {
+        S.msg = { t: word };
+        askPane();
+        toast(word);
+      });
+    }).catch(function (x) {
+      btn.disabled = false; btn.textContent = 'Confirm this time';
+      var e = document.createElement('p'); e.className = 'ivc-err'; e.textContent = x.message || String(x);
+      btn.parentNode.insertBefore(e, btn);
+    });
+  }
+
+  /* ═══════════════ THE ROOM ═══════════════ */
+  function join(callId, kind) {
+    close();
+    var scr = $('iv-call-screen'); if (!scr) return;
+    scr.classList.add('on');
+    document.body.classList.add('on-live');
+    /* the room's own shell is drawn first, then filled — never queried before it exists */
+    scr.innerHTML = roomMarkup(kind);
+    var clockEl = scr.querySelector('#ivr-clock-text');
+    var R = { id: callId, kind: kind, client: null, mic: null, cam: null, prior: 0,
+              from: null, tick: null, over: false, left: false, admin: !!(window.ivIsAdmin && window.ivIsAdmin()) };
+    S.room = R;
+
+    function setClock() {
+      if (!R.from) { clockEl.textContent = '0:00'; return; }
+      var s = Math.max(0, Math.floor((Date.now() - R.from.getTime()) / 1000)) + R.prior;
+      clockEl.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+      return s;
+    }
+
+    /* the room stands first; the engine is checked after, so a slow or missing
+       engine leaves a finished state on screen instead of nothing at all */
+    elseFill('The room is opening…');
+    if (!window.AgoraRTC) {
+      elseFill('The room engine did not load on this page. Check your signal and tap Join again — your session and its minutes are untouched.');
+    }
+
+    /* the stamp the database keeps, so both screens agree to the second */
+    IV.get('/rest/v1/call_requests?select=id,kind,minutes,status,started_at,requested_for,window_end&id=eq.' + callId)
+      .then(function (rows) {
+        var r = (rows && rows[0]) || {};
+        if (r.started_at) R.from = new Date(r.started_at);
+        R.minutes = num(r.minutes, 30);
+        return IV.call('/rest/v1/rpc/call_enter', { call_id_in: callId });
+      })
+      .then(function (secs) {
+        R.prior = num(secs, 0);
+        return IV.call('/functions/v1/agora-token', { mode: 'call', id: callId });
+      })
+      .then(function (tk) {
+        if (!window.AgoraRTC) throw new Error('The room engine did not load on this page. Check your signal and tap Join again — your session and its minutes are untouched.');
+        if (!tk || !tk.token) throw new Error((tk && tk.error) || 'The room did not open.');
+        var c = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+        R.client = c;
+        c.on('user-published', function (user, mediaType) {
+          c.subscribe(user, mediaType).then(function () {
+            if (mediaType === 'video') {
+              var box = scr.querySelector('#ivr-remote'); if (box && user.videoTrack) user.videoTrack.play(box);
+            }
+            if (mediaType === 'audio' && user.audioTrack) user.audioTrack.play();
+            elseFill('');
+            var veil = scr.querySelector('.ivr-veil'); if (veil) veil.classList.add('off');
+            var nm = scr.querySelector('#ivr-remote-name'); if (nm) nm.textContent = 'Ivory';
+          });
+        });
+        c.on('user-left', function () { elseFill('Ivory has stepped out of the room. The seconds stop with her — nothing is lost.'); });
+        return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null).then(function () {
+          var tracks = [AgoraRTC.createMicrophoneAudioTrack()];
+          if (kind === 'video') tracks.push(AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' }));
+          return Promise.all(tracks);
+        }).then(function (tr) {
+          R.mic = tr[0]; R.cam = tr[1] || null;
+          if (R.cam) { var self = scr.querySelector('#ivr-self'); if (self) R.cam.play(self); }
+          return c.publish(R.cam ? [R.mic, R.cam] : [R.mic]);
+        });
+      })
+      .then(function () {
+        if (!R.from) R.from = new Date();
+        R.tick = setInterval(function () {
+          var s = setClock();
+          if (s != null && s > 0 && s % 60 === 0 && !R.over) {
+            IV.call('/rest/v1/rpc/call_time_up', { call_id_in: callId, seconds_in: s })
+              .then(function (over) {
+                if (over === true && !R.over) {
+                  R.over = true;
+                  var t = scr.querySelector('#ivr-timeup');
+                  if (t) { t.textContent = 'The ' + R.minutes + ' minutes you booked have run their course. Nothing is cut — stay as long as we both wish.'; t.classList.add('on'); }
+                }
+              }).catch(function () {});
+          }
+        }, 1000);
+      })
+      .catch(function (x) {
+        elseFill((x && x.message) || 'The room did not open. Check your signal and tap Join again — your session and its minutes are untouched.');
+        setClock();
+      });
+
+    function elseFill(msg) {
+      var veil = scr.querySelector('.ivr-veil'); if (!veil) return;
+      veil.classList.remove('off');
+      var p = veil.querySelector('p'); if (p) p.textContent = msg || 'Waiting for Ivory…';
+    }
+
+    /* controls */
+    scr.querySelector('#ivr-leave').addEventListener('click', function () { leaveRoom(false); });
+    var endB = scr.querySelector('#ivr-end');
+    if (endB) endB.addEventListener('click', function () {
+      if (!confirm('End the session for both of you?')) return;
+      leaveRoom(true);
+    });
+    var micB = scr.querySelector('#ivr-mic');
+    if (micB) micB.addEventListener('click', function () {
+      if (!R.mic) return;
+      R.mic.setEnabled(!R.mic.enabled).then(function () {
+        micB.classList.toggle('off', !R.mic.enabled);
+      });
+    });
+    var camB = scr.querySelector('#ivr-cam');
+    if (camB) camB.addEventListener('click', function () {
+      if (!R.cam) return;
+      R.cam.setEnabled(!R.cam.enabled).then(function () {
+        camB.classList.toggle('off', !R.cam.enabled);
+      });
+    });
+    scr.querySelector('#ivr-x').addEventListener('click', function () { leaveRoom(false); });
+
+    /* the clock starts on the first true second */
+    R.tick = setInterval(function () { setClock(); }, 1000);
+    setClock();
+  }
+
+  function roomMarkup(kind) {
+    return '<div class="ivr-top">' +
+        '<div class="ivr-who"><b>The session</b><s>' + (kind === 'video' ? 'Face to face · together, here' : 'Voice only · together, here') + '</s></div>' +
+        '<div class="ivr-clock"><span class="dot"></span><span id="ivr-clock-text">0:00</span></div>' +
+        '<button class="ivr-x" id="ivr-x" aria-label="Leave quietly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '</div>' +
+      '<div class="ivr-timeup" id="ivr-timeup"></div>' +
+      '<div class="ivr-stage" id="ivr-stage">' +
+        (kind === 'video'
+          ? '<div class="ivr-video"><div id="ivr-remote" style="width:100%;height:100%"></div>' +
+            '<div class="ivr-pip"><div id="ivr-self" style="width:100%;height:100%"></div></div>' +
+            '<div class="ivr-veil"><div class="ivr-wait"><span class="ivr-wait-coin">I</span>' +
+              '<p class="ivr-wait-b">Waiting for Ivory</p>' +
+              '<p class="ivr-wait-s">She will appear here. Nothing is recorded, and nothing is kept after you leave.</p></div></div></div>'
+          : '<div class="ivr-voice"><div class="ivr-ring"><i></i><i></i><i></i>' +
+            '<div class="ivr-coin" id="ivr-self">I</div></div>' +
+            '<p class="ivr-nm" id="ivr-remote-name">Ivory</p>' +
+            '<p class="ivr-sm">The room is open. Say hello.</p>' +
+            '<div class="ivr-veil" style="position:static;background:none;padding:0"><p>Waiting for Ivory…</p></div></div>') +
+      '</div>' +
+      '<div class="ivr-dock">' +
+        '<div><button class="ivr-key" id="ivr-mic" aria-label="Microphone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8.8" y="2.8" width="6.4" height="10.4" rx="3.2"/><path d="M5.8 11.2a6.2 6.2 0 0012.4 0M12 17.4V21"/></svg></button><span class="ivr-lbl">Mic</span></div>' +
+        (kind === 'video'
+          ? '<div><button class="ivr-key" id="ivr-cam" aria-label="Camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg></button><span class="ivr-lbl">Camera</span></div>'
+          : '') +
+        '<div><button class="ivr-key end" id="ivr-leave" aria-label="Leave the room"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.6 14.6c4.4-3.4 10.4-3.4 14.8 0"/><path d="M7.4 17.2l-1.8-2.8M16.6 17.2l1.8-2.8"/></svg></button><span class="ivr-lbl">Leave</span></div>' +
+        (isOwner() ? '<div><button class="ivr-key" id="ivr-end" aria-label="End the session" style="background:linear-gradient(180deg,#3A0410,#22020A);border-color:rgba(243,208,138,.35)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="6" y="6" width="12" height="12" rx="2.4"/></svg></button><span class="ivr-lbl">End</span></div>' : '') +
+      '</div>' +
+      '<div class="ivr-bye" id="ivr-bye"><div><div class="face"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="24" cy="26" r="2.6" fill="currentColor" stroke="none"/><circle cx="40" cy="26" r="2.6" fill="currentColor" stroke="none"/><path d="M22 38c3.2 4.2 6.8 6.2 10 6.2S38.8 42.2 42 38"/></svg></div>' +
+      '<h2>Thank you for this.</h2><p>The minutes you used are taken from what was yours, and the rest waits for you.</p></div></div>';
+  }
+
+  function isOwner() { return !!(window.ivIsAdmin && window.ivIsAdmin()); }
+
+  function leaveRoom(ending) {
+    var R = S.room; if (!R) return;
+    var scr = $('iv-call-screen');
+    var seconds = 0;
+    if (R.from) seconds = Math.max(0, Math.floor((Date.now() - R.from.getTime()) / 1000)) + R.prior;
+    if (R.tick) { clearInterval(R.tick); R.tick = null; }
+    if (R.client) {
+      try { R.mic && R.mic.close(); R.cam && R.cam.close(); } catch (e) {}
+      try { R.client.unpublish().catch(function () {}).then(function () { return R.client.leave(); }).catch(function () {}); } catch (e) {}
+    }
+    /* leaving is not ending: the seconds are banked, the session stays open */
+    IV.call('/rest/v1/rpc/call_exit', { call_id_in: R.id, seconds_in: seconds }).catch(function () {});
+    if (ending) {
+      IV.call('/rest/v1/rpc/call_finish', { call_id_in: R.id }).catch(function () {});
+    }
+    var bye = scr.querySelector('#ivr-bye');
+    if (bye && ending) {
+      bye.classList.add('on');
+      setTimeout(function () { closeRoom(); }, 10000);   /* the farewell holds ten seconds */
+    } else {
+      closeRoom();
+    }
+    toast(ending ? 'The session is closed.' : 'You stepped out. Your minutes are banked — the session is still open.');
+  }
+
+  function closeRoom() {
+    var scr = $('iv-call-screen');
+    if (scr) scr.classList.remove('on');
+    document.body.classList.remove('on-live');
+    S.room = null;
+    if (window.ivPaintProfile) window.ivPaintProfile();
+  }
+
+  /* ═══════════════ the profile's card, and the desk ═══════════════ */
+  var CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>';
+  var PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.4 3.6h3l1.6 4-2 1.4a9.4 9.4 0 004.6 4.6l1.4-2 4 1.6v3a2 2 0 01-2.2 2A15.6 15.6 0 013.4 5.8a2 2 0 012-2.2z"/></svg>';
+
+  function paintProfile() {
+    var card = document.querySelector('#profile-screen .sessions-card');
+    if (!card || !IV.ident().id) return;
+    var slots = card.querySelectorAll('.slot');
+    if (!slots.length) return;
+    var anyIncluded = false;
+    var pair = [['video', slots[0], 'Face to face', CAM], ['audio', slots[1], 'Voice only', PHONE]];
+    Promise.all(pair.map(function (x) { return balance(x[0]); })).then(function (list) {
+      list.forEach(function (b, i) {
+        var el = pair[i][1], name = pair[i][2], ico = pair[i][3];
+        if (!b) return;
+        if (b.included) {
+          anyIncluded = true;
+          var pc = b.allowed ? Math.max(0, Math.min(100, Math.round((1 - b.used / b.allowed) * 100))) : 0;
+          el.classList.add('filled');
+          el.innerHTML = '<span class="ivc-name">' + ico + name + '</span>' +
+            '<span class="ivc-min">' + b.remaining + ' <i>min</i></span>' +
+            '<span class="ivc-track"><i style="width:' + pc + '%"></i></span>' +
+            '<span class="ivc-sub">of ' + b.allowed + ' ' + periodLabel(b.period) + '</span>';
+        } else {
+          el.classList.remove('filled');
+          el.innerHTML = '<span class="ivc-name">' + ico + name + '</span><span>Not in your tier</span>';
+        }
+      });
+      /* the sentence under the meters must agree with the numbers above it */
+      var copy = card.querySelector('.sess-copy');
+      if (copy) copy.textContent = anyIncluded
+        ? 'These are already yours. Nothing more to pay, and nothing to book anywhere else.'
+        : 'Your tier does not carry session time yet — but you can still ask for one as a wish.';
+    });
+  }
+
+
+  /* ---------- the desk's own use of the same picker: set the agreed time ---------- */
+  function openHost(callId, done) {
+    S.callId = callId; S.hostMode = true; S.done = done;
+    var veil = $('ivc-veil'), sh = $('ivc-sheet');
+    veil.classList.add('on'); sh.classList.add('on'); document.body.classList.add('sheet-open');
+    hours().then(function () { hostPane(); });
+  }
+  function hostPane() {
+    var body = $('ivc-body'); if (!body) return;
+    var hrs = S.hours || { notice: 0, open: 12, close: 3, days: 30 };
+    var now = new Date();
+    var earliest = firstOpening(new Date(now.getTime() + hrs.notice * 3600 * 1000), hrs);
+    var horizon = new Date(now.getTime() + hrs.days * 86400 * 1000);
+    var days = [];
+    for (var d = new Date(earliest.getFullYear(), earliest.getMonth(), earliest.getDate()); d <= horizon && days.length < 21; d.setDate(d.getDate() + 1)) days.push(new Date(d));
+    if (S.day == null) S.day = days[0] ? days[0].getTime() : null;
+    var sel = new Date(S.day || earliest.getTime());
+    var h = '<p class="ivc-kick">The desk · the time</p>' +
+      '<h1 class="ivc-h1">Set the <em>hour.</em></h1>' +
+      '<p class="ivc-lede">Sessions run from ' + spoken(hrs.open) + ' through to ' + spoken(hrs.close) + '. They are told the moment you set it, and may be moved again.</p>' +
+      '<div class="ivc-days">' + days.map(function (d) {
+        return '<button class="ivc-day' + (S.day === d.getTime() ? ' on' : '') + '" data-day="' + d.getTime() + '"><i>' + DOW[d.getDay()] + '</i><b>' + d.getDate() + '</b><s>' + MON[d.getMonth()] + '</s></button>';
+      }).join('') + '</div>' +
+      '<div class="ivc-hours">' + candidateHours(hrs).map(function (hr) {
+        var at = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), hr, 0, 0, 0);
+        var ok = at.getTime() >= earliest.getTime();
+        return '<button class="ivc-hr' + (S.hour === hr ? ' on' : '') + '" data-hr="' + hr + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="ivc-chosen"><b>' + (S.hour == null ? 'Choose the hour' : whenText(new Date(new Date(S.day).setHours(S.hour, 0, 0, 0)))) + '</b><span>She will be told at once.</span></div>' +
+      '<button class="ivc-btn" id="ivc-set"' + (S.hour == null ? ' disabled' : '') + '>Set this time</button>' +
+      '<div class="ivc-row"><button class="ivc-btn quiet" id="ivc-cancel">Close</button></div>';
+    body.innerHTML = h;
+    [].forEach.call(body.querySelectorAll('[data-day]'), function (b) {
+      b.addEventListener('click', function () { S.day = Number(b.getAttribute('data-day')); S.hour = null; hostPane(); });
+    });
+    [].forEach.call(body.querySelectorAll('[data-hr]'), function (b) {
+      if (b.disabled) return;
+      b.addEventListener('click', function () { S.hour = Number(b.getAttribute('data-hr')); hostPane(); });
+    });
+    $('ivc-cancel').addEventListener('click', function () { S.hostMode = false; close(); });
+    var set = $('ivc-set');
+    if (S.hour != null) set.addEventListener('click', function () {
+      var at = new Date(new Date(S.day).setHours(S.hour, 0, 0, 0));
+      set.disabled = true; set.textContent = 'Setting it…';
+      IV.call('/rest/v1/rpc/set_call_time', { call_id_in: S.callId, when_in: at.toISOString(), window_end_in: null })
+        .then(function () {
+          S.hostMode = false; close(); S.hour = null; S.day = null;
+          if (window.ivoryToast) window.ivoryToast('Time set. They have been told.');
+          if (typeof S.done === 'function') S.done();
+        })
+        .catch(function (x) { set.disabled = false; set.textContent = 'Set this time';
+          var e = document.createElement('p'); e.className = 'ivc-err'; e.textContent = x.message || String(x);
+          set.parentNode.insertBefore(e, set); });
+    });
+  }
+
+  return {
+    open: open, close: close, join: join, paintProfile: paintProfile, openHost: openHost,
+    balance: balance, hours: hours, catalogue: catalogue, mine: mine, pick: pick,
+    whenText: whenText, spoke: spoken
+  };
+})();
+
+/* the old wish handler routes the two session cards into the real engine */
+window.IvoryRoom = { open: function (m) { window.IVCALL.open(m); } };
 
 </script>
 </body>
