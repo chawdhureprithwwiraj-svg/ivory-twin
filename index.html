@@ -8649,6 +8649,8 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 <style id="iv-live-clean">
 #live-screen .lv-wrap{padding-bottom:34px}
 body.on-live .ribbonlay,body.on-live #wheelFab,body.on-live .fab,body.on-live #disc-fab,body.on-live #spin-fab{display:none!important}
+/* the welcome ribbons belong to the house door, as in the app — never over the desk, the profile or a room */
+body:not(.on-home) .ribbonlay{display:none!important}
 body.on-live #live-screen ~ *{z-index:auto}
 </style>
 <style id="iv-desk-css">
@@ -9490,12 +9492,12 @@ body.on-live #live-screen ~ *{z-index:auto}
       <!-- who you are -->
       <section class="pf-card me-card" data-reveal>
         <div class="me-top">
-          <div class="me-avatar" aria-hidden="true">T</div>
-          <h1 class="me-name">Thea3102</h1>
+          <div class="me-avatar" aria-hidden="true" id="pf-ava">I</div>
+          <h1 class="me-name" id="pf-name">Ivory</h1>
         </div>
         <div class="me-rule"></div>
-        <p class="me-row"><span class="mi">@</span><span class="me-mail">thea3102003@gmail.com</span></p>
-        <p class="me-row gold"><svg class="mi-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10.4" r="5.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.2 14.6L7.6 21l4.4-2.4L16.4 21l-1.6-6.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span>Forever Ivory Member · no paid tier active yet</span></p>
+        <p class="me-row"><span class="mi">@</span><span class="me-mail" id="pf-mail">&mdash;</span></p>
+        <p class="me-row gold"><svg class="mi-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10.4" r="5.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.2 14.6L7.6 21l4.4-2.4L16.4 21l-1.6-6.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span id="pf-tier-line">Forever Ivory Member · no paid tier active yet</span></p>
       </section>
 
       <!-- before the dawn -->
@@ -9512,18 +9514,18 @@ body.on-live #live-screen ~ *{z-index:auto}
       <!-- membership -->
       <section class="pf-card member-card" data-reveal>
         <p class="eyebrow"><span>◇</span> Your membership</p>
-        <h2 class="mc-title">Forever Ivory Member</h2>
-        <span class="mc-chip"><span>✦</span> Forever member</span>
-        <p class="mc-copy">The open feed, polls and teasers. Unlock a tier to open the private rooms.</p>
+        <h2 class="mc-title" id="pf-mc-title">Forever Ivory Member</h2>
+        <span class="mc-chip" id="pf-mc-chip"><span>✦</span> Forever member</span>
+        <p class="mc-copy" id="pf-mc-copy">The open feed, polls and teasers. Unlock a tier to open the private rooms.</p>
         <button class="mc-cta" data-tap>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10.6" r="5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.4 14.8L8 21l4-2.2 4 2.2-1.4-6.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
           See membership tiers
         </button>
-        <p class="pay-head"><span>▤</span> Payment history</p>
+        <p class="pay-head" id="pf-pay-head"><span>▤</span> Payment history</p>
         <div class="pay-row">
           <span class="pay-dot" aria-hidden="true"></span>
-          <span class="pay-name">₹90 · Ivory Reader</span>
-          <span class="pay-state">Pending verification</span>
+          <span class="pay-name" id="pf-pay-name">Nothing paid yet</span>
+          <span class="pay-state" id="pf-pay-state"></span>
         </div>
       </section>
 
@@ -9682,9 +9684,9 @@ body.on-live #live-screen ~ *{z-index:auto}
       </div>
 
       <div class="pulse-strip"><span class="pulse-dot" aria-hidden="true"></span>
-        <span class="pulse-tx">You are the <b>3,275</b> member to walk in.</span></div>
+        <span class="pulse-tx">You are the <b id="pf-pulse">3,275</b> member to walk in.</span></div>
 
-      <button class="btn-outline signout" data-tap><svg class="pgi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6v8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M7.6 6.6a7.4 7.4 0 108.8 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Sign out</button>
+      <button class="btn-outline signout" id="pf-out" data-tap><svg class="pgi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6v8.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M7.6 6.6a7.4 7.4 0 108.8 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Sign out</button>
       <p class="pf-mark">Ivory · Where every story leaves a mark</p>
       <p class="foot">This platform is maintained by 'Infinity'. All rights reserved 2026</p>
     </div>
@@ -10961,7 +10963,11 @@ body.on-live #live-screen ~ *{z-index:auto}
       <div class="dk-name">Desk</div>
       <span class="dk-badge" id="dk-role">ADMIN</span>
       <span class="dk-spacer"></span>
-      <button class="dk-icon" id="dk-exit" aria-label="Leave the desk">⏻</button>
+      <button class="dk-icon" id="dk-exit" aria-label="Step out of the desk" title="Step out — your room stays on air">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" style="display:block">
+          <path d="M12 3.2v8.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M7.4 6.2a7.4 7.4 0 1 0 9.2 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg></button>
     </div>
     <div class="dk-who" id="dk-who">—</div>
     <div class="dk-ribbon" id="dk-ribbon" role="tablist"></div>
@@ -14862,6 +14868,361 @@ function sparkleAt(el){
 </script>
 <script src="media/agora/AgoraRTC_N-4.23.4.js"></script>
 <script>
+/* ═══════════════ ONE IDENTITY · shared by every room ═══════════════
+   One account, one token, one place. The door writes here, the desk reads
+   here, the live rooms read here, the profile reads here. Nothing keeps a
+   private copy of the account — a private copy is how an admin's phone
+   turned into somebody else's.
+   It also keeps the token alive: a lapsed token is quietly renewed, and a
+   session that cannot be renewed goes back to the door with one honest line. */
+window.IVSESS = (function () {
+  var SB  = 'https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY = 'sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+  var K = 'ivory.session', OLD = 'ivory.member';
+  var listeners = [], renewing = null;
+
+  function read() {
+    var raw = null;
+    try { raw = localStorage.getItem(K); } catch (e) {}
+    if (!raw) {                          /* carry an older session across, once */
+      try { raw = localStorage.getItem(OLD); } catch (e) {}
+      if (raw) { try { localStorage.setItem(K, raw); localStorage.removeItem(OLD); } catch (e) {} }
+    }
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+  function write(s) {
+    try {
+      if (s) { localStorage.setItem(K, JSON.stringify(s)); localStorage.setItem(OLD, JSON.stringify(s)); }
+      else   { localStorage.removeItem(K); localStorage.removeItem(OLD); }
+    } catch (e) {}
+  }
+  function fire(ev) { for (var i = 0; i < listeners.length; i++) { try { listeners[i](ev); } catch (e) {} } }
+
+  function user()  { var s = read() || {}; return s.user || s || {}; }
+  function ident() { var u = user(); return { id: u.id || '', email: String(u.email || '').toLowerCase() }; }
+  function token() { var s = read(); return (s && s.access_token) || ''; }
+  function deadline() { var s = read(); return (s && s._exp) ? Number(s._exp) : 0; }
+  function lapsing()  { var d = deadline(); return d ? (Date.now() > d - 90000) : false; }
+
+  function headers(extra) {
+    var h = { 'apikey': KEY, 'Content-Type': 'application/json' };
+    var t = token(); if (t) h['Authorization'] = 'Bearer ' + t;
+    if (extra) for (var k in extra) h[k] = extra[k];
+    return h;
+  }
+
+  function adopt(j) {
+    var s = j || {};
+    s._exp = Date.now() + ((Number(s.expires_in) || 3600) * 1000);
+    write(s); return s;
+  }
+
+  function renew() {
+    if (renewing) return renewing;
+    var s = read();
+    if (!s || !s.refresh_token) return Promise.reject(new Error('A lapsed session — sign in again.'));
+    renewing = fetch(SB + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: s.refresh_token })
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) throw new Error(j.error_description || j.msg || j.message || 'A lapsed session — sign in again.');
+        return j;
+      });
+    }).then(function (j) {
+      var n = adopt(j); fire('renewed'); return n;
+    }).catch(function (e) {
+      write(null); fire('lapsed'); throw e;
+    }).then(function (v) { renewing = null; return v; },
+            function (e) { renewing = null; throw e; });
+    return renewing;
+  }
+
+  /* every call to the house goes through here */
+  function call(path, body, opt) {
+    opt = opt || {};
+    function go(retried) {
+      var ready;
+      if (opt.anon) ready = Promise.resolve();
+      else if (read() && lapsing()) ready = renew().catch(function () {});
+      else ready = Promise.resolve();
+      return ready.then(function () {
+        return fetch(SB + path, {
+          method: opt.method || 'POST',
+          headers: headers(opt.extra || {}),
+          body: (body === undefined || body === null) ? undefined : JSON.stringify(body)
+        });
+      }).then(function (r) {
+        return r.text().then(function (t) {
+          var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { j = t; }
+          if (r.ok) return j;
+          var m = (j && (j.message || j.error_description || j.error || j.msg)) || ('The house answered ' + r.status + '.');
+          if (r.status === 401 && !retried && /jwt|token|expired|authoriz/i.test(m)) {
+            return renew().then(function () { return go(true); });
+          }
+          var x = new Error(m); x.status = r.status; x.body = j; throw x;
+        });
+      });
+    }
+    return go(false);
+  }
+  function get(path, opt) {
+    var o = {}; for (var k in (opt || {})) o[k] = opt[k];
+    o.method = 'GET'; return call(path, null, o);
+  }
+
+  function signIn(email, pass) {
+    return fetch(SB + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: pass })
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) throw new Error(j.error_description || j.msg || j.message || 'That sign-in was not accepted.');
+        var s = adopt(j); fire('in'); return s;
+      });
+    });
+  }
+
+  function signOut() {
+    var t = token();
+    if (t) { try { fetch(SB + '/auth/v1/logout', { method: 'POST',
+      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + t } }).catch(function () {}); } catch (e) {} }
+    write(null); fire('out');
+  }
+
+  function on(fn) { if (typeof fn === 'function') listeners.push(fn); }
+  function set(s) { write(s); }
+  function clear() { write(null); }
+
+  return { sb: SB, key: KEY, read: read, set: set, clear: clear, user: user, ident: ident,
+           token: token, headers: headers, call: call, get: get,
+           signIn: signIn, signOut: signOut, renew: renew, on: on, lapsing: lapsing };
+})();
+
+</script>
+<script>
+/* ═══════════════ THE PROFILE · the real account, and a sign-out that works ═══════════════ */
+(function () {
+  var IV = window.IVSESS; if (!IV) return;
+  var P = { prof: null, mem: null, busy: false };
+
+  function $(id) { return document.getElementById(id); }
+  function put(id, txt) { var e = $(id); if (e && txt !== undefined && txt !== null) e.textContent = txt; }
+
+  /* the address is the name the house knows you by until a display name is set */
+  function pretty(email) {
+    var local = String(email || '').split('@')[0];
+    if (!local) return 'A guest';
+    var s = local.replace(/[._\-]+/g, ' ').trim();
+    return s ? s.replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }) : local;
+  }
+
+  function paintIdentity() {
+    var id = IV.ident();
+    var who = (P.prof && P.prof.display_name) || '';
+    var name = who || (id.email ? pretty(id.email) : 'A guest');
+    put('pf-name', name);
+    put('pf-mail', id.email || 'not signed in yet');
+    var av = $('pf-ava'); if (av) av.textContent = (name || 'I').slice(0, 1).toUpperCase();
+    var out = $('pf-out'); if (out) out.disabled = !id.email;
+
+    /* membership, straight off the house's own table */
+    var mem = P.mem;
+    var level = mem ? Number(mem.tier_level || 0) : 0;
+    var tname = (mem && mem.tier_name) || '';
+    var gold = $('pf-tier-line');
+    if (gold) {
+      gold.textContent = level > 0
+        ? (tname || ('Level ' + level)) + ' · your plan is open'
+        : 'Forever Ivory Member · no paid tier active yet';
+    }
+    put('pf-mc-title', level > 0 ? 'A member of the house' : 'Forever Ivory Member');
+    var chip = $('pf-mc-chip');
+    if (chip) chip.innerHTML = level > 0
+      ? '<span>✦</span> ' + (tname || ('Level ' + level)).replace(/</g, '&lt;')
+      : '<span>✦</span> Forever member';
+    put('pf-mc-copy', level > 0
+      ? 'The private rooms are open to you. Your minutes and every booking live under the Wish.'
+      : 'The open feed, polls and teasers. Unlock a tier to open the private rooms.');
+    /* the payment line belongs to whoever is signed in — never to a placeholder */
+    put('pf-pay-name', level > 0 ? (tname || ('Level ' + level)) : 'Nothing paid from this account yet');
+    put('pf-pay-state', level > 0 ? 'active' : '');
+  }
+
+  function readProfile() {
+    var id = IV.ident(); if (!id.id) return Promise.resolve();
+    return IV.get('/rest/v1/profiles?select=id,role,display_name&id=eq.' + id.id)
+      .then(function (rows) { P.prof = (rows && rows[0]) || { id: id.id, role: 'user' }; })
+      .catch(function () { P.prof = null; })
+      .then(function () {
+        return IV.call('/rest/v1/rpc/my_membership', {}).catch(function () { return null; });
+      })
+      .then(function (m) {
+        if (Array.isArray(m)) m = m[0];
+        if (m && (m.tier_level || m.level)) P.mem = { tier_level: m.tier_level || m.level, tier_name: m.tier_name || m.name };
+        else P.mem = null;
+        paintIdentity();
+      });
+  }
+
+  window.ivPaintProfile = function () {
+    paintIdentity();
+    if (IV.ident().id) readProfile();
+  };
+
+  /* the house's screen switcher, wrapped — nothing else changes */
+  var was = window.ivoryShow;
+  if (typeof was === 'function') {
+    window.ivoryShow = function (name) {
+      var r = was.apply(this, arguments);
+      if (name === 'profile') window.ivPaintProfile();
+      if (name === 'home') window.ivPaintBadge && window.ivPaintBadge();
+      return r;
+    };
+  }
+
+  /* ---------- SIGN OUT · the app's own sequence ---------- */
+  function leave() {
+    if (P.busy) return; P.busy = true;
+    var b = $('pf-out'); if (b) { b.disabled = true; b.textContent = 'Leaving…'; }
+    IV.signOut();
+    P.prof = null; P.mem = null;
+    setTimeout(function () {
+      P.busy = false;
+      if (b) { b.disabled = false; b.textContent = 'SIGN OUT'; }
+      var d = document.getElementById('iv-door-screen');
+      if (d) {
+        d.classList.add('on');
+        var err = document.getElementById('ivd-err');
+        if (err) { err.textContent = 'You are out. The door is locked behind you.'; err.classList.remove('ivd-hide'); }
+        var email = document.getElementById('ivd-email'); if (email) email.value = '';
+      }
+      var desk = document.getElementById('desk-screen'); if (desk) desk.classList.remove('on');
+      document.body.classList.remove('on-desk');
+      window.ivPaintBadge && window.ivPaintBadge();
+      paintIdentity();
+      if (window.ivoryShow) { var s = window.ivoryShow; s('home'); }
+    }, 260);
+  }
+
+  var out = $('pf-out');
+  if (out) out.addEventListener('click', function (e) { e.preventDefault(); leave(); });
+
+  IV.on(function (ev) {
+    if (ev === 'out' || ev === 'lapsed') { paintIdentity(); window.ivPaintBadge && window.ivPaintBadge(); }
+  });
+
+  paintIdentity();
+})();
+
+</script>
+<script>
+/* ═══════════════ THE ADMIN MARK · how the desk is always one tap away ═══════════════
+   The app does exactly this: an ADMIN chip beside the title, and a crest in the
+   top bar that opens the console (main_shell.dart, workspace_premium). It is the
+   reason a desk could never be lost again. Members never see it. */
+(function () {
+  var IV = window.IVSESS; if (!IV) return;
+  var ROLES = ['admin', 'owner', 'ivory', 'sub_admin', 'subadmin', 'keeper', 'studio'];
+  var EMAILS = ['chawdhureprithwwiraj@gmail.com'];
+  var isAdmin = false, asked = false;
+
+  function ask() {
+    var id = IV.ident();
+    if (!id.id) { isAdmin = false; paint(); return Promise.resolve(false); }
+    var cached = null;
+    try { cached = sessionStorage.getItem('ivory.admin'); } catch (e) {}
+    if (cached !== null) { isAdmin = cached === '1'; paint(); if (isAdmin) return Promise.resolve(true); }
+    if (asked) return Promise.resolve(isAdmin);
+    asked = true;
+    return IV.get('/rest/v1/profiles?select=role,display_name&id=eq.' + id.id)
+      .then(function (rows) {
+        var role = String(((rows && rows[0]) || {}).role || '').toLowerCase();
+        var name = ((rows && rows[0]) || {}).display_name || '';
+        isAdmin = ROLES.indexOf(role) >= 0 || EMAILS.indexOf(id.email) >= 0;
+        try { sessionStorage.setItem('ivory.admin', isAdmin ? '1' : '0'); } catch (e) {}
+        window.ivProfileName = name;
+        paint(); return isAdmin;
+      })
+      .catch(function () {
+        isAdmin = EMAILS.indexOf(id.email) >= 0;
+        paint(); return isAdmin;
+      });
+  }
+
+  function crest() {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'med iv-admin-crest';
+    b.setAttribute('aria-label', 'Admin console');
+    b.title = 'Admin console';
+    b.innerHTML = '<span class="iv-admin-ring" aria-hidden="true">I</span>';
+    b.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (window.ivDesk && window.ivDesk.open) window.ivDesk.open();
+    });
+    return b;
+  }
+
+  function chip() {
+    var s = document.createElement('span');
+    s.className = 'iv-admin-chip'; s.textContent = 'ADMIN';
+    return s;
+  }
+
+  function paint() {
+    /* take every mark away first — a member switching in on the same phone must not inherit one */
+    Array.prototype.forEach.call(document.querySelectorAll('.iv-admin-chip,.iv-admin-crest'), function (n) { n.remove(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.iv-has-admin'), function (n) { n.classList.remove('iv-has-admin'); });
+    if (!isAdmin) return;
+    Array.prototype.forEach.call(document.querySelectorAll('#home-screen .hp-bar, #explore-screen .topbar, #profile-screen .topbar, #wish-screen .topbar, #premium-screen .topbar, #inbox-screen .topbar'), function (bar) {
+      if (bar.querySelector('.iv-admin-crest')) return;
+      var brand = bar.querySelector('.hp-brand, .top-brand');
+      if (brand && brand.parentNode === bar) brand.parentNode.insertBefore(chip(), brand.nextSibling);
+      /* the crest takes its own seat at the far right, so nothing is ever squeezed off the phone */
+      bar.classList.add('iv-has-admin');
+      bar.appendChild(crest());
+    });
+  }
+
+  window.ivPaintBadge = function () { asked = false; try { sessionStorage.removeItem('ivory.admin'); } catch (e) {} return ask(); };
+  window.ivIsAdmin = function () { return isAdmin; };
+
+  IV.on(function (ev) {
+    if (ev === 'out' || ev === 'lapsed') { isAdmin = false; asked = true; paint(); }
+    else if (ev === 'in') { window.ivPaintBadge(); }
+  });
+
+  var css = document.createElement('style');
+  css.id = 'iv-admin-mark-css';
+  css.textContent = [
+    '.iv-admin-chip{display:inline-flex;align-items:center;padding:3px 8px;margin-left:9px;border-radius:999px;',
+    '  background:linear-gradient(180deg,#F7DFA4,#D9A947 55%,#B8832A);color:#4A0B18;',
+    '  font:800 8.5px/1 var(--f-ui,Georgia);letter-spacing:.18em;vertical-align:middle;',
+    '  box-shadow:0 2px 6px rgba(120,70,10,.28),inset 0 1px 0 rgba(255,255,255,.55);',
+    '  animation:ivAdminIn .45s cubic-bezier(.22,.61,.36,1) both}',
+    '@keyframes ivAdminIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}',
+    '.hp-bar,.topbar{position:relative}',
+    '.iv-has-admin .hp-icons,.iv-has-admin .top-icons{margin-right:37px}',
+    '.iv-admin-crest{position:absolute;top:50%;right:5px;transform:translateY(-50%);display:grid;place-items:center;',
+    '  width:31px;height:31px;border-radius:50%;border:1px solid rgba(168,131,68,.55);',
+    '  background:radial-gradient(circle at 50% 38%,#5E0A20,#2A0209 78%);cursor:pointer;padding:0;z-index:3;',
+    '  box-shadow:0 3px 9px -3px rgba(60,4,18,.7)}',
+    '.iv-admin-ring{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;',
+    '  background:conic-gradient(from 210deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F7DFA4);',
+    '  color:#4A0B18;font:700 9px/1 Georgia,serif;box-shadow:0 0 0 1px rgba(255,236,190,.25)}',
+    '.iv-admin-crest:active{transform:translateY(-50%) scale(.94)}',
+    '@media (prefers-reduced-motion:reduce){.iv-admin-chip{animation:none}}'
+  ].join('');
+  document.head.appendChild(css);
+
+  ask();
+})();
+
+</script>
+<script>
 /* ═══════════════ LIVE · the rooms, inside the house ═══════════════ */
 (function(){
   var SB='https://soephrftgddbwkzwjddj.supabase.co';
@@ -14877,34 +15238,19 @@ function sparkleAt(el){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
   /* ---------- the account, shared with the room page ---------- */
-  function load(){ try{ S.sess=JSON.parse(localStorage.getItem('ivory.member')||'null'); }catch(e){ S.sess=null; } }
-  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
-  function hdr(){ var h={'apikey':KEY,'Content-Type':'application/json'};
-    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+  /* ONE ACCOUNT · never a private copy — every room reads IVSESS */
+  function load(){ S.sess=window.IVSESS? IVSESS.read() : null; return S.sess; }
+  function save(s){ S.sess=s; if(window.IVSESS) IVSESS.set(s); }
+  function hdr(){ return window.IVSESS? IVSESS.headers() : {'apikey':KEY,'Content-Type':'application/json'}; }
+  function call(path,body,opt){ load(); return IVSESS.call(path,body,opt||{}); }
+  function get(p){ load(); return IVSESS.get(p); }
 
-  function call(path,body,opt){
-    opt=opt||{};
-    return fetch(SB+path,{method:opt.method||'POST',headers:hdr(),body:body?JSON.stringify(body):undefined})
-      .then(function(r){ return r.text().then(function(t){
-        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
-        if(r.ok) return j;
-        var m=(j&&(j.message||j.error_description||j.error||j.msg))||('The house answered '+r.status+'.');
-        var x=new Error(m); x.status=r.status; x.body=j; throw x;
-      }); });
-  }
-  function get(p){ return call(p,null,{method:'GET'}); }
-
-  function signIn(email,pass){
-    return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
-      headers:{'apikey':KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({email:email,password:pass})})
-      .then(function(r){ return r.json().then(function(j){
-        if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.');
-        return j; }); });
-  }
+  /* one door for the password too, so the token carries its own expiry clock */
+  function signIn(email,pass){ return IVSESS.signIn(email,pass); }
 
   /* ---------- what this member holds ---------- */
   function membership(){
+    load();
     if(!S.sess) return Promise.resolve(0);
     return get('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1')
       .then(function(rows){ var m=rows&&rows[0]; S.tier=Number((m&&(m.tier_level!=null?m.tier_level:m.level))||0);
@@ -14957,6 +15303,7 @@ function sparkleAt(el){
     if(!S.sess){ show('lv-list-view',false); show('lv-door-view',true); S.pending=r; return; }
     if(r.status!=='live'){ say('lv-room-err','That room has not opened yet.'); return; }
     if(r.access==='tier'&&!Number(r.price_inr)){
+      load();
       membership().then(function(lvl){
         var lst=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
         var entitled = !lvl ? true
@@ -15041,6 +15388,7 @@ function sparkleAt(el){
   }
   function addMsg(m,quiet){
     var key=m.id||(m.member_id+m.body); if(S.seen[key]) return; S.seen[key]=1;
+    load();
     var me=(S.sess&&S.sess.user&&S.sess.user.id)||'';
     var byMe = !!(m.member_id&&me&&String(m.member_id).toLowerCase()===String(me).toLowerCase());
     var box=$('lv-chat');
@@ -15163,22 +15511,12 @@ function sparkleAt(el){
   window.ivoryToast=function(m){ dkToast(m); };
 
   /* ---------- the account ---------- */
-  function load(){ try{ S.sess=JSON.parse(localStorage.getItem('ivory.member')||'null'); }catch(e){ S.sess=null; } return S.sess; }
-  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
-  function hdr(){ var h={'apikey':KEY,'Content-Type':'application/json'};
-    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
-
-  function call(path,body,opt){
-    opt=opt||{};
-    return fetch(SB+path,{method:opt.method||'POST',headers:hdr(),body:body!==undefined&&body!==null?JSON.stringify(body):undefined})
-      .then(function(r){ return r.text().then(function(t){
-        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
-        if(r.ok) return j;
-        var m=(j&&(j.message||j.error_description||j.error||j.msg))||('The house answered '+r.status+'.');
-        var x=new Error(m); x.status=r.status; x.body=j; throw x;
-      }); });
-  }
-  function get(p){ return call(p,null,{method:'GET'}); }
+  /* ONE ACCOUNT · never a private copy — every room reads IVSESS */
+  function load(){ S.sess=window.IVSESS? IVSESS.read() : null; return S.sess; }
+  function save(s){ S.sess=s; if(window.IVSESS) IVSESS.set(s); }
+  function hdr(){ return window.IVSESS? IVSESS.headers() : {'apikey':KEY,'Content-Type':'application/json'}; }
+  function call(path,body,opt){ load(); return IVSESS.call(path,body,opt||{}); }
+  function get(p){ load(); return IVSESS.get(p); }
 
   function signIn(email,pass){
     return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
@@ -15190,7 +15528,7 @@ function sparkleAt(el){
   }
 
   /* some answers carry the account under `user`, some at the top; take either */
-  function me(){ var s=S.sess||{}; return s.user||s; }
+  function me(){ load(); var s=S.sess||{}; return s.user||s; }
   function meEmail(){ return (me().email||'').toLowerCase(); }
 
   /* the app's own test, one line: profiles.role == 'admin' (ivory_profile.dart) */
@@ -15225,7 +15563,10 @@ function sparkleAt(el){
     if(!S.sess){ openDoor(); return; }
     readProfile().then(function(p){
       S.isAdmin=decideAdmin(p);
-      if(S.isAdmin) openDesk(); else enterMemberHouse();
+      /* the app never drops an admin straight into the console: the house first,
+         with the ADMIN mark beside the title and the console at the crest */
+      enterMemberHouse();
+      if(window.ivPaintBadge) window.ivPaintBadge();
     });
   }
 
@@ -15247,13 +15588,22 @@ function sparkleAt(el){
       return readProfile();
     }).then(function(pr){
       S.isAdmin=decideAdmin(pr);
-      if(S.isAdmin){ closeDoor(); openDesk(); }
-      else { closeDoor(); enterMemberHouse(); }
+      closeDoor(); enterMemberHouse();
+      if(window.ivPaintBadge) window.ivPaintBadge();
+      if(S.isAdmin && !seenCrest){
+        seenCrest=1;
+        setTimeout(function(){ if(window.ivoryToast) window.ivoryToast('You are in, Ivory. The desk waits at the crest beside the title.'); },600);
+      }
     }).catch(function(x){
       $('ivd-err').textContent=x.message||String(x); $('ivd-err').classList.remove('ivd-hide');
     }).then(function(){ b.disabled=false; b.textContent='Unlock the house'; });
   });
   if($('ivd-pass')) $('ivd-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('ivd-go').click(); });
+
+  if(window.IVSESS) IVSESS.on(function(ev){
+    if(ev==='lapsed') openDoor('Your session lapsed. The door is here — sign in again.');
+    if(ev==='out'){ load(); }
+  });
 
   /* the language gate hands over to the door */
   var cont=$('continue');
@@ -15269,8 +15619,36 @@ function sparkleAt(el){
     ['TICKER','ticker'],['WHEEL','wheel']
   ];
   var BUILT = {live:1, calls:1, tiers:1, members:1};
-  var D = {tab:'live', session:null, client:null, clock:null, poll:null, tiers:[], guests:[], seen:{} };
+  /* what each room is, in the app's own words — so no two rooms read alike */
+  var NOTES = {
+    create:'A new story, a poll, a teaser — written, attached and published from the phone.',
+    members:'Everyone who has walked in: their plan, their standing, their last visit.',
+    reports:'What members have raised — read, answered, and closed here.',
+    calls:'A member asks for an audio or a video session. Nothing is confirmed until you accept it, then the two of you meet in the room.',
+    live:'The studio: a room opened with its own title, its own audience and its own paid seats, and the stage you host it from.',
+    broadcast:'A written announcement that lands in every member\u2019s Sanctuary Inbox and lights the bell. A picture, a voice note, a video or a link can travel with it.',
+    tiers:'The plans and their prices, read from the house\u2019s own table.',
+    wishes:'Everything members have wished for, and the ones you have granted.',
+    stories:'The library: what is written, what is scheduled, what is kept back.',
+    payments:'Every rupee in and out, and the proofs members have sent.',
+    enquiries:'Business and partnerships, private.',
+    gold:'The Gold ledger.',
+    heart:'The Golden Heart: gifts, notes and the crown.',
+    rewards:'What the house gives back.',
+    codes:'Invitation and access codes.',
+    bells:'The four bells a day, and everything that rang them.',
+    ladder:'Rungs, stars, streaks and Marks.',
+    door:'The door itself: who may come in, and on what terms.',
+    line:'The Line: letters and their settings.',
+    translate:'Every word of the house, in its five tongues.',
+    ticker:'The words that run across the top of the house.',
+    wheel:'The wheel, its segments and its prizes.'
+  };
+  var D = {tab:'members', session:null, client:null, clock:null, poll:null, tiers:[], guests:[], seen:{} };
+  /* the app opens the console on its first tab; here it opens on the first room that is real */
+  (function(){ for(var i=0;i<TABS.length;i++){ if(BUILT[TABS[i][1]]){ D.tab=TABS[i][1]; break; } } })();
 
+  var seenCrest=0;
   function openDesk(){
     closeDoor();
     document.body.classList.add('on-desk');
@@ -15319,12 +15697,24 @@ function sparkleAt(el){
   if($('dk-menu')) $('dk-menu').addEventListener('click',openDrawer);
   if($('dk-veil')) $('dk-veil').addEventListener('click',closeDrawer);
   if($('dk-shut')) $('dk-shut').addEventListener('click',closeDrawer);
-  if($('dk-exit')) $('dk-exit').addEventListener('click',function(){
-    endBroadcast(true);
+  if($('dk-exit')) $('dk-exit').addEventListener('click',function(){ leaveDesk(); });
+
+  /* stepping out of the desk only steps out of the channel. The room stays on air,
+     exactly as it does when the app's console is closed. */
+  function leaveDesk(){
+    stopClocks();
+    if(D.client){
+      try{ D.cam&&D.cam.close(); D.mic&&D.mic.close(); }catch(e){}
+      try{ D.client.unpublish().catch(function(){}).then(function(){ return D.client.leave(); }).catch(function(){}); }catch(e){}
+    }
+    D.client=null; D.cam=null; D.mic=null;
     $('desk-screen').classList.remove('on');
+    closeDrawer();
     document.body.classList.remove('on-desk');
     enterMemberHouse();
-  });
+    if(window.ivoryToast) window.ivoryToast('The desk waits at the crest. Your room is still on air.');
+  }
+  window.ivLeaveDesk = leaveDesk;
 
   function render(k){
     var p=$('dk-pane'); if(!p) return;
@@ -15337,8 +15727,8 @@ function sparkleAt(el){
     p.innerHTML =
       '<p class="dk-kick">The desk · '+esc(t[0])+'</p>'+
       '<h1 class="dk-h1">This room is <em>being fitted.</em></h1>'+
-      '<p class="dk-lede">Every room on this desk follows the app exactly, and each is built in its own pass so it can be tested on its own. This one arrives in the last build.</p>'+
-      '<div class="dk-empty">'+esc(t[0])+' lives in the app today and will be carried across here, unchanged in behaviour, in the fourth build of this desk.</div>';
+      '<p class="dk-lede">'+esc(NOTES[k]||'Every room on this desk follows the app exactly, and each is built in its own pass so it can be tested on its own.')+'</p>'+
+      '<div class="dk-empty">'+esc(t[0])+' lives in the app today and will be carried across here, unchanged in behaviour, in a later build of this desk.</div>';
   }
 
   /* ---------- tiers, read live ---------- */
@@ -15353,8 +15743,8 @@ function sparkleAt(el){
     if(D.session){ return renderOnAir(p); }
     p.innerHTML =
       '<p class="dk-kick">The studio</p>'+
-      '<h1 class="dk-h1">Open the <em>broadcast.</em></h1>'+
-      '<p class="dk-lede">Exactly the app’s LIVE tab: the words, who may walk in, a price if there is one, and the price of a seat beside you.</p>'+
+      '<h1 class="dk-h1">Open the <em>room.</em></h1>'+
+      '<p class="dk-lede">The app’s LIVE tab, exactly: the room’s title, who may walk in, and the price of a seat beside you. Broadcast is the written announcement to every inbox — not a room.</p>'+
       '<div class="dk-card">'+
         '<label class="dk-label" for="dk-title">What is it called</label>'+
         '<input class="dk-input" id="dk-title" maxlength="70" placeholder="A word after dark">'+
