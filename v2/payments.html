@@ -89,6 +89,50 @@
 </style>
 </head>
 <body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/payments.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
 <div class="wrap">
   <div class="top">
     <span class="mark">IVORY</span>
@@ -137,6 +181,19 @@
       <p class="note">Read live by the app and the website — nothing is compiled in, so changing it here changes it everywhere.</p>
       <p class="err hide" id="upi-err"></p>
       <p class="ok hide" id="upi-ok"></p>
+    </div>
+
+    <div class="card">
+      <h2>Where the card window goes</h2>
+      <label class="f"><span>Razorpay&rsquo;s public key id</span>
+        <input type="text" id="rzp-key" placeholder="rzp_live_… or rzp_test_…" autocomplete="off" spellcheck="false"></label>
+      <button class="btn" id="save-rzp">Keep this</button>
+      <p class="note">This one is public by design &mdash; it is the key that appears in every card window, and it
+        can take no money on its own. The secret stays at Razorpay and never touches this page. With the key in
+        place, the card rail opens even if the house&rsquo;s order service is asleep, and every payment waits in
+        the queue below for your yes.</p>
+      <p class="err hide" id="rzp-err"></p>
+      <p class="ok hide" id="rzp-ok"></p>
     </div>
 
     <div class="card">
@@ -238,6 +295,7 @@
       S.mode = S.settings.is_active===false ? 'paused' : String(S.settings.mode||'upi').toLowerCase();
       if(S.mode!=='upi'&&S.mode!=='razorpay'&&S.mode!=='both') S.mode='upi';
       $('upi-id').value=S.settings.upi_id||'';
+    $('rzp-key').value=S.settings.razorpay_key_id||'';
       $('upi-name').value=S.settings.payee_name||'';
       $('upi-note').value=S.settings.note_template||'';
       $('upi-instr').value=S.settings.instructions||'';
@@ -273,13 +331,62 @@
         })
         .catch(function(x){
           var m=x.message||String(x);
-          if(mode==='both' && /check|constraint|invalid|enum/i.test(m))
-            m='The house’s table only holds one value of mode at a time. To run both rails at once, the column needs to allow “both” — one line, and I will do it the moment you say.';
-          err('mode-err',m);
+          if(mode==='both' && /check|constraint|invalid|enum/i.test(m)){
+            err('mode-err','The house’s own table refused “both”, and here is exactly what it said: “'+m+'”. Nothing was changed.');
+            showBothSql(m);
+          } else {
+            err('mode-err',m);
+          }
         })
         .then(function(){ S.busy=false; });
     });
   });
+
+  $('save-rzp').addEventListener('click',function(){
+    var b=this; err('rzp-err'); ok('rzp-ok');
+    var key=($('rzp-key').value||'').trim();
+    if(key && !/^rzp_(live|test)_/.test(key)){
+      err('rzp-err','A Razorpay key id starts with rzp_live_ or rzp_test_. That does not look like one.');
+      return;
+    }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Keeping';
+    call('/rest/v1/payment_settings?id=eq.1',{razorpay_key_id:key||null, updated_at:new Date().toISOString()},{method:'PATCH'})
+      .then(function(){
+        ok('rzp-ok', key ? 'Kept. The card window will open on it from the next payment.' : 'Cleared. The card rail will ask for a key.');
+        S.settings.razorpay_key_id=key||null;
+      })
+      .catch(function(x){ err('rzp-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Keep this'; });
+  });
+
+  /* when the database will not hold three values, say what the one line is */
+  function showBothSql(dbWords){
+    if(document.getElementById('both-sql')) return;
+    var box=document.createElement('div');
+    box.id='both-sql';
+    box.style.cssText='margin:10px 0 0;padding:12px;border-radius:11px;background:rgba(233,179,60,.14);'+
+      'border:1px solid rgba(180,132,44,.4);font-size:11.8px;line-height:1.6;color:#5C1226';
+    box.innerHTML='<b>One line, once — in the Supabase SQL editor (this page may not change the table&rsquo;s own rules):</b>'+
+      '<pre style="margin:8px 0 0;padding:10px;border-radius:8px;background:#fff;border:1px solid rgba(180,132,44,.35);'+
+      'font:11px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">'+
+      'do $$\ndeclare c record;\nbegin\n  for c in\n    select conname, pg_get_constraintdef(oid) as def\n      from pg_constraint\n     where conrelid = \'public.payment_settings\'::regclass\n       and contype = \'c\'\n  loop\n    if c.def ilike \'%mode%\' then\n      execute format(\'alter table public.payment_settings drop constraint %I\', c.conname);\n    end if;\n  end loop;\nend $$;\n\n'+
+      'alter table public.payment_settings\n  add constraint payment_settings_mode_check\n  check (mode in (\'upi\',\'razorpay\',\'both\'));</pre>'+
+      '<div style="display:flex;gap:8px;margin-top:8px">'+
+        '<button type="button" id="sql-copy" style="flex:1;padding:10px;border-radius:9px;border:0;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 12px Georgia,serif">Copy this</button>'+
+      '</div>'+
+      '<span style="display:block;margin-top:8px;font-style:italic;color:#6E4A1C">Until then both the app and the site '+
+      'behave exactly as now — one rail at a time, nothing broken.</span>';
+    $('mode-err').parentNode.insertBefore(box, $('mode-err').nextSibling);
+    var sql=box.querySelector('pre').textContent, btn=box.querySelector('#sql-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy this'; },1800); };
+      var fb=function(){ try{ var i=document.createElement('textarea'); i.value=sql; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){ btn.textContent='Select it by hand'; } };
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(sql).then(done).catch(fb);
+      else fb();
+    });
+  }
 
   $('save-upi').addEventListener('click',function(){
     var b=this; err('upi-err'); ok('upi-ok');
@@ -377,6 +484,35 @@
       throw new Error('no');
     }).catch(function(){ save(null); $('v-door').classList.remove('hide'); });
   } else { $('v-door').classList.remove('hide'); }
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
 })();
 </script>
 </body>

@@ -129,6 +129,50 @@
 </style>
 </head>
 <body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/live.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
 <div class="wrap">
 
   <div class="top">
@@ -179,13 +223,14 @@
     <label class="f"><span>what is it called</span><input type="text" id="title" maxlength="70" placeholder="A word after dark"></label>
     <label class="f"><span>who may walk in</span>
       <select id="who" style="width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);-webkit-appearance:none">
-        <option value="private" selected>Nobody &mdash; a private run-through</option>
-        <option value="house">The house &mdash; members on any tier</option>
+        <option value="private" selected>Nobody &mdash; the top tier only</option>
+        <option value="house">Any member &mdash; the house may walk in</option>
       </select>
     </label>
     <button class="btn" id="golive">Step into the room</button>
-    <p class="note">A private run-through is marked at a price nobody would pay, so the door stays shut while
-      you test. The broadcast itself is real: Agora, the same channel, the same token.</p>
+    <p class="note">&ldquo;Nobody&rdquo; opens the room at a tier nobody holds, so no member can walk in while
+      you test &mdash; the house account still can. The broadcast itself is real: Agora, the same channel, the
+      same token.</p>
     <p class="err hide" id="open-err"></p>
   </section>
 
@@ -226,6 +271,16 @@
 </div>
 
 <script src="media/agora/AgoraRTC_N-4.23.4.js"></script>
+<script>
+/* the SDK, if the local copy did not arrive (a downloaded page has no media folder) */
+(function(){
+  if(window.AgoraRTC) return;
+  var s=document.createElement('script');
+  s.src='https://download.agora.io/sdk/release/AgoraRTC_N-4.23.4.js';
+  s.onerror=function(){ window.__AGORA_MISSING=true; };
+  document.head.appendChild(s);
+})();
+</script>
 <script>
 /* ============================================================
    THE ON-AIR ROOM  ·  a phone becomes the broadcaster
@@ -383,8 +438,10 @@
   /* ---------- 2 · the glass ---------- */
   var pv=$('pv'), pvph=$('pv-ph');
   function camUp(){
+    if(location.protocol!=='http:'&&location.protocol!=='https:')
+      return Promise.reject(new Error('This page was opened as a downloaded file, and a browser never gives a file a camera. Open it at its own address instead.'));
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)
-      return Promise.reject(new Error('This browser will not give a camera to a page. Try Chrome on Android, or Safari on iOS 15 and later, over https.'));
+      return Promise.reject(new Error('This browser will not give a camera to a page. Chrome on Android, or Safari on iOS 15 and later.'));
     var want={video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},audio:false};
     return navigator.mediaDevices.getUserMedia(want).catch(function(){
       return navigator.mediaDevices.getUserMedia({video:true,audio:false});
@@ -402,38 +459,69 @@
   $('trycam').addEventListener('click',function(){
     var b=this; err('prep-err'); b.disabled=true;
     camUp().then(function(){ err('prep-err'); })
-      .catch(function(x){ err('prep-err',x.message||String(x)); })
+      .catch(function(x){ err('prep-err',cameraWords(x)); })
       .then(function(){ b.disabled=false; });
   });
   $('stopcam').addEventListener('click',camDown);
 
   /* ---------- 3 · open the broadcast ---------- */
   $('golive').addEventListener('click',function(){
-    var b=this; err('open-err'); b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    var b=this; err('open-err');
+    if(!window.AgoraRTC){
+      err('open-err','The broadcast engine did not load. That happens when this page is opened as a downloaded file — open its own address instead and it arrives on its own.');
+      return;
+    }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
     if(window.IvoryBeauty && IvoryBeauty.enabled() && !$('pv').srcObject){
       camUp().catch(function(x){ err('open-err','The camera did not open: '+(x.message||x)); });
     }
     var title=($('title').value||'').trim()||'A word after dark';
     var priv=$('who').value==='private';
-    var body={
-      title_in:title, subtitle_in:null,
-      access_in: priv?'price':'tier',
-      min_tier_in:0,
-      price_in: priv?500000:0,
-      cover_in:null,
-      allowed_tiers_in:[],
-      guest_price_in:0
-    };
+
+    /* The house's own table decides which shapes it will hold, and it has
+       never told anyone what they are. So we ask it, politely, in the order
+       that leaks the least: the top tier for a private run-through, the
+       bottom tier for an open room. The first shape it accepts is remembered
+       on this phone, so the second night is a single call. */
+    function body(access,minTier,price){
+      return {title_in:title, subtitle_in:null, access_in:access, min_tier_in:minTier,
+              price_in:price||0, cover_in:null, allowed_tiers_in:[], guest_price_in:0};
+    }
+    var ladder = priv
+      ? [body('tier',4), body('tier',3), body('tier',2), body('price',0,50000), body('tier',0)]
+      : [body('tier',1), body('tier',0), body('public',0), body('price',0,0)];
+
+    var remembered=null;
+    try{ remembered=localStorage.getItem('ivory.live.shape.'+(priv?'private':'open')); }catch(e){}
+    if(remembered){
+      try{
+        var r=JSON.parse(remembered);
+        ladder=[r].concat(ladder.filter(function(b){
+          return !(b.access_in===r.access_in && b.min_tier_in===r.min_tier_in);
+        }));
+      }catch(e){}
+    }
+
+    var lastErr=null;
+    function walk(i){
+      if(i>=ladder.length) return Promise.reject(lastErr||new Error('The house refused every shape.'));
+      return open(ladder[i]).then(function(r){
+        /* only the shape the house accepted is worth remembering */
+        try{ localStorage.setItem('ivory.live.shape.'+(priv?'private':'open'),JSON.stringify(ladder[i])); }catch(e){}
+        return {res:r, shape:ladder[i], tries:i+1};
+      }).catch(function(x){
+        lastErr=x;
+        /* a refusal about anything other than the shape is not worth retrying */
+        if(!/check constraint|violates|invalid input|constraint/i.test((x&&x.message)||'')) throw x;
+        return walk(i+1);
+      });
+    }
     var open=function(payload){ return call('/rest/v1/rpc/start_live_with_guests',payload); };
-    open(body).catch(function(x){
-      /* a house that refuses the private shape still opens the public one; say so plainly */
-      if(!priv) throw x;
-      err('open-err','A private run-through was refused ('+x.message+'). Opening it to the house instead…');
-      return open({title_in:body.title_in, subtitle_in:null, access_in:'tier', min_tier_in:0,
-                   price_in:0, cover_in:null, allowed_tiers_in:[], guest_price_in:0});
-    })
-      .then(function(res){
-        var id=null;
+    walk(0)
+      .then(function(win){
+        var res=win.res, id=null;
+        if(win.shape.access_in==='tier' && win.shape.min_tier_in>=3 && priv)
+          err('open-err','The house would only hold a lower floor than you asked for, so this room is open to '+win.shape.min_tier_in+' and above.');
         if(Array.isArray(res)&&res.length) id=res[0].id;
         else if(res&&typeof res==='object') id=res.id;
         else if(typeof res==='number') id=res;
@@ -506,6 +594,16 @@
       });
   }
 
+  function cameraWords(x){
+    var n=(x&&(x.name||''))+' '+((x&&x.message)||'');
+    if(/NotAllowedError|Permission|denied/i.test(n))
+      return 'The browser said no to the camera. If this page was opened from a downloaded file it can never say yes — open its address instead. Otherwise tap the padlock by the address and allow the camera, then try again.';
+    if(/NotFoundError|DevicesNotFound/i.test(n)) return 'No camera on this device was found.';
+    if(/NotReadableError|TrackStartError/i.test(n)) return 'The camera is busy in another app. Close it and try again.';
+    if(/SecurityError/i.test(n)) return 'The page is not on a secure address, so the camera is refused.';
+    return (x&&x.message)||String(x);
+  }
+
   /* ---------- 4 · the four tools ---------- */
   $('t-mic').addEventListener('click',function(){
     if(!S.mic) return;
@@ -568,6 +666,35 @@
     refresh().then(ready).catch(function(){ saveSess(null); show('s-door'); $('s-prepare').classList.remove('hide'); });
   }
   window.addEventListener('pagehide',function(){ camDown(); });
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
 })();
 </script>
 </body>
