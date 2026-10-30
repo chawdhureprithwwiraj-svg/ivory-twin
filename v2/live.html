@@ -857,7 +857,7 @@
     div.style.cssText='padding:7px 10px;border-radius:9px;max-width:86%;'+
       (mine? 'align-self:flex-end;background:rgba(150,18,48,.09);'
            : 'align-self:flex-start;background:#fff;border:1px solid rgba(180,132,44,.24)');
-    var who=m.is_host? 'the house' : (m.sender_name||'a member');
+    var who=m.is_host? 'Ivory' : (m.sender_name||'a member');
     div.innerHTML='<b style="display:block;font-family:Georgia,serif;font-style:italic;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a6a33;margin-bottom:2px">'+
       escapeHtml(who)+'</b><span>'+escapeHtml(m.body||'')+'</span>';
     var wasAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;

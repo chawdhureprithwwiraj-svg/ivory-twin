@@ -334,6 +334,7 @@
   /* ---------- 2 · what the house is holding ---------- */
   function rooms(){
     show('v-list'); chip(false);
+    loadTiers();
     get('/rest/v1/live_public?select=*&order=id.desc&limit=30').then(function(rows){
       /* a room left open by a closed tab is not on air; six hours is the line */
       var list=(rows||[]).filter(function(r){
@@ -359,17 +360,27 @@
     });
   }
 
+  var TIERS=[];   /* the house's own table, filled as the page loads */
+  function loadTiers(){
+    if(TIERS.length) return;
+    get('/rest/v1/subscription_tiers?select=id,name,level&is_active=eq.true&order=level.asc')
+      .then(function(rows){ TIERS=(rows||[]).map(function(t){ return {id:t.id,name:t.name,level:Number(t.level)}; }); })
+      .catch(function(){});
+  }
   function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
 
   function roomCard(r){
     var b=document.createElement('button'); b.className='room'; b.type='button';
     b.setAttribute('data-session', String(r.id));
     var live=r.status==='live';
+    var list=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
     var floor = r.access==='tier'
-      ? ((Array.isArray(r.allowed_tiers)&&r.allowed_tiers.length===1)
-          ? ((r.tier_name||('level '+r.allowed_tiers[0]))+' only')
-          : (r.tier_name ? (r.tier_name+' and above') : 'from level '+(r.min_tier||1)))
-      : (r.access==='public' ? 'open to every member' : '');
+      ? ((list.length===1) ? ((r.tier_name||('level '+list[0]))+' only')
+         : (list.length>1 && list.length===TIERS.length && Number(r.min_tier)<=1)
+             ? 'every member'
+             : (list.length>1 && r.tier_name ? (r.tier_name+' and above')
+                : (r.tier_name ? (r.tier_name+' and above') : 'from level '+(r.min_tier||1))))
+      : (r.access==='public' ? 'every member' : '');
     var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : (r.access==='public' ? 'open room' : 'scheduled')));
     var sub = r.subtitle || ((live ? 'in the room now' : 'opens later') + (floor ? ' · ' + floor : ''));
     b.innerHTML='<span class="thumb">'+(r.cover_url?'<img alt="" src="'+escapeAttr(r.cover_url)+'">':'<i style="animation:'+(live?'beat 1.7s infinite':'none')+'"></i>')+'</span>'+
@@ -539,7 +550,17 @@
     S.session=null; chip(false);
     show('v-list');
     rooms();
-    setTimeout(function(){ alert(reason); },60);
+    /* the house says it on its own page, never in a browser box */
+    var b=document.createElement('div');
+    b.id='closed-note';
+    b.setAttribute('role','status');
+    b.style.cssText='position:fixed;left:14px;right:14px;bottom:22px;z-index:60;padding:14px 16px;border-radius:13px;'+
+      'background:#FFFBF2;border:1px solid rgba(180,132,44,.45);box-shadow:0 10px 30px rgba(70,30,10,.16);'+
+      'font:italic 14px/1.55 Georgia,serif;color:#5C1226';
+    b.textContent=reason+' Nothing was recorded.';
+    var old=document.getElementById('closed-note'); if(old) old.remove();
+    document.body.appendChild(b);
+    setTimeout(function(){ try{ b.style.transition='opacity .5s'; b.style.opacity='0'; setTimeout(function(){ b.remove(); },520); }catch(e){} },5200);
   }
 
   function stopTicks(){ clearInterval(S.tick); clearInterval(S.msgTick); S.tick=S.msgTick=null; }
