@@ -197,18 +197,33 @@
     </div>
 
     <div class="card">
-      <h2>One line that lets the room keep its guest list</h2>
-      <p class="note" style="margin:0 0 10px">The start-broadcast function saves the floor and drops the list, and
-        the house&rsquo;s view reads the list. The account may not correct its own live row until this runs once in
-        the Supabase SQL editor.</p>
-      <pre id="live-sql" style="margin:0;padding:11px;border-radius:9px;background:#fff;border:1px solid rgba(180,132,44,.35);font:10.6px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">create policy "the host writes its own live list"
-  on public.live_sessions
-  for update to authenticated
-  using (host_id = auth.uid())
-  with check (host_id = auth.uid());</pre>
+      <h2>The list every room keeps</h2>
+      <p class="note" style="margin:0 0 10px">Every room this house has ever opened was stored with an empty guest
+        list, and the house&rsquo;s own view reads that list &mdash; so no member has ever been let in, whatever the
+        floor said. Nothing a page can write survives. This one line makes the house fill the list itself, from each
+        room&rsquo;s floor, before the room is stored &mdash; for every room from now on. Run it once, then open a room
+        and watch: <i>open to</i> will list the tiers instead of saying nobody.</p>
+      <pre id="live-sql" style="margin:0;padding:11px;border-radius:9px;background:#fff;border:1px solid rgba(180,132,44,.35);font:10.6px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">create or replace function public.ivory_keep_the_list() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare mx int;
+begin
+  if new.allowed_tiers is null or cardinality(new.allowed_tiers) = 0 then
+    select coalesce(max(level), 4) into mx from public.subscription_tiers where is_active is not false;
+    if coalesce(new.min_tier, 1) <= mx then
+      new.allowed_tiers := array(select generate_series(greatest(coalesce(new.min_tier,1),1), mx));
+    end if;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists ivory_keep_the_list on public.live_sessions;
+create trigger ivory_keep_the_list
+  before insert or update on public.live_sessions
+  for each row execute function public.ivory_keep_the_list();</pre>
       <button class="btn quiet" id="live-sql-copy" style="margin-top:9px">Copy this</button>
-      <p class="note" style="margin-top:8px">After that, opening a room writes its guest list itself, and a Reader
-        can walk into a Reader room. Nothing else changes.</p>
+      <p class="note" style="margin-top:8px">Paste it into the Supabase SQL editor and run it once. It is safe to run
+        twice. After that a Reader walks into a Reader room, an Insider into an Insider room, and the live page stops
+        asking you for anything.</p>
     </div>
 
     <div class="card">
