@@ -197,6 +197,38 @@
     </div>
 
     <div class="card">
+      <h2>One line that lets the room keep its guest list</h2>
+      <p class="note" style="margin:0 0 10px">The start-broadcast function saves the floor and drops the list, and
+        the house&rsquo;s view reads the list. The account may not correct its own live row until this runs once in
+        the Supabase SQL editor.</p>
+      <pre id="live-sql" style="margin:0;padding:11px;border-radius:9px;background:#fff;border:1px solid rgba(180,132,44,.35);font:10.6px/1.55 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word">create policy "the host writes its own live list"
+  on public.live_sessions
+  for update to authenticated
+  using (host_id = auth.uid())
+  with check (host_id = auth.uid());</pre>
+      <button class="btn quiet" id="live-sql-copy" style="margin-top:9px">Copy this</button>
+      <p class="note" style="margin-top:8px">After that, opening a room writes its guest list itself, and a Reader
+        can walk into a Reader room. Nothing else changes.</p>
+    </div>
+
+    <div class="card">
+      <h2>The house may move a member</h2>
+      <p class="note" style="margin:0 0 12px">No money, no window, no reference &mdash; the house sets a
+        member&rsquo;s standing itself. Use this while testing, or when you have decided to give someone a
+        month.</p>
+      <label class="f"><span>the member</span>
+        <input type="text" id="st-who" list="st-list" placeholder="start typing their name" autocomplete="off">
+        <datalist id="st-list"></datalist></label>
+      <label class="f"><span>put them on</span>
+        <select id="st-tier" style="width:100%;padding:12px;border-radius:11px;border:1px solid rgba(180,132,44,.45);background:rgba(255,255,255,.9);font-family:var(--serif);font-size:15px;color:var(--ink)"></select></label>
+      <label class="f"><span>for how many days</span>
+        <input type="number" id="st-days" value="30" min="1" max="365" inputmode="numeric"></label>
+      <button class="btn" id="st-set">Put them on it</button>
+      <p class="err hide" id="st-err"></p>
+      <p class="ok hide" id="st-ok"></p>
+    </div>
+
+    <div class="card">
       <h2>Waiting to be checked <span id="q-count" style="font:600 10px/1 var(--ui);letter-spacing:.22em;color:var(--gold);vertical-align:middle"></span></h2>
       <div id="queue"><div class="empty">Reading the counter…</div></div>
       <p class="err hide" id="q-err"></p>
@@ -286,6 +318,7 @@
   /* ---------- the switches ---------- */
   function panel(){
     $('v-door').classList.add('hide'); $('v-panel').classList.remove('hide');
+    loadPeople();
     watchQueue();
     return loadSettings().then(queue);
   }
@@ -416,6 +449,62 @@
       queue().catch(function(){});
     },20000);
   }
+
+  if($('live-sql-copy')) $('live-sql-copy').addEventListener('click',function(){
+    var b=this, t=$('live-sql').textContent;
+    var done=function(){ b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy this'; },1700); };
+    var fb=function(){ try{ var i=document.createElement('textarea'); i.value=t; document.body.appendChild(i);
+      i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){ b.textContent='Select it by hand'; } };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(fb);
+    else fb();
+  });
+
+  /* ---------- moving a member without money ---------- */
+  var PEOPLE=[];
+  function loadPeople(){
+    call('/rest/v1/profiles?select=id,display_name,role&order=display_name.asc&limit=300',null,{method:'GET'})
+      .then(function(rows){
+        PEOPLE=(rows||[]).filter(function(p){ return p&&(p.display_name||'').trim(); });
+        var dl=$('st-list'); if(dl){ dl.innerHTML=PEOPLE.map(function(p){
+          return '<option value="'+esc(p.display_name)+'">'; }).join(''); }
+        var sel=$('st-tier');
+        if(sel && !sel.options.length){
+          call('/rest/v1/subscription_tiers?select=id,name,level,price_inr&order=level.asc',null,{method:'GET'})
+            .then(function(ts){
+              sel.innerHTML=(ts||[]).map(function(t){
+                return '<option value="'+t.id+'">'+esc(t.name)+(t.price_inr?' · '+money(t.price_inr):'')+'</option>';
+              }).join('');
+            }).catch(function(){});
+        }
+      })
+      .catch(function(x){ err('st-err','The member list could not be read: '+(x.message||x)); });
+  }
+
+  if($('st-set')) $('st-set').addEventListener('click',function(){
+    var b=this, name=($('st-who').value||'').trim(), tierId=$('st-tier').value, days=Math.max(1,parseInt($('st-days').value,10)||30);
+    err('st-err'); ok('st-ok');
+    var p=PEOPLE.filter(function(x){ return (x.display_name||'').toLowerCase()===name.toLowerCase(); })[0];
+    if(!p){ err('st-err','Pick a name from the list — I could not match that name to a member.'); return; }
+    if(!tierId){ err('st-err','Choose a tier first.'); return; }
+    var now=new Date(), end=new Date(Date.now()+days*86400000);
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Setting';
+    call('/rest/v1/user_subscriptions?user_id=eq.'+p.id+'&status=eq.active',
+      {tier_id:Number(tierId), status:'active', expires_at:end.toISOString()},
+      {method:'PATCH', headers:{'Prefer':'return=representation'}})
+      .then(function(rows){
+        if(rows&&rows.length) return rows.length;
+        return call('/rest/v1/user_subscriptions',{user_id:p.id, tier_id:Number(tierId), status:'active',
+          starts_at:now.toISOString(), expires_at:end.toISOString(), is_manual:true, note:'set by the house'})
+          .then(function(){ return 1; })
+          .catch(function(e){ throw new Error('the house could not write a subscription ('+(e.message||e)+')'); });
+      })
+      .then(function(){
+        var t=$('st-tier'); var label=t.options[t.selectedIndex]?t.options[t.selectedIndex].textContent:'the tier';
+        ok('st-ok','Done. '+p.display_name+' is on '+label+' until '+end.toDateString()+'. The member’s page reads this the next time it looks.');
+      })
+      .catch(function(x){ err('st-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Put them on it'; });
+  });
 
   /* ---------- the queue ---------- */
   function queue(){

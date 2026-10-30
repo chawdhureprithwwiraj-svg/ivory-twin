@@ -223,13 +223,16 @@
     <label class="f"><span>what is it called</span><input type="text" id="title" maxlength="70" placeholder="A word after dark"></label>
     <label class="f"><span>who may walk in</span>
       <select id="who" style="width:100%;padding:12px 13px;border-radius:11px;border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.85);font-family:var(--serif);font-size:15px;color:var(--ink);-webkit-appearance:none">
+        <option value="public">Anyone signed in &mdash; no tier (works tonight)</option>
         <option value="1">Any member</option>
       </select>
     </label>
     <button class="btn" id="golive">Step into the room</button>
     <p class="note">The list comes from the house&rsquo;s own tier table, so add or rename a plan in the app and
       this follows on the next visit. What is sent is what the app sends: the floor <i>and</i> the list of tiers
-      allowed in &mdash; the server reads the list, which is why a room sent with an empty list lets nobody in.</p>
+      allowed in &mdash; and the house&rsquo;s view reads the list, so a room whose list could not be stored lets nobody
+      in. <i>Anyone signed in</i> consults no list at all: that is the one shape that works before the one line of
+      SQL is run.</p>
     <p class="err hide" id="open-err"></p>
   </section>
 
@@ -503,6 +506,7 @@
     var title=($('title').value||'').trim()||'A word after dark';
     var choice=$('who').value;
     var noOne = choice==='none';
+    var isPublic = choice==='public';
     var floor = noOne ? 9 : (parseInt(choice,10)||1);
     /* every tier at or above the floor, from the house's own table — the app
        sends this same list, and the server reads the list, not just the floor */
@@ -525,7 +529,11 @@
        and only in the last resort the price shape. The order never opens
        the room wider than she asked without saying so. */
     var ladder;
-    if(noOne){
+    if(isPublic){
+      /* no list is consulted for a public room, so this is the one shape
+         the house cannot refuse for want of a guest list */
+      ladder=[body('public',0,0,[])];
+    } else if(noOne){
       ladder=[body('tier',9,0,[])];          /* the app's own "nobody": floor 9, empty list */
     } else {
       ladder=[body('tier',floor,0,levelsFrom(floor))];
@@ -581,6 +589,10 @@
         /* The start function saves the floor but drops the list — and the
            house's own view reads the list. So we write it ourselves, then
            read the room back and say what the house now holds. */
+        if(win.shape.access_in==='public'){
+          $('air-open').textContent='anyone signed in';
+          return null;
+        }
         return writeList(id, win.shape);
       })
       .then(function(){
@@ -651,10 +663,13 @@
         }
         return r;
       })
+      .then(function(r){
+        if(r && Array.isArray(r.allowed_tiers) && !r.allowed_tiers.length) throw new Error('the table took the update and kept the list empty');
+        return r;
+      })
       .catch(function(x){
-        /* the room is still on air; say what could not be written */
         try{ $('air-open').textContent='nobody on the list yet'; }catch(e){}
-        err('open-err','The room is on air, but the guest list could not be written ('+(x.message||x)+'). A member will be kept out.');
+        err('open-err','The room is on air, but the guest list would not stay on it ('+(x.message||x)+'). The house account is not allowed to write its own live row — one line in the SQL editor fixes that, and it is in the counter under “Which rails are open”.');
         return null;
       });
   }
