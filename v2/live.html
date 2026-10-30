@@ -441,7 +441,22 @@
   });
   $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
 
+  /* Rooms left "live" by a closed tab sit on the member's list for ever and look
+     like a broadcast that refuses everyone. On the way in, the house closes its
+     own ghosts: anything still marked live that was opened more than two hours ago. */
+  function sweepGhosts(){
+    call('/rest/v1/live_sessions?select=id,created_at,status&status=eq.live',null,{method:'GET'})
+      .then(function(rows){
+        (rows||[]).forEach(function(r){
+          var age=Date.now()-Date.parse(r.created_at||0);
+          if(!(age>3*3600*1000)) return;
+          call('/rest/v1/rpc/end_live',{session_id_in:r.id}).catch(function(){});
+        });
+      }).catch(function(){});
+  }
+
   function ready(){
+    try{ sweepGhosts(); }catch(e){}
     var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
     if(who) $('door-note').textContent='Signed in as '+who+'.';
     try{ $('air-me').textContent = who ? (who + ' · ' + String(meId()).slice(0,8)) : '—'; }catch(e){}
@@ -544,8 +559,9 @@
        the room wider than she asked without saying so. */
     var ladder;
     if(isPublic){
-      /* two shapes consult no guest list at all; try both before giving up */
-      ladder=[body('public',0,0,[]), body('price',0,0,[])];
+      /* one shape only. If the house will not hold an open room, falling back to
+         a narrower shape would quietly undo what she asked for — say so instead. */
+      ladder=[body('public',0,0,[])];
     } else if(noOne){
       ladder=[body('tier',9,0,[])];          /* the app's own "nobody": floor 9, empty list */
     } else {
@@ -558,8 +574,12 @@
       ladder.push(body('public',0,0,[]));
     }
 
+    /* The memory exists for one thing: a numbered floor, so the second night is a
+       single call. It must never be read for "anyone" or "nobody" — that is what
+       turned three open rooms into tier rooms tonight. */
+    var numbered = /^[0-9]+$/.test(String(choice));
     var remembered=null;
-    try{ remembered=localStorage.getItem('ivory.live.shape.f'+floor); }catch(e){}
+    if(numbered){ try{ remembered=localStorage.getItem('ivory.live.shape.f'+floor); }catch(e){} }
     if(remembered){
       try{
         var r=JSON.parse(remembered);
@@ -573,8 +593,8 @@
     function walk(i){
       if(i>=ladder.length) return Promise.reject(lastErr||new Error('The house refused every shape.'));
       return startLive(ladder[i]).then(function(r){
-        /* only the shape the house accepted is worth remembering */
-        try{ localStorage.setItem('ivory.live.shape.f'+floor,JSON.stringify(ladder[i])); }catch(e){}
+        /* only a numbered floor is worth remembering, and only the shape accepted */
+        if(numbered){ try{ localStorage.setItem('ivory.live.shape.f'+floor,JSON.stringify(ladder[i])); }catch(e){} }
         return {res:r, shape:ladder[i], tries:i+1};
       }).catch(function(x){
         lastErr=x;
@@ -599,12 +619,34 @@
         if(!id) throw new Error('The broadcast was made but the house did not return its number.');
         S.sessionId=id;
         $('air-name').textContent=title;
+        /* a new room means the last one is over, whatever its row still says */
+        call('/rest/v1/live_sessions?select=id&status=eq.live',null,{method:'GET'})
+          .then(function(rows){
+            (rows||[]).forEach(function(r){
+              if(Number(r.id)!==Number(id)) call('/rest/v1/rpc/end_live',{session_id_in:r.id}).catch(function(){});
+            });
+          }).catch(function(){});
         /* The start function saves the floor but drops the list — and the
            house's own view reads the list. So we write it ourselves, then
            read the room back and say what the house now holds. */
         if(win.shape.access_in==='public'){
-          $('air-open').textContent='anyone signed in';
-          return null;
+          /* Believe what the house stored, not what this page asked for. */
+          return call('/rest/v1/live_sessions?select=id,access,min_tier,allowed_tiers&id=eq.'+id,null,{method:'GET'})
+            .then(function(rows){
+              var r=(rows&&rows[0])||null;
+              if(r && r.access==='public'){
+                $('air-open').textContent='anyone signed in';
+                return null;
+              }
+              var got=r? (r.access+(r.access==='tier'? ' · floor '+(r.min_tier||1)+' · list '+(Array.isArray(r.allowed_tiers)?(r.allowed_tiers.join(',')||'empty'):'empty') : '')) : 'nothing';
+              $('air-open').textContent='saved as '+got;
+              err('air-err','This page asked for an open room and the house stored it as '+got+'. '+
+                'A member will be refused while it sits like that — the shape was changed after it was asked for.');
+              try{ $('air-fix').classList.remove('hide'); $('air-sqlwrap').classList.add('hide');
+                   $('air-why').textContent='The house changed the shape after this page asked for it. '+
+                   'Nothing typed here can undo that, and this is the last page-side repair:'; }catch(e){}
+              return null;
+            });
         }
         return writeList(id, win.shape);
       })
@@ -637,7 +679,11 @@
       })
       .catch(function(x){
         var said=(x&&x.message)||String(x);
-        if(/refused every shape/i.test(said))
+        if(/refused every shape/i.test(said) && isPublic)
+          said='The house will not hold an open room. It refused to store “anyone may join” as a shape, so nothing is on air. '+
+               'The rooms it will hold are the tiered ones — and the tiered ones need the guest list, which the house has never kept. '+
+               'What it answered: '+(lastErr&&lastErr.message?lastErr.message:String(lastErr||'')).slice(0,180);
+        else if(/refused every shape/i.test(said))
           said='The house would not open a room in any shape this page knows how to ask for — not the tiered one, not the open one. Nothing is on air. The shapes it accepts have changed since this page was written.';
         err('open-err',(S.wide?S.wide+' ':'')+agoraWords(said));
         if(S.sessionId){ call('/rest/v1/rpc/end_live',{session_id_in:S.sessionId}).catch(function(){}); S.sessionId=null; }
