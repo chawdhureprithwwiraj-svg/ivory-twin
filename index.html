@@ -8651,6 +8651,199 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 body.on-live .ribbonlay,body.on-live #wheelFab,body.on-live .fab,body.on-live #disc-fab,body.on-live #spin-fab{display:none!important}
 body.on-live #live-screen ~ *{z-index:auto}
 </style>
+<style id="iv-desk-css">
+/* ══════════════════════════════════════════════════════════════
+   THE DOOR — one entrance, the account decides the house
+   ══════════════════════════════════════════════════════════════ */
+#iv-door-screen{position:fixed;inset:0;z-index:70;display:none;overflow-y:auto;
+  background:
+    radial-gradient(120% 70% at 50% -10%,rgba(255,240,205,.20) 0%,rgba(255,240,205,0) 60%),
+    radial-gradient(90% 60% at 50% 120%,rgba(120,8,32,.55) 0%,rgba(120,8,32,0) 62%),
+    linear-gradient(176deg,#4A0616 0%,#33040F 38%,#24030A 100%)}
+#iv-door-screen.on{display:block}
+#iv-door-screen::after{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,224,170,.10) 1px,transparent 1px);background-size:22px 22px;opacity:.5}
+.ivd-wrap{position:relative;z-index:2;max-width:430px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 22px 40px}
+.ivd-crest{width:74px;height:74px;margin:0 auto 22px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(from 210deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4);
+  box-shadow:0 10px 30px rgba(0,0,0,.42),0 0 0 1px rgba(255,235,190,.55) inset}
+.ivd-crest i{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 38% 30%,#5E0A20,#32040E 72%);
+  font-family:Georgia,serif;font-style:italic;font-size:22px;color:#F7DFA4;letter-spacing:.02em;
+  box-shadow:0 0 0 1px rgba(247,223,164,.35) inset}
+.ivd-kicker{text-align:center;font:600 9.5px/1 var(--f-ui,Georgia);letter-spacing:.34em;text-transform:uppercase;
+  color:#D8AE68;margin-bottom:12px}
+.ivd-title{text-align:center;font-family:var(--f-display,Georgia),serif;font-weight:400;font-size:33px;line-height:1.1;
+  color:#FBF0DA;margin:0 0 12px;letter-spacing:.005em}
+.ivd-title em{font-style:italic;color:#F3D08A}
+.ivd-lede{text-align:center;font-family:Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.6;
+  color:rgba(251,240,218,.72);margin:0 0 26px}
+.ivd-card{background:linear-gradient(180deg,rgba(255,248,232,.985),rgba(252,238,210,.97));
+  border-radius:20px;padding:22px 20px;box-shadow:0 26px 60px rgba(10,0,3,.55),0 1px 0 rgba(255,255,255,.7) inset;
+  border:1px solid rgba(233,196,124,.55)}
+.ivd-field{margin-bottom:14px}
+.ivd-field span{display:block;font:600 9px/1 var(--f-ui,Georgia);letter-spacing:.24em;text-transform:uppercase;
+  color:#A88344;margin-bottom:7px}
+.ivd-field input{width:100%;box-sizing:border-box;padding:14px 14px;border-radius:12px;
+  border:1px solid rgba(168,131,68,.42);background:#FFFCF4;font-family:Georgia,serif;font-size:15.5px;color:#3A1F06;
+  transition:border-color .2s,box-shadow .2s}
+.ivd-field input:focus{outline:none;border-color:#9A1229;box-shadow:0 0 0 3px rgba(154,18,41,.10)}
+.ivd-go{width:100%;border:0;border-radius:12px;padding:15px;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#B81A34 0%,#8E0F27 52%,#6E0C24 100%);
+  color:#FFF1D6;font-family:var(--f-display,Georgia),serif;font-size:16.5px;letter-spacing:.02em;
+  box-shadow:0 12px 26px rgba(110,12,36,.42),0 1px 0 rgba(255,235,200,.28) inset;transition:transform .16s,box-shadow .2s}
+.ivd-go:active{transform:translateY(1px) scale(.995)}
+.ivd-go:disabled{opacity:.6;cursor:default}
+.ivd-err{margin:13px 0 0;padding:11px 13px;border-radius:11px;background:rgba(154,18,41,.07);
+  border:1px solid rgba(154,18,41,.28);font-family:Georgia,serif;font-style:italic;font-size:13.5px;line-height:1.55;color:#8E0F27}
+.ivd-hide{display:none!important}
+.ivd-foot{text-align:center;margin-top:18px;font:600 8.5px/1.6 var(--f-ui,Georgia);letter-spacing:.24em;
+  text-transform:uppercase;color:rgba(216,174,104,.55)}
+.ivd-who{text-align:center;margin-top:16px;font-family:Georgia,serif;font-style:italic;font-size:13px;color:#D8AE68}
+
+/* ══════════════════════════════════════════════════════════════
+   THE HOUSE DESK — burgundy velvet, gold hairline, cream type
+   ══════════════════════════════════════════════════════════════ */
+#desk-screen{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;overflow:hidden;
+  background:
+    radial-gradient(120% 60% at 50% -12%,rgba(255,238,200,.16) 0%,rgba(255,238,200,0) 58%),
+    linear-gradient(178deg,#43060F 0%,#2E040D 44%,#1E0208 100%)}
+#desk-screen.on{display:flex}
+#desk-screen::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,224,170,.075) 1px,transparent 1px);background-size:24px 24px}
+.dk-head{position:relative;z-index:3;padding:calc(12px + env(safe-area-inset-top)) 16px 0;flex:0 0 auto}
+.dk-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dk-crest{width:36px;height:36px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+  background:conic-gradient(from 205deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4);
+  box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.dk-crest i{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 30%,#5E0A20,#32040E 74%);
+  display:grid;place-items:center;font-family:Georgia,serif;font-style:italic;font-size:12px;color:#F7DFA4}
+.dk-name{font-family:var(--f-display,Georgia),serif;font-size:15px;letter-spacing:.26em;color:#F3D08A;text-transform:uppercase}
+.dk-badge{margin-left:2px;padding:5px 9px;border-radius:999px;background:linear-gradient(180deg,#F7DFA4,#D8A94E);
+  color:#4A0616;font:800 8.5px/1 var(--f-ui,Georgia);letter-spacing:.2em}
+.dk-spacer{margin-left:auto}
+.dk-icon{width:36px;height:36px;border-radius:50%;border:1px solid rgba(233,196,124,.42);background:rgba(255,255,255,.06);
+  color:#F3D08A;display:grid;place-items:center;cursor:pointer;font-size:15px;transition:background .2s}
+.dk-icon:active{background:rgba(255,255,255,.14)}
+.dk-who{font-family:Georgia,serif;font-style:italic;font-size:11.5px;color:rgba(243,208,138,.62);margin:-4px 0 10px 48px}
+
+/* the ribbon of 22 — exactly the app's TabBar, in gold */
+.dk-ribbon{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 0 2px;
+  -webkit-overflow-scrolling:touch;mask-image:linear-gradient(90deg,transparent 0,#000 34px,#000 calc(100% - 30px),transparent 100%)}
+.dk-ribbon::-webkit-scrollbar{display:none}
+.dk-tab{flex:0 0 auto;border:0;background:transparent;cursor:pointer;padding:9px 2px 11px;position:relative;
+  font:700 10px/1 var(--f-ui,Georgia);letter-spacing:.17em;text-transform:uppercase;
+  color:rgba(243,208,138,.5);transition:color .22s}
+.dk-tab::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:1.5px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#F3D08A,transparent);opacity:0;transform:scaleX(.4);transition:all .26s}
+.dk-tab.on{color:#FFF4DC}
+.dk-tab.on::after{opacity:1;transform:scaleX(1)}
+.dk-tab .soon{position:absolute;top:4px;right:-1px;width:4px;height:4px;border-radius:50%;background:rgba(243,208,138,.45)}
+.dk-hair{height:1px;margin-top:0;background:linear-gradient(90deg,rgba(243,208,138,0),rgba(243,208,138,.38),rgba(243,208,138,0))}
+
+.dk-body{position:relative;z-index:2;flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
+.dk-pane{max-width:560px;margin:0 auto;animation:dkIn .34s cubic-bezier(.22,.61,.36,1) both}
+@keyframes dkIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.dk-kick{font:600 8.5px/1 var(--f-ui,Georgia);letter-spacing:.3em;text-transform:uppercase;color:rgba(216,174,104,.72);margin-bottom:9px}
+.dk-h1{font-family:var(--f-display,Georgia),serif;font-weight:400;font-size:27px;line-height:1.14;color:#FBF0DA;margin:0 0 8px}
+.dk-h1 em{font-style:italic;color:#F3D08A}
+.dk-lede{font-family:Georgia,serif;font-style:italic;font-size:13.5px;line-height:1.62;color:rgba(251,240,218,.6);margin:0 0 18px}
+
+.dk-card{background:linear-gradient(180deg,rgba(255,248,232,.97),rgba(252,238,210,.94));border-radius:16px;
+  padding:16px;margin-bottom:12px;border:1px solid rgba(233,196,124,.5);
+  box-shadow:0 16px 38px rgba(10,0,3,.45),0 1px 0 rgba(255,255,255,.6) inset}
+.dk-card.velvet{background:linear-gradient(180deg,rgba(94,10,32,.55),rgba(50,4,14,.62));
+  border-color:rgba(233,196,124,.32);box-shadow:0 16px 38px rgba(10,0,3,.5)}
+.dk-label{display:block;font:600 8.5px/1 var(--f-ui,Georgia);letter-spacing:.22em;text-transform:uppercase;color:#A88344;margin-bottom:7px}
+.dk-input,.dk-select{width:100%;box-sizing:border-box;padding:12px 13px;border-radius:10px;border:1px solid rgba(168,131,68,.4);
+  background:#FFFCF4;font-family:Georgia,serif;font-size:15px;color:#3A1F06;margin-bottom:13px}
+.dk-input:focus,.dk-select:focus{outline:none;border-color:#9A1229;box-shadow:0 0 0 3px rgba(154,18,41,.09)}
+.dk-two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.dk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.dk-chip{border:1px solid rgba(168,131,68,.45);background:#FFFCF4;border-radius:999px;padding:9px 13px;cursor:pointer;
+  font:600 10px/1 var(--f-ui,Georgia);letter-spacing:.1em;text-transform:uppercase;color:#7A5A2C;transition:all .2s}
+.dk-chip.on{background:linear-gradient(180deg,#B81A34,#8E0F27);border-color:#6E0C24;color:#FFF1D6;
+  box-shadow:0 6px 14px rgba(110,12,36,.3)}
+.dk-btn{border:0;border-radius:11px;padding:14px 18px;width:100%;cursor:pointer;
+  background:linear-gradient(180deg,#B81A34,#8E0F27 55%,#6E0C24);color:#FFF1D6;
+  font-family:var(--f-display,Georgia),serif;font-size:15.5px;letter-spacing:.02em;
+  box-shadow:0 12px 24px rgba(110,12,36,.35),0 1px 0 rgba(255,235,200,.24) inset;transition:transform .15s,opacity .2s}
+.dk-btn:active{transform:translateY(1px)}
+.dk-btn:disabled{opacity:.5;cursor:default}
+.dk-btn.gold{background:linear-gradient(180deg,#F7DFA4,#D8A94E 55%,#B8832A);color:#4A0616;
+  box-shadow:0 12px 24px rgba(184,131,42,.3),0 1px 0 rgba(255,255,255,.5) inset}
+.dk-btn.quiet{background:transparent;border:1px solid rgba(154,18,41,.4);color:#8E0F27;box-shadow:none}
+.dk-btn.mini{width:auto;padding:9px 15px;font-size:13px;border-radius:9px}
+.dk-note{font-family:Georgia,serif;font-style:italic;font-size:12.5px;line-height:1.55;color:rgba(251,240,218,.55);margin:10px 0 0}
+.dk-card .dk-note,.dk-card .dk-empty{color:#7A5A2C;border-color:rgba(168,131,68,.45)}
+.dk-card .dk-label{color:#A88344}
+.dk-toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translate(-50%,14px);
+  z-index:90;max-width:min(84vw,420px);padding:13px 18px;border-radius:14px;text-align:center;
+  background:linear-gradient(180deg,#FFF9E9,#F6E7C4);color:#4A0B18;
+  font:400 13.5px/1.45 Georgia,serif;
+  box-shadow:0 14px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(168,131,68,.5);
+  opacity:0;pointer-events:none;transition:opacity .24s ease,transform .34s cubic-bezier(.22,.61,.36,1)}
+.dk-toast.on{opacity:1;transform:translate(-50%,0)}
+.dk-toast.bad{background:linear-gradient(180deg,#FFF3E2,#F3DCC0);box-shadow:0 14px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(184,26,52,.55)}
+.dk-note.warn{color:#F3D08A}
+.dk-err{margin:11px 0 0;padding:11px 13px;border-radius:11px;background:rgba(255,238,200,.10);
+  border:1px solid rgba(243,208,138,.35);font-family:Georgia,serif;font-style:italic;font-size:13px;line-height:1.55;color:#F7DFA4}
+
+/* on-air strip */
+.dk-live{display:flex;align-items:center;gap:11px;padding:13px 15px;border-radius:14px;margin-bottom:12px;
+  background:linear-gradient(180deg,rgba(184,26,52,.35),rgba(110,12,36,.3));border:1px solid rgba(243,208,138,.4)}
+.dk-dot{width:8px;height:8px;border-radius:50%;background:#F7DFA4;animation:dkpulse 1.6s infinite;flex:0 0 auto}
+@keyframes dkpulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(247,223,164,.5)}50%{opacity:.55;box-shadow:0 0 0 6px rgba(247,223,164,0)}}
+.dk-live b{font-family:Georgia,serif;font-size:14.5px;color:#FFF4DC;font-weight:500;display:block}
+.dk-live s{text-decoration:none;font-family:Georgia,serif;font-style:italic;font-size:11.5px;color:rgba(251,240,218,.6)}
+.dk-clock{margin-left:auto;font:600 13px/1 var(--f-ui,Georgia);letter-spacing:.1em;color:#F3D08A}
+
+/* shelf rows */
+.dk-rowcard{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:13px 14px;border-radius:13px;margin-bottom:10px;
+  background:linear-gradient(180deg,rgba(255,248,232,.96),rgba(252,238,210,.93));border:1px solid rgba(233,196,124,.45)}
+.dk-ava{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+  background:radial-gradient(circle at 36% 30%,#5E0A20,#32040E 74%);color:#F3D08A;
+  font-family:Georgia,serif;font-style:italic;font-size:14px;box-shadow:0 0 0 1px rgba(233,196,124,.4)}
+.dk-rowcard b{display:block;font-family:Georgia,serif;font-size:14.5px;color:#3A1207;font-weight:600}
+.dk-rowcard s{display:block;text-decoration:none;font-family:Georgia,serif;font-style:italic;font-size:12px;color:#7A5A2C;margin-top:2px}
+.dk-acts{margin-left:auto;display:flex;gap:7px;flex:0 0 auto;justify-content:flex-end}
+.dk-rowcard .dk-main{min-width:0;flex:1 1 150px}
+.dk-rowcard s.dk-when{font-style:normal;font-size:11px;color:#8A6A3A;margin-top:3px;letter-spacing:.01em}
+.dk-empty{padding:28px 18px;text-align:center;border:1px dashed rgba(243,208,138,.35);border-radius:15px;
+  font-family:Georgia,serif;font-style:italic;font-size:13.5px;line-height:1.6;color:rgba(251,240,218,.55)}
+
+/* the drawer of twenty-two */
+.dk-veil{position:fixed;inset:0;z-index:64;background:rgba(10,0,3,.55);opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.dk-veil.on{opacity:1;pointer-events:auto}
+.dk-drawer{position:fixed;top:0;bottom:0;left:0;z-index:65;width:min(84vw,330px);transform:translateX(-102%);
+  transition:transform .42s cubic-bezier(.22,.61,.36,1);display:flex;flex-direction:column;
+  background:linear-gradient(178deg,#3A050E 0%,#24030A 100%);border-right:1px solid rgba(243,208,138,.3);
+  box-shadow:26px 0 60px rgba(0,0,0,.55)}
+.dk-drawer.on{transform:none}
+.dk-dhead{position:relative;padding:calc(20px + env(safe-area-inset-top)) 20px 14px;border-bottom:1px solid rgba(243,208,138,.18)}
+.dk-dshut{position:absolute;top:calc(15px + env(safe-area-inset-top));right:16px;width:31px;height:31px;border-radius:50%;
+  border:1px solid rgba(243,208,138,.26);background:transparent;color:rgba(243,208,138,.78);
+  font:400 12px/1 Georgia,serif;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.dk-dshut:active{background:rgba(243,208,138,.1);border-color:rgba(243,208,138,.5);color:#F3D08A}
+.dk-dhead b{font-family:var(--f-display,Georgia),serif;font-size:13px;letter-spacing:.28em;color:#F3D08A;text-transform:uppercase}
+.dk-dhead s{display:block;text-decoration:none;font-family:Georgia,serif;font-style:italic;font-size:11.5px;color:rgba(251,240,218,.5);margin-top:5px}
+.dk-dlist{flex:1 1 auto;overflow-y:auto;padding:10px 0 calc(20px + env(safe-area-inset-bottom))}
+.dk-ditem{display:flex;align-items:center;gap:13px;width:100%;border:0;background:transparent;cursor:pointer;
+  padding:12px 20px;text-align:left;transition:background .2s}
+.dk-ditem:active{background:rgba(243,208,138,.08)}
+.dk-ditem i{font-family:Georgia,serif;font-style:italic;font-size:10.5px;color:rgba(216,174,104,.55);width:18px;flex:0 0 auto}
+.dk-ditem span{font:600 10.5px/1 var(--f-ui,Georgia);letter-spacing:.18em;text-transform:uppercase;color:rgba(251,240,218,.82)}
+.dk-ditem.on{background:rgba(243,208,138,.10)}
+.dk-ditem.on span{color:#FFF4DC}
+.dk-ditem em{margin-left:auto;font-style:normal;font:800 7.5px/1 var(--f-ui,Georgia);letter-spacing:.16em;color:rgba(216,174,104,.6);
+  border:1px solid rgba(216,174,104,.32);border-radius:999px;padding:3px 6px}
+
+@media (prefers-reduced-motion:reduce){
+  .dk-pane{animation:none}.dk-drawer{transition:none}.dk-tab::after{transition:none}
+}
+</style>
+
 </head>
 <body>
 <svg width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
@@ -10739,6 +10932,53 @@ body.on-live #live-screen ~ *{z-index:auto}
     </div>
   </div>
 </section>
+
+<!-- ═══════════════ THE DOOR · one entrance, the account decides ═══════════════ -->
+<section id="iv-door-screen" aria-label="The door">
+  <div class="ivd-wrap">
+    <div class="ivd-crest"><i>I</i></div>
+    <p class="ivd-kicker">The house opens from here</p>
+    <h1 class="ivd-title">Come in, <em>if you were asked.</em></h1>
+    <p class="ivd-lede">The same account you use in the app. The house knows whether you are
+      a member or its keeper, and opens the right side of itself.</p>
+    <div class="ivd-card">
+      <div class="ivd-field"><span>Email</span><input id="ivd-email" type="email" autocomplete="username" inputmode="email" placeholder="you@…"></div>
+      <div class="ivd-field"><span>Password</span><input id="ivd-pass" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="ivd-go" id="ivd-go">Unlock the house</button>
+      <p class="ivd-err ivd-hide" id="ivd-err"></p>
+    </div>
+    <p class="ivd-who ivd-hide" id="ivd-who"></p>
+    <p class="ivd-foot">Ivory &middot; nothing here is recorded</p>
+  </div>
+</section>
+
+<!-- ═══════════════ THE HOUSE DESK · the app's admin console ═══════════════ -->
+<section id="desk-screen" aria-label="The house desk">
+  <header class="dk-head">
+    <div class="dk-row">
+      <button class="dk-icon" id="dk-menu" aria-label="All twenty-two rooms" style="font-size:13px">☰</button>
+      <div class="dk-crest"><i>I</i></div>
+      <div class="dk-name">Desk</div>
+      <span class="dk-badge" id="dk-role">ADMIN</span>
+      <span class="dk-spacer"></span>
+      <button class="dk-icon" id="dk-exit" aria-label="Leave the desk">⏻</button>
+    </div>
+    <div class="dk-who" id="dk-who">—</div>
+    <div class="dk-ribbon" id="dk-ribbon" role="tablist"></div>
+    <div class="dk-hair"></div>
+  </header>
+  <div class="dk-body"><div class="dk-pane" id="dk-pane"></div></div>
+</section>
+
+<div class="dk-veil" id="dk-veil"></div>
+<aside class="dk-drawer" id="dk-drawer" aria-label="The twenty-two rooms">
+  <div class="dk-dhead">
+    <b>The twenty-two rooms</b>
+    <s>exactly the app's desk, in its own order</s>
+    <button class="dk-dshut" id="dk-shut" type="button" aria-label="Close the list">&#10005;</button>
+  </div>
+  <div class="dk-dlist" id="dk-dlist"></div>
+</aside>
 
 <nav class="nav">
     <a class="on" href="#"><span class="gi"><svg viewBox="0 0 24 24"><path d="M12 3.2L21 11h-2.6v9h-5v-6h-2.8v6h-5v-9H3z" fill="currentColor"/></svg></span>Home</a>
@@ -14885,6 +15125,546 @@ function sparkleAt(el){
     if(S.room){ $('lv-leave').click(); }
     if(window.ivoryShow) window.ivoryShow('home');
   });
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   THE DOOR AND THE DESK
+   One sign-in. profiles.role decides which side of the house opens.
+   Names, order and calls are the app's own — see ADMIN_AND_MEMBER_DESIGN.md
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  var SB  = 'https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY = 'sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+
+  /* the three kinds of keeper the house recognises, plus her own address
+     while the other doors are still being fitted */
+  var ADMIN_ROLES = ['admin','owner','ivory','sub_admin','subadmin','keeper','studio'];
+  var ADMIN_EMAILS = ['chawdhureprithwwiraj@gmail.com'];
+
+  var S = {sess:null, prof:null, isAdmin:false, desk:null};
+
+  function $(id){ return document.getElementById(id); }
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function el(html){ var d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+  /* one quiet line of feedback, for every state the desk can reach */
+  var dkTEl=null,dkTT=0;
+  function dkToast(msg,bad){
+    if(!dkTEl){ dkTEl=el('<div class="dk-toast" role="status" aria-live="polite"></div>');
+      (document.getElementById('desk-screen')||document.body).appendChild(dkTEl); }
+    dkTEl.textContent=msg||'The house could not do that.';
+    dkTEl.className='dk-toast on'+(bad?' bad':'');
+    clearTimeout(dkTT);
+    dkTT=setTimeout(function(){ dkTEl.className='dk-toast'+(bad?' bad':''); },3600);
+  }
+  window.ivoryToast=function(m){ dkToast(m); };
+
+  /* ---------- the account ---------- */
+  function load(){ try{ S.sess=JSON.parse(localStorage.getItem('ivory.member')||'null'); }catch(e){ S.sess=null; } return S.sess; }
+  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
+  function hdr(){ var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+
+  function call(path,body,opt){
+    opt=opt||{};
+    return fetch(SB+path,{method:opt.method||'POST',headers:hdr(),body:body!==undefined&&body!==null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+        if(r.ok) return j;
+        var m=(j&&(j.message||j.error_description||j.error||j.msg))||('The house answered '+r.status+'.');
+        var x=new Error(m); x.status=r.status; x.body=j; throw x;
+      }); });
+  }
+  function get(p){ return call(p,null,{method:'GET'}); }
+
+  function signIn(email,pass){
+    return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:pass})})
+      .then(function(r){ return r.json().then(function(j){
+        if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.');
+        return j; }); });
+  }
+
+  /* some answers carry the account under `user`, some at the top; take either */
+  function me(){ var s=S.sess||{}; return s.user||s; }
+  function meEmail(){ return (me().email||'').toLowerCase(); }
+
+  /* the app's own test, one line: profiles.role == 'admin' (ivory_profile.dart) */
+  function readProfile(){
+    var u=me();
+    if(!u||!u.id) return Promise.resolve(null);
+    return get('/rest/v1/profiles?select=id,role,display_name&id=eq.'+u.id)
+      .then(function(rows){
+        var p=(rows&&rows[0])||{id:u.id, role:'user', display_name:''};
+        S.prof=p; return p;
+      })
+      .catch(function(){ return {id:u.id, role:'user', display_name:'', _blind:true}; });
+  }
+  function decideAdmin(p){
+    var email=meEmail();
+    var role=((p&&p.role)||'').toLowerCase();
+    return ADMIN_ROLES.indexOf(role)>=0 || ADMIN_EMAILS.indexOf(email)>=0;
+  }
+
+  /* ---------- the door ---------- */
+  function openDoor(msg){
+    var d=$('iv-door-screen'); if(!d) return;
+    d.classList.add('on'); $('ivd-err').classList.add('ivd-hide');
+    if(msg){ $('ivd-err').textContent=msg; $('ivd-err').classList.remove('ivd-hide'); }
+    var e=$('ivd-email'); if(me().email) e.value=me().email;
+    setTimeout(function(){ try{ (e.value?$('ivd-pass'):e).focus(); }catch(x){} },300);
+  }
+  function closeDoor(){ var d=$('iv-door-screen'); if(d) d.classList.remove('on'); }
+
+  function arrive(){
+    load();
+    if(!S.sess){ openDoor(); return; }
+    readProfile().then(function(p){
+      S.isAdmin=decideAdmin(p);
+      if(S.isAdmin) openDesk(); else enterMemberHouse();
+    });
+  }
+
+  function enterMemberHouse(){
+    closeDoor();
+    var d=$('desk-screen'); if(d) d.classList.remove('on');
+    document.body.classList.remove('on-desk');
+    if(window.ivoryShow) window.ivoryShow('home');
+    if(window.ivLive) window.ivLive.refresh && window.ivLive.refresh();
+  }
+
+  if($('ivd-go')) $('ivd-go').addEventListener('click',function(){
+    var b=this, e=($('ivd-email').value||'').trim(), p=$('ivd-pass').value||'';
+    $('ivd-err').classList.add('ivd-hide');
+    if(!e||!p){ $('ivd-err').textContent='Both lines, please.'; $('ivd-err').classList.remove('ivd-hide'); return; }
+    b.disabled=true; b.textContent='Unlocking…';
+    signIn(e,p).then(function(s){
+      save(s); $('ivd-pass').value='';
+      return readProfile();
+    }).then(function(pr){
+      S.isAdmin=decideAdmin(pr);
+      if(S.isAdmin){ closeDoor(); openDesk(); }
+      else { closeDoor(); enterMemberHouse(); }
+    }).catch(function(x){
+      $('ivd-err').textContent=x.message||String(x); $('ivd-err').classList.remove('ivd-hide');
+    }).then(function(){ b.disabled=false; b.textContent='Unlock the house'; });
+  });
+  if($('ivd-pass')) $('ivd-pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('ivd-go').click(); });
+
+  /* the language gate hands over to the door */
+  var cont=$('continue');
+  if(cont) cont.addEventListener('click',function(){ setTimeout(arrive, 60); });
+
+  /* ═════════════════════ THE DESK ═════════════════════ */
+  var TABS = [
+    ['CREATE','create'],['MEMBERS','members'],['REPORTS','reports'],['CALLS','calls'],
+    ['LIVE','live'],['BROADCAST','broadcast'],['TIERS','tiers'],['WISHES','wishes'],
+    ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
+    ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
+    ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
+    ['TICKER','ticker'],['WHEEL','wheel']
+  ];
+  var BUILT = {live:1, calls:1, tiers:1, members:1};
+  var D = {tab:'live', session:null, client:null, clock:null, poll:null, tiers:[], guests:[], seen:{} };
+
+  function openDesk(){
+    closeDoor();
+    document.body.classList.add('on-desk');
+    $('desk-screen').classList.add('on');
+    var email=me().email||'';
+    var nm=(S.prof&&S.prof.display_name)||'';
+    $('dk-who').textContent = (nm? nm+' · ' : '') + email;
+    var r=((S.prof&&S.prof.role)||'').toLowerCase();
+    $('dk-role').textContent = r==='admin'?'ADMIN' : r? r.toUpperCase() : 'ADMIN';
+    buildRibbon(); buildDrawer();
+    /* the studio needs the house's tier table before it can draw its chips */
+    loadTiers().then(function(){ go(D.tab); });
+  }
+
+  function buildRibbon(){
+    var r=$('dk-ribbon'); if(!r) return;
+    r.innerHTML='';
+    TABS.forEach(function(t){
+      var b=document.createElement('button'); b.className='dk-tab'+(t[1]===D.tab?' on':'');
+      b.setAttribute('role','tab'); b.dataset.k=t[1];
+      b.innerHTML=esc(t[0])+(BUILT[t[1]]?'':'<i class="soon"></i>');
+      b.addEventListener('click',function(){ go(t[1]); });
+      r.appendChild(b);
+    });
+  }
+  function buildDrawer(){
+    var l=$('dk-dlist'); if(!l) return;
+    l.innerHTML='';
+    TABS.forEach(function(t,i){
+      var b=document.createElement('button'); b.className='dk-ditem'+(t[1]===D.tab?' on':'');
+      b.innerHTML='<i>'+String(i+1).padStart(2,'0')+'</i><span>'+esc(t[0])+'</span>'+(BUILT[t[1]]?'':'<em>SOON</em>');
+      b.addEventListener('click',function(){ go(t[1]); closeDrawer(); });
+      l.appendChild(b);
+    });
+  }
+  function go(k){
+    D.tab=k;
+    [].forEach.call(document.querySelectorAll('.dk-tab'),function(b){ b.classList.toggle('on', b.dataset.k===k); });
+    [].forEach.call(document.querySelectorAll('.dk-ditem'),function(b,i){ b.classList.toggle('on', TABS[i][1]===k); });
+    var host=document.querySelector('.dk-tab.on');
+    if(host&&host.scrollIntoView) host.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+    render(k);
+  }
+  function openDrawer(){ $('dk-drawer').classList.add('on'); $('dk-veil').classList.add('on'); }
+  function closeDrawer(){ $('dk-drawer').classList.remove('on'); $('dk-veil').classList.remove('on'); }
+  if($('dk-menu')) $('dk-menu').addEventListener('click',openDrawer);
+  if($('dk-veil')) $('dk-veil').addEventListener('click',closeDrawer);
+  if($('dk-shut')) $('dk-shut').addEventListener('click',closeDrawer);
+  if($('dk-exit')) $('dk-exit').addEventListener('click',function(){
+    endBroadcast(true);
+    $('desk-screen').classList.remove('on');
+    document.body.classList.remove('on-desk');
+    enterMemberHouse();
+  });
+
+  function render(k){
+    var p=$('dk-pane'); if(!p) return;
+    stopClocks();
+    if(k==='live') return renderLive(p);
+    if(k==='calls') return renderCalls(p);
+    if(k==='tiers') return renderTiers(p);
+    if(k==='members') return renderMembers(p);
+    var t=TABS.filter(function(x){ return x[1]===k; })[0]||['',''];
+    p.innerHTML =
+      '<p class="dk-kick">The desk · '+esc(t[0])+'</p>'+
+      '<h1 class="dk-h1">This room is <em>being fitted.</em></h1>'+
+      '<p class="dk-lede">Every room on this desk follows the app exactly, and each is built in its own pass so it can be tested on its own. This one arrives in the last build.</p>'+
+      '<div class="dk-empty">'+esc(t[0])+' lives in the app today and will be carried across here, unchanged in behaviour, in the fourth build of this desk.</div>';
+  }
+
+  /* ---------- tiers, read live ---------- */
+  function loadTiers(){
+    return get('/rest/v1/subscription_tiers?select=id,name,level,price_inr,description,is_active&order=level.asc')
+      .then(function(rows){ D.tiers=(rows||[]); return D.tiers; })
+      .catch(function(){ D.tiers=[]; return []; });
+  }
+
+  /* ---------- LIVE · the studio ---------- */
+  function renderLive(p){
+    if(D.session){ return renderOnAir(p); }
+    p.innerHTML =
+      '<p class="dk-kick">The studio</p>'+
+      '<h1 class="dk-h1">Open the <em>broadcast.</em></h1>'+
+      '<p class="dk-lede">Exactly the app’s LIVE tab: the words, who may walk in, a price if there is one, and the price of a seat beside you.</p>'+
+      '<div class="dk-card">'+
+        '<label class="dk-label" for="dk-title">What is it called</label>'+
+        '<input class="dk-input" id="dk-title" maxlength="70" placeholder="A word after dark">'+
+        '<label class="dk-label" for="dk-sub">A line under it &mdash; optional</label>'+
+        '<input class="dk-input" id="dk-sub" maxlength="90" placeholder="for the ones still awake">'+
+        '<label class="dk-label">Who may walk in</label>'+
+        '<div class="dk-chips" id="dk-who-chips"></div>'+
+        '<div class="dk-two">'+
+          '<div><label class="dk-label" for="dk-price">Pay per view, ₹</label><input class="dk-input" id="dk-price" inputmode="numeric" value="0"></div>'+
+          '<div><label class="dk-label" for="dk-guest">A seat beside me, ₹</label><input class="dk-input" id="dk-guest" inputmode="numeric" value="0"></div>'+
+        '</div>'+
+        '<p class="dk-note" style="margin:8px 0 14px">Leave a nought and the room is free, and no seat is for sale.</p>'+
+        '<button class="dk-btn" id="dk-golive">Go live now</button>'+
+        '<p class="dk-err ivd-hide" id="dk-live-err"></p>'+
+      '</div>';
+    var chips=$('dk-who-chips');
+    var chosen={};
+    (D.tiers.length?D.tiers:[]).forEach(function(t){
+      chosen[t.level]=true;
+      var b=document.createElement('button'); b.type='button'; b.className='dk-chip on'; b.textContent=t.name;
+      b.addEventListener('click',function(){ chosen[t.level]=!chosen[t.level]; b.classList.toggle('on',!!chosen[t.level]); });
+      chips.appendChild(b);
+    });
+    if(!D.tiers.length) chips.innerHTML='<span class="dk-note">The house’s tier table did not answer — the room will open to every member on a plan.</span>';
+    $('dk-golive').addEventListener('click',function(){ goLive(chosen,this); });
+  }
+
+  function goLive(chosen,btn){
+    var title=($('dk-title').value||'').trim();
+    var sub=($('dk-sub').value||'').trim();
+    var ppv=Math.max(0, parseInt($('dk-price').value||'0',10)||0);
+    var guest=Math.max(0, parseInt($('dk-guest').value||'0',10)||0);
+    var err=$('dk-live-err');
+    err.classList.add('ivd-hide');
+    if(!title){ err.textContent='Give the broadcast a title first.'; err.classList.remove('ivd-hide'); return; }
+    var allowed=Object.keys(chosen).filter(function(k){ return chosen[k]; }).map(Number).sort(function(a,b){return a-b;});
+    var floor=allowed.length?allowed[0]:9;
+    btn.disabled=true; btn.textContent='Going live…';
+    call('/rest/v1/rpc/start_live_with_guests',{
+      title_in:title, subtitle_in:sub||null, access_in:'tier', min_tier_in:floor,
+      price_in:ppv, cover_in:null, allowed_tiers_in:allowed, guest_price_in:guest
+    }).then(function(res){
+      var id = (res&&res[0]&&res[0].id) || (res&&res.id) || null;
+      if(!id) throw new Error('The broadcast was made but the house did not return its number.');
+      return call('/rest/v1/rpc/activate_live_start',{session_id_in:id}).catch(function(){ return null; })
+        .then(function(){ return id; });
+    }).then(function(id){
+      return call('/functions/v1/agora-token',{mode:'live',id:id}).then(function(tk){
+        if(!tk||!tk.token) throw new Error((tk&&tk.error)||'The room did not open.');
+        return joinAsHost(tk).then(function(){
+          D.session={id:id,title:title,guestPrice:guest,startedAt:Date.now()};
+          render('live');
+        });
+      });
+    }).catch(function(x){
+      err.textContent=(x&&x.message)||String(x); err.classList.remove('ivd-hide');
+    }).then(function(){ if(btn){ btn.disabled=false; btn.textContent='Go live now'; } });
+  }
+
+  function joinAsHost(tk){
+    if(!window.AgoraRTC) return Promise.reject(new Error('The broadcast engine did not load on this page.'));
+    var c=AgoraRTC.createClient({mode:'live',codec:'vp8'}); D.client=c;
+    return c.setClientRole('host')
+      .then(function(){ return c.join(tk.appId||tk.app_id, tk.channel, tk.token, Number(tk.uid)||null); })
+      .then(function(){
+        return Promise.all([AgoraRTC.createCameraVideoTrack({encoderConfig:'480p_1'}),
+                            AgoraRTC.createMicrophoneAudioTrack()]);
+      })
+      .then(function(tr){ D.cam=tr[0]; D.mic=tr[1];
+        var v=document.getElementById('dk-stage-video'); if(v) D.cam.play('dk-stage-video');
+        return c.publish([D.cam,D.mic]);
+      });
+  }
+
+  function renderOnAir(p){
+    var s=D.session;
+    p.innerHTML =
+      '<p class="dk-kick">On air</p>'+
+      '<div class="dk-live"><span class="dk-dot"></span><span><b>'+esc(s.title)+'</b><s id="dk-live-sub">watching the room · the list is the house’s own</s></span><span class="dk-clock" id="dk-clock">00:00</span></div>'+
+      '<div class="dk-card velvet" style="padding:0;overflow:hidden;border-radius:16px">'+
+        '<div id="dk-stage" style="position:relative;aspect-ratio:3/4;background:#0E0A16">'+
+          '<video id="dk-stage-video" playsinline autoplay muted style="width:100%;height:100%;object-fit:cover;display:block"></video>'+
+        '</div>'+
+      '</div>'+
+      '<div class="dk-card">'+
+        '<div class="dk-two" style="align-items:center">'+
+          '<div><span class="dk-label">Watching</span><div style="font-family:Georgia,serif;font-size:22px;color:#3A1207" id="dk-watch">0</div></div>'+
+          '<div><span class="dk-label">Open to</span><div style="font-family:Georgia,serif;font-style:italic;font-size:13px;color:#6E4A2A" id="dk-open-to">every member on a plan</div></div>'+
+        '</div>'+
+        '<div style="display:flex;gap:9px;margin-top:16px">'+
+          '<button class="dk-btn quiet mini" id="dk-cam">Picture off</button>'+
+          '<button class="dk-btn quiet mini" id="dk-mic">Voice off</button>'+
+        '</div>'+
+      '</div>'+
+      '<p class="dk-kick" style="margin-top:20px">Seats beside you</p>'+
+      '<div id="dk-guests"></div>'+
+      '<button class="dk-btn" id="dk-end" style="margin-top:14px">End the broadcast</button>';
+
+    if(D.cam && document.getElementById('dk-stage-video')) D.cam.play('dk-stage-video');
+    $('dk-end').addEventListener('click',function(){ endBroadcast(false); });
+    $('dk-cam').addEventListener('click',function(){
+      if(!D.cam) return; var off=D.cam.enabled; D.cam.setEnabled(!off); this.textContent=off?'Picture off':'Picture on'; this.classList.toggle('gold',off);
+      call('/rest/v1/rpc/set_live_host_video',{session_id_in:s.id, enabled_in:!off}).catch(function(){});
+    });
+    $('dk-mic').addEventListener('click',function(){
+      if(!D.mic) return; var off=D.mic.enabled; D.mic.setEnabled(!off); this.textContent=off?'Voice off':'Voice on'; this.classList.toggle('gold',off);
+    });
+    tickClock(); pollLive(); loadGuests();
+    D.clock=setInterval(tickClock,1000);
+    D.poll=setInterval(function(){ pollLive(); loadGuests(); },5000);
+  }
+
+  function tickClock(){
+    if(!D.session) return;
+    var s=Math.floor((Date.now()-D.session.startedAt)/1000);
+    var m=Math.floor(s/60), r=s%60, e=$('dk-clock');
+    if(e) e.textContent=(m<10?'0':'')+m+':'+(r<10?'0':'')+r;
+  }
+  function pollLive(){
+    if(!D.session) return;
+    get('/rest/v1/live_public?select=id,viewer_count,status,allowed_tiers,min_tier&id=eq.'+D.session.id)
+      .then(function(rows){
+        var r=rows&&rows[0]; if(!r) return;
+        var w=$('dk-watch'); if(w) w.textContent=String(r.viewer_count||0);
+        var o=$('dk-open-to');
+        if(o){
+          var lst=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
+          o.textContent = lst.length===4 ? 'every member on a plan'
+            : lst.length ? lst.map(function(lv){
+                var t=D.tiers.filter(function(x){ return Number(x.level)===Number(lv); })[0];
+                return t?t.name:('level '+lv); }).join(' · ')
+            : 'nobody on the list yet';
+        }
+        if(r.status && r.status!=='live') endBroadcast(true);
+      }).catch(function(){});
+  }
+  function loadGuests(){
+    if(!D.session) return;
+    call('/rest/v1/rpc/live_guest_requests_for_host',{session_id_in:D.session.id})
+      .then(function(rows){
+        var box=$('dk-guests'); if(!box) return;
+        rows=rows||[];
+        if(!rows.length){
+          box.innerHTML='<div class="dk-empty">'+(D.session.guestPrice>0
+            ? 'No one has asked for a seat yet. The price is ₹'+D.session.guestPrice+'.'
+            : 'No seats tonight — a seat price of zero means no one can ask.')+'</div>';
+          return;
+        }
+        box.innerHTML='';
+        rows.forEach(function(g){
+          var st=g.status||'';
+          var row=el('<div class="dk-rowcard"><div class="dk-ava">'+esc((g.display_name||'A').slice(0,1).toUpperCase())+'</div>'+
+            '<div><b>'+esc(g.display_name||'A member')+'</b><s>'+esc(g.media_kind||'video')+' seat · '+esc(st.replace(/_/g,' '))+
+            (g.amount_due_inr? ' · ₹'+g.amount_due_inr : '')+'</s></div><div class="dk-acts"></div></div>');
+          var acts=row.querySelector('.dk-acts');
+          if(st==='waiting_host'||st==='approved'||st==='paid'){
+            var yes=el('<button class="dk-btn gold mini">Let in</button>');
+            yes.addEventListener('click',function(){
+              call('/rest/v1/rpc/respond_live_guest_request',{request_id_in:g.id,approve_in:true})
+                .then(function(){ dkToast('Let in. The seat is theirs.'); return loadGuests(); })
+                .catch(function(x){ dkToast(x.message,true); });
+            });
+            acts.appendChild(yes);
+          }
+          var no=el('<button class="dk-btn quiet mini">Remove</button>');
+          no.addEventListener('click',function(){
+            call('/rest/v1/rpc/remove_live_guest',{request_id_in:g.id})
+              .then(function(){ dkToast('Taken off the stage.'); return loadGuests(); }).catch(function(){});
+          });
+          acts.appendChild(no);
+          box.appendChild(row);
+        });
+      }).catch(function(){
+        var box=$('dk-guests');
+        if(box) box.innerHTML='<div class="dk-empty">The seat list did not answer.</div>';
+      });
+  }
+  function endBroadcast(silent){
+    stopClocks();
+    var s=D.session;
+    if(!s) return;
+    if(D.client){ try{ D.cam&&D.cam.close(); D.mic&&D.mic.close(); }catch(e){}
+      D.client.unpublish().catch(function(){}).then(function(){ return D.client.leave(); }).catch(function(){}); }
+    call('/rest/v1/rpc/end_live',{session_id_in:s.id}).catch(function(){});
+    D.session=null; D.client=null; D.cam=null; D.mic=null;
+    if(D.tab==='live') render('live');
+    if(!silent && window.ivoryToast) window.ivoryToast('The broadcast has ended.');
+  }
+  function stopClocks(){ if(D.clock) clearInterval(D.clock), D.clock=null; if(D.poll) clearInterval(D.poll), D.poll=null; }
+
+  /* ---------- CALLS · the bookings ---------- */
+  function renderCalls(p){
+    p.innerHTML =
+      '<p class="dk-kick">The bookings</p>'+
+      '<h1 class="dk-h1">Who is <em>waiting.</em></h1>'+
+      '<p class="dk-lede">A member asks for audio or video, for a number of minutes. Nothing is confirmed until you accept it — exactly as in the app.</p>'+
+      '<div id="dk-calls-body"><div class="dk-empty">Reading the book…</div></div>';
+    call('/rest/v1/rpc/list_calls',{status_in:null})
+      .then(function(rows){ paintCalls(rows||[]); })
+      .catch(function(x){
+        $('dk-calls-body').innerHTML='<div class="dk-empty">The call book did not answer — '+esc(x.message)+'</div>';
+      });
+  }
+  function paintCalls(rows){
+    var box=$('dk-calls-body'); if(!box) return;
+    box.innerHTML='';
+    var SHELVES=[['requested','Waiting for you'],['accepted','Confirmed'],['active','In the room'],
+                 ['completed','Past'],['missed','Missed'],['declined','Declined']];
+    var drawn=0;
+    SHELVES.forEach(function(shelf){
+      var list=rows.filter(function(c){ return c.status===shelf[0]; });
+      if(!list.length) return;
+      drawn++;
+      var head=document.createElement('p'); head.className='dk-kick';
+      head.style.marginTop='18px'; head.textContent=shelf[1]; box.appendChild(head);
+      list.forEach(function(c){
+        var when=c.requested_for? new Date(c.requested_for):null;
+        var what=(c.kind==='video'?'Video':'Audio')+' · '+c.minutes+' minutes';
+        var whenTxt=(when? when.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})
+                          : 'a time not chosen yet')+
+                    (c.price_inr? ' · ₹'+c.price_inr : ' · from the plan');
+        var row=el('<div class="dk-rowcard"><div class="dk-ava">'+
+          esc(((c.display_name||'A').slice(0,1)).toUpperCase())+'</div>'+
+          '<div class="dk-main"><b>'+esc(c.display_name||'A member')+'</b><s>'+esc(what)+'</s>'+
+          '<s class="dk-when">'+esc(whenTxt)+'</s></div>'+
+          '<div class="dk-acts"></div></div>');
+        var acts=row.querySelector('.dk-acts');
+        if(c.status==='requested'){
+          var yes=el('<button class="dk-btn gold mini">Accept</button>');
+          yes.addEventListener('click',function(){
+            yes.disabled=true;
+            call('/rest/v1/rpc/respond_call',{call_id_in:c.id,accept_in:true})
+              .then(function(){ dkToast('Accepted. She waits in Confirmed.'); render('calls'); })
+              .catch(function(x){ yes.disabled=false; dkToast(x.message,true); });
+          });
+          var no=el('<button class="dk-btn quiet mini">Decline</button>');
+          no.addEventListener('click',function(){
+            no.disabled=true;
+            call('/rest/v1/rpc/respond_call',{call_id_in:c.id,accept_in:false})
+              .then(function(){ dkToast('Declined, quietly.'); render('calls'); })
+              .catch(function(x){ no.disabled=false; dkToast(x.message,true); });
+          });
+          acts.appendChild(yes); acts.appendChild(no);
+        } else if(c.status==='accepted'||c.status==='active'){
+          var j=el('<button class="dk-btn mini">'+(c.status==='active'?'Rejoin':'Join')+'</button>');
+          j.addEventListener('click',function(){ joinCall(c); });
+          acts.appendChild(j);
+        }
+        box.appendChild(row);
+      });
+    });
+    if(!drawn) box.innerHTML='<div class="dk-empty">Nothing in the book yet. When a member asks for a session, it arrives here.</div>';
+  }
+
+  function joinCall(c){
+    call('/functions/v1/agora-token',{mode:'call',id:c.id}).then(function(tk){
+      if(!tk||!tk.token) throw new Error((tk&&tk.error)||'The call did not open.');
+      return joinAsHost(tk);
+    }).then(function(){
+      if(window.ivoryToast) window.ivoryToast('You are in the '+(c.kind==='video'?'video':'audio')+' session.');
+    }).catch(function(x){ dkToast(String(x.message||x),true); });
+  }
+
+  /* ---------- TIERS ---------- */
+  function renderTiers(p){
+    p.innerHTML='<p class="dk-kick">The plans</p><h1 class="dk-h1">What the house <em>asks.</em></h1>'+
+      '<p class="dk-lede">Read from the house’s own table — the same rows the app and every room obey.</p><div id="dk-tiers"></div>';
+    loadTiers().then(function(rows){
+      var box=$('dk-tiers'); if(!box) return;
+      if(!rows.length){ box.innerHTML='<div class="dk-empty">The tier table did not answer.</div>'; return; }
+      box.innerHTML='';
+      rows.forEach(function(t){
+        box.appendChild(el('<div class="dk-rowcard"><div class="dk-ava">'+t.level+'</div>'+
+          '<div><b>'+esc(t.name)+' · ₹'+Number(t.price_inr||0).toLocaleString('en-IN')+'</b>'+
+          '<s>'+esc(t.description||'')+'</s></div></div>'));
+      });
+    });
+  }
+
+  /* ---------- MEMBERS ---------- */
+  function renderMembers(p){
+    p.innerHTML='<p class="dk-kick">The members</p><h1 class="dk-h1">Who is <em>in the house.</em></h1>'+
+      '<p class="dk-lede">Everyone with an account, and the plan they hold.</p>'+
+      '<input class="dk-input" id="dk-mem-q" placeholder="find a name or an email…"><div id="dk-members"></div>';
+    var q='';
+    function paint(){
+      get('/rest/v1/profiles?select=id,display_name,role,created_at&order=created_at.desc&limit=300')
+        .then(function(rows){
+          var box=$('dk-members'); box.innerHTML='';
+          rows=(rows||[]).filter(function(r){
+            if(!q) return true;
+            var s=((r.display_name||'')+' '+(r.role||'')).toLowerCase(); return s.indexOf(q)>=0;
+          });
+          if(!rows.length){ box.innerHTML='<div class="dk-empty">No one matches that.</div>'; return; }
+          rows.forEach(function(r){
+            box.appendChild(el('<div class="dk-rowcard"><div class="dk-ava">'+esc((r.display_name||'A').slice(0,1).toUpperCase())+'</div>'+
+              '<div><b>'+esc(r.display_name||'A member')+'</b><s>'+esc(r.role||'user')+'</s></div></div>'));
+          });
+        }).catch(function(x){ $('dk-members').innerHTML='<div class="dk-empty">'+esc(x.message)+'</div>'; });
+    }
+    $('dk-mem-q').addEventListener('input',function(){ q=this.value.trim().toLowerCase(); paint(); });
+    paint();
+  }
+
+  /* ---------- boots ---------- */
+  window.ivDesk = { open: openDesk, door: openDoor, arrive: arrive,
+                    isAdmin:function(){ return S.isAdmin; },
+                    session:function(){ return S.sess; } };
+  /* let the member side ask who is here */
+  load();
 })();
 
 </script>
