@@ -122,6 +122,50 @@
 </style>
 </head>
 <body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/join.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
 <div class="wrap">
   <div class="top">
     <span class="mark">IVORY</span>
@@ -189,8 +233,8 @@
         <label class="f"><span>a code, if you were sent one (optional)</span>
           <input type="text" id="code" placeholder="the code, or leave it empty" autocomplete="off"></label>
         <button class="btn" id="rzp-pay">Pay by card or netbanking</button>
-        <p class="note">The order is made by the house before the window opens, so the price that appears is
-          the price the house made &mdash; never one typed here.</p>
+        <p class="note">The price comes from the house&rsquo;s own table &mdash; never from this page. What is
+          paid is checked against the house&rsquo;s Razorpay account before anything opens.</p>
         <p class="err hide" id="rzp-err"></p>
         <p class="ok hide" id="rzp-ok"></p>
       </div>
@@ -263,6 +307,8 @@
     if(m.indexOf('does not look like a UTR')>=0) return 'That does not look right. Copy the 12-digit UTR or reference number from your payment receipt.';
     if(m.indexOf('not available')>=0) return 'That membership is not available right now.';
     if(m.indexOf('signed in')>=0) return 'Sign in first — the house needs to know whose payment this is.';
+    if(/Failed to fetch|NetworkError|Load failed/i.test(m))
+      return 'The house could not be reached. If this page was opened from a downloaded file it has no network — open its address instead. Otherwise check the connection and try once more.';
     return m||'Something went wrong. Please check your connection and try again.';
   }
 
@@ -333,16 +379,15 @@
     var open=railsOpen();
     var pick=$('railpick'); pick.innerHTML='';
     var can=[];
-    if(open.upi && upiReady()) can.push('upi');
+    if(open.upi) can.push('upi');   /* even before the id is set: the reference box still works */
     if(open.rzp) can.push('rzp');
-    if(open.upi && !upiReady()){ /* the row exists but the id is a placeholder */ }
 
     if(!can.length){
       $('rail-upi').classList.add('hide'); $('rail-rzp').classList.add('hide');
       pick.innerHTML='<div class="warnt" style="margin:0;flex:1">'+
         (open.why==='paused'
           ? 'The house has payments resting just now. Nothing can be settled from here until it reopens them.'
-          : 'The house has its UPI id being set and Razorpay resting. Nothing can be settled from here this moment.')+
+          : 'The house has both rails closed just now. Nothing can be settled from here this moment.')+
         '</div>';
       $('settle').scrollIntoView({behavior:'smooth',block:'start'});
       return;
@@ -387,11 +432,20 @@
       '&am='+encodeURIComponent(String(amt))+'&cu=INR&tn='+encodeURIComponent(note);
     $('upi-open').setAttribute('href',link);
     if(s.instructions) $('upi-note').textContent=s.instructions;
-    if(!upiReady()){
-      $('upi-off').textContent='The house’s UPI id is being set. Until it is, only the other rail can settle this.';
+    var ready=upiReady();
+    $('upi-open').classList.toggle('hide',!ready);
+    if(!ready){
+      $('upi-id').textContent='not set yet';
+      $('upi-amt').textContent='—';
+      $('upi-off').innerHTML='The house has not put its UPI id in yet, so there is nothing to send to here. '+
+        'If the house asked you for a reference, or you have already paid, the box below still works.';
       $('upi-off').classList.remove('hide');
-      $('upi-send').disabled=true;
-    } else { $('upi-off').classList.add('hide'); $('upi-send').disabled=false; }
+      $('upi-send').textContent='Send the reference to the house';
+    } else {
+      $('upi-off').classList.add('hide');
+      $('upi-send').textContent='Send it to the house';
+    }
+    $('upi-send').disabled=false;
   }
 
   /* ---------- UPI: pay, then send the reference ---------- */
@@ -438,7 +492,7 @@
         watchPayment(id);
       })
       .catch(function(x){ err('upi-err',friendly(x)); })
-      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Send it to the house'; });
+      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent=upiReady()?'Send it to the house':'I have paid — send the reference'; });
   });
 
   function watchPayment(id){
@@ -474,6 +528,26 @@
     return RZP;
   }
 
+  /* the card rail, in two strides:
+     first the house's own order (it checks the code and prices it);
+     if that address is asleep, Razorpay's window still opens on the
+     house's public key alone, and the house approves it by hand —
+     the same courtesy the UPI rail gets. */
+  function rzpWindow(cfg){
+    return loadRzp().then(function(){
+      return new Promise(function(resolve){
+        cfg.handler=function(r){ resolve(r); };
+        cfg.modal={ondismiss:function(){ resolve(null); }};
+        var rzp=new window.Razorpay(cfg);
+        rzp.on&&rzp.on('payment.failed',function(resp){
+          err('rzp-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
+          resolve(null);
+        });
+        rzp.open();
+      });
+    });
+  }
+
   $('rzp-pay').addEventListener('click',function(){
     if(S.busy||!S.tier) return;
     var btn=this, code=($('code').value||'').trim();
@@ -482,44 +556,62 @@
     S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Opening';
     var body={purpose:'subscription', tier_id:S.tier.id};
     if(code) body.code=code;
+
+    var viaOrder=true;
     call('/functions/v1/rzp-create-order',body)
       .then(function(d){
         if(!d||!d.order_id) throw new Error((d&&d.error)||'The order did not open.');
         if(code && d.code_applied!==true) throw new Error('The code could not be applied just now. Please try again in a moment.');
-        return loadRzp().then(function(){
-          return new Promise(function(resolve,reject){
-            var rzp=new window.Razorpay({
-              key:d.key_id, amount:d.amount_paise, currency:d.currency||'INR', order_id:d.order_id,
-              name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
-              prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''},
-              handler:function(r){ resolve(r); },
-              modal:{ondismiss:function(){ resolve(null); }}
-            });
-            rzp.on&&rzp.on('payment.failed',function(resp){
-              err('rzp-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
-              resolve(null);
-            });
-            rzp.open();
-          });
-        });
-      })
-      .then(function(res){
-        if(!res) throw new Error('__closed');
-        return call('/functions/v1/rzp-verify-unlock',{
-          razorpay_order_id:res.razorpay_order_id,
-          razorpay_payment_id:res.razorpay_payment_id,
-          razorpay_signature:res.razorpay_signature
-        });
-      })
-      .then(function(v){
-        if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
-        ok('rzp-ok','<b>It is yours now.</b> The house has your payment and everything is open. The receipt sits in the app under your payments.');
-        $('h1').textContent='Welcome into the house.';
-        refreshHeld();
+        return rzpWindow({
+            key:d.key_id, amount:d.amount_paise, currency:d.currency||'INR', order_id:d.order_id,
+            name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
+            prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''}
+          }).then(function(r){ return {res:r, order:true}; });
       })
       .catch(function(x){
-        if(x&&x.message==='__closed') err('rzp-err','The payment window was closed. Nothing was taken.');
-        else err('rzp-err',friendly(x));
+        /* the house's order address did not answer — try the key alone */
+        var key=(S.settings&&S.settings.razorpay_key_id)||'';
+        if(!key) throw x;
+        viaOrder=false;
+        return rzpWindow({
+            key:key, amount:Math.round(Number(S.tier.price_inr||0)*100), currency:'INR',
+            name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
+            prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''}
+          }).then(function(r){ return {res:r, order:false}; });
+      })
+      .then(function(o){
+        if(!o.res) throw new Error('__closed');
+        if(o.order){
+          return call('/functions/v1/rzp-verify-unlock',{
+            razorpay_order_id:o.res.razorpay_order_id,
+            razorpay_payment_id:o.res.razorpay_payment_id,
+            razorpay_signature:o.res.razorpay_signature
+          }).then(function(v){
+            if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
+            ok('rzp-ok','<b>It is yours now.</b> The house has your payment and everything is open. The receipt sits in the app under your payments.');
+            $('h1').textContent='Welcome into the house.';
+            refreshHeld();
+          });
+        }
+        /* key-only: the payment is real, the house still has to see it once */
+        return call('/rest/v1/rpc/submit_payment',{
+          tier_id_in:S.tier.id, utr_in:o.res.razorpay_payment_id||'RZP', screenshot_url_in:null
+        }).then(function(id){
+          ok('rzp-ok','<b>Paid.</b> Razorpay has taken it and the house has the reference (no. '+esc(o.res.razorpay_payment_id||'')+'). '+
+            (id?'A note is in the house\u2019s queue (no. '+esc(id)+') — access opens the moment it is approved.':'')+' This page says so when you come back.');
+          $('h1').textContent='Paid — the house is checking it.';
+          refreshHeld();
+        });
+      })
+      .catch(function(x){
+        if(x&&x.message==='__closed') return err('rzp-err','The payment window was closed. Nothing was taken.');
+        var m=(x&&x.message)||'';
+        if(/Failed to fetch|NetworkError|Load failed/i.test(m)){
+          if(!((S.settings&&S.settings.razorpay_key_id)||''))
+            return err('rzp-err','The card window is not set up yet: the house has not put its Razorpay public key into the counter, so there is nothing to open. Nothing has been taken — use UPI above, or write to the house.');
+          return err('rzp-err','The card window could not be reached from this page. If this page was opened from a downloaded file it has no network — open its address instead.');
+        }
+        err('rzp-err',friendly(x));
       })
       .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Pay by card or netbanking'; });
   });
@@ -578,6 +670,35 @@
   var s=load();
   if(s&&s.access_token){ start().catch(function(){ save(null); $('v-door').classList.remove('hide'); }); }
   else { $('v-door').classList.remove('hide'); }
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
 })();
 </script>
 </body>
