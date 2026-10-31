@@ -11364,6 +11364,85 @@ body:has(#desk-screen.on) .treasure-fab{opacity:0;pointer-events:none}
   .cap-panel{padding:14px}
 }
 </style>
+<style id="iv-deskplus-css">
+/* ═══ THE DESK, DEEPENED · money and the handset ═════════════════════════════ */
+
+/* ── the money strip ──────────────────────────────────────────────────────── */
+.pmx{margin:0 0 6px}
+.pmx-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 6px}
+.pmx-tile{padding:13px 14px;border-radius:14px;background:linear-gradient(168deg,rgba(255,250,235,.98),rgba(248,236,208,.94));
+  border:1px solid rgba(184,148,43,.34);box-shadow:0 10px 22px -18px rgba(88,26,20,.7)}
+.pmx-tile i{display:block;font:600 9.5px/1.2 var(--f-sans,ui-sans-serif);letter-spacing:.16em;text-transform:uppercase;color:#8A6A2A}
+.pmx-tile b{display:block;margin-top:7px;font:600 20px/1.1 var(--f-serif,Georgia);color:#4A1220;letter-spacing:-.01em}
+.pmx-tile b s{display:block;margin-top:4px;font:400 11.5px/1.35 var(--f-sans,ui-sans-serif);letter-spacing:0;color:#7A5A46;text-decoration:none}
+.pmx-tile.is-waiting{border-color:rgba(184,148,43,.7);background:linear-gradient(168deg,#FFF8E3,#F6E4B8)}
+.pmx-wait{grid-column:1/-1;font:italic 14px/1.5 var(--f-serif,Georgia);color:#6E4A3A}
+
+/* ── the receipts ─────────────────────────────────────────────────────────── */
+.pmx-books{margin-top:4px}
+.pmx-row{display:grid;grid-template-columns:96px 1fr auto auto;gap:10px;align-items:center;
+  padding:11px 4px;border-bottom:1px solid rgba(184,148,43,.22)}
+.pmx-sn{font:500 9.5px/1.2 var(--f-sans,ui-sans-serif);letter-spacing:.14em;color:#8A6A2A}
+.pmx-who b{display:block;font:600 14px/1.3 var(--f-serif,Georgia);color:#4A1220}
+.pmx-who s{display:block;font:400 11.5px/1.35 var(--f-sans,ui-sans-serif);color:#7A5A46;text-decoration:none}
+.pmx-amt{font:600 15px/1 var(--f-serif,Georgia);color:#6E1A2C;white-space:nowrap}
+.pmx-print{margin-left:2px}
+
+/* ── the slip ─────────────────────────────────────────────────────────────── */
+.pmx-print-sheet{position:fixed;inset:0;z-index:214;display:grid;place-items:center;padding:18px;
+  background:rgba(58,14,24,.52);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s ease}
+.pmx-print-sheet.on{opacity:1}
+.pmx-slip{width:min(420px,94vw);background:linear-gradient(172deg,#FFFBEE,#FAF0D8 60%,#F4E5C2);
+  border:1px solid rgba(184,148,43,.5);border-radius:18px;padding:22px 22px 18px;
+  box-shadow:0 30px 70px -30px rgba(40,6,12,.7)}
+.pmx-slip-head{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.pmx-crest{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  font:600 16px/1 var(--f-serif,Georgia);color:#FFF3CB;
+  background:radial-gradient(circle at 34% 28%,#8E2038,#4A0E1C 72%);border:1px solid rgba(255,240,194,.55)}
+.pmx-slip-head b{display:block;font:600 13px/1 var(--f-sans,ui-sans-serif);letter-spacing:.34em;color:#4A1220}
+.pmx-slip-head s{display:block;margin-top:4px;font:italic 11.5px/1.3 var(--f-serif,Georgia);color:#7A5A46;text-decoration:none}
+.pmx-serial{font:500 9.5px/1 var(--f-sans,ui-sans-serif);letter-spacing:.14em;color:#8A6A2A}
+.pmx-slip-rule{height:1px;margin:16px 0 14px;background:linear-gradient(90deg,transparent,rgba(184,148,43,.75),transparent)}
+.pmx-slip-body{display:grid;grid-template-columns:96px 1fr;gap:9px 12px;margin:0}
+.pmx-slip-body dt{font:600 9.5px/1.5 var(--f-sans,ui-sans-serif);letter-spacing:.14em;text-transform:uppercase;color:#8A6A2A}
+.pmx-slip-body dd{margin:0;font:400 13.5px/1.5 var(--f-serif,Georgia);color:#3A0C16}
+.pmx-big{font:600 19px/1.2 var(--f-serif,Georgia);color:#6E1A2C}
+.pmx-slip-foot{margin:16px 0 14px;font:italic 11.5px/1.5 var(--f-serif,Georgia);color:#7A5A46}
+.pmx-slip-keys{display:grid;gap:8px}
+
+/* ── print: only the slip ─────────────────────────────────────────────────── */
+@media print{
+  body.pmx-printing > *{display:none !important}
+  body.pmx-printing .pmx-print-sheet{display:grid !important;position:static;background:#fff;padding:0;opacity:1}
+  body.pmx-printing .pmx-slip{box-shadow:none;border:none;background:#fff;width:100%}
+  body.pmx-printing .pmx-slip-keys{display:none !important}
+}
+
+/* ── as they see it ───────────────────────────────────────────────────────── */
+.bcx{margin:18px 0 4px}
+.bcx-phone{width:min(320px,100%);margin:10px auto 4px;padding:9px;border-radius:30px;
+  background:linear-gradient(168deg,#5A2A18,#2E0F0A);box-shadow:0 22px 46px -26px rgba(40,6,12,.8)}
+.bcx-screen{border-radius:23px;padding:13px 14px 12px;background:linear-gradient(178deg,#FFFBF0,#F7EAD1)}
+.bcx-bar{display:flex;align-items:center;gap:7px;margin-bottom:11px}
+.bcx-bar s{flex:1;font:600 9.5px/1 var(--f-sans,ui-sans-serif);letter-spacing:.2em;text-transform:uppercase;color:#8A6A2A;text-decoration:none}
+.bcx-bar i{font:400 9.5px/1 var(--f-sans,ui-sans-serif);color:#A08A6A;font-style:normal}
+.bcx-crest{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+  font:600 9.5px/1 var(--f-serif,Georgia);color:#FFF3CB;background:radial-gradient(circle at 34% 28%,#8E2038,#4A0E1C 72%)}
+.bcx-card{padding:13px 13px 12px;border-radius:14px;background:#fff;
+  border:1px solid rgba(184,148,43,.35);box-shadow:0 10px 22px -20px rgba(88,26,20,.8)}
+.bcx-kick{margin:0 0 6px;font:600 8.5px/1.2 var(--f-sans,ui-sans-serif);letter-spacing:.2em;text-transform:uppercase;color:#A8853A}
+.bcx-card h4{margin:0 0 7px;font:600 16px/1.25 var(--f-serif,Georgia);color:#3A0C16}
+.bcx-card p{margin:0;font:400 12.5px/1.55 var(--f-serif,Georgia);color:#4A2A22}
+.bcx-link{margin-top:8px !important;font:500 11.5px/1.3 var(--f-sans,ui-sans-serif) !important;color:#6E1A2C !important;
+  word-break:break-all}
+.bcx-who{margin-top:10px !important;padding-top:8px;border-top:1px solid rgba(184,148,43,.28);
+  font:500 9.5px/1.3 var(--f-sans,ui-sans-serif) !important;letter-spacing:.12em;text-transform:uppercase;color:#8A6A2A !important}
+.bcx-foot{margin-top:9px;text-align:center;font:italic 10px/1.3 var(--f-serif,Georgia);color:#A08A6A}
+
+@media (prefers-reduced-motion:reduce){
+  .pmx-print-sheet{transition:none}
+}
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -27325,6 +27404,228 @@ window.IVOVERVIEW = (function () {
 if (window.IVROOMS) {
   window.IVROOMS.overview = function (p) { return window.IVOVERVIEW.render(p); };
 }
+</script>
+<script id="iv-deskplus-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE DESK, DEEPENED · window.IVDESKPLUS
+   ---------------------------------------------------------------------------
+   Two things the app cannot give her and a browser can:
+
+     THE MONEY     one strip over the payments room — what came in today, what
+                   came in this week, what is still waiting — and a receipt for
+                   any approved payment that can be printed or kept as a PDF,
+                   with the house's serial on it.
+
+     AS THEY SEE IT a live preview of an announcement, in a handset, redrawn as
+                   she types: the title, the message, the link, the audience.
+
+   Both are additive. Neither touches a row the rooms already write.
+   ═══════════════════════════════════════════════════════════════════════════ */
+window.IVDESKPLUS = (function () {
+  var K = window.IVKIT;
+  var esc = K.esc;
+
+  function money(n) {
+    return '\u20b9' + Number(n || 0).toLocaleString('en-IN');
+  }
+  function dayKey(d) {
+    var x = new Date(d);
+    return x.getFullYear() + '-' + (x.getMonth() + 1) + '-' + x.getDate();
+  }
+  function pretty(d) {
+    try {
+      return new Date(d).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+    } catch (e) { return String(d || ''); }
+  }
+  function purpose(r) {
+    var p = String(r.purpose || r.kind || 'Payment');
+    return p === 'live_guest_slot' ? 'A seat at the live table'
+      : p === 'call_extension' ? 'More time on a call'
+      : p === 'tier' || p === 'membership' ? (r.tier_name || 'A plan')
+      : p.charAt(0).toUpperCase() + p.slice(1).replace(/_/g, ' ');
+  }
+
+  /* ── the money ─────────────────────────────────────────────────────────── */
+  function paintMoney(pane) {
+    var anchor = pane.querySelector('#pm-settings');
+    if (!anchor || pane.querySelector('.pmx')) return;
+    var host = document.createElement('div');
+    host.className = 'pmx';
+    anchor.parentNode.insertBefore(host, anchor.nextSibling);
+    host.innerHTML =
+      '<div class="pmx-strip" id="pmx-strip"><span class="pmx-wait">Counting the day…</span></div>' +
+      '<div class="pmx-books" id="pmx-books"></div>';
+
+    K.get('/rest/v1/payments?select=id,amount_inr,status,purpose,tier_name,payer_name,utr,created_at' +
+          '&order=created_at.desc&limit=400')
+      .then(function (rows) {
+        rows = Array.isArray(rows) ? rows : [];
+        var today = 0, week = 0, pendN = 0, pendS = 0, live = 0;
+        var now = new Date(), t0 = dayKey(now).split('-');
+        var weekAgo = new Date(now.getTime() - 7 * 864e5);
+        rows.forEach(function (r) {
+          var st = String(r.status || '');
+          var amt = Number(r.amount_inr || 0);
+          if (st === 'approved') {
+            live++;
+            var d = new Date(r.created_at);
+            if (dayKey(d) === dayKey(now)) today += amt;
+            if (d >= weekAgo) week += amt;
+          } else if (st === 'pending') { pendN++; pendS += amt; }
+        });
+        var strip = host.querySelector('#pmx-strip');
+        strip.innerHTML =
+          '<div class="pmx-tile"><i>Came in today</i><b>' + money(today) + '</b></div>' +
+          '<div class="pmx-tile"><i>This week</i><b>' + money(week) + '</b></div>' +
+          '<div class="pmx-tile' + (pendN ? ' is-waiting' : '') + '"><i>Waiting on you</i><b>' +
+            (pendN ? money(pendS) : '\u2014') + '<s>' + (pendN ? pendN + (pendN === 1 ? ' payment' : ' payments') : 'nothing pending') + '</s></b></div>';
+
+        var approved = rows.filter(function (r) { return String(r.status) === 'approved'; }).slice(0, 12);
+        var books = host.querySelector('#pmx-books');
+        if (!approved.length) {
+          books.innerHTML = '<p class="dk-label" style="margin:18px 0 8px">The receipts</p>' +
+            '<div class="dk-empty">No payment has been verified yet. The first receipt will print the moment one is.</div>';
+          return;
+        }
+        books.innerHTML = '<p class="dk-label" style="margin:18px 0 8px">The receipts</p>' +
+          approved.map(function (r, i) {
+            return '<div class="pmx-row">' +
+              '<span class="pmx-sn">IV-' + String(2026) + '-' + String(1000 + Number(r.id || i)) + '</span>' +
+              '<span class="pmx-who"><b>' + esc(r.payer_name || 'A member') + '</b>' +
+                '<s>' + esc(purpose(r)) + ' · ' + esc(pretty(r.created_at)) + '</s></span>' +
+              '<span class="pmx-amt">' + money(r.amount_inr) + '</span>' +
+              '<button class="dk-chip pmx-print" data-print="' + esc(String(r.id || i)) + '">RECEIPT</button>' +
+            '</div>';
+          }).join('');
+
+        Array.prototype.forEach.call(books.querySelectorAll('[data-print]'), function (b) {
+          b.addEventListener('click', function () {
+            var id = b.getAttribute('data-print');
+            var row = approved.filter(function (r) { return String(r.id || '') === id; })[0] || approved[0];
+            slip(row);
+          });
+        });
+      })
+      .catch(function () {
+        var strip = host.querySelector('#pmx-strip');
+        if (strip) strip.innerHTML = '<span class="pmx-wait">The money could not be read just now.</span>';
+      });
+  }
+
+  /* ── the receipt, and the print ───────────────────────────────────────── */
+  function slip(r) {
+    var old = document.querySelector('.pmx-print-sheet');
+    if (old) old.remove();
+    var serial = 'IV-' + new Date(r.created_at || Date.now()).getFullYear() + '-' + String(1000 + Number(r.id || 1));
+    var sheet = document.createElement('div');
+    sheet.className = 'pmx-print-sheet';
+    sheet.innerHTML =
+      '<div class="pmx-slip">' +
+        '<div class="pmx-slip-head">' +
+          '<span class="pmx-crest">I</span>' +
+          '<span><b>IVORY</b><s>The house keeps the record.</s></span>' +
+          '<span class="pmx-serial">' + esc(serial) + '</span>' +
+        '</div>' +
+        '<div class="pmx-slip-rule"></div>' +
+        '<dl class="pmx-slip-body">' +
+          '<dt>Received from</dt><dd>' + esc(r.payer_name || 'A member') + '</dd>' +
+          '<dt>For</dt><dd>' + esc(purpose(r)) + '</dd>' +
+          '<dt>Amount</dt><dd class="pmx-big">' + money(r.amount_inr) + '</dd>' +
+          '<dt>Reference</dt><dd>' + esc(String(r.utr || '').trim() || 'None given') + '</dd>' +
+          '<dt>Verified</dt><dd>' + esc(pretty(r.created_at)) + '</dd>' +
+        '</dl>' +
+        '<p class="pmx-slip-foot">Verified by the house. This slip is the proof of one payment and names no other.</p>' +
+        '<div class="pmx-slip-keys">' +
+          '<button class="dk-btn" id="pmx-do-print">PRINT OR SAVE AS PDF</button>' +
+          '<button class="dk-btn quiet" id="pmx-shut">CLOSE</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(sheet);
+    requestAnimationFrame(function () { sheet.classList.add('on'); });
+    sheet.querySelector('#pmx-shut').addEventListener('click', function () { sheet.remove(); });
+    sheet.querySelector('#pmx-do-print').addEventListener('click', function () {
+      document.body.classList.add('pmx-printing');
+      window.print();
+      setTimeout(function () { document.body.classList.remove('pmx-printing'); }, 400);
+    });
+    sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.remove(); });
+  }
+
+  /* ── as they see it ───────────────────────────────────────────────────── */
+  function paintPreview(pane) {
+    var first = pane.querySelector('.dk-card');
+    if (!first || pane.querySelector('.bcx')) return;
+    var host = document.createElement('div');
+    host.className = 'bcx';
+    host.innerHTML =
+      '<p class="dk-label">As they see it</p>' +
+      '<div class="bcx-phone"><div class="bcx-screen">' +
+        '<div class="bcx-bar"><span class="bcx-crest">I</span><s>Sanctuary Inbox</s><i>now</i></div>' +
+        '<div class="bcx-card">' +
+          '<p class="bcx-kick" id="bcx-kick">A note from the house</p>' +
+          '<h4 id="bcx-title">Untitled</h4>' +
+          '<p id="bcx-body">Your words appear here as they will land — set the title and the message and watch it take shape.</p>' +
+          '<p class="bcx-link" id="bcx-link" hidden></p>' +
+          '<p class="bcx-who" id="bcx-who">Everyone in the house</p>' +
+        '</div>' +
+        '<div class="bcx-foot">Swipe to keep · tap to open</div>' +
+      '</div></div>';
+    first.parentNode.insertBefore(host, first.nextSibling);
+
+    var t = pane.querySelector('#bc-title'), b = pane.querySelector('#bc-body'), l = pane.querySelector('#bc-link');
+    var kick = host.querySelector('#bcx-kick'), ti = host.querySelector('#bcx-title'),
+        bo = host.querySelector('#bcx-body'), li = host.querySelector('#bcx-link'),
+        who = host.querySelector('#bcx-who');
+
+    function sync() {
+      ti.textContent = (t && t.value.trim()) || 'Untitled';
+      bo.textContent = (b && b.value.trim()) ||
+        'Your words appear here as they will land — set the title and the message and watch it take shape.';
+      var link = l && l.value.trim();
+      li.hidden = !link;
+      li.textContent = link ? '\u2197 ' + link : '';
+      var aud = pane.querySelector('#bc-aud .dk-chip.on');
+      var tiers = Array.prototype.filter.call(pane.querySelectorAll('#bc-tiers .dk-chip.on'), function (x) { return x; });
+      var k = pane.querySelector('#bc-kind .dk-chip.on');
+      kick.textContent = k ? ('A ' + k.dataset.kind + ' from the house') : 'A note from the house';
+      who.textContent =
+        (aud && aud.dataset.aud === 'user')
+          ? (pane.querySelector('#bc-person input') || {}).value || 'One member'
+          : tiers.length ? ('Tiers ' + tiers.map(function (x) { return x.textContent.trim(); }).join(', '))
+          : 'Everyone in the house';
+    }
+    ['input', 'change', 'keyup', 'click'].forEach(function (ev) {
+      pane.addEventListener(ev, function (e) {
+        if (e.target && (e.target.id === 'bc-title' || e.target.id === 'bc-body' || e.target.id === 'bc-link' ||
+            e.target.closest && e.target.closest('#bc-aud,#bc-tiers,#bc-kind,#bc-person'))) {
+          setTimeout(sync, 0);   /* after the room has owned the click */
+        }
+      });
+    });
+    sync();
+  }
+
+  /* ── the wrap ─────────────────────────────────────────────────────────── */
+  function wrap(name, after) {
+    var fn = window.IVROOMS && window.IVROOMS[name];
+    if (typeof fn !== 'function' || fn.__wrapped) return;
+    var w = function (pane) {
+      fn(pane);
+      try { after(pane); } catch (e) {}
+    };
+    w.__wrapped = true;
+    window.IVROOMS[name] = w;
+  }
+
+  function mount() {
+    wrap('payments', paintMoney);
+    wrap('broadcast', paintPreview);
+  }
+
+  return { mount: mount, slip: slip };
+})();
+
+try { window.IVDESKPLUS.mount(); } catch (e) {}
 </script>
 <script id="iv-rbn-js">
 /* ============================================================================
