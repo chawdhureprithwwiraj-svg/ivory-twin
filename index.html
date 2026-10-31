@@ -28211,6 +28211,15 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
     function $(id) { return pane.querySelector('#' + id); }
 
     /* ── 1 · the bank ──────────────────────────────────────────────────── */
+
+    /* the pane can be replaced while a promise is still in flight: every write
+       goes through this, and a missing node is simply not written to */
+    function put(id, html) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+      return !!el;
+    }
+
     function renderBank() {
       var host = $('fb-pane');
       host.innerHTML =
@@ -28238,6 +28247,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
     /* every material on one frame, with the words she would write */
     function rack(frameId) {
       var box = $('fb-rack');
+      if (!box) return;
       var f = R.face(frameId);
       box.innerHTML =
         '<div class="fb-rackhead"><b>' + esc(f.name) + '</b><s>' + esc(f.line) + '</s></div>' +
@@ -28358,12 +28368,14 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
       var pick = { frame: 'ivory', tint: 'gold' };
 
       function paint() {
-        var w = $('fb-words').value.trim();
-        $('fb-preview').innerHTML =
+        var words = document.getElementById('fb-words');
+        if (!words) return;                       /* the room has moved on */
+        var w = words.value.trim();
+        put('fb-preview',
           '<div class="fb-previewart">' + portraitOf(pick.frame, pick.tint, w, 190, who) + '</div>' +
           '<div class="fb-previewline"><b>' + esc(who ? (who.display_name || who.email || 'her') : 'her') + '</b>' +
             '<s>' + esc(R.face(pick.frame).name) + ' · ' + esc(R.tintOf(pick.tint).name) + '</s>' +
-            '<em>' + (w ? '“' + esc(w) + '”' : 'no words yet — a badge may be plain') + '</em></div>';
+            '<em>' + (w ? '“' + esc(w) + '”' : 'no words yet — a badge may be plain') + '</em></div>');
       }
 
       function chips() {
@@ -28385,6 +28397,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
 
       function paintPeople(rows) {
         var box = $('fb-people');
+        if (!box) return;                          /* the room was left while the roll was in flight */
         if (!rows || !rows.length) { box.innerHTML = '<p class="fb-hint">Nobody by that name on the roll.</p>'; return; }
         box.innerHTML = rows.slice(0, 6).map(function (m) {
           return '<button class="fb-person" data-id="' + esc(m.id) + '" data-name="' + esc(m.display_name || '') +
@@ -28399,8 +28412,9 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
             });
             var have = B.grants[who.id];
             if (have) { pick.frame = have.frame || pick.frame; pick.tint = have.tint || pick.tint; }
-            $('fb-words').value = (have && have.word) || '';
-            $('fb-givebox').hidden = false;
+            var wEl = $('fb-words'), gEl = $('fb-givebox');
+            if (wEl) wEl.value = (have && have.word) || '';
+            if (gEl) gEl.hidden = false;
             chips(); paint();
           });
         });
@@ -28410,16 +28424,17 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
       $('fb-who').addEventListener('input', function () {
         clearTimeout(t);
         var q = $('fb-who').value.trim();
-        if (q.length < 2) { $('fb-people').innerHTML = ''; return; }
+        if (q.length < 2) { put('fb-people', ''); return; }
         t = setTimeout(function () {
           var iv = IV();
           if (!iv) return;
           iv.call('/rest/v1/rpc/list_members', { search_in: q }).then(paintPeople)
-            .catch(function () { $('fb-people').innerHTML = '<p class="fb-hint">The roll could not be read just now.</p>'; });
+            .catch(function () { put('fb-people', '<p class="fb-hint">The roll could not be read just now.</p>'); });
         }, 260);
       });
 
-      $('fb-give').addEventListener('click', function () {
+      var giveBtn = $('fb-give');
+      if (giveBtn) giveBtn.addEventListener('click', function () {
         if (!who) return;
         var word = $('fb-words').value.trim();
         B.grants[who.id] = { frame: pick.frame, tint: pick.tint, word: word, at: new Date().toISOString() };
@@ -34382,8 +34397,29 @@ window.IVVOICE = (function () {
                523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.50, 1174.66,
                1318.51, 1567.98];
 
-  function note(f, w, d, o) { if (rawNote) rawNote(f, w || 0, d || 0.6, o || {}); }
-  function chime(f, w, o) { if (rawChime) rawChime(f, w || 0, o || {}); }
+  /* ── nothing rings past three seconds ───────────────────────────────────
+     Her rule: a touch is one to three seconds, and a flute's tail lingers but
+     never runs away. Every phrase is fired inside a budget; a tail that would
+     overrun it is shortened to fit, so nothing ends abruptly and nothing goes
+     on for ever.                                                                 */
+  var budget = 2.9;
+  function fitTail(w, d, tail) {
+    var room = budget - (w || 0) - (d || 0);
+    if (tail == null) return tail;
+    return tail > room ? Math.max(0.30, room) : tail;
+  }
+  function note(f, w, d, o) {
+    if (!rawNote) return;
+    o = o || {};
+    o.tail = fitTail(w, d, o.tail);
+    rawNote(f, w || 0, d || 0.6, o);
+  }
+  function chime(f, w, o) {
+    if (!rawChime) return;
+    o = o || {};
+    o.tail = fitTail(w, 0, o.tail);
+    rawChime(f, w || 0, o);
+  }
 
   /* ── the named cues ──────────────────────────────────────────────────── */
   var CUES = {
@@ -34611,8 +34647,10 @@ window.IVVOICE = (function () {
   function fire(key, weight, el) {
     if (!ON) return;
     if (recent() && key === lastKey) return;
-    if (CUES[key]) { mark(key); rawPlay(key); return; }
+    budget = weight === 'big' ? 2.95 : (weight === 'small' ? 1.55 : 2.25);
+    if (CUES[key]) { mark(key); rawPlay(key); budget = 2.9; return; }
     if (el) { mark(key); playSignature(el, weight); }
+    budget = 2.9;
   }
 
   /* the page's own cues stay welcome — but not on top of this one */
