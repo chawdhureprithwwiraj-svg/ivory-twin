@@ -35688,6 +35688,7 @@ window.IVVOICE = (function () {
 
   function watch() {
     if (watching) return watching;
+    sw();                    /* the worker is ready before the first bell, not after */
     once();
     watching = setInterval(function () {
       if (document.visibilityState === 'visible' || document.visibilityState === 'hidden') once();
@@ -35697,9 +35698,28 @@ window.IVVOICE = (function () {
   }
 
   window.IVNOTIFY = {
-    ask: ask, show: show, to: to, watch: watch, once: once,
+    ask: ask, offer: offerOnce, show: show, to: to, watch: watch, once: once,
     state: function () { return { permission: permission(), on: !!state().on, lastAt: state().lastAt || 0 }; }
   };
+
+  /* ── the one polite ask ─────────────────────────────────────────────────
+     A browser will only let the house ask on a real touch. So it asks on her
+     first touch of the desk — once, never again, and only if she has not
+     already answered. Decline is an answer: the house does not ask twice.    */
+  function offerOnce() {
+    if (!supported() || permission() !== 'default') return Promise.resolve(permission());
+    var s = state();
+    if (s.asked) return Promise.resolve('answered');
+    save({ asked: true });
+    return ask();
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (!t.closest('.dk-tab, .dk-pane, #dk-pane, .dk-top, .dk-room')) return;
+    setTimeout(function () { try { offerOnce(); } catch (err) {} }, 500);
+  }, true);
 
   /* the bell starts itself when a member is signed in */
   if (document.readyState === 'loading') {
