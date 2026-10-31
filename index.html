@@ -11443,6 +11443,184 @@ body:has(#desk-screen.on) .treasure-fab{opacity:0;pointer-events:none}
   .pmx-print-sheet{transition:none}
 }
 </style>
+<style id="iv-regalia-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE REGALIA · frames, badges, wings
+   ---------------------------------------------------------------------------
+   Six courts. Each one a frame, a badge and a pair of wings that belong to one
+   another, and no two courts alike. Every part moves, every part is drawn — no
+   images, no black, nothing that reads flat.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rg-portrait{position:relative;display:inline-grid;place-items:center;isolation:isolate}
+.rg-portrait .rg-wings{position:absolute;display:grid;place-items:center;pointer-events:none;z-index:0;filter:drop-shadow(0 10px 12px rgba(120,84,20,.16))}
+.rg-portrait .rg-wings svg{width:100%;height:100%;overflow:visible}
+.rg-portrait .rg-face{position:relative;z-index:1;display:grid;place-items:center;border-radius:50%;overflow:hidden;
+  background:radial-gradient(circle at 34% 26%,#FFF9EC,#F3DFC0 55%,#E4C9A4);
+  color:#7A4A18;font:600 .42em/1 Georgia,'Times New Roman',serif;letter-spacing:.04em}
+.rg-portrait .rg-ring{position:absolute;inset:0;z-index:2;pointer-events:none;filter:drop-shadow(0 0 14px rgba(214,164,60,.35))}
+.rg-portrait .rg-ring svg{width:100%;height:100%;overflow:visible}
+.rg-portrait .rg-badge{position:absolute;left:79%;top:79%;z-index:3;
+  filter:drop-shadow(0 6px 12px rgba(120,70,10,.28))}
+.rg-portrait .rg-badge svg{display:block}
+
+/* ── shared motion ───────────────────────────────────────────────────────── */
+@keyframes rgSpin{to{transform:rotate(360deg)}}
+@keyframes rgSpinBack{to{transform:rotate(-360deg)}}
+@keyframes rgBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes rgGlow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes rgSheen{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes rgTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes rgFlick{0%,100%{transform:scaleY(1);opacity:.92}35%{transform:scaleY(1.09);opacity:1}70%{transform:scaleY(.96);opacity:.86}}
+
+/* wings flap: each set gets its own tempo and its own curve */
+@keyframes rgFlapA{0%,100%{transform:rotate(-7deg) scale(.985)}50%{transform:rotate(9deg) scale(1.02)}}
+@keyframes rgFlapB{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes rgFlapC{0%,100%{transform:rotate(-9deg) scale(1.01)}50%{transform:rotate(5deg) scale(.99)}}
+@keyframes rgFlapD{0%,100%{transform:rotate(-11deg) scale(.98)}45%{transform:rotate(12deg) scale(1.03)}}
+@keyframes rgFlapE{0%,100%{transform:rotate(-6deg)}30%{transform:rotate(7deg)}60%{transform:rotate(-3deg)}}
+@keyframes rgFlapF{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(4deg)}}
+
+.rg-portrait .rg-wl,.rg-portrait .rg-wr{transform-origin:50% 100%;transform-box:fill-box;will-change:transform}
+.rg-portrait .rg-wl{animation:rgFlapA 4.8s cubic-bezier(.45,0,.35,1) infinite}
+.rg-portrait .rg-wr{animation:rgFlapA 4.8s cubic-bezier(.45,0,.35,1) infinite;animation-delay:.06s}
+
+/* ── set 1 · Aurelia, the Sun Court ─────────────────────────────────────── */
+.rg-au-rays{transform-origin:100px 100px;animation:rgSpin 46s linear infinite}
+.rg-au-glow{animation:rgGlow 4.2s ease-in-out infinite}
+.rg-au .rg-wl,.rg-au .rg-wr{animation-name:rgFlapA;animation-duration:5.2s}
+.rg-au .rg-feather{animation:rgGlow 5.2s ease-in-out infinite}
+.rg-au .rg-badge svg{animation:rgBreath 5s ease-in-out infinite}
+
+/* ── set 2 · Verdant, the Garden Court ──────────────────────────────────── */
+.rg-vd-leaf{animation:rgGlow 3.8s ease-in-out infinite}
+.rg-vd .rg-wl{animation:rgFlapB 6.2s ease-in-out infinite}
+.rg-vd .rg-wr{animation:rgFlapB 6.2s ease-in-out infinite;animation-delay:.1s}
+.rg-vd .rg-eye{animation:rgTwinkle 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.rg-vd .rg-badge svg{animation:rgBreath 6.4s ease-in-out infinite}
+
+/* ── set 3 · Perla, the Tide Court ──────────────────────────────────────── */
+.rg-pr-sheen{transform-origin:100px 100px;animation:rgSheen 26s linear infinite}
+.rg-pr-pearl{animation:rgGlow 5.6s ease-in-out infinite}
+.rg-pr .rg-wl{animation:rgFlapC 7.4s cubic-bezier(.4,0,.4,1) infinite}
+.rg-pr .rg-wr{animation:rgFlapC 7.4s cubic-bezier(.4,0,.4,1) infinite;animation-delay:.12s}
+.rg-pr .rg-badge svg{animation:rgBreath 7.2s ease-in-out infinite}
+
+/* ── set 4 · Ignis, the Ember Court ─────────────────────────────────────── */
+.rg-ig-flame{animation:rgFlick 2.9s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+.rg-ig .rg-wl{animation:rgFlapD 3.9s cubic-bezier(.5,0,.3,1) infinite}
+.rg-ig .rg-wr{animation:rgFlapD 3.9s cubic-bezier(.5,0,.3,1) infinite;animation-delay:.05s}
+.rg-ig .rg-mote{animation:rgRise 4.6s ease-in infinite}
+@keyframes rgRise{0%{opacity:0;transform:translateY(6px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translateY(-26px) scale(1.05)}}
+.rg-ig .rg-badge svg{animation:rgBreath 4.4s ease-in-out infinite}
+
+/* ── set 5 · Glacia, the Frost Court ────────────────────────────────────── */
+.rg-gl-facet{animation:rgGlow 6s ease-in-out infinite}
+.rg-gl-spark{animation:rgTwinkle 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.rg-gl-shard{transform-origin:100px 100px;animation:rgSpin 60s linear infinite}
+.rg-gl .rg-wl{animation:rgFlapE 3.6s ease-in-out infinite}
+.rg-gl .rg-wr{animation:rgFlapE 3.6s ease-in-out infinite;animation-delay:.08s}
+.rg-gl .rg-badge svg{animation:rgBreath 5.4s ease-in-out infinite}
+
+/* ── set 6 · Ivory, the House ───────────────────────────────────────────── */
+.rg-iv-sheen{transform-origin:100px 100px;animation:rgSheen 34s linear infinite}
+.rg-iv .rg-wl{animation:rgFlapF 8.6s ease-in-out infinite}
+.rg-iv .rg-wr{animation:rgFlapF 8.6s ease-in-out infinite;animation-delay:.14s}
+.rg-iv .rg-badge svg{animation:rgBreath 8s ease-in-out infinite}
+
+@media (prefers-reduced-motion:reduce){
+  .rg-portrait *{animation:none !important}
+}
+
+/* ═══ the atelier · gallery and desk room ═══════════════════════════════════ */
+.rg-wrap{display:grid;gap:18px}
+.rg-court{border-radius:20px;padding:18px 18px 16px;position:relative;overflow:hidden;
+  border:1px solid rgba(184,148,43,.34);background:linear-gradient(168deg,#FFFCF3,#FBF0DA 62%,#F6E7C6)}
+.rg-court:before{content:'';position:absolute;inset:-30% -10% auto;height:70%;
+  background:radial-gradient(60% 100% at 50% 0,rgba(255,255,255,.85),transparent 70%);pointer-events:none}
+.rg-court h3{margin:0 0 2px;font:600 19px/1.2 Georgia,serif;color:#4A1220}
+.rg-court .rg-court-name{font:500 9.5px/1.3 ui-sans-serif,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#8A6A2A}
+.rg-court .rg-line{margin:3px 0 14px;font:italic 14px/1.5 Georgia,serif;color:#6E4A3A}
+.rg-stage{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0 26px}
+.rg-parts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.rg-part{display:grid;justify-items:center;gap:6px;padding:10px 6px 8px;border-radius:14px;
+  background:rgba(255,255,255,.55);border:1px solid rgba(184,148,43,.22)}
+.rg-part svg{display:block;max-width:100%}
+.rg-part span{font:600 8.5px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8A6A2A}
+
+/* ═══ THE REGALIA ROOM · the desk's own shelf ═════════════════════════════════ */
+
+.rg-shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin:18px 0 6px}
+.rg-shelfcard{margin:0;padding:12px 10px 10px;border-radius:15px;text-align:center;
+  background:linear-gradient(168deg,rgba(255,250,235,.98),rgba(247,234,205,.94));
+  border:1px solid rgba(184,148,43,.34);box-shadow:0 10px 22px -18px rgba(88,26,20,.7)}
+.rg-shelfart{display:grid;place-items:center;min-height:122px;overflow:visible;padding:2px 0}
+.rg-shelfcard figcaption b{display:block;font:600 13px/1.25 var(--f-serif,Georgia);color:#4A1220}
+.rg-shelfcard figcaption s{display:block;margin-top:2px;font:500 9px/1.2 var(--f-sans,ui-sans-serif);
+  letter-spacing:.14em;text-transform:uppercase;color:#8A6A2A;text-decoration:none}
+.rg-shelfcard figcaption em{display:block;margin-top:5px;font:italic 10.5px/1.35 var(--f-serif,Georgia);color:#7A5A46}
+
+.rg-tabs{margin:18px 0 14px}
+.rg-shelfkick{margin:26px 0 0}
+.rg-bind{display:grid;gap:10px}
+.rg-bindrow{border-radius:15px;padding:12px 14px;
+  background:linear-gradient(170deg,rgba(255,252,242,.99),rgba(249,238,213,.95));
+  border:1px solid rgba(184,148,43,.3);box-shadow:0 12px 26px -22px rgba(88,26,20,.8)}
+.rg-bindhead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rg-bindhead b{font:600 14px/1.3 var(--f-serif,Georgia);color:#4A1220}
+.rg-bindhead s{font:500 9px/1.2 var(--f-sans,ui-sans-serif);letter-spacing:.14em;text-transform:uppercase;
+  color:#8A6A2A;text-decoration:none}
+.rg-bindbody{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;margin-top:8px}
+.rg-bindart{display:grid;place-items:center}
+.rg-bindkeys{display:grid;gap:8px;min-width:0}
+.rg-bindkeys .dk-input{width:100%}
+.rg-partline{margin:0;font:italic 11.5px/1.4 var(--f-serif,Georgia);color:#7A5A46;min-height:16px}
+
+.rg-savebar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 4px}
+.rg-hint{margin:6px 0 0;font:400 11.5px/1.5 var(--f-sans,ui-sans-serif);color:#7A5A46}
+
+.rg-people{display:grid;gap:6px;margin:8px 0 2px}
+.rg-person{display:grid;gap:2px;text-align:left;padding:9px 11px;border-radius:11px;cursor:pointer;
+  background:#FFFCF1;border:1px solid rgba(184,148,43,.28);transition:border-color .2s,background .2s}
+.rg-person b{font:600 13px/1.3 var(--f-serif,Georgia);color:#4A1220}
+.rg-person s{font:400 11px/1.3 var(--f-sans,ui-sans-serif);color:#7A5A46;text-decoration:none}
+.rg-person:hover{border-color:rgba(184,148,43,.6)}
+.rg-person.on{background:linear-gradient(168deg,#FFF4DA,#F4E0B4);border-color:#B8942B}
+
+.rg-grantgrid{display:grid;gap:10px;margin:12px 0}
+@media(min-width:640px){.rg-grantgrid{grid-template-columns:repeat(3,1fr)}}
+.rg-grantcell{display:grid;gap:6px}
+.rg-preview{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin:14px 0 4px;
+  padding:12px;border-radius:14px;background:linear-gradient(170deg,#FFFDF4,#F7EBD0);
+  border:1px solid rgba(184,148,43,.3)}
+.rg-previewart{display:grid;place-items:center}
+.rg-previewline b{display:block;font:600 14px/1.3 var(--f-serif,Georgia);color:#4A1220}
+.rg-previewline s{display:block;margin-top:3px;font:500 10px/1.3 var(--f-sans,ui-sans-serif);
+  letter-spacing:.12em;text-transform:uppercase;color:#8A6A2A;text-decoration:none}
+.rg-previewline em{display:block;margin-top:6px;font:italic 12px/1.45 var(--f-serif,Georgia);color:#7A5A46}
+
+.rg-spares{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0 6px}
+.rg-spare{margin:0;padding:10px 8px;border-radius:13px;text-align:center;
+  background:linear-gradient(170deg,rgba(255,252,242,.99),rgba(249,238,213,.95));
+  border:1px solid rgba(184,148,43,.28)}
+.rg-spareart{display:grid;place-items:center;min-height:64px}
+.rg-sparewings{display:grid;place-items:center;width:78px;height:56px}
+.rg-spare figcaption b{display:block;margin-top:4px;font:600 12px/1.25 var(--f-serif,Georgia);color:#4A1220}
+.rg-spare figcaption s{display:block;margin-top:2px;font:400 10.5px/1.3 var(--f-sans,ui-sans-serif);color:#7A5A46;text-decoration:none}
+
+@media(prefers-reduced-motion:reduce){
+  .rg-shelfart svg *,.rg-spareart svg *,.rg-bindart svg *,.rg-previewart svg *{animation:none!important}
+}
+
+
+/* ═══ THE SHIMMER · one slow sweep of light across every portrait ═══════════ */
+.rg-portrait::after{content:"";position:absolute;inset:-6%;z-index:4;pointer-events:none;border-radius:50%;
+  background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.22) 48%,rgba(255,255,255,.42) 50%,rgba(255,255,255,.2) 52%,transparent 58%);
+  background-size:280% 280%;mix-blend-mode:screen;opacity:.42;
+  animation:rgSweep 9.5s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes rgSweep{0%{background-position:130% 0}55%,100%{background-position:-40% 100%}}
+@media(prefers-reduced-motion:reduce){.rg-portrait::after{animation:none;opacity:.28}}
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -18654,9 +18832,9 @@ window.IVSESS = (function () {
     ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
     ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
     ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
-    ['TICKER','ticker'],['WHEEL','wheel'],['OVERVIEW','overview'],['OFFICERS','officers'],['VAULT','vault']
+    ['TICKER','ticker'],['WHEEL','wheel'],['OVERVIEW','overview'],['REGALIA','regalia'],['OFFICERS','officers'],['VAULT','vault']
   ];
-  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, overview:1, officers:1, vault:1};
+  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, overview:1, regalia:1, officers:1, vault:1};
   /* what each room is, in the app's own words — so no two rooms read alike */
   var NOTES = {
     create:'A new story, a poll, a teaser — written, attached and published from the phone.',
@@ -18680,6 +18858,7 @@ window.IVSESS = (function () {
     line:'The Line: letters and their settings.',
     translate:'Every word of the house, in its five tongues.',
     ticker:'The words that run across the top of the house.',
+    regalia:'Six courts — a frame, a badge and a pair of wings that belong together — bound to a plan, or given one piece at a time by hand.',
     overview:'One screen for the whole house — members, what is open, what is waiting — and the books taken away as a spreadsheet.',
     officers:'The two names the law and the members write to: a grievance officer and a support officer, printed on the legal pages the moment they are real.',
     wheel:'The wheel, its segments and its prizes.',
@@ -27626,6 +27805,1100 @@ window.IVDESKPLUS = (function () {
 })();
 
 try { window.IVDESKPLUS.mount(); } catch (e) {}
+</script>
+<script id="iv-regalia-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE REGALIA · window.IVREGALIA
+   ---------------------------------------------------------------------------
+   Six courts. Each court is a frame, a badge and a pair of wings that belong
+   to one another — drawn, never photographed, and each with its own motion.
+
+     AURELIA  the Sun Court      gold · amber · honey
+     VERDANT  the Garden Court   emerald · jade · gold
+     PERLA    the Tide Court     pearl · opal · aqua · platinum
+     IGNIS    the Ember Court    coral · tangerine · rose gold
+     GLACIA   the Frost Court    ice blue · lilac · platinum
+     IVORY    the House          burgundy · gold          (the one the app already has)
+
+   Public surface
+     IVREGALIA.SETS                the six, with their palettes and their words
+     IVREGALIA.frame(id,size)      one frame, as an <svg>
+     IVREGALIA.badge(id,size)      one badge, as an <svg>
+     IVREGALIA.wings(id,w)         one pair of wings, as an <svg>
+     IVREGALIA.portrait(id,size)   wings behind, face inside, frame around, badge below
+     IVREGALIA.court(id)           the card the atelier shows
+   ═══════════════════════════════════════════════════════════════════════════ */
+window.IVREGALIA = (function () {
+  var N = 0;
+  function gid(p) { N += 1; return 'rg' + N + p; }
+
+  var SETS = [
+    { id: 'aurelia', name: 'Aurelia', court: 'The Sun Court',
+      line: 'Struck at the hour the house opens. Gold that has been worn, not bought.',
+      tone: ['#FFF6D2', '#F2C75C', '#D79A2B', '#A9701A'], ink: '#7A4A12',
+      parts: ['The Sunburst', 'The Solar Lion', 'Eagle'] },
+    { id: 'verdant', name: 'Verdant', court: 'The Garden Court',
+      line: 'Everything that grows in the house grows inside this ring.',
+      tone: ['#EAF7D8', '#8ED07A', '#2F8F5B', '#17603F'], ink: '#17603F',
+      parts: ['The Vine', 'The Emerald', 'Peacock'] },
+    { id: 'perla', name: 'Perla', court: 'The Tide Court',
+      line: 'Water, light and time — the three things that make a pearl.',
+      tone: ['#FFFDFB', '#FBE8F1', '#DFF2FB', '#C9D8EA'], ink: '#5E6B86',
+      parts: ['The Shell', 'The Pearl', 'Swan'] },
+    { id: 'ignis', name: 'Ignis', court: 'The Ember Court',
+      line: 'The last light of the evening, kept in gold.',
+      tone: ['#FFF0D2', '#FFC07A', '#F07A4E', '#C2422F'], ink: '#9A3322',
+      parts: ['The Flame', 'The Sunstone', 'Phoenix'] },
+    { id: 'glacia', name: 'Glacia', court: 'The Frost Court',
+      line: 'A winter morning, cut and set.',
+      tone: ['#FFFFFF', '#E6F3FF', '#C6E0FA', '#B9C8F2'], ink: '#4C6288',
+      parts: ['The Crystal', 'The Sapphire', 'Moth'] },
+    { id: 'ivory', name: 'Ivory', court: 'The House',
+      line: 'The house’s own. Burgundy, gold, and the crown.',
+      tone: ['#FFF6DC', '#F3D08A', '#C79A32', '#6E1A2C'], ink: '#6E1A2C',
+      parts: ['The Ring', 'The Crest', 'Laurel'] }
+  ];
+
+  function byId(id) {
+    for (var i = 0; i < SETS.length; i++) if (SETS[i].id === id) return SETS[i];
+    return SETS[0];
+  }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ── geometry helpers ─────────────────────────────────────────────────── */
+  function polar(a, r, cx, cy) {
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  }
+  function n1(v) { return Math.round(v * 10) / 10; }
+
+  /* a blade: a leaf-shaped feather from (0,0) at angle a, length L, width w */
+  function blade(a, L, w) {
+    var tip = polar(a, L, 0, 0);
+    var mid = polar(a, L * 0.52, 0, 0);
+    var perp = a + Math.PI / 2;
+    var c1 = [mid[0] + Math.cos(perp) * w, mid[1] + Math.sin(perp) * w];
+    var c2 = [mid[0] - Math.cos(perp) * w * 0.78, mid[1] - Math.sin(perp) * w * 0.78];
+    return 'M0 0 Q' + n1(c1[0]) + ' ' + n1(c1[1]) + ' ' + n1(tip[0]) + ' ' + n1(tip[1]) +
+           ' Q' + n1(c2[0]) + ' ' + n1(c2[1]) + ' 0 0 Z';
+  }
+  function shaft(a, L) {
+    var tip = polar(a, L * 0.92, 0, 0);
+    return 'M0 0 L' + n1(tip[0]) + ' ' + n1(tip[1]);
+  }
+
+/* ── the anatomy of a wing ──────────────────────────────────────────────
+   Every court's wing is built the same way — a leading arm, a layer of
+   short coverts, a layer of secondaries and a layer of long primaries —
+   and then dressed in its own metal and its own decoration. That is why
+   six very different wings still read as wings.
+
+   Angles are in degrees; -90 is straight up, 0 is straight out to the side. */
+  function fpath(L, hw, bend) {
+    /* a feather lying along +x from (0,0), bowed by `bend`, soft tip at L */
+    var b = (bend == null ? 0.16 : bend) * L;
+    return 'M0 0 C' + n1(L * .18) + ' ' + n1(-hw + b * .2) + ' ' + n1(L * .62) + ' ' + n1(-hw * .96 + b * .7) + ' ' +
+      n1(L * .955) + ' ' + n1(-hw * .22 + b) + ' Q' + n1(L) + ' ' + n1(b) + ' ' + n1(L * .955) + ' ' + n1(hw * .22 + b) +
+      ' C' + n1(L * .62) + ' ' + n1(hw * .84 + b * .7) + ' ' + n1(L * .18) + ' ' + n1(hw * .70 + b * .2) + ' 0 0 Z';
+  }
+  function feather(deg, L, hw, rx, ry, cls, style) {
+    return '<g class="' + (cls || '') + '"' + (style ? ' style="' + style + '"' : '') +
+      ' transform="translate(' + n1(rx || 0) + ' ' + n1(ry || 0) + ') rotate(' + deg + ')">' +
+      '<path d="' + fpath(L, hw) + '"/></g>';
+  }
+  function wingArt(o) {
+    /* o: gid gradient, edge stroke, ink for shafts, layers, decor(tip, i, deg, L, rx, ry) */
+    var out = '';
+    var layers = o.layers;
+    /* the shadow the feather bed throws, so the wing has depth before colour */
+    if (o.back) {
+      out += '<path d="' + o.back + '" fill="url(#' + (o.backFill || o.layers[0].fill) + ')" opacity=".55"/>';
+    }
+    for (var li = 0; li < layers.length; li++) {
+      var ly = layers[li];
+      for (var i = 0; i < ly.angles.length; i++) {
+        var deg = ly.angles[i];
+        var L = ly.lens[i], hw = ly.widths[i];
+        var rx = ly.roots[i][0], ry = ly.roots[i][1];
+        var rad = deg * Math.PI / 180;
+        var tipx = rx + Math.cos(rad) * L * .955, tipy = ry + Math.sin(rad) * L * .955;
+        out += '<g class="rg-feather" style="animation-delay:' + ((li * 0.18) + i * 0.11).toFixed(2) + 's">' +
+          '<g transform="translate(' + n1(rx) + ' ' + n1(ry) + ') rotate(' + deg + ')">' +
+            '<path d="' + fpath(L, hw, ly.bend) + '" fill="url(#' + (ly.fills && i % 2 ? ly.fills[i % 2] : ly.fill) + ')" stroke="' +
+              (o.edge || 'none') + '" stroke-width=".7"/>' +
+            (ly.shaft === false ? '' :
+              '<path d="M0 0 L' + n1(L * .92) + ' 0" stroke="' + (o.ink || '#FFF6D8') + '" stroke-width="' + (ly.shaftW || .9) + '" opacity=".62"/>') +
+          '</g>' +
+          (o.decor ? o.decor(tipx, tipy, i, deg, L, li) : '') +
+        '</g>';
+      }
+    }
+    /* the leading arm, drawn last so it sits on top of the coverts */
+    if (o.arm) {
+      out += '<path d="' + o.arm + '" fill="none" stroke="url(#' + o.armFill + ')" stroke-width="' +
+        (o.armW || 5) + '" stroke-linecap="round" opacity="' + (o.armOp || '.95') + '"/>';
+    }
+    return out;
+  }
+
+  /* an arm, and the feathers that hang from it — the heraldic wing
+     every court is built on. p0 → p2 with p1 as the control point. */
+  function armWing(n, p0, p1, p2, len0, len1, wid0, wid1, drop) {
+    var angles = [], lens = [], widths = [], roots = [];
+    for (var i = 0; i < n; i++) {
+      var t = n === 1 ? 0 : i / (n - 1);
+      var mt = 1 - t;
+      var x = mt * mt * p0[0] + 2 * mt * t * p1[0] + t * t * p2[0];
+      var y = mt * mt * p0[1] + 2 * mt * t * p1[1] + t * t * p2[1];
+      var dx = 2 * mt * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0]);
+      var dy = 2 * mt * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1]);
+      var tangent = Math.atan2(dy, dx) * 180 / Math.PI;
+      angles.push(Math.round((tangent + (drop == null ? 74 : drop)) * 10) / 10);
+      lens.push(Math.round(len0 + (len1 - len0) * t));
+      widths.push(Math.round((wid0 + (wid1 - wid0) * t) * 10) / 10);
+      roots.push([Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+    }
+    return { angles: angles, lens: lens, widths: widths, roots: roots };
+  }
+  var ARM = 'M4 0 Q88 -106 180 -78';
+
+  /* a bevelled metal band — the body of every frame. Four edges, so it reads
+     as a solid ring rather than a drawn circle: face, upper highlight, lower
+     shade, and the bright inner lip. */
+  function arcPath(cx, cy, r, a0, a1) {
+    var t0 = a0 * Math.PI / 180, t1 = a1 * Math.PI / 180;
+    var x0 = cx + r * Math.cos(t0), y0 = cy + r * Math.sin(t0);
+    var x1 = cx + r * Math.cos(t1), y1 = cy + r * Math.sin(t1);
+    var large = Math.abs(a1 - a0) > 180 ? 1 : 0;
+    return 'M' + n1(x0) + ' ' + n1(y0) + ' A' + n1(r) + ' ' + n1(r) + ' 0 ' + large + ' 1 ' +
+      n1(x1) + ' ' + n1(y1);
+  }
+  function metalRing(r, w, cols) {
+    var f = gid('mf'), h = gid('mh'), d = gid('md');
+    return '<defs>' +
+      '<linearGradient id="' + f + '" x1=".1" y1="0" x2=".9" y2="1">' +
+        '<stop offset="0" stop-color="' + cols[0] + '"/><stop offset=".34" stop-color="' + cols[1] + '"/>' +
+        '<stop offset=".68" stop-color="' + cols[2] + '"/><stop offset="1" stop-color="' + cols[1] + '"/></linearGradient>' +
+      '<linearGradient id="' + h + '" x1="0" y1="0" x2=".9" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF" stop-opacity=".92"/>' +
+        '<stop offset=".5" stop-color="#FFFFFF" stop-opacity=".22"/>' +
+        '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>' +
+      '<linearGradient id="' + d + '" x1="0" y1="0" x2=".9" y2="1">' +
+        '<stop offset="0" stop-color="#2A1600" stop-opacity="0"/>' +
+        '<stop offset=".55" stop-color="#2A1600" stop-opacity=".22"/>' +
+        '<stop offset="1" stop-color="#2A1600" stop-opacity=".42"/></linearGradient></defs>' +
+      '<circle cx="100" cy="100" r="' + r + '" fill="none" stroke="url(#' + f + ')" stroke-width="' + w + '"/>' +
+      '<path d="' + arcPath(100, 100, r - w * 0.2, 156, 306) + '" fill="none" stroke="url(#' + h + ')" stroke-width="' +
+        n1(w * 0.52) + '" stroke-linecap="round"/>' +
+      '<path d="' + arcPath(100, 100, r + w * 0.06, 16, 134) + '" fill="none" stroke="url(#' + d + ')" stroke-width="' +
+        n1(w * 0.46) + '" stroke-linecap="round"/>' +
+      '<circle cx="100" cy="100" r="' + n1(r - w / 2 - 0.8) + '" fill="none" stroke="#FFFFFF" stroke-width="1" opacity=".5"/>' +
+      '<circle cx="100" cy="100" r="' + n1(r + w / 2 + 0.6) + '" fill="none" stroke="#5E3E0A" stroke-width=".7" opacity=".3"/>';
+  }
+
+  function fan(n, from, to, l0, l1, w0, w1, rootStep, rootFall) {
+    var a = [], L = [], w = [], r = [];
+    for (var i = 0; i < n; i++) {
+      var t = n === 1 ? 0 : i / (n - 1);
+      a.push(Math.round((from + (to - from) * t) * 10) / 10);
+      L.push(Math.round(l0 + (l1 - l0) * t));
+      w.push(Math.round((w0 + (w1 - w0) * t) * 10) / 10);
+      r.push([Math.round(i * (rootStep || 0) * 10) / 10, Math.round(-i * (rootFall || 0) * 10) / 10]);
+    }
+    return { angles: a, lens: L, widths: w, roots: r };
+  }
+
+  /* ═══ 1 · AURELIA ═══════════════════════════════════════════════════════ */
+  function frameAurelia() {
+    var g = gid('a'), gr = gid('b'), bd = gid('c'), rays = '';
+    for (var i = 0; i < 36; i++) {
+      rays += '<rect x="98.9" y=".5" width="2.2" height="13" rx="1.1" fill="url(#' + g + ')" opacity="' +
+        (i % 3 === 0 ? '.95' : '.55') + '" transform="rotate(' + (i * 10) + ' 100 100)"/>';
+    }
+    var beads = '';
+    for (var j = 0; j < 12; j++) {
+      var p = polar(j * Math.PI / 6 - Math.PI / 2, 91, 100, 100);
+      beads += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.6" fill="url(#' + bd + ')"/>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFF9E2"/><stop offset=".32" stop-color="#F6D07A"/>' +
+        '<stop offset=".62" stop-color="#D79A2B"/><stop offset="1" stop-color="#A9701A"/></linearGradient>' +
+      '<radialGradient id="' + gr + '" cx="35%" cy="28%" r="80%">' +
+        '<stop offset="0" stop-color="#FFFDF4"/><stop offset=".55" stop-color="#F1C45C"/>' +
+        '<stop offset="1" stop-color="#B8801F"/></radialGradient>' +
+      '<radialGradient id="' + bd + '" cx="35%" cy="30%" r="75%">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F6DA9A"/>' +
+        '<stop offset="1" stop-color="#C08A26"/></radialGradient>' +
+      '</defs>' +
+      '<g class="rg-au-rays">' + rays + '</g>' +
+      '<circle cx="100" cy="100" r="95" fill="none" stroke="url(#' + g + ')" stroke-width="1.2" opacity=".55"/>' +
+      metalRing(91, 7.6, ['#FFF8DE', '#F0C566', '#A9701A']) +
+      '<circle cx="100" cy="100" r="84.4" fill="none" stroke="#FFE9A8" stroke-width="1.3" opacity=".85"/>' +
+      '<g class="rg-au-glow">' + beads + '</g>';
+  }
+
+  function badgeAurelia() {
+    var g = gid('a'), c = gid('c'), rays = '', i;
+    for (i = 0; i < 20; i++) {
+      rays += '<path d="M60 60 l3.4 -13 l3.4 13z" fill="url(#' + g + ')" opacity="' + (i % 2 ? '.75' : '1') +
+        '" transform="rotate(' + (i * 18) + ' 60 60)"/>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFF8DC"/><stop offset=".5" stop-color="#F0BE52"/>' +
+        '<stop offset="1" stop-color="#B37B18"/></linearGradient>' +
+      '<radialGradient id="' + c + '" cx="34%" cy="28%" r="80%">' +
+        '<stop offset="0" stop-color="#FFFDF2"/><stop offset=".5" stop-color="#F5C860"/>' +
+        '<stop offset="1" stop-color="#9C6512"/></radialGradient></defs>' +
+      rays +
+      '<circle cx="60" cy="60" r="27" fill="url(#' + c + ')"/>' +
+      '<circle cx="60" cy="60" r="27" fill="none" stroke="#FFF3CB" stroke-width="1.4"/>' +
+      '<path d="M60 44c5 3 8 8 8 13 0 6-3.6 10-8 13-4.4-3-8-7-8-13 0-5 3-10 8-13z" fill="#8A5410" opacity=".55"/>' +
+      '<circle cx="60" cy="56" r="5.4" fill="#FFF6D8" opacity=".9"/>';
+  }
+
+  function wingsAurelia() {
+    var g1 = gid('w'), g2 = gid('u'), g3 = gid('v');
+    var prim = armWing(7, [4, 2], [88, -108], [180, -80], 168, 104, 11, 7.5, 56);
+    prim.fill = g1; prim.shaft = true; prim.bend = .18;
+    var sec = armWing(5, [2, 4], [46, -56], [110, -32], 96, 62, 9, 6.5, 66);
+    sec.fill = g2;
+    var cov = armWing(3, [2, 6], [22, -30], [54, -12], 54, 38, 12, 9, 84);
+    cov.fill = g3;
+    prim.fills = [g1, g3]; sec.fills = [g2, g1];
+    var body = wingArt({
+      edge: '#C79327', ink: '#FFF6D8',
+      back: 'M0 8 Q72 -104 176 -80 Q120 26 4 34 Z', backFill: g3, backOp: '.5',
+      layers: [cov, sec, prim],
+      arm: ARM, armFill: g1, armW: 9,
+      decor: function (x, y, i, deg, L, li) {
+        if (li !== 2) return '';
+        return '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="2.4" fill="#FFF6D2" opacity=".75"/>';
+      }
+    });
+    return '<defs>' +
+      '<linearGradient id="' + g1 + '" x1="0" y1="1" x2="1" y2=".2">' +
+        '<stop offset="0" stop-color="#FBE7AE"/><stop offset=".45" stop-color="#F2C75C"/>' +
+        '<stop offset=".82" stop-color="#D79A2B"/><stop offset="1" stop-color="#FFF6D2"/></linearGradient>' +
+      '<linearGradient id="' + g2 + '" x1="0" y1="1" x2="1" y2="0">' +
+        '<stop offset="0" stop-color="#FFF2CF"/><stop offset=".6" stop-color="#EFC768"/>' +
+        '<stop offset="1" stop-color="#C79327"/></linearGradient>' +
+      '<linearGradient id="' + g3 + '" x1="0" y1="1" x2="1" y2="0">' +
+        '<stop offset="0" stop-color="#FFF9E6"/><stop offset="1" stop-color="#E8BC58"/></linearGradient>' +
+      '</defs>' + body;
+  }
+
+  /* ═══ 2 · VERDANT ═══════════════════════════════════════════════════════ */
+  function frameVerdant() {
+    var g = gid('a'), leaf = gid('l'), bud = gid('b'), i, lv = '', buds = '';
+    for (i = 0; i < 16; i++) {
+      lv += '<g class="rg-vd-leaf" style="animation-delay:' + (i * 0.19).toFixed(2) + 's" transform="rotate(' + (i * 22.5) + ' 100 100)">' +
+        '<path d="M100 3c8 8 9 18 0 27-9-9-8-19 0-27z" fill="url(#' + leaf + ')" stroke="#1C6B45" stroke-width=".7"/>' +
+        '<path d="M100 8v17" stroke="#EAF7D8" stroke-width=".9" opacity=".7"/>' +
+        '</g>';
+    }
+    for (i = 0; i < 8; i++) {
+      var p = polar(i * Math.PI / 4 - Math.PI / 4, 96, 100, 100);
+      buds += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.4" fill="url(#' + bud + ')"/>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#B7E39A"/><stop offset=".5" stop-color="#3E9C63"/>' +
+        '<stop offset="1" stop-color="#17603F"/></linearGradient>' +
+      '<linearGradient id="' + leaf + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#EAF7D8"/><stop offset=".45" stop-color="#7FC46A"/>' +
+        '<stop offset="1" stop-color="#1F7A4F"/></linearGradient>' +
+      '<radialGradient id="' + bud + '" cx="35%" cy="30%" r="75%">' +
+        '<stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#C79A32"/></radialGradient></defs>' +
+      metalRing(92, 7, ['#F2FCE0', '#8FCC7C', '#1B6444']) +
+      '<circle cx="100" cy="100" r="98" fill="none" stroke="#2F8F5B" stroke-width=".9" opacity=".45"/>' +
+      lv + buds;
+  }
+
+  function badgeVerdant() {
+    var g = gid('g'), cl = gid('cl'), i, claws = '';
+    for (i = 0; i < 6; i++) {
+      claws += '<g transform="rotate(' + (i * 60) + ' 60 60)"><path d="M60 26c5 5 6 11 0 17-6-6-5-12 0-17z" fill="url(#' + cl + ')"/></g>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#D8F5C0"/><stop offset=".35" stop-color="#4FB477"/>' +
+        '<stop offset=".7" stop-color="#1C8055"/><stop offset="1" stop-color="#0F5138"/></linearGradient>' +
+      '<linearGradient id="' + cl + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#B98B2A"/></linearGradient></defs>' +
+      claws +
+      '<rect x="41" y="41" width="38" height="38" rx="9" fill="url(#' + g + ')" stroke="#0F5138" stroke-width="1"/>' +
+      '<rect x="45" y="45" width="30" height="30" rx="6" fill="none" stroke="#D8F5C0" stroke-width=".8" opacity=".7"/>' +
+      '<path d="M49 49l7-3M71 49l-7-3M49 71l7 3M71 71l-7 3" stroke="#FFFFFF" stroke-width="1.6" opacity=".55" stroke-linecap="round"/>';
+  }
+
+  function wingsVerdant() {
+    var g1 = gid('w'), g2 = gid('u'), g3 = gid('v'), eye = gid('e');
+    var prim = armWing(7, [4, 2], [86, -104], [178, -78], 174, 108, 12, 8, 54);
+    prim.fill = g1; prim.bend = .2;
+    var sec = armWing(5, [2, 4], [48, -54], [112, -30], 100, 66, 10, 7, 66);
+    sec.fill = g2;
+    var cov = armWing(3, [2, 6], [24, -28], [56, -10], 56, 40, 13, 10, 86);
+    cov.fill = g3;
+    prim.fills = [g1, g3]; sec.fills = [g2, g1];
+    var body = wingArt({
+      edge: '#17603F', ink: '#EAF7D8',
+      back: 'M0 8 Q74 -108 178 -82 Q122 28 4 34 Z', backFill: g3,
+      layers: [cov, sec, prim],
+      arm: ARM, armFill: g2, armW: 8.4,
+      decor: function (x, y, i, deg, L, li) {
+        if (li !== 2) return '';
+        return '<g class="rg-eye" style="animation-delay:' + (i * 0.3).toFixed(2) + 's">' +
+          '<ellipse cx="' + n1(x) + '" cy="' + n1(y) + '" rx="8.6" ry="10.4" fill="url(#' + eye + ')" stroke="#0F5138" stroke-width=".7"/>' +
+          '<ellipse cx="' + n1(x) + '" cy="' + n1(y) + '" rx="4" ry="5.2" fill="#0F5138" opacity=".82"/>' +
+          '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="1.7" fill="#F6E7B4"/></g>';
+      }
+    });
+    return '<defs>' +
+      '<linearGradient id="' + g1 + '" x1="0" y1="1" x2="1" y2=".2"><stop offset="0" stop-color="#EAF7D8"/>' +
+        '<stop offset=".42" stop-color="#63B87A"/><stop offset=".8" stop-color="#1C8055"/>' +
+        '<stop offset="1" stop-color="#B7E39A"/></linearGradient>' +
+      '<linearGradient id="' + g2 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#D8F2C4"/>' +
+        '<stop offset=".6" stop-color="#4FA86E"/><stop offset="1" stop-color="#0F5138"/></linearGradient>' +
+      '<linearGradient id="' + g3 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F2FBE4"/>' +
+        '<stop offset="1" stop-color="#7FC46A"/></linearGradient>' +
+      '<radialGradient id="' + eye + '" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FFF6D8"/>' +
+        '<stop offset=".45" stop-color="#6FCB8C"/><stop offset="1" stop-color="#0F5138"/></radialGradient>' +
+      '</defs>' + body;
+  }
+
+  /* ═══ 3 · PERLA ═════════════════════════════════════════════════════════ */
+  function framePerla() {
+    var sc = gid('s'), pr = gid('p'), sh = gid('sh'), i, scallops = '', pearls = '';
+    for (i = 0; i < 14; i++) {
+      var p = polar(i * (Math.PI * 2 / 14) - Math.PI / 2, 88, 100, 100);
+      scallops += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="10.5" fill="url(#' + sc + ')" stroke="#D9C9BE" stroke-width=".6"/>';
+      pearls += '<circle class="rg-pr-pearl" style="animation-delay:' + (i * 0.16).toFixed(2) + 's" cx="' + n1(p[0]) +
+        '" cy="' + n1(p[1]) + '" r="4.2" fill="url(#' + pr + ')"/>';
+    }
+    return '<defs>' +
+      '<radialGradient id="' + sc + '" cx="36%" cy="26%" r="82%">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset=".48" stop-color="#F2E6EE"/>' +
+        '<stop offset=".78" stop-color="#D2E4F1"/><stop offset="1" stop-color="#A8C2D6"/></radialGradient>' +
+      '<radialGradient id="' + pr + '" cx="32%" cy="26%" r="80%">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset=".4" stop-color="#FCEEF5"/>' +
+        '<stop offset=".7" stop-color="#DCEBF6"/><stop offset="1" stop-color="#9DB9CF"/></radialGradient>' +
+      '<linearGradient id="' + sh + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".9"/>' +
+        '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>' +
+      metalRing(91.5, 6.2, ['#FFFFFF', '#E4EDF3', '#8FA6B8']) +
+      scallops + pearls +
+      '<g class="rg-pr-sheen"><path d="M100 6 A94 94 0 0 1 190 82" fill="none" stroke="url(#' + sh + ')" stroke-width="4" stroke-linecap="round"/></g>';
+  }
+
+  function badgePerla() {
+    var o = gid('o'), r = gid('r');
+    return '<defs>' +
+      '<radialGradient id="' + o + '" cx="34%" cy="28%" r="82%">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset=".32" stop-color="#FDF1F6"/>' +
+        '<stop offset=".6" stop-color="#E3F2FB"/><stop offset=".82" stop-color="#F6E9D9"/>' +
+        '<stop offset="1" stop-color="#C6D6E6"/></radialGradient>' +
+      '<radialGradient id="' + r + '" cx="38%" cy="32%" r="70%">' +
+        '<stop offset="0" stop-color="#FFFDFB"/><stop offset=".6" stop-color="#EAF4FB"/>' +
+        '<stop offset="1" stop-color="#B9CCE0"/></radialGradient></defs>' +
+      '<circle cx="60" cy="60" r="31" fill="url(#' + r + ')"/>' +
+      '<circle cx="60" cy="60" r="31" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity=".9"/>' +
+      '<path d="M60 33c11 0 20 9 20 20 0 9-5 16-12 19-2-9-5-14-11-18-3 6-4 11-3 17-9-4-14-11-14-19 0-11 9-19 20-19z" ' +
+        'fill="url(#' + o + ')" stroke="#D8C8D8" stroke-width=".7"/>' +
+      '<ellipse cx="53" cy="50" rx="6" ry="4" fill="#FFFFFF" opacity=".85" transform="rotate(-24 53 50)"/>' +
+      '<circle cx="45" cy="76" r="3" fill="url(#' + r + ')"/><circle cx="75" cy="76" r="3" fill="url(#' + r + ')"/>';
+  }
+
+  function wingsPerla() {
+    var g1 = gid('w'), g2 = gid('u'), g3 = gid('v');
+    var prim = armWing(8, [4, 2], [90, -112], [184, -82], 186, 116, 10, 6.5, 58);
+    prim.fill = g1; prim.bend = .12;
+    var sec = armWing(5, [2, 4], [48, -58], [114, -32], 104, 68, 8, 5.5, 68);
+    sec.fill = g2;
+    var cov = armWing(3, [2, 6], [24, -30], [56, -12], 58, 40, 10, 8, 88);
+    cov.fill = g3;
+    prim.fills = [g1, g3]; sec.fills = [g2, g1];
+    var body = wingArt({
+      edge: '#8FA8BC', ink: '#FFFFFF',
+      back: 'M0 8 Q78 -112 180 -84 Q124 26 4 34 Z', backFill: g3,
+      layers: [cov, sec, prim],
+      arm: ARM, armFill: g2, armW: 7,
+      decor: function (x, y, i, li) { return ''; }
+    });
+    return '<defs>' +
+      '<linearGradient id="' + g1 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF"/>' +
+        '<stop offset=".26" stop-color="#F3E9F2"/><stop offset=".55" stop-color="#D9E8F4"/>' +
+        '<stop offset=".8" stop-color="#A9C4D8"/><stop offset="1" stop-color="#EAF3FA"/></linearGradient>' +
+      '<linearGradient id="' + g2 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFFDFB"/>' +
+        '<stop offset=".55" stop-color="#DCEAF4"/><stop offset="1" stop-color="#9FBBD0"/></linearGradient>' +
+      '<linearGradient id="' + g3 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFF6FA"/>' +
+        '<stop offset=".6" stop-color="#D8E7F2"/><stop offset="1" stop-color="#B7CEDF"/></linearGradient>' +
+      '</defs>' + body;
+  }
+
+  /* ═══ 4 · IGNIS ═════════════════════════════════════════════════════════ */
+  function frameIgnis() {
+    var g = gid('a'), fl = gid('f'), i, petals = '';
+    for (i = 0; i < 16; i++) {
+      petals += '<g transform="rotate(' + (i * 22.5) + ' 100 100)">' +
+        '<path class="rg-ig-flame" style="animation-delay:' + (i * 0.11).toFixed(2) + 's" ' +
+        'd="M100 2c6 9 6 16 0 24-6-8-6-15 0-24z" fill="url(#' + fl + ')" stroke="#C2422F" stroke-width=".6"/>' +
+        '</g>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFD9A8"/><stop offset=".45" stop-color="#F07A4E"/>' +
+        '<stop offset="1" stop-color="#B93F2C"/></linearGradient>' +
+      '<linearGradient id="' + fl + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFF3D6"/><stop offset=".42" stop-color="#FFB073"/>' +
+        '<stop offset=".78" stop-color="#F0703F"/><stop offset="1" stop-color="#C2422F"/></linearGradient></defs>' +
+      petals +
+      metalRing(90, 6.4, ['#FFE7C8', '#F4904F', '#A8351E']) +
+      '<circle cx="100" cy="100" r="83" fill="none" stroke="#FFD9A8" stroke-width="1.2" opacity=".8"/>' +
+      '<g opacity=".75">' +
+        '<path d="M100 22c4 5 4 9 0 13-4-4-4-8 0-13z" fill="#FFF3D6"/>' +
+      '</g>';
+  }
+
+  function badgeIgnis() {
+    var g = gid('g'), m = gid('m'), i, motes = '';
+    for (i = 0; i < 5; i++) {
+      var p = polar(i * 1.256, 24, 60, 60);
+      motes += '<circle class="rg-mote" style="animation-delay:' + (i * 0.7).toFixed(2) + 's" cx="' + n1(p[0]) +
+        '" cy="' + n1(p[1]) + '" r="2.1" fill="#FFF3D6"/>';
+    }
+    return '<defs>' +
+      '<radialGradient id="' + g + '" cx="34%" cy="28%" r="80%">' +
+        '<stop offset="0" stop-color="#FFF6DC"/><stop offset=".38" stop-color="#FFB578"/>' +
+        '<stop offset=".76" stop-color="#EE6E44"/><stop offset="1" stop-color="#B93F2C"/></radialGradient>' +
+      '<radialGradient id="' + m + '" cx="50%" cy="50%" r="60%">' +
+        '<stop offset="0" stop-color="#FFF6DC" stop-opacity=".95"/><stop offset="1" stop-color="#FF8A5C" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="60" cy="60" r="33" fill="url(#' + m + ')" opacity=".5"/>' +
+      '<circle cx="60" cy="60" r="26" fill="url(#' + g + ')"/>' +
+      '<circle cx="60" cy="60" r="26" fill="none" stroke="#FFF0D2" stroke-width="1.3" opacity=".85"/>' +
+      '<path d="M60 41c6 6 8 12 6 18-1 4-4 6-6 7-2-1-5-3-6-7-2-6 0-12 6-18z" fill="#FFF3D6" opacity=".7"/>' +
+      '<path d="M48 66c6 4 18 4 24 0" stroke="#8E2A1C" stroke-width="1" fill="none" opacity=".45"/>' +
+      motes;
+  }
+
+  function wingsIgnis() {
+    var g1 = gid('w'), g2 = gid('u'), g3 = gid('v'), tip = gid('t');
+    var prim = armWing(7, [4, 2], [88, -108], [180, -80], 170, 106, 11, 7.5, 56);
+    prim.fill = g1; prim.bend = .2;
+    var sec = armWing(5, [2, 4], [48, -56], [112, -32], 98, 64, 9, 6.5, 66);
+    sec.fill = g2;
+    var cov = armWing(3, [2, 6], [24, -30], [56, -12], 56, 40, 12, 9, 86);
+    cov.fill = g3;
+    prim.fills = [g1, g3]; sec.fills = [g2, g1];
+    var body = wingArt({
+      edge: '#C2422F', ink: '#FFF3D6',
+      back: 'M0 4 C 44 -30 112 -46 180 -30 C 150 -2 96 18 8 26 Z', backFill: g3,
+      layers: [cov, sec, prim],
+      arm: ARM, armFill: g1, armW: 8.4,
+      decor: function (x, y, i, li) {
+        if (li !== 2) return '';
+        return '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="3" fill="url(#' + tip + ')"/>' +
+          '<circle class="rg-mote" style="animation-delay:' + (i * 0.6).toFixed(2) + 's" cx="' + n1(x) +
+          '" cy="' + n1(y - 6) + '" r="1.8" fill="#FFF3D6" opacity=".9"/>';
+      }
+    });
+    return '<defs>' +
+      '<linearGradient id="' + g1 + '" x1="0" y1="1" x2="1" y2=".15"><stop offset="0" stop-color="#FFE0B4"/>' +
+        '<stop offset=".4" stop-color="#FF9A62"/><stop offset=".76" stop-color="#EE6E44"/>' +
+        '<stop offset="1" stop-color="#FFF3D6"/></linearGradient>' +
+      '<linearGradient id="' + g2 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFEACB"/>' +
+        '<stop offset=".6" stop-color="#FFA871"/><stop offset="1" stop-color="#D8552F"/></linearGradient>' +
+      '<linearGradient id="' + g3 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFF6DC"/>' +
+        '<stop offset="1" stop-color="#FFC08A"/></linearGradient>' +
+      '<radialGradient id="' + tip + '" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFF9E6"/>' +
+        '<stop offset="1" stop-color="#FF8A5C" stop-opacity="0"/></radialGradient>' +
+      '</defs>' + body;
+  }
+
+  /* ═══ 5 · GLACIA ════════════════════════════════════════════════════════ */
+  function frameGlacia() {
+    var f1 = gid('f1'), f2 = gid('f2'), f3 = gid('f3'), i, facets = '', sparks = '';
+    for (i = 0; i < 12; i++) {
+      var a0 = i * (Math.PI / 6), a1 = a0 + Math.PI / 6;
+      var p0 = polar(a0, 96, 100, 100), p1 = polar(a1, 96, 100, 100);
+      var q0 = polar(a0, 83, 100, 100), q1 = polar(a1, 83, 100, 100);
+      var fill = [f1, f2, f3][i % 3];
+      facets += '<path class="rg-gl-facet" style="animation-delay:' + (i * 0.25).toFixed(2) + 's" d="M' +
+        n1(q0[0]) + ' ' + n1(q0[1]) + ' L' + n1(p0[0]) + ' ' + n1(p0[1]) + ' L' + n1(p1[0]) + ' ' + n1(p1[1]) +
+        ' L' + n1(q1[0]) + ' ' + n1(q1[1]) + ' Z" fill="url(#' + fill + ')" stroke="#FFFFFF" stroke-width=".8" opacity=".95"/>';
+    }
+    for (i = 0; i < 6; i++) {
+      var p = polar(i * Math.PI / 3 - Math.PI / 2, 102, 100, 100);
+      sparks += '<g class="rg-gl-spark" style="animation-delay:' + (i * 0.45).toFixed(2) + 's" transform="translate(' +
+        n1(p[0]) + ' ' + n1(p[1]) + ')"><path d="M0-6L1.4-1.4L6 0L1.4 1.4L0 6L-1.4 1.4L-6 0L-1.4-1.4Z" fill="#FFFFFF"/></g>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + f1 + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/>' +
+        '<stop offset="1" stop-color="#D8EBFF"/></linearGradient>' +
+      '<linearGradient id="' + f2 + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EAF5FF"/>' +
+        '<stop offset="1" stop-color="#BBD6F7"/></linearGradient>' +
+      '<linearGradient id="' + f3 + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F0FF"/>' +
+        '<stop offset="1" stop-color="#C9CCF5"/></linearGradient></defs>' +
+      '<circle cx="100" cy="100" r="96" fill="none" stroke="#E4EEFF" stroke-width="1.4"/>' +
+      facets +
+      '<path d="' + arcPath(100, 100, 94.4, 156, 306) + '" fill="none" stroke="#FFFFFF" stroke-width="2.4" ' +
+        'stroke-linecap="round" opacity=".55"/>' +
+      '<path d="' + arcPath(100, 100, 85, 18, 130) + '" fill="none" stroke="#7FA8CC" stroke-width="2" ' +
+        'stroke-linecap="round" opacity=".33"/>' +
+      '<circle cx="100" cy="100" r="83" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>' +
+      '<g class="rg-gl-shard"><path d="M100 4L104 100L100 196L96 100Z" fill="#FFFFFF" opacity=".22"/></g>' +
+      sparks;
+  }
+
+  function badgeGlacia() {
+    var sq = gid('s'), bz = gid('b'), i, arms = '';
+    for (i = 0; i < 6; i++) {
+      arms += '<g transform="rotate(' + (i * 60) + ' 60 60)">' +
+        '<rect x="58.6" y="24" width="2.8" height="13" rx="1.4" fill="url(#' + bz + ')"/>' +
+        '<circle cx="60" cy="23" r="2" fill="#FFFFFF"/>' +
+        '<rect x="56" y="34" width="8" height="2" rx="1" fill="url(#' + bz + ')"/></g>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + sq + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset=".3" stop-color="#9FC6F5"/>' +
+        '<stop offset=".62" stop-color="#5E8FD8"/><stop offset="1" stop-color="#2F5AA8"/></linearGradient>' +
+      '<linearGradient id="' + bz + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#BFD5F2"/></linearGradient></defs>' +
+      arms +
+      '<circle cx="60" cy="60" r="27" fill="none" stroke="url(#' + bz + ')" stroke-width="1.6" opacity=".9"/>' +
+      '<path d="M46 50a14 14 0 1 0 28 0z" fill="none"/>' +
+      '<circle cx="60" cy="60" r="21" fill="url(#' + sq + ')"/>' +
+      '<circle cx="60" cy="60" r="21" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>' +
+      '<path d="M52 52h16M52 60h16M52 68h16M60 46v28" stroke="#FFFFFF" stroke-width=".8" opacity=".55"/>' +
+      '<path d="M60 39L67 60L60 81L53 60Z" fill="#FFFFFF" opacity=".28"/>';
+  }
+
+  function wingsGlacia() {
+    var u = gid('u'), l = gid('l'), v = gid('v');
+    var body = '' +
+      '<g class="rg-feather">' +
+        '<path d="M4 6 C 46 -46 112 -74 176 -66 C 168 -22 120 12 40 22 Z" fill="url(#' + u + ')" stroke="#FFFFFF" stroke-width="1.1"/>' +
+        '<path d="M6 4 C 54 -30 116 -48 174 -64" stroke="#FFFFFF" stroke-width="1" opacity=".85" fill="none"/>' +
+        '<path d="M56 -26 L84 -46 M84 -14 L118 -34 M112 -4 L146 -20" stroke="#FFFFFF" stroke-width=".8" opacity=".6"/>' +
+        '<path d="M4 6 C 60 -14 130 -18 190 -6" stroke="#FFFFFF" stroke-width=".7" opacity=".45" fill="none"/>' +
+      '</g>' +
+      '<g class="rg-feather" style="animation-delay:.3s">' +
+        '<path d="M4 10 C 48 26 104 40 156 36 C 146 62 96 74 30 56 Z" fill="url(#' + l + ')" stroke="#FFFFFF" stroke-width="1.1"/>' +
+        '<path d="M6 12 C 56 30 108 38 154 36" stroke="#FFFFFF" stroke-width=".9" opacity=".8" fill="none"/>' +
+      '</g>' +
+      '<circle cx="12" cy="10" r="4" fill="url(#' + v + ')"/>';
+    return '<defs>' +
+      '<linearGradient id="' + u + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF"/>' +
+        '<stop offset=".38" stop-color="#DCEEFF"/><stop offset=".74" stop-color="#B7D4F7"/>' +
+        '<stop offset="1" stop-color="#E8E4FF"/></linearGradient>' +
+      '<linearGradient id="' + l + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6F3FF"/>' +
+        '<stop offset=".55" stop-color="#CFD6F7"/><stop offset="1" stop-color="#E6F4FF"/></linearGradient>' +
+      '<radialGradient id="' + v + '" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FFFFFF"/>' +
+        '<stop offset="1" stop-color="#9FC0EA"/></radialGradient>' +
+      '</defs>' + body;
+  }
+
+  /* ═══ 6 · IVORY, the house ══════════════════════════════════════════════ */
+  function frameIvory() {
+    var g = gid('a'), sh = gid('s'), i, jewels = '';
+    for (i = 0; i < 8; i++) {
+      var p = polar(i * Math.PI / 4, 88.6, 100, 100);
+      jewels += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="2.2" fill="#6E1A2C" stroke="#FFF3CB" stroke-width=".6"/>';
+    }
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFF9E6"/><stop offset=".45" stop-color="#F3D08A"/>' +
+        '<stop offset="1" stop-color="#B8942B"/></linearGradient>' +
+      '<linearGradient id="' + sh + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".85"/>' +
+        '<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>' +
+      metalRing(90, 6.4, ['#FFF9E6', '#EBC97C', '#A8801F']) +
+      '<circle cx="100" cy="100" r="93.6" fill="none" stroke="url(#' + g + ')" stroke-width="1.6" opacity=".8"/>' +
+      '<circle cx="100" cy="100" r="80" fill="none" stroke="url(#' + g + ')" stroke-width="1.3" opacity=".9"/>' +
+      '<circle cx="100" cy="100" r="79" fill="none" stroke="#7C1A2E" stroke-width="9"/>' +
+      '<circle cx="100" cy="100" r="79" fill="none" stroke="#4A0E1C" stroke-width="9" opacity=".45" stroke-dasharray="3 5"/>' +
+      '<path d="' + arcPath(100, 100, 79, 160, 300) + '" fill="none" stroke="#FFFFFF" stroke-width="3" ' +
+        'stroke-linecap="round" opacity=".3"/>' +
+      '<circle cx="100" cy="100" r="74.4" fill="none" stroke="url(#' + g + ')" stroke-width="1.1" opacity=".85"/>' +
+      jewels +
+      '<g class="rg-iv-sheen"><path d="M100 6 A94 94 0 0 1 188 88" fill="none" stroke="url(#' + sh + ')" stroke-width="3.4" stroke-linecap="round"/></g>';
+  }
+
+  function badgeIvory() {
+    var g = gid('g'), core = gid('c'), sheen = gid('s');
+    var shield = 'M60 20 L96 32 V58 C96 80 81 95 60 104 C39 95 24 80 24 58 V32 Z';
+    return '<defs>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2=".6" y2="1">' +
+        '<stop offset="0" stop-color="#FFF8DC"/><stop offset=".45" stop-color="#E8C87C"/>' +
+        '<stop offset="1" stop-color="#A8801F"/></linearGradient>' +
+      '<linearGradient id="' + core + '" x1=".1" y1="0" x2=".9" y2="1">' +
+        '<stop offset="0" stop-color="#9B2640"/><stop offset=".55" stop-color="#6E1526"/>' +
+        '<stop offset="1" stop-color="#4A0E1C"/></linearGradient>' +
+      '<linearGradient id="' + sheen + '" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/>' +
+        '<stop offset=".45" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + shield + '" fill="url(#' + g + ')"/>' +
+      '<path d="' + shield + '" fill="none" stroke="#7A5A14" stroke-width="1.1" opacity=".55" transform="translate(60 62) scale(.93) translate(-60 -62)"/>' +
+      '<path d="' + shield + '" fill="url(#' + core + ')" transform="translate(60 62) scale(.86) translate(-60 -62)"/>' +
+      '<path d="' + shield + '" fill="url(#' + sheen + ')" transform="translate(60 62) scale(.86) translate(-60 -62)"/>' +
+      '<path d="M40 46 H80" stroke="#F3D08A" stroke-width="1.2" opacity=".55"/>' +
+      '<text x="60" y="66" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#F8E9BC">I</text>' +
+      '<path d="M44 78 Q60 88 76 78" stroke="#F3D08A" stroke-width="1.4" fill="none" opacity=".7"/>' +
+      '<circle cx="60" cy="20" r="3.2" fill="#FFF3CE"/>';
+  }
+
+  function wingsIvory() {
+    var g1 = gid('w'), g2 = gid('u');
+    var prim = armWing(7, [4, 2], [72, -86], [148, -64], 132, 84, 9, 6, 56);
+    prim.fill = g1; prim.bend = .16;
+    var sec = armWing(5, [2, 4], [40, -48], [94, -28], 78, 52, 7.5, 5.5, 66);
+    sec.fill = g2;
+    var cov = armWing(3, [2, 6], [20, -24], [46, -10], 44, 32, 9, 7, 86);
+    cov.fill = g2;
+    prim.fills = [g1, g2]; sec.fills = [g2, g1];
+    var body = wingArt({
+      edge: '#B8942B', ink: '#FFF6D8',
+      back: 'M0 8 Q60 -88 146 -66 Q100 22 4 28 Z', backFill: g2,
+      layers: [cov, sec, prim],
+      arm: 'M4 0 Q74 -88 150 -64', armFill: g1, armW: 7
+    });
+    return '<defs>' +
+      '<linearGradient id="' + g1 + '" x1="0" y1="1" x2="1" y2=".2"><stop offset="0" stop-color="#FFF6D8"/>' +
+        '<stop offset=".5" stop-color="#F3D08A"/><stop offset="1" stop-color="#C79A32"/></linearGradient>' +
+      '<linearGradient id="' + g2 + '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFF9E6"/>' +
+        '<stop offset="1" stop-color="#E0BC6A"/></linearGradient>' +
+      '</defs>' + body;
+  }
+
+  var ART = {
+    aurelia: { frame: frameAurelia, badge: badgeAurelia, wings: wingsAurelia },
+    verdant: { frame: frameVerdant, badge: badgeVerdant, wings: wingsVerdant },
+    perla: { frame: framePerla, badge: badgePerla, wings: wingsPerla },
+    ignis: { frame: frameIgnis, badge: badgeIgnis, wings: wingsIgnis },
+    glacia: { frame: frameGlacia, badge: badgeGlacia, wings: wingsGlacia },
+    ivory: { frame: frameIvory, badge: badgeIvory, wings: wingsIvory }
+  };
+
+  function svg(inner, box, cls) {
+    return '<svg viewBox="' + box + '" class="' + cls + '" aria-hidden="true" focusable="false">' + inner + '</svg>';
+  }
+
+  function frame(id, size) {
+    var a = ART[id] || ART.ivory;
+    return svg(a.frame(), '0 0 200 200', 'rg-frame rg-' + (a === ART.aurelia ? 'au' : a === ART.verdant ? 'vd' :
+      a === ART.perla ? 'pr' : a === ART.ignis ? 'ig' : a === ART.glacia ? 'gl' : 'iv')).replace(
+      'class="rg-frame', 'style="width:' + (size || 200) + 'px;height:' + (size || 200) + 'px" class="rg-frame');
+  }
+  function badge(id, size) {
+    var a = ART[id] || ART.ivory;
+    var box = (id === 'ivory') ? '0 0 120 96' : '0 0 120 120';
+    return svg(a.badge(), box, 'rg-badge-svg').replace('<svg ', '<svg style="width:' + (size || 64) + 'px;height:auto" ');
+  }
+  function wings(id, w) {
+    var a = ART[id] || ART.ivory;
+    var inner =
+      '<g transform="translate(200 172)"><g class="rg-wr">' + a.wings() + '</g></g>' +
+      '<g transform="translate(400 0) scale(-1 1)"><g transform="translate(200 172)"><g class="rg-wl">' +
+        a.wings() + '</g></g></g>';
+    return svg(inner, '0 0 400 340', 'rg-wing-svg').replace('<svg ', '<svg style="width:' + (w || 300) + 'px;height:auto" ');
+  }
+
+  function portrait(id, size, letters, opts) {
+    var s = size || 132;
+    var wingsW = Math.round(s * ((opts && opts.wing) || 2.5));
+    return '<div class="rg-portrait rg-' + id + '" style="width:' + s + 'px;height:' + s + 'px">' +
+      '<div class="rg-wings" style="width:' + wingsW + 'px;height:' + Math.round(wingsW * 0.85) +
+        'px;left:50%;top:50%;transform:translate(-50%,-50%)">' +
+        wings(id, wingsW) + '</div>' +
+      '<div class="rg-face" style="width:' + Math.round(s * 0.78) + 'px;height:' + Math.round(s * 0.78) + 'px;font-size:' +
+        Math.round(s * 0.3) + 'px">' + esc(letters || 'I') + '</div>' +
+      '<div class="rg-ring">' + frame(id, s) + '</div>' +
+      '<div class="rg-badge" style="transform:translate(-50%,-50%) scale(' + (s / 260) + ')">' + badge(id, 120) + '</div>' +
+    '</div>';
+  }
+
+  function court(id) {
+    var st = byId(id);
+    return '<section class="rg-court rg-' + id + '">' +
+      '<p class="rg-court-name">Set ' + (SETS.indexOf(st) + 1) + ' · ' + esc(st.court) + '</p>' +
+      '<h3>' + esc(st.name) + '</h3>' +
+      '<p class="rg-line">' + esc(st.line) + '</p>' +
+      '<div class="rg-stage">' + portrait(id, 168, 'A') + '</div>' +
+      '<div class="rg-parts">' +
+        '<div class="rg-part">' + frame(id, 76) + '<span>' + esc(st.parts[0]) + '</span></div>' +
+        '<div class="rg-part">' + badge(id, 70) + '<span>' + esc(st.parts[1]) + '</span></div>' +
+        '<div class="rg-part"><div style="position:relative;width:76px;height:44px;overflow:visible">' +
+          wings(id, 76) + '</div><span>' + esc(st.parts[2]) + '</span></div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  function gallery() {
+    return '<div class="rg-wrap">' + SETS.map(function (s) { return court(s.id); }).join('') + '</div>';
+  }
+
+  return { SETS: SETS, frame: frame, badge: badge, wings: wings, portrait: portrait, court: court, gallery: gallery, byId: byId };
+})();
+</script>
+<script id="iv-regalia-desk">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE REGALIA · the desk room
+   ---------------------------------------------------------------------------
+   Six courts, three parts each — frame, badge, wings. This room does three
+   things and nothing else:
+
+     BIND    what each plan wears. The rows come from `subscription_tiers`, so
+             adding a fifth plan or retiring the third changes this screen by
+             itself. Nothing here counts to four.
+     GIVE    one part to one member, by hand — the coupon's own gesture.
+     SPARE   what no plan wears yet. The wings a member is asked to earn.
+
+   State lives in `regalia_bindings` and `member_regalia` (see
+   site_work/sql/regalia.sql). Until that file is run, the same facts are kept
+   in this browser so the room still works and still shows the truth of what
+   she has set.
+
+     window.IVROOMS.regalia(pane)
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var RG = window.IVREGALIA;
+  var K = window.IVKIT || {};
+  var KEY = 'iv.regalia.v1';
+  var PARTS = ['frame', 'badge', 'wings'];
+  var PARTS_LABEL = { frame: 'The frame', badge: 'The badge', wings: 'The wings' };
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function IV() { return window.IVSESS; }
+
+  function local() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { bindings: {}, grants: {} };
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ── the truth, as far as this screen can see it ─────────────────────── */
+  function loadTiers() {
+    var iv = IV();
+    if (!iv) return Promise.resolve([]);
+    return iv.get('/rest/v1/subscription_tiers?select=id,name,level,price_inr,is_active&order=level.asc')
+      .then(function (rows) { return Array.isArray(rows) ? rows : []; })
+      .catch(function () { return []; });
+  }
+
+  function loadBindings() {
+    var iv = IV();
+    if (!iv) return Promise.resolve(null);
+    return iv.get('/rest/v1/regalia_bindings?select=*')
+      .then(function (rows) { return Array.isArray(rows) ? rows : null; })
+      .catch(function () { return null; });
+  }
+
+  window.IVROOMS = window.IVROOMS || {};
+  window.IVROOMS.regalia = function (pane) {
+    var S = local();
+    var tiers = [];
+    var seen = { bindings: null };
+
+    pane.innerHTML =
+      '<p class="dk-kick">Frames · badges · wings</p>' +
+      '<h1 class="dk-h1">Six courts. <em>Three parts.</em></h1>' +
+      '<p class="dk-lede">A court is a frame, a badge and a pair of wings that belong to one another. ' +
+        'Bind a court to a plan and everyone on that plan wears it; give one part to one member by hand; ' +
+        'keep the rest back for the ones who earn them.</p>' +
+      '<div class="dk-chips rg-tabs" id="rg-tabs">' +
+        '<button class="dk-chip on" data-tab="bind">What each plan wears</button>' +
+        '<button class="dk-chip" data-tab="grant">Give by hand</button>' +
+        '<button class="dk-chip" data-tab="spare">The spares</button>' +
+      '</div>' +
+      '<div id="rg-pane"><div class="dk-empty">Reading the six courts…</div></div>' +
+      '<p class="dk-kick rg-shelfkick">The six courts</p>' +
+      '<div class="rg-shelf" id="rg-shelf"></div>';
+
+    function $(id) { return pane.querySelector('#' + id); }
+
+    /* the six courts as a shelf of living frames */
+    $('rg-shelf').innerHTML = RG.SETS.map(function (s) {
+      return '<figure class="rg-shelfcard rg-' + s.id + '">' +
+        '<div class="rg-shelfart">' + RG.portrait(s.id, 78, s.name[0], { wing: 1.78 }) + '</div>' +
+        '<figcaption><b>' + esc(s.name) + '</b><s>' + esc(s.court) + '</s>' +
+        '<em>' + s.parts.map(esc).join(' · ') + '</em></figcaption>' +
+      '</figure>';
+    }).join('');
+
+    /* ── 1 · bindings ──────────────────────────────────────────────────── */
+    function row(key, label, sub) {
+      var b = S.bindings[key] || { court: 'ivory', parts: [] };
+      return '<div class="rg-bindrow" data-key="' + esc(key) + '">' +
+        '<div class="rg-bindhead"><b>' + esc(label) + '</b><s>' + esc(sub) + '</s></div>' +
+        '<div class="rg-bindbody">' +
+          '<div class="rg-bindart">' + RG.portrait(b.court, 92, 'A') + '</div>' +
+          '<div class="rg-bindkeys">' +
+            '<select class="dk-input rg-court-pick">' +
+              RG.SETS.map(function (s) {
+                return '<option value="' + s.id + '"' + (s.id === b.court ? ' selected' : '') + '>' +
+                  esc(s.name) + ' — ' + esc(s.court) + '</option>';
+              }).join('') +
+            '</select>' +
+            '<div class="dk-chips rg-parts">' +
+              PARTS.map(function (p) {
+                return '<button class="dk-chip' + (b.parts.indexOf(p) >= 0 ? ' on' : '') +
+                  '" data-part="' + p + '">' + (p === 'wings' ? 'wings — earned' : p) + '</button>';
+              }).join('') +
+            '</div>' +
+            '<p class="rg-partline"></p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function paintPartline(root) {
+      var rowEl = root.closest('.rg-bindrow');
+      var b = S.bindings[rowEl.dataset.key] || { court: 'ivory', parts: [] };
+      var set = RG.byId(b.court);
+      var names = b.parts.map(function (p) { return PARTS_LABEL[p] === 'The wings' ? set.parts[2] : set.parts[PARTS.indexOf(p)]; });
+      rowEl.querySelector('.rg-partline').textContent = names.length
+        ? set.name + ' shows ' + names.join(', ') + '.'
+        : 'Nothing of this court shows on this plan.';
+    }
+
+    function renderBind() {
+      var host = $('rg-pane');
+      var forever = { key: 'forever', label: 'Forever members', sub: 'everyone who is not on a plan' };
+      host.innerHTML =
+        '<div class="rg-bind">' +
+          row(forever.key, forever.label, forever.sub) +
+          (tiers.length
+            ? tiers.map(function (t) {
+                return row('tier:' + t.level, t.name, 'plan ' + t.level + (t.is_active === false ? ' · retired' : '') +
+                  (t.price_inr ? ' · ₹' + Number(t.price_inr).toLocaleString('en-IN') : ''));
+              }).join('')
+            : '<p class="dk-empty">The plans could not be read. The six courts are still here, and nothing has been lost.</p>') +
+        '</div>' +
+        '<div class="rg-savebar"><button class="dk-btn gold" id="rg-save">SAVE WHAT EACH PLAN WEARS</button>' +
+          '<span class="rg-hint">Wings are the part that is earned. Leave them off a plan to hold them back.</span></div>';
+
+      Array.prototype.forEach.call(host.querySelectorAll('.rg-bindrow'), function (rowEl) {
+        var key = rowEl.dataset.key;
+        S.bindings[key] = S.bindings[key] || { court: 'ivory', parts: ['frame', 'badge'] };
+
+        rowEl.querySelector('.rg-court-pick').addEventListener('change', function () {
+          S.bindings[key].court = this.value;
+          rowEl.querySelector('.rg-bindart').innerHTML = RG.portrait(this.value, 92, 'A');
+          paintPartline(this);
+        });
+        Array.prototype.forEach.call(rowEl.querySelectorAll('.rg-parts [data-part]'), function (b) {
+          b.addEventListener('click', function () {
+            var parts = S.bindings[key].parts;
+            var i = parts.indexOf(b.dataset.part);
+            if (i >= 0) parts.splice(i, 1); else parts.push(b.dataset.part);
+            b.classList.toggle('on', i < 0);
+            paintPartline(b);
+          });
+        });
+        paintPartline(rowEl.querySelector('.rg-court-pick'));
+      });
+
+      $('rg-save').addEventListener('click', function () {
+        save(S);
+        var iv = IV();
+        var rows = Object.keys(S.bindings).map(function (k) {
+          return { scope: k, court: S.bindings[k].court, parts: S.bindings[k].parts };
+        });
+        if (!iv) { K.toast('Saved on this device.'); return; }
+        iv.call('/rest/v1/regalia_bindings?on_conflict=scope', rows, {
+          method: 'POST', extra: { Prefer: 'resolution=merge-duplicates,return=minimal' }
+        }).then(function () {
+          K.toast('Saved. Every member on a plan will wear this court.');
+        }).catch(function () {
+          K.toast('Saved on this device. The house table has not been made yet.', true);
+        });
+      });
+    }
+
+    /* ── 2 · grants ────────────────────────────────────────────────────── */
+    function renderGrant() {
+      var host = $('rg-pane');
+      host.innerHTML =
+        '<div class="dk-card">' +
+          '<label class="dk-label" for="rg-who">Who is it for</label>' +
+          '<input class="dk-input" id="rg-who" placeholder="her name, or her email" autocomplete="off">' +
+          '<div id="rg-people" class="rg-people"></div>' +
+          '<div id="rg-give-box" hidden>' +
+            '<div class="rg-grantgrid">' + PARTS.map(function (p) {
+              return '<div class="rg-grantcell"><label class="dk-label">' + PARTS_LABEL[p] + '</label>' +
+                '<select class="dk-input" data-gpart="' + p + '">' +
+                  '<option value="">— leave as it is —</option>' +
+                  RG.SETS.map(function (s) {
+                    return '<option value="' + s.id + '">' + esc(s.name) + ' · ' +
+                      esc(s.parts[PARTS.indexOf(p)]) + '</option>';
+                  }).join('') +
+                '</select></div>';
+            }).join('') + '</div>' +
+            '<label class="dk-label" for="rg-note">A line for her</label>' +
+            '<input class="dk-input" id="rg-note" placeholder="for the tenth evening" autocomplete="off">' +
+            '<div id="rg-preview" class="rg-preview"></div>' +
+            '<div class="rg-savebar"><button class="dk-btn gold" id="rg-give">GIVE IT TO HER</button>' +
+              '<span class="rg-hint">A frame and a badge can be given today. The wings of the same court can be kept back and given later.</span></div>' +
+          '</div>' +
+        '</div>';
+
+      var who = null;
+      var people = $('rg-people');
+
+      function choice() {
+        var o = { frame: null, badge: null, wing: null };
+        PARTS.forEach(function (p) {
+          var v = host.querySelector('[data-gpart="' + p + '"]').value;
+          if (p === 'wings') o.wing = v || null; else o[p] = v || null;
+        });
+        return o;
+      }
+
+      function paintPreview() {
+        var c = choice();
+        var court = c.frame || c.badge || c.wing || 'ivory';
+        var set = RG.byId(court);
+        var letter = (who && who.display_name ? who.display_name.trim()[0] : 'A').toUpperCase();
+        $('rg-preview').innerHTML =
+          '<div class="rg-previewart">' + RG.portrait(court, 128, letter) + '</div>' +
+          '<div class="rg-previewline"><b>' + esc(who ? (who.display_name || who.email || 'her') : 'her') + '</b>' +
+            '<s>' + (c.frame ? set.parts[0] : 'her own frame') + ' · ' +
+            (c.badge ? set.parts[1] : 'her own badge') +
+            (c.wing ? ' · ' + set.parts[2] + ' wings' : '') + '</s>' +
+            '<em>' + esc(RG.byId(court).line) + '</em></div>';
+      }
+
+      function paintPeople(rows) {
+        if (!rows || !rows.length) {
+          people.innerHTML = '<p class="rg-hint">Nobody by that name on the roll.</p>';
+          return;
+        }
+        people.innerHTML = rows.slice(0, 6).map(function (m) {
+          return '<button class="rg-person" data-id="' + esc(m.id) + '" data-name="' +
+            esc(m.display_name || '') + '" data-email="' + esc(m.email || '') + '">' +
+            '<b>' + esc(m.display_name || 'A member') + '</b><s>' + esc(m.email || '') + '</s></button>';
+        }).join('');
+        Array.prototype.forEach.call(people.querySelectorAll('.rg-person'), function (b) {
+          b.addEventListener('click', function () {
+            who = { id: b.dataset.id, display_name: b.dataset.name, email: b.dataset.email };
+            Array.prototype.forEach.call(people.querySelectorAll('.rg-person'), function (x) {
+              x.classList.toggle('on', x === b);
+            });
+            $('rg-give-box').hidden = false;
+            paintPreview();
+          });
+        });
+      }
+
+      var t = null;
+      $('rg-who').addEventListener('input', function () {
+        clearTimeout(t);
+        var q = $('rg-who').value.trim();
+        if (q.length < 2) { people.innerHTML = ''; return; }
+        t = setTimeout(function () {
+          var iv = IV();
+          if (!iv) return;
+          iv.call('/rest/v1/rpc/list_members', { search_in: q })
+            .then(paintPeople)
+            .catch(function () { people.innerHTML = '<p class="rg-hint">The roll could not be read just now.</p>'; });
+        }, 260);
+      });
+
+      Array.prototype.forEach.call(host.querySelectorAll('[data-gpart]'), function (sel) {
+        sel.addEventListener('change', paintPreview);
+      });
+
+      $('rg-give').addEventListener('click', function () {
+        if (!who) return;
+        var c = choice();
+        if (!c.frame && !c.badge && !c.wing) { K.toast('Choose at least one part.', true); return; }
+        var note = $('rg-note').value.trim();
+        S.grants[who.id] = { frame: c.frame, badge: c.badge, wing: c.wing, note: note, at: new Date().toISOString() };
+        save(S);
+
+        var iv = IV();
+        if (!iv) { K.toast('Given, on this device.'); return; }
+        iv.call('/rest/v1/member_regalia?on_conflict=member_id', [{
+          member_id: who.id, frame: c.frame, badge: c.badge, wing: c.wing, note: note
+        }], { method: 'POST', extra: { Prefer: 'resolution=merge-duplicates,return=minimal' } })
+          .then(function () { K.toast('Given. It is hers from her next screen.'); })
+          .catch(function () { K.toast('Given on this device — the house table has not been made yet.', true); });
+        paintPreview();
+      });
+
+      paintPreview();
+    }
+
+    /* ── 3 · spares ────────────────────────────────────────────────────── */
+    function renderSpare() {
+      var bound = {};
+      Object.keys(S.bindings).forEach(function (k) {
+        var b = S.bindings[k] || {};
+        (b.parts || []).forEach(function (p) { bound[p + ':' + b.court] = true; });
+      });
+      var rows = [];
+      RG.SETS.forEach(function (s) {
+        PARTS.forEach(function (p) {
+          if (!bound[p + ':' + s.id]) rows.push({ id: s.id, part: p, name: s.name, court: s.court,
+            partName: s.parts[PARTS.indexOf(p)] });
+        });
+      });
+
+      $('rg-pane').innerHTML =
+        '<p class="dk-lede">Every part no plan wears. These are the ones she can be given by hand, ' +
+          'or made to earn.</p>' +
+        (rows.length
+          ? '<div class="rg-spares">' + rows.map(function (r) {
+              var art = r.part === 'frame' ? RG.frame(r.id, 56)
+                : r.part === 'badge' ? RG.badge(r.id, 56)
+                : '<span class="rg-sparewings">' + RG.wings(r.id, 72) + '</span>';
+              return '<figure class="rg-spare rg-' + r.id + '"><div class="rg-spareart">' + art + '</div>' +
+                '<figcaption><b>' + esc(r.partName) + '</b><s>' + esc(r.name) + ' · ' + esc(r.court) + '</s></figcaption></figure>';
+            }).join('') + '</div>'
+          : '<p class="dk-empty">Every part is bound to a plan. Nothing is spare.</p>') +
+        '<p class="rg-hint">Wings left spare are the ones that can be promised and given later, ' +
+          'on top of whatever frame she already wears.</p>';
+    }
+
+    /* ── the room ──────────────────────────────────────────────────────── */
+    var tabs = pane.querySelectorAll('#rg-tabs [data-tab]');
+    Array.prototype.forEach.call(tabs, function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(tabs, function (x) { x.classList.toggle('on', x === b); });
+        var t = b.dataset.tab;
+        if (t === 'bind') renderBind();
+        else if (t === 'grant') renderGrant();
+        else renderSpare();
+      });
+    });
+
+    Promise.all([loadTiers(), loadBindings()]).then(function (res) {
+      tiers = res[0] || [];
+      seen.bindings = res[1];
+      if (seen.bindings && seen.bindings.length) {
+        /* the house's copy wins; the browser's copy is only a mirror */
+        seen.bindings.forEach(function (r) {
+          S.bindings[r.scope] = { court: r.court, parts: Array.isArray(r.parts) ? r.parts : [] };
+        });
+        save(S);
+      }
+      if ($('rg-pane')) renderBind();
+    });
+  };
+})();
 </script>
 <script id="iv-rbn-js">
 /* ============================================================================
