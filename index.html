@@ -11667,6 +11667,90 @@ body:has(#desk-screen.on) .treasure-fab{opacity:0;pointer-events:none}
   .fb-grid{grid-template-columns:repeat(2,1fr)}
   .fb-metal{min-width:0}
 }
+
+/* ── the shout: one badge, said out loud ─────────────────────────────────── */
+.fb-shout-hands { margin: 16px 0 8px; }
+.fb-shout-preview { display: flex; gap: 16px; align-items: center; margin: 14px 0 4px;
+  padding: 14px; border-radius: 16px; background: rgba(255, 252, 244, .72);
+  border: 1px solid rgba(160, 120, 60, .22); }
+.fb-shout-preview .fb-previewart { flex: none; }
+.fb-shout-preview .fb-previewline { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fb-shout-preview .fb-previewline b { font-family: Georgia, serif; font-size: 19px; color: #4A1118; }
+.fb-shout-preview .fb-previewline s { font-size: 12px; letter-spacing: .10em; text-transform: uppercase; color: #8A6A2E; text-decoration: none; }
+.fb-shout-preview .fb-previewline em { font-style: italic; color: #6B3B34; font-size: 15px; }
+
+.fb-shout-list { margin-top: 6px; }
+.fb-shout { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 15px;
+  background: #FFFDF7; border: 1px solid rgba(160, 120, 60, .22); margin-bottom: 10px;
+  box-shadow: 0 10px 24px -22px rgba(90, 50, 10, .6); }
+.fb-shout.is-off { opacity: .55; }
+.fb-shoutart { flex: none; width: 104px; }
+.fb-shoutart > * { display: block; width: 100%; height: auto; }
+.fb-shoutbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.fb-shoutbody b { font-family: Georgia, serif; font-size: 17px; color: #4A1118; }
+.fb-shoutbody s { font-size: 12.5px; line-height: 1.45; color: #6B3B34; text-decoration: none; }
+.fb-shoutbody i { font-style: normal; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #A8834A; }
+.fb-shoutacts { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 7px; }
+.fb-shoutacts .dk-chip { padding: 6px 12px; font-size: 10px; letter-spacing: .12em; }
+</style>
+<style id="iv-smooth-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SMOOTH HOUSE · what the browser is allowed to skip
+   ---------------------------------------------------------------------------
+   `content-visibility: auto` lets the browser leave whole cards unlaid and
+   unpainted until they come near the screen: the single largest saving on a
+   long page, and completely invisible when scrolling. The intrinsic size keeps
+   the scrollbar honest while a card is skipped.
+
+   Quiet mode is entered by `smooth.js` only below 48 fps: the sparks, glints,
+   rays and blurred glass step aside, everything else stays exactly as it is.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html.iv-smooth .pf-card,
+html.iv-smooth .hp-feed > *,
+html.iv-smooth .lib-feed > *,
+html.iv-smooth .fb-grid > *,
+html.iv-smooth .fb-worn > *,
+html.iv-smooth .the-grid > *,
+html.iv-smooth .dk-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
+}
+
+/* a long list that must keep its own scroll keeps painting, but its rows skip */
+html.iv-smooth .want-row,
+html.iv-smooth .ibx-item,
+html.iv-smooth .the-name {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 96px;
+}
+
+/* ── quiet mode · below 48 fps, and only then ─────────────────────────────── */
+html.iv-quiet .iv-frame-sparks,
+html.iv-quiet .iv-bd-glints,
+html.iv-quiet .pulse-rays,
+html.iv-quiet .pulse-halo,
+html.iv-quiet .iv-frame-sweep,
+html.iv-quiet .iv-bd-sheen,
+html.iv-quiet [class*="spark"],
+html.iv-quiet [class*="glint"],
+html.iv-quiet [class*="shimmer"],
+html.iv-quiet [class*="dazzle"] {
+  display: none !important;
+}
+
+html.iv-quiet * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.iv-quiet .iv-frame-light {
+  animation-duration: 14s !important;
+}
+
+html.iv-quiet .iv-p-disc {
+  box-shadow: inset 0 0 24px rgba(120, 80, 30, .18) !important;
+}
 </style>
 
 <style id="iv-store-css">
@@ -28201,10 +28285,11 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
         'house’s plaque, cut free of its wings so they beat, and struck in ten materials — with her own ' +
         'words on it. Choose one for a plan, or give one to a member by hand.</p>' +
       '<div class="dk-chips fb-tabs" id="fb-tabs">' +
-        '<button class="dk-chip on" data-tab="bank">The bank</button>' +
-        '<button class="dk-chip" data-tab="plans">What a plan wears</button>' +
-        '<button class="dk-chip" data-tab="give">Give by hand</button>' +
-        '<button class="dk-chip" data-tab="worn">Worn today</button>' +
+        '<button class="dk-chip on" data-tab="bank" data-cue="frames/bank">The bank</button>' +
+        '<button class="dk-chip" data-tab="plans" data-cue="frames/plans">What a plan wears</button>' +
+        '<button class="dk-chip" data-tab="give" data-cue="frames/give">Give by hand</button>' +
+        '<button class="dk-chip" data-tab="worn" data-cue="frames/worn">Worn today</button>' +
+        '<button class="dk-chip" data-tab="shouts" data-cue="frames/shouts">The shout</button>' +
       '</div>' +
       '<div id="fb-pane"><div class="dk-empty">Opening the bank…</div></div>';
 
@@ -28484,6 +28569,34 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
         '<p class="fb-hint">A gift by hand always outranks a plan. Take it back and she returns to whatever her plan wears.</p>';
     }
 
+    /* ── 5 · the shout · one badge said to the whole house ─────────────── */
+    function renderShouts() {
+      var host = $('fb-pane');
+      if (!host) return;
+      if (!window.IVSHOUTS) {
+        host.innerHTML = '<p class="dk-empty">The shout is still being cut.</p>';
+        return;
+      }
+      host.innerHTML = '<div id="sh-host"></div>';
+      var api = {
+        esc: esc,
+        portrait: portraitOf,
+        faces: frames(),
+        tints: tints(),
+        plans: plans,
+        people: members,
+        tintOf: R ? R.tintOf : function () { return { name: '' }; },
+        pickFrame: function () { return 'ivory'; },
+        toast: toast,
+        search: function (q) {
+          var iv = IV();
+          if (!iv) return Promise.resolve([]);
+          return iv.call('/rest/v1/rpc/list_members', { search_in: q });
+        }
+      };
+      window.IVSHOUTS.render(host.querySelector('#sh-host'), api);
+    }
+
     /* ── the room ──────────────────────────────────────────────────────── */
     var tabs = pane.querySelectorAll('#fb-tabs [data-tab]');
     Array.prototype.forEach.call(tabs, function (b) {
@@ -28493,6 +28606,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
         if (t === 'bank') renderBank();
         else if (t === 'plans') renderPlans();
         else if (t === 'give') renderGive();
+        else if (t === 'shouts') renderShouts();
         else renderWorn();
       });
     });
@@ -28506,7 +28620,10 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
         .then(function (r) { plans = Array.isArray(r) ? r : []; })
         .catch(function () { plans = []; })
         .then(function () {
-          if (pane.querySelector('#fb-tabs [data-tab="plans"]').classList.contains('on')) renderPlans();
+          var onPlans = pane.querySelector('#fb-tabs [data-tab="plans"]');
+          if (onPlans && onPlans.classList.contains('on')) renderPlans();
+          var onShouts = pane.querySelector('#fb-tabs [data-tab="shouts"]');
+          if (onShouts && onShouts.classList.contains('on')) renderShouts();
         });
       iv.get('/rest/v1/regalia_bindings?select=*')
         .then(function (r) {
@@ -28515,6 +28632,710 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
           save(B);
         }).catch(function () {});
     }
+  };
+})();
+</script>
+<script id="iv-doors-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE THREE ROOMS THAT HAD NO DOOR
+
+   `calls`, `wishes` and `enquiries` each drew a beautiful empty state and then
+   offered nothing to press. That is honest about an empty house, but a keeper
+   should still be able to act from the room she is standing in.
+
+   So each one gains one primary action, in the house's own voice:
+
+     · calls      — "ASK HER TO CALL": a name, a line, and it goes to her phone
+                    as a notice, the same circuit the app uses.
+     · wishes     — "WRITE ONE FOR HER": a wish said on a member's behalf.
+     · enquiries  — "READ THE TRAY IN SUPABASE": the one thing that actually
+                    unblocks this room, copied in one tap, because the tray is
+                    hidden by a missing policy rather than by an empty house.
+
+   Nothing is faked: the first two write a real notification through
+   `send_notification`; the third copies a real query.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!window.IVROOMS) return;
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, bad); }
+  function iv() { return window.IVSESS || null; }
+
+  function search(q) {
+    var s = iv();
+    if (!s || !s.call) return Promise.resolve([]);
+    return s.call('/rest/v1/rpc/list_members', { search_in: q }).catch(function () { return []; });
+  }
+
+  /* ── one small form, the same in both rooms ───────────────────────────── */
+  function mount(pane, cfg) {
+    var host = pane.querySelector('#dk-pane') || pane;
+    if (host.querySelector('#door-act')) return;
+    var anchor = cfg.anchor ? host.querySelector(cfg.anchor) : null;
+
+    var box = document.createElement('div');
+    box.id = 'door-act';
+    box.className = 'dk-card';
+    box.style.marginTop = '14px';
+    box.innerHTML =
+      '<p class="dk-label">' + esc(cfg.label) + '</p>' +
+      '<input class="dk-input" id="door-who" placeholder="her name, or her email" autocomplete="off">' +
+      '<div id="door-people" class="fb-people"></div>' +
+      '<label class="dk-label" for="door-note">' + esc(cfg.noteLabel) + '</label>' +
+      '<input class="dk-input" id="door-note" maxlength="120" placeholder="' + esc(cfg.notePlace) + '">' +
+      '<div class="fb-savebar"><button class="dk-btn gold" id="door-send">' + esc(cfg.cta) + '</button>' +
+      '<span class="fb-hint">' + esc(cfg.hint) + '</span></div>';
+
+    var empty = anchor || host.querySelector('.dk-empty, .rmx-none');
+    if (empty && empty.parentNode) empty.parentNode.insertBefore(box, empty);
+    else host.appendChild(box);
+
+    var who = null, t = null;
+    var w = box.querySelector('#door-who');
+    if (w) {
+      w.addEventListener('input', function () {
+        var q = w.value.trim();
+        clearTimeout(t);
+        var people = box.querySelector('#door-people');
+        if (q.length < 2) { if (people) people.innerHTML = ''; return; }
+        t = setTimeout(function () {
+          search(q).then(function (rows) {
+            var p = box.querySelector('#door-people');
+            if (!p) return;
+            p.innerHTML = (rows || []).slice(0, 5).map(function (m) {
+              return '<button class="fb-person" data-id="' + esc(m.id) + '" data-name="' + esc(m.display_name || m.email) +
+                '"><b>' + esc(m.display_name || 'A member') + '</b><s>' + esc(m.email || '') + '</s></button>';
+            }).join('') || '<p class="fb-hint">Nobody by that name.</p>';
+            Array.prototype.forEach.call(p.querySelectorAll('.fb-person'), function (b) {
+              b.addEventListener('click', function () {
+                who = { id: b.dataset.id, name: b.dataset.name };
+                Array.prototype.forEach.call(p.querySelectorAll('.fb-person'), function (x) {
+                  x.classList.toggle('on', x === b);
+                });
+              });
+            });
+          });
+        }, 240);
+      });
+    }
+
+    var send = box.querySelector('#door-send');
+    if (send) send.addEventListener('click', function () {
+      var noteEl = box.querySelector('#door-note');
+      var note = noteEl ? noteEl.value.trim() : '';
+      if (!who) { toast('Choose her first.', true); if (w) w.focus(); return; }
+      var msg = note || cfg.defaultNote;
+      var call = window.IVNOTIFY && window.IVNOTIFY.to
+        ? window.IVNOTIFY.to(who.id, cfg.title(who.name), msg, cfg.tab)
+        : Promise.resolve(false);
+      send.disabled = true;
+      call.then(function (ok) {
+        send.disabled = false;
+        if (ok) {
+          toast(cfg.sent);
+          if (noteEl) noteEl.value = '';
+          who = null;
+          var p = box.querySelector('#door-people'); if (p) p.innerHTML = '';
+          if (w) w.value = '';
+        } else {
+          toast('The house did not answer — nothing was sent.', true);
+        }
+      });
+    });
+  }
+
+  function wrap(key, fn) {
+    var orig = window.IVROOMS[key];
+    if (!orig || orig.__doored) return;
+    var wrapped = function (pane) {
+      var r = orig(pane);
+      setTimeout(function () { try { fn(pane); } catch (e) {} }, 320);
+      return r;
+    };
+    wrapped.__doored = 1;
+    window.IVROOMS[key] = wrapped;
+  }
+
+  var CALLS = {
+    anchor: '#dk-calls-body',
+    label: 'Or ask her yourself',
+    noteLabel: 'What it is for',
+    notePlace: 'a few minutes, when you are free',
+    cta: 'ASK HER TO CALL',
+    hint: 'It reaches her inbox and her phone, the same as any notice.',
+    title: function (n) { return 'A call, ' + n; },
+    defaultNote: 'Ivory would like a few minutes with you.',
+    tab: 'calls',
+    sent: 'Asked. It is on her phone.'
+  };
+  var WISHES = {
+    label: 'Or write one on her behalf',
+    noteLabel: 'The wish',
+    notePlace: 'that the year turns kindly for her',
+    cta: 'WRITE IT FOR HER',
+    hint: 'A wish written here is a notice she keeps.',
+    title: function () { return 'A wish, from the house'; },
+    defaultNote: 'A wish was written for you today.',
+    tab: 'feed',
+    sent: 'Written. She will find it in her inbox.'
+  };
+
+  function callsDoor(pane) { mount(pane, CALLS); }
+  function wishesDoor(pane) { mount(pane, WISHES); }
+
+  /* the tray is not an action on a person — it is the one query that makes
+     the room readable until its policy is written */
+  function enqDoor(pane) {
+    var host = pane.querySelector('#dk-pane') || pane;
+    if (host.querySelector('#door-tray')) return;
+    var box = document.createElement('div');
+    box.id = 'door-tray';
+    box.className = 'dk-card';
+    box.style.marginTop = '14px';
+    box.innerHTML =
+      '<p class="dk-label">Why the tray looks empty</p>' +
+      '<p class="fb-hint" style="margin:0 0 10px">The letters are there; the house cannot read them with a member\u2019s key. ' +
+        'One query, run in Supabase, will show them until the policy is written.</p>' +
+      '<button class="dk-btn gold" id="door-copy" data-cue="door/enquiries/query">COPY THE QUERY</button>' +
+      '<p class="fb-hint" style="margin-top:8px">Paste it into the SQL editor. It only reads.</p>';
+    var empty = host.querySelector('.dk-empty, .rmx-none');
+    if (empty && empty.parentNode) empty.parentNode.insertBefore(box, empty);
+    else host.appendChild(box);
+
+    var b = box.querySelector('#door-copy');
+    if (b) b.addEventListener('click', function () {
+      var sql = "select id, created_at, name, email, subject, message\n" +
+                "from public.business_enquiries\n" +
+                "order by created_at desc\n" +
+                "limit 50;";
+      var done = function () { toast('Copied. Paste it into the SQL editor.'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(sql).then(done).catch(done);
+      } else { done(); }
+    });
+  }
+
+  /* A room that can be wrapped is wrapped, so the card comes back with it. */
+  function wrap(key, fn) {
+    var orig = window.IVROOMS[key];
+    if (!orig || orig.__doored) return false;
+    var wrapped = function (pane) {
+      var r = orig(pane);
+      setTimeout(function () { try { fn(pane); } catch (e) {} }, 320);
+      return r;
+    };
+    wrapped.__doored = 1;
+    window.IVROOMS[key] = wrapped;
+    return true;
+  }
+
+  /* `calls` is cut into the desk itself, not the rooms registry, so it can
+     never be wrapped. The pane is watched instead: the card is mounted after
+     the room paints, and re-mounted if the room repaints and takes it away. */
+  function kick() {
+    var pane = document.getElementById('dk-pane');
+    if (!pane) return;
+    var k = pane.querySelector('.dk-kick');
+    var name = k ? k.textContent.trim().toLowerCase() : '';
+    if (name === 'the bookings') { try { callsDoor(pane); } catch (e) {} }
+    else if (name === 'the well') { try { wishesDoor(pane); } catch (e) {} }
+  }
+
+  var tick = 0;
+  (function again() {
+    var a = wrap('wishes', wishesDoor);
+    var b = wrap('enquiries', enqDoor);
+    try { kick(); } catch (e) {}
+    if ((a || b) && tick > 2) return;
+    if (++tick > 12) return;
+    setTimeout(again, 400);
+  })();
+
+  var t = null;
+  try {
+    new MutationObserver(function () {
+      clearTimeout(t);
+      t = setTimeout(function () { try { kick(); } catch (e) {} }, 120);
+    }).observe(document.body, { childList: true, subtree: true });
+  } catch (e) {}
+})();
+</script>
+<script id="iv-shouts-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SHOUT · one badge, said to the whole house — or to one woman
+
+   Her words, on one badge, delivered to exactly who she chooses:
+     · one member            "only Asha wears it"
+     · a plan                "everyone on the third plan wears it"
+     · the evergreen         "all the forever members, not the paid ones"
+     · the whole house       "tonight, everyone"
+     · and never-mind lists  "everyone except plan two and those two women"
+
+   Several shouts may stand at once, each on its own badge and metal, so half
+   the house can wear one line and half another. Where two shouts could both
+   reach one member, the closer one wins — a name beats a plan, a plan beats
+   the evergreen, the evergreen beats the house. Nothing is deleted: a shout is
+   retired, and the record of it stays.
+
+   The engine is deliberately boring: a list of rules, read in a fixed order,
+   resolved without the network so the house looks the same off a plane.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var KEY = 'iv.shouts.v1';
+  var RANK = { member: 4, tier: 3, forever: 2, all: 1 };
+
+  function now() { return Date.now(); }
+  function day(t) { var d = new Date(t); return isNaN(d) ? null : d; }
+  function read() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var v = JSON.parse(raw);
+        if (v && Array.isArray(v.shouts)) return v;
+      }
+    } catch (e) {}
+    return { shouts: [] };
+  }
+  function write(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+  function id() { return 'sh' + now().toString(36) + Math.floor(Math.random() * 900 + 100); }
+
+  /* ── the list ─────────────────────────────────────────────────────────── */
+  function all() { return read().shouts.slice(); }
+
+  function add(s) {
+    var v = read();
+    var rec = {
+      id: id(),
+      word: String(s.word || '').trim().slice(0, 40),
+      tint: s.tint || 'gold',
+      frame: s.frame || null,
+      target: s.target || 'all',
+      ref: s.ref == null ? null : String(s.ref),
+      exclude: Array.isArray(s.exclude) ? s.exclude.slice(0, 24) : [],
+      until: s.until || null,
+      note: s.note || '',
+      active: true,
+      at: new Date().toISOString()
+    };
+    v.shouts.unshift(rec);
+    write(v);
+    return rec;
+  }
+  function patch(sid, p) {
+    var v = read();
+    v.shouts.forEach(function (s) { if (s.id === sid) for (var k in p) s[k] = p[k]; });
+    write(v);
+  }
+  function retire(sid) { patch(sid, { active: false, retired_at: new Date().toISOString() }); }
+  function remove(sid) { var v = read(); v.shouts = v.shouts.filter(function (s) { return s.id !== sid; }); write(v); }
+
+  /* ── does this shout reach this member? ───────────────────────────────── */
+  function excluded(s, m) {
+    if (!s.exclude || !s.exclude.length) return false;
+    for (var i = 0; i < s.exclude.length; i++) {
+      var x = String(s.exclude[i]);
+      if (x === 'm:' + m.id) return true;
+      if (m.tier > 0 && x === 'tier:' + m.tier) return true;
+      if (m.tier <= 0 && x === 'forever') return true;
+    }
+    return false;
+  }
+  function live(s) {
+    if (!s.active) return false;
+    if (s.until) {
+      var d = day(s.until);
+      /* a date means the whole of that day — it is still on at 11 pm */
+      if (d && d.getTime() + 86399999 < now()) return false;
+    }
+    return true;
+  }
+  function reaches(s, m) {
+    if (!live(s) || excluded(s, m)) return false;
+    if (s.target === 'all') return true;
+    if (s.target === 'forever') return m.tier <= 0;
+    if (s.target === 'tier') return m.tier > 0 && String(m.tier) === String(s.ref);
+    if (s.target === 'member') return String(m.id) === String(s.ref);
+    return false;
+  }
+
+  /* ── what one member wears ────────────────────────────────────────────── */
+  function resolve(member) {
+    var m = {
+      id: (member && member.id) || '',
+      name: (member && (member.display_name || member.name)) || 'her',
+      tier: Number(member && (member.tier_level || member.tier || 0)) || 0
+    };
+    var hits = all().filter(function (s) { return reaches(s, m); });
+    hits.sort(function (a, b) {
+      var d = (RANK[b.target] || 0) - (RANK[a.target] || 0);
+      if (d) return d;
+      return String(b.at || '').localeCompare(String(a.at || ''));
+    });
+    if (!hits.length) return null;
+    var s = hits[0];
+    return { word: s.word, tint: s.tint, frame: s.frame, shout: s, why: sentence(s) };
+  }
+
+  /* ── the sentence a shout says about itself ───────────────────────────── */
+  function planName(s, plans) {
+    var p = (plans || []).filter(function (x) { return String(x.level) === String(s.ref); })[0];
+    return p ? p.name : 'plan ' + s.ref;
+  }
+  function nameOf(ref, people) {
+    var p = (people || []).filter(function (x) { return String(x.id) === String(ref); })[0];
+    return p ? (p.display_name || p.email) : 'one member';
+  }
+  function sentence(s, plans, people) {
+    var who;
+    if (s.target === 'all') who = 'Everyone';
+    else if (s.target === 'forever') who = 'Every forever member';
+    else if (s.target === 'tier') who = 'Everyone on ' + planName(s, plans);
+    else who = nameOf(s.ref, people);
+    var ex = (s.exclude || []).map(function (x) {
+      if (x === 'forever') return 'the forever members';
+      if (x.indexOf('tier:') === 0) return planName({ ref: x.slice(5) }, plans);
+      return nameOf(x.slice(2), people);
+    });
+    if (ex.length) who += ', but not ' + ex.join(' or ');
+    var tail = '';
+    if (s.until) {
+      var d = day(s.until);
+      if (d) tail = ' · until ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    }
+    return who + ' wears “' + (s.word || 'no words') + '”' + tail;
+  }
+
+  /* ── the desk's face of it ────────────────────────────────────────────── */
+  function render(host, api) {
+    var K = api.esc, R = api.portrait, F = api.faces, T = api.tints, PL = api.plans || [], PE = api.people || [];
+    var S = api.tabs || {};
+
+    host.innerHTML =
+      '<p class="fb-hint">A shout is one badge said out loud. Choose who wears it — one woman, a plan, the ' +
+        'evergreen, or the whole house — and you may take any of them back out again. Two shouts can stand ' +
+        'at once: half the house in gold, half in burgundy.</p>' +
+      '<div class="fb-shout-hands" id="sh-hands">' + handHtml() + '</div>' +
+      '<div class="fb-shout-preview" id="sh-preview"></div>' +
+      '<div class="fb-shout-list" id="sh-list"></div>';
+
+    /* the composer's own state */
+    var pick = { target: 'all', ref: null, tint: 'gold', until: '', exclude: [], member: null, never: [] };
+
+    function handHtml() {
+      return '' +
+        '<label class="dk-label" for="sh-word">What the badge says</label>' +
+        '<input class="dk-input" id="sh-word" maxlength="40" placeholder="Tonight, for Asha · Birthday · Ten years held">' +
+        '<label class="dk-label">Who wears it</label>' +
+        '<div class="dk-chips" id="sh-target">' +
+          '<button class="dk-chip on" data-t="all" data-cue="shout/who/all">Everyone</button>' +
+          '<button class="dk-chip" data-t="forever" data-cue="shout/who/forever">The forever members</button>' +
+          '<button class="dk-chip" data-t="tier" data-cue="shout/who/tier">One plan</button>' +
+          '<button class="dk-chip" data-t="member" data-cue="shout/who/member">One member</button>' +
+        '</div>' +
+        '<div id="sh-planwrap" hidden><label class="dk-label" for="sh-plan">Which plan</label>' +
+          '<select class="dk-input" id="sh-plan">' + PL.map(function (p) {
+            return '<option value="' + p.level + '">' + K(p.name) + ' · level ' + p.level + '</option>';
+          }).join('') + (PL.length ? '' : '<option value="">no plans yet</option>') + '</select></div>' +
+        '<div id="sh-who-wrap" hidden><label class="dk-label" for="sh-who">Which member</label>' +
+          '<input class="dk-input" id="sh-who" placeholder="her name, or her email" autocomplete="off">' +
+          '<div id="sh-people" class="fb-people"></div></div>' +
+        '<label class="dk-label">The metal</label>' +
+        '<div class="dk-chips" id="sh-tint">' + T.map(function (t) {
+          return '<button class="dk-chip' + (t.id === 'gold' ? ' on' : '') + '" data-tint="' + t.id + '" data-cue="shout/metal/' + t.id + '">' + K(t.name) + '</button>';
+        }).join('') + '</div>' +
+        '<label class="dk-label">Never these</label>' +
+        '<div class="dk-chips" id="sh-exclude">' +
+          '<button class="dk-chip" data-x="forever" data-cue="shout/never/forever">The forever members</button>' +
+          PL.map(function (p) { return '<button class="dk-chip" data-x="tier:' + p.level + '" data-cue="shout/never/tier' + p.level + '">' + K(p.name) + '</button>'; }).join('') +
+        '</div>' +
+        '<div id="sh-never">' +
+          '<input class="dk-input" id="sh-never-who" placeholder="or take one woman out by name" autocomplete="off">' +
+          '<div id="sh-never-people" class="fb-people"></div>' +
+          '<div class="dk-chips" id="sh-never-chips"></div>' +
+        '</div>' +
+        '<label class="dk-label" for="sh-until">Until (leave empty for ever)</label>' +
+        '<input class="dk-input" id="sh-until" type="date">' +
+        '<div class="fb-savebar"><button class="dk-btn gold" id="sh-raise" data-cue="shout/raise">RAISE THE SHOUT</button>' +
+        '<span class="fb-hint">It reaches every screen the moment you raise it.</span></div>';
+    }
+
+    function paintPreview() {
+      var box = host.querySelector('#sh-preview');
+      if (!box) return;
+      var word = (host.querySelector('#sh-word') || {}).value || '';
+      var who = pick.target === 'member' && pick.member ? pick.member.display_name
+        : pick.target === 'forever' ? 'the evergreen'
+        : pick.target === 'tier' ? 'everyone on that plan'
+        : 'the whole house';
+      if (pick.exclude.length) who += ' · not ' + pick.exclude.length;
+      box.innerHTML = '<div class="fb-previewart">' + R(api.pickFrame(), pick.tint, word, 190, pick.member) + '</div>' +
+        '<div class="fb-previewline"><b>' + K(who) + '</b>' +
+        '<s>' + K(api.tintOf(pick.tint).name) + ' · a shout</s>' +
+        '<em>' + (word ? '“' + K(word) + '”' : 'no words yet') + '</em></div>';
+    }
+
+    var lastQ = null;
+    function search() {
+      var input = host.querySelector('#sh-who');
+      if (!input) return;
+      var q = input.value.trim();
+      clearTimeout(lastQ);
+      if (q.length < 2) { var pp = host.querySelector('#sh-people'); if (pp) pp.innerHTML = ''; return; }
+      lastQ = setTimeout(function () {
+        if (!api.search) return;
+        api.search(q).then(function (rows) {
+          var box = host.querySelector('#sh-people');
+          if (!box) return;
+          box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
+            return '<button class="fb-person" data-id="' + K(m.id) + '" data-name="' + K(m.display_name || m.email) +
+              '"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
+          }).join('') || '<p class="fb-hint">Nobody by that name.</p>';
+          Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
+            b.addEventListener('click', function () {
+              pick.member = { id: b.dataset.id, display_name: b.dataset.name };
+              pick.ref = b.dataset.id;
+              Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (x) { x.classList.toggle('on', x === b); });
+              paintPreview();
+            });
+          });
+        }).catch(function () {});
+      }, 240);
+    }
+
+    function paintNever() {
+      var box = host.querySelector('#sh-never-chips');
+      if (!box) return;
+      box.innerHTML = pick.never.map(function (n) {
+        return '<button class="dk-chip on" data-x="m:' + K(n.id) + '">' + K(n.name) + ' \u00d7</button>';
+      }).join('');
+    }
+
+    var lastN = null;
+    function searchNever() {
+      var input = host.querySelector('#sh-never-who');
+      if (!input) return;
+      var q = input.value.trim();
+      clearTimeout(lastN);
+      if (q.length < 2) { var pp = host.querySelector('#sh-never-people'); if (pp) pp.innerHTML = ''; return; }
+      lastN = setTimeout(function () {
+        if (!api.search) return;
+        api.search(q).then(function (rows) {
+          var box = host.querySelector('#sh-never-people');
+          if (!box) return;
+          box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
+            return '<button class="fb-person" data-nid="' + K(m.id) + '" data-nname="' + K(m.display_name || m.email) +
+              '"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
+          }).join('') || '<p class="fb-hint">Nobody by that name.</p>';
+          Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
+            b.addEventListener('click', function () {
+              var id = b.dataset.nid, name = b.dataset.nname;
+              pick.never.push({ id: id, name: name });
+              if (pick.exclude.indexOf('m:' + id) < 0) pick.exclude.push('m:' + id);
+              box.innerHTML = '';
+              input.value = '';
+              paintNever();
+              paintPreview();
+            });
+          });
+        }).catch(function () {});
+      }, 240);
+    }
+
+    host.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-t],[data-tint],[data-x],#sh-raise,[data-retire],[data-live]') : null;
+      if (!t) return;
+      if (t.hasAttribute('data-t')) {
+        pick.target = t.dataset.t;
+        Array.prototype.forEach.call(host.querySelectorAll('#sh-target .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
+        hosts();
+      } else if (t.hasAttribute('data-tint')) {
+        pick.tint = t.dataset.tint;
+        Array.prototype.forEach.call(host.querySelectorAll('#sh-tint .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
+        paintPreview();
+      } else if (t.hasAttribute('data-x')) {
+        var x = t.dataset.x, i = pick.exclude.indexOf(x);
+        if (i < 0) pick.exclude.push(x); else pick.exclude.splice(i, 1);
+        t.classList.toggle('on', i < 0);
+        if (x.indexOf('m:') === 0) {
+          var mid = x.slice(2);
+          pick.never = pick.never.filter(function (n) { return n.id !== mid; });
+          paintNever();
+          paintPreview();
+        }
+      } else if (t.id === 'sh-raise') {
+        raise();
+      } else if (t.hasAttribute('data-retire')) {
+        retire(t.dataset.retire); draw();
+      } else if (t.hasAttribute('data-live')) {
+        patch(t.dataset.live, { active: t.dataset.on !== '1' });
+        draw();
+      }
+    });
+    host.addEventListener('input', function (e) {
+      if (e.target.id === 'sh-word') paintPreview();
+      if (e.target.id === 'sh-until') pick.until = e.target.value;
+      if (e.target.id === 'sh-who') search();
+      if (e.target.id === 'sh-never-who') searchNever();
+    });
+    host.addEventListener('change', function (e) {
+      if (e.target.id === 'sh-plan') pick.ref = e.target.value;
+    });
+
+    function hosts() {
+      var pw = host.querySelector('#sh-planwrap'), ww = host.querySelector('#sh-who-wrap');
+      if (pw) pw.hidden = pick.target !== 'tier';
+      if (ww) ww.hidden = pick.target !== 'member';
+      paintPreview();
+    }
+
+    function raise() {
+      var wordEl = host.querySelector('#sh-word');
+      var word = wordEl ? wordEl.value.trim() : '';
+      if (!word) { api.toast('A shout needs its words.', true); if (wordEl) wordEl.focus(); return; }
+      if (pick.target === 'tier' && !pick.ref) { api.toast('Choose the plan it belongs to.', true); return; }
+      if (pick.target === 'member' && !pick.ref) { api.toast('Choose the member it belongs to.', true); return; }
+      add({ word: word, tint: pick.tint, target: pick.target, ref: pick.ref, exclude: pick.exclude, until: pick.until || null });
+      if (wordEl) wordEl.value = '';
+      pick.exclude = [];
+      pick.never = [];
+      Array.prototype.forEach.call(host.querySelectorAll('#sh-exclude .dk-chip'), function (x) { x.classList.remove('on'); });
+      paintNever();
+      paintPreview();
+      draw();
+      api.toast('Raised. It is worn everywhere from this breath.');
+    }
+
+    function draw() {
+      var box = host.querySelector('#sh-list');
+      if (!box) return;
+      var list = all();
+      if (!list.length) {
+        box.innerHTML = '<p class="dk-empty">No shout has been raised yet. Every badge in the house wears whatever its own gift says.</p>';
+        return;
+      }
+      box.innerHTML = '<p class="fb-hint" style="margin-top:18px">Raised, newest first — a name beats a plan, a plan beats the evergreen, the evergreen beats the house.</p>' +
+        list.map(function (s) {
+          var dead = !live(s);
+          return '<div class="fb-shout' + (dead ? ' is-off' : '') + '" data-id="' + s.id + '">' +
+            '<span class="fb-shoutart">' + R(s.frame || api.pickFrame(), s.tint, s.word, 104) + '</span>' +
+            '<div class="fb-shoutbody"><b>' + K(s.word || 'no words') + '</b>' +
+              '<s>' + K(sentence(s, PL, PE)) + '</s>' +
+              '<i>' + (s.target === 'member' ? 'one woman' : s.target === 'tier' ? 'a plan' : s.target === 'forever' ? 'the evergreen' : 'the whole house') + '</i>' +
+              '<div class="fb-shoutacts">' +
+                '<button class="dk-chip' + (s.active ? ' on' : '') + '" data-cue="shout/live" data-live="' + s.id + '" data-on="' + (s.active ? '1' : '0') + '">' + (s.active ? 'On' : 'Off') + '</button>' +
+                '<button class="dk-chip" data-cue="shout/retire" data-retire="' + s.id + '">Retire</button>' +
+              '</div></div>' +
+          '</div>';
+        }).join('');
+    }
+
+    hosts();
+    paintPreview();
+    draw();
+  }
+
+  window.IVSHOUTS = {
+    KEY: KEY, all: all, add: add, patch: patch, retire: retire, remove: remove,
+    resolve: resolve, reaches: reaches, live: live, sentence: sentence, render: render,
+    read: read, write: write
+  };
+})();
+</script>
+<script id="iv-smooth-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SMOOTH HOUSE · nothing keeps moving for a screen nobody is looking at
+
+   Three measures, all of them invisible when the house is fast enough:
+
+     1 · a decorative animation outside the viewport is PAUSED, and started
+         again the moment it comes back. Nothing changes to the eye; the phone
+         stops painting confetti behind a wall.
+     2 · the house watches its own frame rate. Under 48 fps it enters quiet
+         mode: the sparks, glints and rays step aside and the blurred glass
+         turns to plain glass, which is most of the paint. Above 56 fps it
+         comes back on its own, one second at a time.
+     3 · `window.IVFPS` publishes the number, so the desk can show it and she
+         can check the promise on her own phone rather than take anyone's word.
+
+   The instrument is one requestAnimationFrame callback — the cheapest way to
+   know the truth about a frame.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var root = document.documentElement;
+  root.classList.add('iv-smooth');
+
+  /* ── 1 · pause what is out of sight ───────────────────────────────────── */
+  var DECOR = '.iv-frame-sparks i, .iv-bd-glints i, .iv-frame-sweep, .iv-bd-sheen, ' +
+              '.pulse-rays, .pulse-halo, .pulse-sheen, [class*="spark"], [class*="glint"], ' +
+              '[class*="shimmer"], [class*="dazzle"], [class*="firefly"]';
+
+  var io = null;
+  if ('IntersectionObserver' in window) {
+    io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        e.target.style.animationPlayState = e.isIntersecting ? '' : 'paused';
+      }
+    }, { rootMargin: '140px 0px', threshold: 0 });
+  }
+
+  function watch(root_) {
+    if (!io) return;
+    var list = (root_ || document).querySelectorAll(DECOR);
+    for (var i = 0; i < list.length; i++) {
+      if (!list[i].__ivw) { list[i].__ivw = 1; io.observe(list[i]); }
+    }
+  }
+  watch(document);
+
+  /* anything the house adds later is watched too — a badge, a frame, a card */
+  if (window.MutationObserver) {
+    var pending = false;
+    new MutationObserver(function () {
+      if (pending) return;
+      pending = true;
+      setTimeout(function () { pending = false; watch(document); }, 220);
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  /* ── 2 · the house watches its own frame rate ─────────────────────────── */
+  var acc = 0, n = 0, last = performance.now(), quiet = false, calm = 0, fps = 60;
+
+  function flip(on) {
+    quiet = on;
+    root.classList.toggle('iv-quiet', on);
+    try {
+      root.dispatchEvent(new CustomEvent('ivfps', { detail: { fps: fps, quiet: on } }));
+    } catch (e) {}
+  }
+
+  function tick(t) {
+    var d = t - last;
+    last = t;
+    /* ignore the first frames after a scroll jump or a tab switch */
+    if (d > 0 && d < 400) { acc += d; n++; }
+    if (n >= 45) {
+      fps = Math.round(1000 / (acc / n));
+      acc = 0; n = 0;
+      if (!quiet && fps < 48) { flip(true); calm = 0; }
+      else if (quiet && fps > 56) { if (++calm >= 2) flip(false); }
+      else calm = 0;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  /* ── 3 · the number, published ────────────────────────────────────────── */
+  window.IVFPS = {
+    get fps() { return fps; },
+    get quiet() { return quiet; },
+    set: function (on) { flip(!!on); },
+    watch: watch
   };
 })();
 </script>
@@ -34616,15 +35437,47 @@ window.IVVOICE = (function () {
   var MOTIFS = [
     [0, 2], [0, 3], [1, 3], [0, 1, 3], [0, 2, 4], [2, 1], [1, 0, 2], [3, 2], [0, 4], [2, 3]
   ];
-  function signature(el) {
-    var seed = hash((el.id || '') + '|' + (el.getAttribute('aria-label') || '') + '|' +
-                    (el.getAttribute('data-open') || '') + '|' +
-                    String(el.textContent || '').trim().slice(0, 28) + '|' + (el.className || ''));
-    var root = seed % 8;                        /* where on the scale it starts */
-    var mot = MOTIFS[seed % MOTIFS.length];
-    var slow = (seed >> 3) % 2 ? 0.14 : 0.10;   /* its own pulse */
-    return { root: root, mot: mot, gap: slow };
+  /* ── its own phrase, and never another's ────────────────────────────────
+     A hash alone cannot promise that two keys never land on one melody. So
+     the house keeps a ledger: the first control to ask takes the phrase, and
+     any later control that lands on one already spoken walks on to the next
+     free one. A control that names itself (`data-cue`) is remembered by name,
+     so it sounds the same after every repaint.                                */
+  var held = typeof WeakMap === 'function' ? new WeakMap() : null;
+  var byName = Object.create(null);
+  var used = Object.create(null);
+
+  function nameOf(el) {
+    var cue = el.getAttribute && el.getAttribute('data-cue');
+    if (cue) return 'cue:' + cue;
+    return 'self:' + (el.id || '') + '|' + String(el.textContent || '').trim().slice(0, 24) +
+           '|' + (el.className || '') + '|' + (el.getAttribute ? (el.getAttribute('aria-label') || '') : '');
   }
+  function phraseKey(s) { return s.root + '|' + s.mot.join('.') + '|' + s.gap.toFixed(2); }
+  function fromSeed(seed) {
+    var root = seed % 8;
+    var shift = (seed >> 9) % 4;
+    var mot = MOTIFS[seed % MOTIFS.length].map(function (d) { return Math.min(9, d + shift); });
+    var gap = 0.10 + ((seed >> 16) % 3) * 0.02;
+    return { root: root, mot: mot, gap: gap };
+  }
+  function signature(el) {
+    var name = nameOf(el);
+    if (byName[name]) return byName[name];
+    if (held && held.has(el)) return held.get(el);
+    var seed = hash(name);
+    var cand = fromSeed(seed), tries = 0;
+    while (used[phraseKey(cand)] && tries < 900) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      cand = fromSeed(seed);
+      tries++;
+    }
+    used[phraseKey(cand)] = name;
+    byName[name] = cand;
+    if (held) held.set(el, cand);
+    return cand;
+  }
+
   function playSignature(el, weight) {
     var s = signature(el), base = SCALE[s.root + 3] || 440;
     s.mot.forEach(function (d, i) {
@@ -34708,6 +35561,152 @@ window.IVVOICE = (function () {
     signature: signature,
     has: function (k) { return !!CUES[k]; }
   };
+})();
+</script>
+<script id="iv-notify-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BELL ON THE PHONE · the same notice the app pushes, on the handset
+
+   The house already writes a row for every notice into `my_notifications`, and
+   the desk's BROADCAST room writes them with the app's own `send_notification`.
+   What was missing is the last inch: the row reaching the phone itself.
+
+     · IVNOTIFY.ask()   ask once, politely, for permission to speak
+     · IVNOTIFY.show()  put a notice on the phone (via the service worker, so it
+                        works on Android Chrome, where `new Notification` does not)
+     · IVNOTIFY.watch() read `my_notifications` while the house is open and ring
+                        for every row that has not been rung yet
+     · IVNOTIFY.to()    the desk's hand: send one member one notice, through the
+                        app's own RPC, so it lands in her inbox AND on her phone
+
+   Nothing here invents a table: it is the same circuit the app uses, with the
+   phone on the far end of it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var KEY = 'iv.notify.v1';
+  var reg = null, watching = null;
+
+  function state() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save(p) {
+    var s = state();
+    for (var k in p) s[k] = p[k];
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
+  }
+  function supported() {
+    return 'Notification' in window && (('serviceWorker' in navigator) || true);
+  }
+  function permission() {
+    return ('Notification' in window) ? Notification.permission : 'unsupported';
+  }
+
+  function sw() {
+    if (reg) return Promise.resolve(reg);
+    if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+    return navigator.serviceWorker.register('sw.js', { scope: './' })
+      .then(function (r) { reg = r; return r; })
+      .catch(function () { return null; });
+  }
+
+  function ask() {
+    if (!supported()) return Promise.resolve('unsupported');
+    if (Notification.permission !== 'default') return Promise.resolve(Notification.permission);
+    return sw().then(function () {
+      return Notification.requestPermission();
+    }).then(function (p) {
+      save({ on: p === 'granted' });
+      return p;
+    });
+  }
+
+  /* one notice, on the phone */
+  function show(title, body, opts) {
+    opts = opts || {};
+    if (permission() !== 'granted') return Promise.resolve(false);
+    var payload = {
+      body: String(body || '').slice(0, 220),
+      tag: opts.tag || 'ivory',
+      icon: opts.icon || 'og-ivory.jpg',
+      badge: 'og-ivory.jpg',
+      vibrate: opts.vibrate === false ? undefined : [18, 40, 22],
+      data: { tab: opts.tab || 'feed' },
+      silent: false
+    };
+    return sw().then(function (r) {
+      if (r && r.showNotification) return r.showNotification(title, payload).then(function () { return true; });
+      try { new Notification(title, payload); return true; } catch (e) { return false; }
+    }).catch(function () { return false; });
+  }
+
+  /* ── the desk's hand: one member, one notice ──────────────────────────── */
+  function to(memberId, title, body, tab, kind) {
+    var iv = window.IVSESS;
+    if (!iv || !iv.call || !memberId) return Promise.resolve(false);
+    return iv.call('/rest/v1/rpc/send_notification', {
+      title_in: String(title || 'The house').slice(0, 90),
+      body_in: String(body || '').slice(0, 400),
+      audience_in: 'user',
+      kind_in: kind || 'system',
+      tier_level_in: 0,
+      user_id_in: memberId,
+      tiers_in: null,
+      post_id_in: null,
+      action_tab_in: tab || 'feed',
+      action_url_in: null
+    }).then(function () { return true; }).catch(function () { return false; });
+  }
+
+  /* ── the bell that reads the inbox ────────────────────────────────────── */
+  function once() {
+    var iv = window.IVSESS;
+    if (!iv || !iv.get || !iv.read || !iv.read()) return Promise.resolve(0);
+    return iv.get('/rest/v1/my_notifications?select=id,title,body,created_at&order=created_at.desc&limit=8')
+      .then(function (rows) {
+        if (!Array.isArray(rows) || !rows.length) return 0;
+        var s = state();
+        var lastAt = s.lastAt || 0;
+        var fresh = rows.filter(function (r) {
+          var t = Date.parse(r.created_at || 0);
+          return t && t > lastAt;
+        }).reverse();
+        if (!fresh.length) return 0;
+        save({ lastAt: Date.parse(fresh[fresh.length - 1].created_at) || Date.now() });
+        var i = 0;
+        function next() {
+          if (i >= fresh.length) return;
+          var r = fresh[i++];
+          show(r.title || 'The house', r.body || '', { tag: 'iv-' + r.id, tab: 'inbox' }).then(function () {
+            setTimeout(next, 260);          /* never two bells stacked on one another */
+          });
+        }
+        next();
+        return fresh.length;
+      }).catch(function () { return 0; });
+  }
+
+  function watch() {
+    if (watching) return watching;
+    once();
+    watching = setInterval(function () {
+      if (document.visibilityState === 'visible' || document.visibilityState === 'hidden') once();
+    }, 20000);
+    document.addEventListener('visibilitychange', function () { once(); });
+    return watching;
+  }
+
+  window.IVNOTIFY = {
+    ask: ask, show: show, to: to, watch: watch, once: once,
+    state: function () { return { permission: permission(), on: !!state().on, lastAt: state().lastAt || 0 }; }
+  };
+
+  /* the bell starts itself when a member is signed in */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(watch, 1500); });
+  } else {
+    setTimeout(watch, 1500);
+  }
 })();
 </script>
 </body>
