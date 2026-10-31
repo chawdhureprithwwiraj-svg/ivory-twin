@@ -11059,6 +11059,311 @@ textarea.mk-in{min-height:74px;resize:vertical;font:600 12.4px/1.5 ui-sans-serif
 .mk-name-slot:empty{display:none}
 .mk-name-slot .mk-chip{font-size:9px;padding:5px 10px 5px 5px}
 </style>
+<style id="iv-gifts-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE TREASURES · the gift sheet, the wall, and the moment itself
+   ---------------------------------------------------------------------------
+   Nine gifts for a post, nine for a live room. The sheet is a jeweller's
+   drawer; the wall is who gifted, largest first, with a crown; the moment is
+   a full-screen scene on a canvas, with sound that lasts exactly as long as
+   the picture and dissolves with it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the jewel that opens the drawer ────────────────────────────────────── */
+.treasure-fab{
+  position:fixed;left:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:9000;
+  width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;
+  background:radial-gradient(circle at 34% 28%,#FFF3CB,#D9AE4A 52%,#8A5A12 100%);
+  box-shadow:0 10px 26px -12px rgba(120,70,10,.75),inset 0 0 0 1px rgba(255,248,220,.75),inset 0 -6px 12px rgba(120,70,10,.28);
+  display:grid;place-items:center;padding:0;
+  transition:transform .3s cubic-bezier(.2,.9,.2,1),box-shadow .3s;
+}
+.treasure-fab svg{width:24px;height:24px;display:block;filter:drop-shadow(0 1px 1px rgba(90,40,0,.45))}
+.treasure-fab::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;pointer-events:none;
+  border:1px solid rgba(217,174,74,.5);
+  animation:tfRing 4.6s ease-out infinite;
+}
+@keyframes tfRing{0%{transform:scale(.94);opacity:.8}70%,100%{transform:scale(1.22);opacity:0}}
+.treasure-fab:active{transform:scale(.94)}
+@media (min-width:900px){.treasure-fab{left:auto;right:26px;bottom:104px}}
+
+/* ── the drawer ─────────────────────────────────────────────────────────── */
+.the-sheet{
+  position:fixed;inset:0;z-index:12100;display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(120% 90% at 50% 100%,rgba(74,18,32,.42),rgba(50,14,8,.62));
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .26s ease;
+}
+.the-sheet.on{opacity:1}
+.the-panel{
+  width:min(560px,100%);max-height:90vh;overflow:auto;position:relative;
+  padding:16px 18px calc(22px + env(safe-area-inset-bottom));
+  border-radius:26px 26px 0 0;
+  background:
+    radial-gradient(120% 90% at 50% -14%,rgba(255,246,220,.95),transparent 58%),
+    linear-gradient(180deg,#FFFDF6,#F8ECD6 62%,#F3E3C6);
+  box-shadow:0 -22px 54px -26px rgba(70,20,10,.65),inset 0 1px 0 rgba(255,255,255,.92);
+  transform:translateY(22px);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.the-sheet.on .the-panel{transform:translateY(0)}
+.the-grip{display:block;width:48px;height:4px;border-radius:3px;margin:0 auto 12px;
+  background:linear-gradient(90deg,#E8CE8E,#B8942B,#E8CE8E)}
+.the-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px}
+.the-head h2{margin:0;font:700 24px/1.1 "Didot","Bodoni 72","Bodoni MT","Playfair Display",Georgia,serif;color:#4A1220}
+.the-head h2 em{font-style:italic;background:linear-gradient(100deg,#8A5A12,#C79A32 40%,#8A5A12);-webkit-background-clip:text;background-clip:text;color:transparent}
+.the-head s{text-decoration:none;font:800 8.8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#A07A4E;white-space:nowrap}
+.the-lede{margin:6px 2px 14px;font-size:12.6px;line-height:1.55;color:#7A5A3E;font-style:italic}
+
+.the-tabs{display:flex;gap:8px;margin:0 0 14px}
+.the-tab{
+  flex:1 1 0;padding:9px 8px;border-radius:12px;cursor:pointer;border:1px solid rgba(190,150,90,.45);
+  background:linear-gradient(170deg,#FFFDF8,#F9EFDC);font-family:inherit;
+  font:800 9.4px/1 ui-sans-serif,sans-serif;letter-spacing:.2em;color:#8A6A44;
+}
+.the-tab.on{background:linear-gradient(168deg,#FFF6D8,#EFD08C);border-color:#B8942B;color:#5A2A0A;
+  box-shadow:0 8px 18px -12px rgba(120,70,10,.7)}
+
+/* the wall */
+.the-wall{margin:0 0 16px}
+.the-wall-h{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.the-wall-h b{font:800 8.8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.26em;text-transform:uppercase;color:#A07A4E}
+.the-crown{width:26px;height:26px;flex:0 0 auto}
+.the-crown svg{width:100%;height:100%;display:block}
+.the-crown.is-dim{opacity:.42;filter:saturate(.5)}
+.the-empty{
+  display:flex;gap:10px;align-items:center;padding:11px 13px;border-radius:14px;
+  background:#FBF2DF;border:1px solid rgba(190,150,90,.35);
+  font-size:12.3px;line-height:1.4;color:#8A6A4E;
+}
+.the-top{
+  display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:15px;
+  background:linear-gradient(150deg,#FFF8E6,#F5E2B6);border:1px solid rgba(184,148,43,.55);
+  box-shadow:0 10px 22px -18px rgba(120,70,10,.8);
+}
+.the-top .the-face{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 26%,#7C2C40,#4A1220 76%);color:#F7E7B0;font:700 14px/1 Georgia,serif}
+.the-top b{display:block;font:800 13.2px/1.2 Georgia,serif;color:#4A1220}
+.the-top s{display:block;text-decoration:none;font-size:11.2px;color:#8A6A4E;margin-top:1px}
+.the-rest{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.the-name{padding:4px 9px;border-radius:999px;background:#FBF2DF;border:1px solid rgba(190,150,90,.32);
+  font:700 10.6px/1 ui-sans-serif,sans-serif;color:#7A5A3E}
+
+/* the nine */
+.the-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+@media (max-width:360px){.the-grid{grid-template-columns:repeat(2,1fr)}}
+.giftcard{
+  position:relative;padding:12px 9px 11px;border-radius:15px;cursor:pointer;text-align:center;
+  border:1px solid rgba(190,150,90,.42);
+  background:linear-gradient(168deg,#FFFDF8,#F9EEDA);
+  box-shadow:0 8px 18px -16px rgba(90,26,10,.6);
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .24s,border-color .24s;
+  font-family:inherit;color:inherit;overflow:hidden;
+}
+.giftcard::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.6) 48%,transparent 62%);
+  transform:translateX(-130%);transition:transform .9s cubic-bezier(.4,0,.2,1);
+}
+.giftcard:hover::before{transform:translateX(130%)}
+.giftcard:hover{transform:translateY(-2px);border-color:#C9A24E;box-shadow:0 14px 26px -18px rgba(120,70,10,.85)}
+.giftcard:active{transform:scale(.98)}
+.giftcard .ge{font-size:26px;line-height:1;display:block;filter:drop-shadow(0 3px 5px rgba(120,70,10,.28))}
+.giftcard .gn{display:block;margin-top:8px;font:800 10.4px/1.25 Georgia,serif;color:#4A1220;min-height:26px}
+.giftcard .gp{display:block;margin-top:5px;font:800 11px/1 ui-sans-serif,sans-serif;color:#8A5A12;letter-spacing:.04em}
+.giftcard .gl{display:none}
+.giftcard.is-high{background:linear-gradient(168deg,#FFF6DA,#F2D79B)}
+.giftcard.is-high .gp{color:#6A3A0A}
+
+.the-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.the-foot p{margin:0;font-size:11.2px;line-height:1.45;color:#9A7A56;font-style:italic}
+.the-shut{border:0;background:none;cursor:pointer;font:800 9.4px/1 ui-sans-serif,sans-serif;
+  letter-spacing:.24em;text-transform:uppercase;color:#A07A4E;padding:8px 4px}
+
+/* ── the moment ─────────────────────────────────────────────────────────── */
+.the-moment{
+  position:fixed;inset:0;z-index:12200;overflow:hidden;
+  background:radial-gradient(120% 120% at 50% 42%,rgba(58,14,26,.86),rgba(28,8,10,.94));
+  opacity:0;transition:opacity .5s ease;
+}
+.the-moment.on{opacity:1}
+.the-moment canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.the-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 46%,rgba(255,236,190,.22),transparent 58%);
+  mix-blend-mode:screen;opacity:0;
+  animation:theBloom 2.4s ease-out .2s forwards;
+}
+@keyframes theBloom{0%{opacity:0;transform:scale(.6)}40%{opacity:.9}100%{opacity:.28;transform:scale(1.15)}}
+.the-plate{
+  position:absolute;left:50%;bottom:11%;translate:-50% 0;
+  width:min(420px,86vw);text-align:center;pointer-events:none;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .7s ease .55s,transform .8s cubic-bezier(.2,.8,.2,1) .55s;
+}
+.the-moment.on .the-plate{opacity:1;transform:translateY(0)}
+.the-plate .the-emoji{font-size:44px;line-height:1;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.the-plate h3{
+  margin:10px 0 0;font:600 30px/1.06 "Didot","Bodoni 72","Bodoni MT","Playfair Display",Georgia,serif;
+  letter-spacing:.01em;
+  background:linear-gradient(178deg,#FFF9E6 6%,#F6E0A4 40%,#D9AE4A 70%,#FFF2C6 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.4));
+}
+.the-plate .the-line{
+  margin:9px auto 0;max-width:34ch;font:italic 400 13.4px/1.5 Georgia,serif;
+  color:rgba(255,241,215,.86);
+}
+.the-plate .the-from{
+  margin-top:12px;font:800 8.6px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(255,228,170,.78);
+}
+.the-skip{
+  position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top));z-index:3;
+  border:1px solid rgba(255,240,205,.35);background:rgba(30,10,12,.35);color:rgba(255,241,215,.86);
+  border-radius:999px;padding:7px 13px;cursor:pointer;
+  font:800 8.8px/1 ui-sans-serif,sans-serif;letter-spacing:.22em;
+  backdrop-filter:blur(4px);
+}
+.the-moment.is-done{opacity:0}
+
+/* the live room's own gift dock */
+.lv-gift-dock{display:flex;gap:7px;align-items:center}
+
+/* reduced motion — the plate, no storm */
+@media (prefers-reduced-motion:reduce){
+  .the-veil{animation:none;opacity:.18}
+  .treasure-fab::after{animation:none;opacity:0}
+  .giftcard::before{display:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE OVERVIEW · the desk's front window, and the books as spreadsheets
+   ═══════════════════════════════════════════════════════════════════════════ */
+.ov-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:14px 0 6px}
+@media(min-width:620px){.ov-kpis{grid-template-columns:repeat(4,1fr)}}
+.ov-kpi{
+  padding:13px 13px 11px;border-radius:15px;position:relative;overflow:hidden;
+  background:linear-gradient(168deg,#FFFDF7,#FBF1DE);
+  box-shadow:0 8px 20px -16px rgba(90,26,10,.5),inset 0 0 0 1px rgba(190,150,90,.28);
+}
+.ov-kpi b{display:block;font:700 27px/1 "Didot","Bodoni 72","Bodoni MT","Playfair Display",Georgia,serif;color:#4A1220}
+.ov-kpi s{display:block;text-decoration:none;margin-top:6px;font:800 8.6px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.2em;text-transform:uppercase;color:#A07A4E}
+.ov-kpi i{display:block;font-style:normal;margin-top:5px;font-size:10.8px;color:#9A7A56;line-height:1.35}
+.ov-kpi[data-hot]{background:linear-gradient(168deg,#FFF6D8,#F3DCA6);box-shadow:0 10px 24px -18px rgba(120,70,10,.8),inset 0 0 0 1px rgba(184,148,43,.5)}
+.ov-exports{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+.ov-book{
+  display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(190,150,90,.45);background:linear-gradient(168deg,#FFFDF8,#F9EFDC);
+  font-family:inherit;transition:transform .18s,border-color .2s;
+}
+.ov-book:hover{transform:translateY(-1px);border-color:#C9A24E}
+.ov-book b{font:800 11.4px/1 Georgia,serif;color:#4A1220}
+.ov-book s{text-decoration:none;font:800 8.2px/1 ui-sans-serif,sans-serif;letter-spacing:.18em;color:#A07A4E}
+.ov-links{display:grid;gap:8px;grid-template-columns:1fr}
+@media(min-width:620px){.ov-links{grid-template-columns:1fr 1fr}}
+.ov-link{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;cursor:pointer;
+  border:1px solid rgba(190,150,90,.4);background:linear-gradient(168deg,#FFFDF8,#F9EFDC);font-family:inherit;
+}
+.ov-link b{font:800 12.4px/1.2 Georgia,serif;color:#4A1220}
+.ov-link s{text-decoration:none;font-size:11.2px;color:#9A7A56;flex:1 1 auto}
+.ov-link span{color:#C6A778;font-size:18px;line-height:1}
+
+/* the jewel steps aside while a gift plays */
+body:has(.the-moment) .treasure-fab{opacity:0;pointer-events:none;transform:scale(.8)}
+
+/* the desk's own headings, on the desk's dark ground */
+#dk-pane .rmx-h{color:#EBD3A4;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+#dk-pane .ov-kpi,#dk-pane .ov-book,#dk-pane .ov-link{color:#4A1220}
+
+/* the jewel stays out of the house's own rooms */
+body.on-desk .treasure-fab,
+body:has(#desk-screen.on) .treasure-fab{opacity:0;pointer-events:none}
+</style>
+<style id="iv-cap-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE HAND · camera, files, drop, paste — one sheet for every machine
+   ═══════════════════════════════════════════════════════════════════════════ */
+.cap-sheet{
+  position:fixed;inset:0;z-index:12300;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:radial-gradient(120% 90% at 50% 20%,rgba(74,18,32,.5),rgba(36,10,10,.72));
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  opacity:0;transition:opacity .24s ease;
+}
+.cap-sheet.on{opacity:1}
+.cap-sheet.is-over .cap-panel{box-shadow:0 0 0 2px #D9AE4A,0 24px 60px -30px rgba(0,0,0,.8)}
+.cap-panel{
+  width:min(420px,100%);padding:16px 18px 18px;border-radius:22px;position:relative;
+  background:radial-gradient(120% 90% at 50% -10%,rgba(255,246,220,.95),transparent 60%),linear-gradient(180deg,#FFFDF6,#F9EEDB);
+  box-shadow:0 26px 60px -30px rgba(30,8,8,.8),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateY(10px) scale(.985);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+}
+.cap-sheet.on .cap-panel{transform:none}
+.cap-panel.cap-cam{width:min(560px,100%)}
+.cap-grip{display:block;width:46px;height:4px;border-radius:3px;margin:0 auto 12px;
+  background:linear-gradient(90deg,#E8CE8E,#B8942B,#E8CE8E)}
+.cap-head{margin-bottom:12px}
+.cap-head b{display:block;font:700 21px/1.15 "Didot","Bodoni 72","Bodoni MT","Playfair Display",Georgia,serif;color:#4A1220}
+.cap-head s{display:block;text-decoration:none;margin-top:3px;font:italic 400 12.4px/1.4 Georgia,serif;color:#8A6A4E}
+.cap-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cap-choice{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px;border-radius:15px;cursor:pointer;
+  border:1px solid rgba(190,150,90,.45);background:linear-gradient(168deg,#FFFDF8,#F9EFDC);
+  font-family:inherit;text-align:left;transition:transform .18s,box-shadow .22s,border-color .22s;
+}
+.cap-choice:hover{transform:translateY(-2px);border-color:#C9A24E;box-shadow:0 14px 26px -18px rgba(120,70,10,.8)}
+.cap-choice .cap-ico{font-size:22px;line-height:1;color:#B8942B}
+.cap-choice b{font:800 13px/1.2 Georgia,serif;color:#4A1220;margin-top:6px}
+.cap-choice s{text-decoration:none;font-size:11px;color:#9A7A56}
+.cap-note{margin:12px 0 0;font-size:11.2px;line-height:1.5;color:#9A7A56;font-style:italic;min-height:16px}
+.cap-btn{
+  border:1px solid rgba(190,150,90,.45);background:#FFFDF8;border-radius:12px;cursor:pointer;
+  font:800 9.4px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.22em;color:#8A6A44;padding:11px 14px;
+}
+.cap-btn.wide{width:100%;margin-top:12px;padding:13px}
+.cap-stage{
+  position:relative;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 50%,#3A1620,#1E0A10);
+  aspect-ratio:4/3;display:grid;place-items:center;
+}
+.cap-stage video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.cap-stage.is-count::after{
+  content:"";position:absolute;inset:0;border:2px solid rgba(243,217,138,.85);border-radius:16px;
+  animation:capPulse .7s ease-in-out infinite alternate;
+}
+@keyframes capPulse{from{opacity:.25}to{opacity:.95}}
+.cap-count{
+  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  font:600 76px/1 "Didot","Bodoni 72",Georgia,serif;color:#FFF3CB;text-shadow:0 6px 30px rgba(0,0,0,.6);
+}
+.cap-rec{
+  position:absolute;left:12px;top:12px;width:10px;height:10px;border-radius:50%;background:#C0392B;
+  opacity:0;transition:opacity .2s;
+}
+.cap-sheet.is-rec .cap-rec{opacity:1;animation:capBlink 1s steps(2,end) infinite}
+@keyframes capBlink{50%{opacity:.25}}
+.cap-wave{display:flex;gap:3px;align-items:center;height:46%;}
+.cap-wave i{display:block;width:4px;height:var(--h,40%);border-radius:2px;
+  background:linear-gradient(180deg,#F3D98A,#B8942B);animation:capWave 1.1s ease-in-out var(--d,0s) infinite alternate}
+@keyframes capWave{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+.cap-acts{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.cap-shoot{
+  width:62px;height:62px;border-radius:50%;cursor:pointer;border:3px solid #B8942B;
+  background:radial-gradient(circle at 36% 30%,#FFF6D8,#D9AE4A 60%,#8A5A12);
+  box-shadow:0 10px 24px -14px rgba(120,70,10,.9),inset 0 1px 0 rgba(255,255,255,.8);
+  transition:transform .18s;
+}
+.cap-shoot:active{transform:scale(.94)}
+.cap-shoot.on{background:radial-gradient(circle at 36% 30%,#E8B4AE,#C0392B 60%,#7A1A10);border-color:#8A2A1A}
+.cap-sheet.is-blocked .cap-stage{filter:grayscale(.5) brightness(.8)}
+.cap-sheet.is-blocked .cap-shoot{opacity:.55;pointer-events:none}
+
+@media (max-width:420px){
+  .cap-choices{grid-template-columns:1fr}
+  .cap-panel{padding:14px}
+}
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -18270,9 +18575,9 @@ window.IVSESS = (function () {
     ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
     ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
     ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
-    ['TICKER','ticker'],['WHEEL','wheel'],['OFFICERS','officers'],['VAULT','vault']
+    ['TICKER','ticker'],['WHEEL','wheel'],['OVERVIEW','overview'],['OFFICERS','officers'],['VAULT','vault']
   ];
-  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, officers:1, vault:1};
+  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, overview:1, officers:1, vault:1};
   /* what each room is, in the app's own words — so no two rooms read alike */
   var NOTES = {
     create:'A new story, a poll, a teaser — written, attached and published from the phone.',
@@ -18296,6 +18601,7 @@ window.IVSESS = (function () {
     line:'The Line: letters and their settings.',
     translate:'Every word of the house, in its five tongues.',
     ticker:'The words that run across the top of the house.',
+    overview:'One screen for the whole house — members, what is open, what is waiting — and the books taken away as a spreadsheet.',
     officers:'The two names the law and the members write to: a grievance officer and a support officer, printed on the legal pages the moment they are real.',
     wheel:'The wheel, its segments and its prizes.',
     vault:'The strongroom: both private rails, the public door, the switch that decides where each kind sleeps, and every file the house is carrying.'
@@ -25653,6 +25959,1371 @@ window.IVOFFICERS = (function () {
 /* the desk learns a room called OFFICERS, exactly like the others */
 if (window.IVROOMS) {
   window.IVROOMS.officers = function (p) { return window.IVOFFICERS.render(p); };
+}
+</script>
+<script id="iv-gifts-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE TREASURES · window.IVGIFTS
+   ---------------------------------------------------------------------------
+   The app's eighteen gifts — nine for a post, nine for a live room — carried
+   across with their names, their lines and their prices exactly as the house
+   keeps them, and given a moment worth the money:
+
+     · a full-screen canvas scene, drawn per gift, on one clock
+     · gold dust, jewels, silk, frost or fire, according to the gift
+     · a sound built for the whole length of the picture, with a reverb tail
+       that outlives it (WebAudio, no files, nothing to download)
+     · one plate: the gift's name, its line and who sent it
+     · a dissolve, never a cut
+
+   Durations are the app's own: fifteen seconds for a post gift, seven for a
+   live one. Reduced motion is honoured: the plate and the light, no storm.
+   =========================================================================== */
+window.IVGIFTS = (function () {
+  var IV = window.IVSESS;
+  var INK = '#5A2A0A';   /* the house's ink, for any glyph drawn outside emblem() */
+
+  /* the house's own rows, kept here only as a fallback if the book is shut */
+  var POST = [
+    { id: 18, name: 'A Second Look', emoji: '\uD83D\uDC41\uFE0F', price_inr: 99, line: 'I scrolled past. I came back.', sort_order: 1 },
+    { id: 15, name: 'Again, Please', emoji: '\uD83D\uDD01', price_inr: 199, line: 'once was not enough.', sort_order: 2 },
+    { id: 16, name: 'Goosebumps', emoji: '\u2744\uFE0F', price_inr: 299, line: 'whatever you did there, it worked.', sort_order: 3 },
+    { id: 21, name: 'Carried All Day', emoji: '\u2600\uFE0F', price_inr: 499, line: 'I took this one with me into the rest of my day.', sort_order: 4 },
+    { id: 20, name: 'A Round of Applause', emoji: '\uD83D\uDC4F', price_inr: 699, line: 'for the craft of it. Not just the beauty.', sort_order: 5 },
+    { id: 19, name: 'Up All Night', emoji: '\uD83C\uDF19', price_inr: 999, line: 'and I was still thinking about it, long after.', sort_order: 6 },
+    { id: 17, name: 'Front Row', emoji: '\uD83C\uDF9F\uFE0F', price_inr: 1299, line: 'wherever this goes next, I am already there.', sort_order: 7 },
+    { id: 22, name: 'Crown of the Day', emoji: '\uD83D\uDC51', price_inr: 1599, line: 'nothing else today came close.', sort_order: 8 },
+    { id: 23, name: 'One I Will Not Forget', emoji: '\uD83D\uDC8E', price_inr: 1999, line: 'of everything you have ever made.', sort_order: 9 }
+  ];
+  var LIVE = [
+    { id: 6, name: 'Just Because', emoji: '\uD83D\uDC8C', price_inr: 99, line: 'no reason at all. that is the reason.', sort_order: 0 },
+    { id: 7, name: 'Meet My Dog', emoji: '\uD83D\uDC3E', price_inr: 299, line: 'a hello from the softest member of the house.', sort_order: 1 },
+    { id: 8, name: 'A Song With Your Name', emoji: '\uD83C\uDF99\uFE0F', price_inr: 499, line: 'your name, hidden inside a line I sing.', sort_order: 2 },
+    { id: 9, name: 'The Vanity Shelf', emoji: '\uD83D\uDC84', price_inr: 999, line: 'every shade I own, shown slowly.', sort_order: 3 },
+    { id: 10, name: 'A Tour of My House', emoji: '\uD83D\uDDDD\uFE0F', price_inr: 1999, line: 'every corner of my world, room by room.', sort_order: 4 },
+    { id: 11, name: 'The Dress Room', emoji: '\uD83D\uDC57', price_inr: 2999, line: 'the whole wardrobe, hanger by hanger.', sort_order: 5 },
+    { id: 12, name: 'Your Story, Live', emoji: '\uD83E\uDE94', price_inr: 4999, line: 'a live storytelling of the tale you pick.', sort_order: 6 },
+    { id: 13, name: 'A Dance for You', emoji: '\uD83D\uDC83', price_inr: 5999, line: 'one full song, danced for your eyes only.', sort_order: 7 },
+    { id: 14, name: 'The Look You Choose', emoji: '\uD83E\uDD7B', price_inr: 9999, line: 'you pick the dress - I wear it in a video made only for you.', sort_order: 8 }
+  ];
+
+  var S = { data: { post: null, live: null }, at: 0, bus: false };
+  var LIVE_MS = 7000, POST_MS = 15000;
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el, k, w) { if (window.IVVOICE) window.IVVOICE.play(k || 'tap', w || 'mid', el); }
+  function reduce() {
+    try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  }
+  function initials(n) { var s = String(n || '').trim(); return (s ? s.slice(0, 1) : 'I').toUpperCase(); }
+
+
+  /* ── the emblems · eighteen marks, drawn, never an emoji ──────────────── */
+  var GOLD = 'url(#ivG)';
+  function emblem(name, size, light) {
+    var INK = light ? '#F6E0A4' : '#5A2A0A';
+    var k = String(name || '').toLowerCase();
+    var body;
+    var S1 = 'stroke="' + INK + '" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+    var S2 = 'stroke="' + INK + '" stroke-width="1.1" stroke-linecap="round" fill="none"';
+    var F = 'fill="' + INK + '"';
+
+    if (k.indexOf('second look') >= 0) {
+      body = '<path d="M2 12s3.9-6.2 10-6.2S22 12 22 12s-3.9 6.2-10 6.2S2 12 2 12z" ' + S1 + '/>' +
+             '<circle cx="12" cy="12" r="3.1" ' + F + '/><circle cx="13.1" cy="10.9" r=".85" fill="#FFF6DC"/>';
+    } else if (k.indexOf('again') >= 0) {
+      body = '<path d="M19.6 10.4a7.8 7.8 0 1 0 .3 4" ' + S1 + '/>' +
+             '<path d="M20 3.6v5.2h-5.2" ' + S1 + '/>';
+    } else if (k.indexOf('goose') >= 0) {
+      /* a snowflake: six arms, each with a fork */
+      body = '<g stroke="' + INK + '" stroke-width="1.5" stroke-linecap="round" fill="none">' +
+             '<path d="M12 2.6v18.8M3.9 7.3l16.2 9.4M20.1 7.3L3.9 16.7"/>' +
+             '<path d="M9.4 4.4L12 6.6l2.6-2.2M9.4 19.6L12 17.4l2.6 2.2" stroke-width="1.2"/>' +
+             '<path d="M5.6 10.8l.7 3.2-2.4 1.9M18.4 13.2l-.7-3.2 2.4-1.9" stroke-width="1.2"/></g>' +
+             '<circle cx="12" cy="12" r="1.5" fill="' + INK + '"/>';
+    } else if (k.indexOf('carried') >= 0) {
+      body = '<circle cx="12" cy="12" r="4.3" ' + F + '/>' +
+             '<g stroke="' + INK + '" stroke-width="1.3" stroke-linecap="round">' +
+             '<path d="M12 2.2v2.7M12 19.1v2.7M2.2 12h2.7M19.1 12h2.7M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"/></g>';
+    } else if (k.indexOf('applause') >= 0) {
+      /* an open palm, and two beats off it */
+      body = '<path d="M8.2 11.4V5.6a1.5 1.5 0 0 1 3 0v4.8" ' + S1 + '/>' +
+             '<path d="M11.2 10.2V4.4a1.5 1.5 0 0 1 3 0v5.8" ' + S1 + '/>' +
+             '<path d="M14.2 10.6V6.2a1.5 1.5 0 0 1 3 0v5.6" ' + S1 + '/>' +
+             '<path d="M17.2 11.8v2.4c0 .9-.2 1.7-.7 2.4l-1.7 2.6a3.6 3.6 0 0 1-3 1.6h-1.4a3.8 3.8 0 0 1-3.3-1.9l-2.9-4.9a1.5 1.5 0 0 1 2.5-1.6l1.5 2" ' + S1 + '/>' +
+             '<path d="M3.4 5l1.4 1.4M2.6 9.4h2M20.6 12.6l1.4-.8" ' + S2 + '/>';
+    } else if (k.indexOf('night') >= 0) {
+      body = '<path d="M15.6 2.8a8.8 8.8 0 1 0 5.6 12.9A7.2 7.2 0 0 1 15.6 2.8z" ' + F + '/>' +
+             '<path d="M18.8 4.2l.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5z" fill="#FFF6DC"/>';
+    } else if (k.indexOf('front row') >= 0) {
+      /* a seat in the front line, headrest and all */
+      body = '<path d="M6.2 13.4V7.2a2.4 2.4 0 0 1 2.4-2.4h6.8a2.4 2.4 0 0 1 2.4 2.4v6.2z" ' + F + '/>' +
+             '<path d="M4.4 13.4h15.2c.7 0 1.2.6 1.1 1.3l-.2 1.4H3.5l-.2-1.4c-.1-.7.4-1.3 1.1-1.3z" ' + F + '/>' +
+             '<path d="M6.6 16.1V21M17.4 16.1V21" ' + S1 + '/>' +
+             '<path d="M9.4 8.2h5.2" stroke="#FFF6DC" stroke-width="1"/>';
+    } else if (k.indexOf('crown of') >= 0) {
+      body = '<path d="M2.8 9.2l3.6 3 5.6-6.6 5.6 6.6 3.6-3-2.2 9.8H5z" ' + F + '/>' +
+             '<circle cx="2.8" cy="8.4" r="1.3" ' + F + '/><circle cx="21.2" cy="8.4" r="1.3" ' + F + '/>' +
+             '<circle cx="12" cy="4.2" r="1.4" ' + F + '/>' +
+             '<circle cx="12" cy="14.6" r="1.5" fill="#FFF6DC"/>';
+    } else if (k.indexOf('forget') >= 0) {
+      /* an emerald cut: a table, a step, and the light in it */
+      body = '<path d="M8.6 3.6h6.8l3.2 4v8.8l-3.2 4H8.6l-3.2-4V7.6z" fill="' + INK + '"/>' +
+             '<path d="M8.6 3.6h6.8l3.2 4H5.4z" fill="#FFF6DC" opacity=".92"/>' +
+             '<path d="M5.4 7.6h13.2M8.2 12h7.6M9.2 16.2h5.6" stroke="#FFF6DC" stroke-width=".9" opacity=".9"/>';
+    } else if (k.indexOf('just because') >= 0) {
+      body = '<rect x="2.8" y="6" width="18.4" height="12.6" rx="1.8" ' + S1 + '/>' +
+             '<path d="M2.8 7.2l9.2 6.6 9.2-6.6" ' + S2 + '/>' +
+             '<path d="M8 6h8" ' + S2 + '/>';
+    } else if (k.indexOf('dog') >= 0) {
+      body = '<ellipse cx="12" cy="16.2" rx="4.2" ry="3.3" ' + F + '/>' +
+             '<g ' + F + '><ellipse cx="6.4" cy="9.8" rx="1.5" ry="1.7"/><ellipse cx="9.7" cy="7.2" rx="1.5" ry="1.7"/>' +
+             '<ellipse cx="14.3" cy="7.2" rx="1.5" ry="1.7"/><ellipse cx="17.6" cy="9.8" rx="1.5" ry="1.7"/></g>';
+    } else if (k.indexOf('song') >= 0) {
+      body = '<rect x="9.2" y="2.8" width="5.6" height="10.6" rx="2.8" ' + S1 + '/>' +
+             '<path d="M6.2 12a5.8 5.8 0 0 0 11.6 0M12 17.8V21M9.2 21h5.6" ' + S1 + '/>' +
+             '<path d="M12 5.4v6" ' + S2 + '/>';
+    } else if (k.indexOf('vanity') >= 0) {
+      body = '<path d="M9.4 8.4h5.2l.9 12.2H8.5z" ' + F + '/>' +
+             '<path d="M10.2 8.4V4.6a1.8 1.8 0 0 1 3.6 0v3.8z" ' + S1 + '/>' +
+             '<path d="M10.6 2.6h2.8" ' + S2 + '/>';
+    } else if (k.indexOf('tour') >= 0) {
+      body = '<circle cx="8.2" cy="8.2" r="4.6" ' + S1 + '/><circle cx="8.2" cy="8.2" r="1.4" ' + F + '/>' +
+             '<path d="M11.6 11.6l8 8" ' + S1 + '/>' +
+             '<path d="M16.2 16.2l-1.6 1.6M18.4 18.4l-1.6 1.6" ' + S2 + '/>';
+    } else if (k.indexOf('dress room') >= 0) {
+      body = '<path d="M8.4 3.4h7.2l-1.5 5.2 3.2 11.8H6.7L9.9 8.6z" ' + F + '/>' +
+             '<path d="M9.9 8.6h4.2" stroke="#FFF6DC" stroke-width="1.1"/>' +
+             '<path d="M9.2 4.6h5.6" ' + S2 + '/>';
+    } else if (k.indexOf('story') >= 0) {
+      /* a lamp, lit */
+      body = '<path d="M5.4 15.2c1.2 2 3.6 3 6.6 3s5.4-1 6.6-3z" ' + F + '/>' +
+             '<path d="M12 13.6c-1.4-1.6-1.4-3 0-4.8 1.4 1.8 1.4 3.2 0 4.8z" fill="#D9AE4A"/>' +
+             '<path d="M8.4 20.4h7.2" ' + S2 + '/>';
+    } else if (k.indexOf('dance') >= 0) {
+      body = '<circle cx="12.2" cy="4.8" r="2.2" ' + F + '/>' +
+             '<path d="M12.2 7.8v5.4M12.2 9.8l4.4-1.8M12.2 9.8L7.6 8" ' + S1 + '/>' +
+             '<path d="M12.2 13.2c-2.6 1.2-3.8 3.4-4.2 6.6h8.4c-.4-3.2-1.6-5.4-4.2-6.6z" ' + F + '/>';
+    } else if (k.indexOf('look') >= 0) {
+      /* a saree, draped */
+      body = '<path d="M8.6 3.4h6.8l-1 4.4 3.4 12.8H6.2L9.6 7.8z" ' + F + '/>' +
+             '<path d="M7.3 14.6h9.4M6.6 18.4h10.8" stroke="#FFF6DC" stroke-width="1"/>' +
+             '<path d="M12 7.8v10.6" stroke="#FFF6DC" stroke-width=".8" opacity=".7"/>';
+    } else {
+      body = '<path d="M12 2.8l2.6 5.4 5.9.8-4.3 4.2 1 5.9L12 16.3l-5.2 2.8 1-5.9-4.3-4.2 5.9-.8z" ' + F + '/>';
+    }
+    return '<svg viewBox="0 0 24 24" width="' + (size || 26) + '" height="' + (size || 26) + '" aria-hidden="true">' + body + '</svg>';
+  }
+
+  /* ── the book ─────────────────────────────────────────────────────────── */
+  function load(force) {
+    if (!IV) return Promise.resolve(S.data);
+    if (!force && S.data.post && Date.now() - S.at < 600000) return Promise.resolve(S.data);
+    return IV.get('/rest/v1/gifts?select=id,name,emoji,price_inr,line,sort_order,surface,is_active&order=sort_order.asc')
+      .then(function (rows) {
+        var post = [], live = [];
+        (rows || []).forEach(function (g) {
+          if (g.is_active === false) return;
+          (g.surface === 'live' ? live : post).push(g);
+        });
+        S.data.post = post.length ? post : POST;
+        S.data.live = live.length ? live : LIVE;
+        S.at = Date.now();
+        return S.data;
+      })
+      .catch(function () { S.data.post = POST; S.data.live = LIVE; return S.data; });
+  }
+  function list(surface) {
+    var d = S.data[surface === 'live' ? 'live' : 'post'];
+    return d && d.length ? d : (surface === 'live' ? LIVE : POST);
+  }
+
+  /* ── sound · built for the length of the picture ──────────────────────── */
+  var AC = null;
+  function audio() {
+    if (AC) return AC;
+    var C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    try { AC = new C(); } catch (e) { AC = null; }
+    return AC;
+  }
+  function verb(ctx, seconds) {
+    var len = Math.floor(ctx.sampleRate * seconds);
+    var buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (var c = 0; c < 2; c++) {
+      var d = buf.getChannelData(c);
+      for (var i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+      }
+    }
+    var cv = ctx.createConvolver(); cv.buffer = buf; return cv;
+  }
+
+  /* one cue per gift: a low swell, a bell, a shimmer, a tail */
+  var SCALES = [
+    [220.0, 261.63, 329.63, 392.0],      /* 99–199 */
+    [196.0, 246.94, 293.66, 392.0],      /* 299–499 */
+    [174.61, 220.0, 261.63, 349.23],     /* 699–999 */
+    [164.81, 207.65, 246.94, 329.63],    /* 1299–1999 */
+    [146.83, 185.0, 220.0, 293.66]       /* 2999 and above */
+  ];
+  function tierOf(p) {
+    p = Number(p || 0);
+    if (p >= 2999) return 4;
+    if (p >= 1299) return 3;
+    if (p >= 699) return 2;
+    if (p >= 299) return 1;
+    return 0;
+  }
+  function cue(gift, ms) {
+    var ctx = audio();
+    if (!ctx) return function () {};
+    if (ctx.state === 'suspended') { try { ctx.resume(); } catch (e) {} }
+    var t0 = ctx.currentTime + 0.04;
+    var dur = ms / 1000;
+    var scale = SCALES[tierOf(gift.price_inr)];
+    var out = ctx.createGain();
+    out.gain.value = 0.0;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.4;
+    var cv = verb(ctx, Math.min(4.5, dur * 0.45 + 1.6));
+    var wet = ctx.createGain(); wet.gain.value = 0.62;
+    var dry = ctx.createGain(); dry.gain.value = 0.5;
+    out.connect(lp); lp.connect(dry); dry.connect(ctx.destination);
+    lp.connect(cv); cv.connect(wet); wet.connect(ctx.destination);
+
+    /* the swell: the picture's own length, with a long release */
+    var swell = ctx.createOscillator(); swell.type = 'sine';
+    swell.frequency.value = scale[0] / 2;
+    var sg = ctx.createGain(); sg.gain.value = 0;
+    swell.connect(sg); sg.connect(out);
+    sg.gain.setValueAtTime(0, t0);
+    sg.gain.linearRampToValueAtTime(0.16, t0 + Math.min(1.6, dur * 0.28));
+    sg.gain.linearRampToValueAtTime(0.10, t0 + dur * 0.8);
+    sg.gain.exponentialRampToValueAtTime(0.0008, t0 + dur + 2.2);
+    swell.start(t0); swell.stop(t0 + dur + 2.4);
+
+    /* the bells arrive through the whole span, thinning as it ends */
+    var count = 6 + tierOf(gift.price_inr) * 2;
+    for (var i = 0; i < count; i++) {
+      var at = t0 + 0.35 + (dur * 0.82) * (i / count) + (Math.random() * 0.22);
+      var f = scale[(i + (i % 2)) % scale.length] * (i % 3 === 2 ? 2 : 1);
+      var o = ctx.createOscillator(); o.type = i % 2 ? 'triangle' : 'sine';
+      o.frequency.value = f;
+      var g = ctx.createGain(); g.gain.value = 0;
+      o.connect(g); g.connect(out);
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(0.85 / (i + 2), at + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0005, at + 1.9 + (dur * 0.08));
+      o.start(at); o.stop(at + 2.2 + dur * 0.08);
+    }
+
+    /* a shimmer: filtered noise, breath, not hiss */
+    var nlen = Math.floor(ctx.sampleRate * (dur + 1.4));
+    var nb = ctx.createBuffer(1, nlen, ctx.sampleRate);
+    var nd = nb.getChannelData(0);
+    for (var k = 0; k < nlen; k++) nd[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / nlen, 1.9);
+    var ns = ctx.createBufferSource(); ns.buffer = nb;
+    var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 5200; bp.Q.value = 1.1;
+    var ng = ctx.createGain(); ng.gain.value = 0.05;
+    ns.connect(bp); bp.connect(ng); ng.connect(out);
+    ns.start(t0 + 0.15);
+
+    out.gain.setValueAtTime(0.9, t0);
+    var stopped = false;
+    return function () {
+      if (stopped) return; stopped = true;
+      try {
+        var n = ctx.currentTime;
+        out.gain.cancelScheduledValues(n);
+        out.gain.setValueAtTime(out.gain.value, n);
+        out.gain.exponentialRampToValueAtTime(0.0004, n + 0.55);
+      } catch (e) {}
+    };
+  }
+
+  /* ── the canvas: one clock, per-gift weather ──────────────────────────── */
+  function palette(gift, surface) {
+    var p = Number(gift.price_inr || 0);
+    var base = surface === 'live'
+      ? ['#7C2C40', '#4A1220', '#8A5A12']
+      : ['#6A3A16', '#4A1220', '#8A5A12'];
+    if (p >= 4999) return ['#FFF3CB', '#F3D98A', '#D9AE4A', '#6E1A2C', '#FFF9E6'];
+    if (p >= 1299) return ['#FFF6D8', '#EFCE7E', '#C79A32', '#5C1024', '#FFF3CB'];
+    if (p >= 699) return ['#F6E0A4', '#D9AE4A', '#8A5A12', base[1], '#FFF6D8'];
+    return ['#F3E3C4', '#D9AE4A', '#8A5A12', base[1], '#FFFCF2'];
+  }
+
+  var GEMS = [0, 1, 2, 3, 4, 5]; /* shape ids */
+
+  function run(canvas, gift, ms, onEnd) {
+    var ctx = canvas.getContext('2d');
+    var w = 0, h = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    function size() {
+      var r = canvas.getBoundingClientRect();
+      w = Math.max(1, r.width); h = Math.max(1, r.height);
+      canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    size();
+    window.addEventListener('resize', size);
+
+    var pal = palette(gift, gift.surface || 'post');
+    var tier = tierOf(gift.price_inr);
+    var calm = reduce();
+    var start = performance.now();
+    var raf = 0, dead = false;
+    var dust = [], gems = [], rings = [], ribbons = [], note = [];
+
+    var N = calm ? 0 : Math.min(420, 120 + tier * 62);
+    for (var i = 0; i < N; i++) {
+      dust.push({
+        x: Math.random() * w, y: Math.random() * h,
+        r: 0.6 + Math.random() * 2.2,
+        vy: -0.10 - Math.random() * 0.5,
+        vx: (Math.random() - 0.5) * 0.26,
+        a: 0.18 + Math.random() * 0.6,
+        ph: Math.random() * 6.28,
+        c: pal[Math.floor(Math.random() * pal.length)]
+      });
+    }
+    var G = calm ? 0 : Math.min(90, 18 + tier * 16);
+    for (var j = 0; j < G; j++) {
+      gems.push({
+        x: Math.random() * w, y: -40 - Math.random() * h * 0.8,
+        s: 7 + Math.random() * 15,
+        vy: 0.9 + Math.random() * 2.1 + tier * 0.35,
+        vx: (Math.random() - 0.5) * 1.1,
+        rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.07,
+        shape: GEMS[Math.floor(Math.random() * GEMS.length)],
+        c: pal[Math.floor(Math.random() * 2)],
+        glow: Math.random() * 6.28
+      });
+    }
+
+    var KIND = kindOf(gift.name);
+
+    function kindOf(name) {
+      var n = String(name || '').toLowerCase();
+      if (n.indexOf('forget') >= 0 || n.indexOf('diamond') >= 0) return 'diamond';
+      if (n.indexOf('crown') >= 0) return 'crown';
+      if (n.indexOf('dance') >= 0) return 'silk';
+      if (n.indexOf('dress') >= 0) return 'silk';
+      if (n.indexOf('look') >= 0) return 'silk';
+      if (n.indexOf('applause') >= 0) return 'applause';
+      if (n.indexOf('night') >= 0) return 'moon';
+      if (n.indexOf('goose') >= 0) return 'frost';
+      if (n.indexOf('sun') >= 0 || n.indexOf('carried') >= 0) return 'sun';
+      if (n.indexOf('front row') >= 0) return 'stage';
+      if (n.indexOf('story') >= 0) return 'flame';
+      if (n.indexOf('song') >= 0) return 'ripple';
+      if (n.indexOf('dog') >= 0) return 'paws';
+      if (n.indexOf('house') >= 0 || n.indexOf('tour') >= 0) return 'keys';
+      if (n.indexOf('vanity') >= 0) return 'glint';
+      if (n.indexOf('again') >= 0) return 'ring';
+      if (n.indexOf('second look') >= 0) return 'eye';
+      return 'bloom';
+    }
+
+    function gemPath(g, size) {
+      var s = size;
+      ctx.beginPath();
+      if (g.shape === 0) { /* brilliant */
+        ctx.moveTo(0, -s); ctx.lineTo(s * 0.72, -s * 0.24); ctx.lineTo(s * 0.52, s * 0.78);
+        ctx.lineTo(-s * 0.52, s * 0.78); ctx.lineTo(-s * 0.72, -s * 0.24);
+      } else if (g.shape === 1) { /* teardrop */
+        ctx.moveTo(0, -s); ctx.bezierCurveTo(s, -s * 0.2, s * 0.6, s, 0, s);
+        ctx.bezierCurveTo(-s * 0.6, s, -s, -s * 0.2, 0, -s);
+      } else if (g.shape === 2) { /* emerald cut */
+        ctx.moveTo(-s * 0.6, -s * 0.9); ctx.lineTo(s * 0.6, -s * 0.9);
+        ctx.lineTo(s * 0.8, -s * 0.6); ctx.lineTo(s * 0.8, s * 0.6);
+        ctx.lineTo(s * 0.6, s * 0.9); ctx.lineTo(-s * 0.6, s * 0.9);
+        ctx.lineTo(-s * 0.8, s * 0.6); ctx.lineTo(-s * 0.8, -s * 0.6);
+      } else if (g.shape === 3) { /* six-point star */
+        for (var i = 0; i < 12; i++) {
+          var a = (Math.PI / 6) * i, rr = i % 2 ? s * 0.42 : s;
+          ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr);
+        }
+      } else if (g.shape === 4) { /* heart */
+        ctx.moveTo(0, s * 0.85);
+        ctx.bezierCurveTo(-s * 1.5, -s * 0.15, -s * 0.55, -s * 1.05, 0, -s * 0.4);
+        ctx.bezierCurveTo(s * 0.55, -s * 1.05, s * 1.5, -s * 0.15, 0, s * 0.85);
+      } else { /* petal */
+        ctx.ellipse(0, 0, s * 0.6, s, 0, 0, 6.29);
+      }
+      ctx.closePath();
+    }
+
+
+    function drawBrilliant(cx, cy, S, rot, t, alpha) {
+      var s = S;
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.globalAlpha = alpha;
+
+      /* the pavilion: a fan of facets from the girdle down to the point */
+      var pts = [-1, -0.62, -0.2, 0.24, 0.62, 1];
+      for (var i = 0; i < pts.length - 1; i++) {
+        var x1 = pts[i] * s * 0.62, x2 = pts[i + 1] * s * 0.62;
+        ctx.beginPath();
+        ctx.moveTo(x1, -s * 0.18); ctx.lineTo(x2, -s * 0.18); ctx.lineTo(0, s);
+        ctx.closePath();
+        var g = ctx.createLinearGradient(0, -s * 0.18, 0, s);
+        var mid = (i / (pts.length - 2));
+        g.addColorStop(0, mid < 0.4 ? 'rgba(255,253,244,.97)' : 'rgba(255,246,214,.92)');
+        g.addColorStop(0.55, mid < 0.4 ? 'rgba(243,217,138,.92)' : 'rgba(224,186,104,.9)');
+        g.addColorStop(1, 'rgba(150,104,28,.95)');
+        ctx.fillStyle = g; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,250,232,.55)'; ctx.lineWidth = 0.8; ctx.stroke();
+      }
+
+      /* the table: a crown of facets above the girdle */
+      for (var j = 0; j < pts.length - 1; j++) {
+        var a1 = pts[j] * s * 0.62, a2 = pts[j + 1] * s * 0.62;
+        var top1 = pts[j] * s * 0.30, top2 = pts[j + 1] * s * 0.30;
+        ctx.beginPath();
+        ctx.moveTo(top1, -s * 0.44); ctx.lineTo(top2, -s * 0.44);
+        ctx.lineTo(a2, -s * 0.18); ctx.lineTo(a1, -s * 0.18);
+        ctx.closePath();
+        var g2 = ctx.createLinearGradient(0, -s * 0.44, 0, -s * 0.18);
+        g2.addColorStop(0, 'rgba(255,255,250,.99)');
+        g2.addColorStop(1, j % 2 ? 'rgba(255,240,196,.95)' : 'rgba(246,222,158,.95)');
+        ctx.fillStyle = g2; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,248,.7)'; ctx.lineWidth = 0.7; ctx.stroke();
+      }
+
+      /* the girdle line and the rim */
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.62, -s * 0.18); ctx.lineTo(s * 0.62, -s * 0.18);
+      ctx.strokeStyle = 'rgba(255,255,250,.9)'; ctx.lineWidth = 1.4; ctx.stroke();
+
+      /* the star glint, turning slowly over the table */
+      var gl = 0.55 + 0.45 * Math.sin(t * 3.1);
+      ctx.globalAlpha = alpha * gl;
+      var sg = ctx.createRadialGradient(0, -s * 0.32, 0, 0, -s * 0.32, s * 0.9);
+      sg.addColorStop(0, 'rgba(255,255,255,.95)');
+      sg.addColorStop(0.35, 'rgba(255,246,214,.35)');
+      sg.addColorStop(1, 'rgba(255,246,214,0)');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(0, -s * 0.32, s * 0.9, 0, 6.29); ctx.fill();
+
+      ctx.globalAlpha = alpha * gl;
+      ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(-s * 1.5, -s * 0.32); ctx.lineTo(s * 1.5, -s * 0.32);
+      ctx.moveTo(0, -s * 1.7); ctx.lineTo(0, s * 1.1);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCrown(cx, cy, s, t, alpha) {
+      /* a sovereign's crown: velvet, a jewelled band, five points, and light in it */
+      ctx.save(); ctx.translate(cx, cy + Math.sin(t * 2.1) * 3); ctx.scale(s, s);
+      ctx.rotate(Math.sin(t * 1.3) * 0.03);
+      ctx.globalAlpha = alpha;
+
+      /* the shadow it is standing in */
+      var sh = ctx.createRadialGradient(0, .54, 0, 0, .54, .92);
+      sh.addColorStop(0, 'rgba(24,4,8,.34)'); sh.addColorStop(1, 'rgba(24,4,8,0)');
+      ctx.fillStyle = sh;
+      ctx.beginPath(); ctx.ellipse(0, .54, .92, .13, 0, 0, 6.29); ctx.fill();
+
+      /* the velvet behind the points */
+      var vel = ctx.createLinearGradient(0, -.95, 0, .3);
+      vel.addColorStop(0, '#8E2038'); vel.addColorStop(.55, '#6E1A2C'); vel.addColorStop(1, '#48101D');
+      ctx.fillStyle = vel;
+      ctx.beginPath();
+      ctx.moveTo(-.76, .22); ctx.quadraticCurveTo(-.52, -.98, 0, -.98);
+      ctx.quadraticCurveTo(.52, -.98, .76, .22); ctx.closePath(); ctx.fill();
+
+      /* the body of gold */
+      var g = ctx.createLinearGradient(-.2, -.7, .3, .48);
+      g.addColorStop(0, '#FFFCF0'); g.addColorStop(.28, '#F7DFA4');
+      g.addColorStop(.55, '#E3BE6B'); g.addColorStop(.8, '#C79A32'); g.addColorStop(1, '#9A6C14');
+      ctx.fillStyle = g;
+      ctx.strokeStyle = 'rgba(96,58,8,.6)'; ctx.lineWidth = .045;
+      ctx.beginPath();
+      ctx.moveTo(-1.02, .46); ctx.lineTo(-.88, -.42);
+      ctx.quadraticCurveTo(-.84, -.56, -.74, -.46);
+      ctx.lineTo(-.4, -.06);
+      ctx.quadraticCurveTo(-.2, -.2, 0, -.78);
+      ctx.quadraticCurveTo(.2, -.2, .4, -.06);
+      ctx.lineTo(.74, -.46); ctx.quadraticCurveTo(.84, -.56, .88, -.42);
+      ctx.lineTo(1.02, .46); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      /* the band, and its jewels */
+      var band = ctx.createLinearGradient(0, .16, 0, .48);
+      band.addColorStop(0, '#FFF6D2'); band.addColorStop(.5, '#D9B25A'); band.addColorStop(1, '#8E6412');
+      ctx.fillStyle = band;
+      ctx.beginPath();
+      ctx.moveTo(-1.02, .2); ctx.lineTo(1.02, .2); ctx.lineTo(1.02, .46); ctx.lineTo(-1.02, .46);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(96,58,8,.55)'; ctx.lineWidth = .035; ctx.stroke();
+
+      var jewels = ['#7A1430', '#F4E3B0', '#2E4A6B', '#7A1430', '#F4E3B0'];
+      for (var i = 0; i < 5; i++) {
+        var x = -.62 + i * .31;
+        ctx.fillStyle = jewels[i];
+        ctx.beginPath(); ctx.arc(x, .33, .075, 0, 6.29); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,248,222,.85)'; ctx.lineWidth = .028; ctx.stroke();
+      }
+
+      /* pearls on the points */
+      [-1.02, 0, 1.02].forEach(function (px, k) {
+        var py = k === 1 ? -.86 : -.44;
+        var pg = ctx.createRadialGradient(px - .03, py - .03, 0, px, py, .15);
+        pg.addColorStop(0, '#FFFFFF'); pg.addColorStop(.6, '#F6E7B4'); pg.addColorStop(1, '#C79A32');
+        ctx.fillStyle = pg;
+        ctx.beginPath(); ctx.arc(px, py, .15, 0, 6.29); ctx.fill();
+      });
+
+      /* the specular sweep, once every few seconds */
+      var sweep = ((t * 0.55) % 1.6) - 0.3;
+      var sg = ctx.createLinearGradient(sweep - .5, -.8, sweep + .5, .6);
+      sg.addColorStop(0, 'rgba(255,255,255,0)');
+      sg.addColorStop(.5, 'rgba(255,255,255,.55)');
+      sg.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.globalAlpha = alpha * 0.55;
+      ctx.fillStyle = sg;
+      ctx.beginPath();
+      ctx.moveTo(-1.02, .46); ctx.lineTo(-.88, -.42); ctx.lineTo(-.4, -.06);
+      ctx.lineTo(0, -.78); ctx.lineTo(.4, -.06); ctx.lineTo(.88, -.42);
+      ctx.lineTo(1.02, .46); ctx.closePath(); ctx.fill();
+
+      ctx.restore();
+    }
+
+    function frame(now) {
+      if (dead) return;
+      var t = Math.min(1, (now - start) / ms);
+      var fade = t > 0.82 ? 1 - (t - 0.82) / 0.18 : 1;
+      ctx.clearRect(0, 0, w, h);
+      var cx = w / 2, cy = h * 0.44;
+
+      /* the room: deep burgundy, a vignette, one slow haze behind everything */
+      var bg = ctx.createRadialGradient(cx, cy * 0.9, 0, cx, cy, Math.max(w, h) * 0.95);
+      bg.addColorStop(0, 'rgba(86,20,34,1)');
+      bg.addColorStop(0.45, 'rgba(58,14,24,1)');
+      bg.addColorStop(1, 'rgba(26,7,10,1)');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+      var haze = ctx.createRadialGradient(cx + Math.sin(t * 2) * w * 0.08, cy + Math.cos(t * 1.6) * h * 0.05, 0,
+                                          cx, cy, Math.max(w, h) * 0.55);
+      haze.addColorStop(0, 'rgba(217,174,74,' + (0.12 * fade) + ')');
+      haze.addColorStop(1, 'rgba(217,174,74,0)');
+      ctx.fillStyle = haze; ctx.fillRect(0, 0, w, h);
+
+      /* the room light: a slow radial that breathes with the sound */
+      var lightR = Math.max(w, h) * (0.24 + 0.30 * Math.sin(Math.PI * Math.min(1, t * 1.5)));
+      var lg = ctx.createRadialGradient(cx, cy, 0, cx, cy, lightR);
+      lg.addColorStop(0, 'rgba(255,240,200,' + (0.20 * fade) + ')');
+      lg.addColorStop(0.5, 'rgba(217,174,74,' + (0.07 * fade) + ')');
+      lg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = lg; ctx.fillRect(0, 0, w, h);
+
+      /* the weather of this gift */
+      if (KIND === 'silk') {
+        for (var s = 0; s < (calm ? 0 : 5); s++) {
+          ctx.beginPath();
+          var ph = t * 2.2 + s * 1.1;
+          for (var x = -40; x <= w + 40; x += 16) {
+            var y = cy + Math.sin(x / 90 + ph) * (34 + s * 12) + (s - 2) * 30;
+            if (x === -40) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = 'rgba(255,240,205,' + (0.10 + 0.05 * s) * fade + ')';
+          ctx.lineWidth = 1.6 + s * 0.7;
+          ctx.stroke();
+        }
+      } else if (KIND === 'frost') {
+        for (var f = 0; f < (calm ? 0 : 8); f++) {
+          var fx = (w / 8) * f + w / 16, fy = cy;
+          ctx.save(); ctx.translate(fx, fy);
+          ctx.rotate((t * 0.6 + f) * 0.6);
+          ctx.strokeStyle = 'rgba(210,240,255,' + (0.14 * fade) + ')';
+          ctx.lineWidth = 1;
+          for (var arm = 0; arm < 6; arm++) {
+            ctx.rotate(Math.PI / 3);
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -26 - 10 * Math.sin(t * 5 + f)); ctx.stroke();
+          }
+          ctx.restore();
+        }
+      } else if (KIND === 'moon' || KIND === 'sun') {
+        var rr = 44 + 6 * Math.sin(t * 6);
+        var dg = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr * 3);
+        dg.addColorStop(0, KIND === 'sun' ? 'rgba(255,214,120,.95)' : 'rgba(255,248,225,.9)');
+        dg.addColorStop(0.42, KIND === 'sun' ? 'rgba(240,170,60,.30)' : 'rgba(230,220,190,.22)');
+        dg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(cx, cy, rr * 3, 0, 6.29); ctx.fill();
+      } else if (KIND === 'diamond') {
+        drawBrilliant(cx, cy - 10, 66 + 7 * Math.sin(t * 6), Math.sin(t * 1.4) * 0.18, t, fade);
+        for (var ray = 0; ray < 16; ray++) {
+          var ang = ray * (Math.PI / 8) + t * 0.6;
+          var len = 120 + 90 * Math.abs(Math.sin(t * 5 + ray));
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ang) * 70, cy - 10 + Math.sin(ang) * 70);
+          ctx.lineTo(cx + Math.cos(ang) * (70 + len), cy - 10 + Math.sin(ang) * (70 + len));
+          ctx.strokeStyle = 'rgba(255,246,214,' + (0.10 * fade * (0.4 + 0.6 * Math.sin(t * 7 + ray))) + ')';
+          ctx.lineWidth = 1.1; ctx.stroke();
+        }
+      } else if (KIND === 'crown') {
+        drawCrown(cx, cy - 4, 86 + 6 * Math.sin(t * 5), t, fade);
+      } else if (KIND === 'stage') {
+        ctx.fillStyle = 'rgba(255,236,190,' + (0.10 * fade) + ')';
+        ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx - 26, h); ctx.lineTo(cx + 26, h); ctx.fill();
+      } else if (KIND === 'applause') {
+        for (var b = 0; b < (calm ? 0 : 10); b++) {
+          var ba = (b / 10) * 6.28 + t * 2;
+          var br = 40 + ((t * 240 + b * 40) % (Math.max(w, h) * 0.5));
+          ctx.beginPath(); ctx.arc(cx, cy, br, 0, 6.29);
+          ctx.strokeStyle = 'rgba(255,240,205,' + (0.10 * fade * (1 - br / (Math.max(w, h) * 0.55))) + ')';
+          ctx.lineWidth = 2; ctx.stroke();
+        }
+      }
+
+      /* gold dust, always */
+      for (var i = 0; i < dust.length; i++) {
+        var d = dust[i];
+        d.x += d.vx + Math.sin((now / 900) + d.ph) * 0.16;
+        d.y += d.vy - (KIND === 'flame' || KIND === 'keys' ? 0.35 : 0);
+        if (d.y < -12) { d.y = h + 10; d.x = Math.random() * w; }
+        if (d.x < -12) d.x = w + 8; if (d.x > w + 12) d.x = -8;
+        ctx.globalAlpha = d.a * (0.55 + 0.45 * Math.sin(now / 620 + d.ph)) * fade;
+        ctx.fillStyle = d.c;
+        ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.29); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      /* the jewels fall and dissolve before they land */
+      for (var g2 = 0; g2 < gems.length; g2++) {
+        var gm = gems[g2];
+        gm.y += gm.vy; gm.x += gm.vx + Math.sin(now / 700 + gm.glow) * 0.5;
+        gm.rot += gm.vr;
+        if (gm.y > h + 60) { gm.y = -60; gm.x = Math.random() * w; }
+        var near = Math.min(1, Math.max(0, (h - gm.y) / (h * 0.35)));
+        ctx.save();
+        ctx.translate(gm.x, gm.y); ctx.rotate(gm.rot);
+        ctx.globalAlpha = (0.85 * fade) * (0.35 + 0.65 * near);
+        gemPath(gm, gm.s * (0.7 + 0.3 * Math.sin(now / 400 + gm.glow)));
+        var gg = ctx.createLinearGradient(-gm.s, -gm.s, gm.s, gm.s);
+        gg.addColorStop(0, '#FFFDF4'); gg.addColorStop(0.42, gm.c); gg.addColorStop(1, '#8A5A12');
+        ctx.fillStyle = gg;
+        ctx.shadowColor = 'rgba(255,240,200,.75)'; ctx.shadowBlur = 14;
+        ctx.fill();
+        /* one glint across the stone, on its own beat */
+        var fl = 0.5 + 0.5 * Math.sin(now / 260 + gm.glow);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(255,255,250,' + (0.55 * fl * fade) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-gm.s * 0.55, -gm.s * 0.15); ctx.lineTo(gm.s * 0.2, gm.s * 0.5);
+        ctx.stroke();
+        /* its own facet: two chords, so a stone reads as a stone */
+        ctx.strokeStyle = 'rgba(255,250,232,' + (0.28 * fade) + ')';
+        ctx.lineWidth = 0.9;
+        ctx.beginPath();
+        ctx.moveTo(-gm.s * 0.5, gm.s * 0.1); ctx.lineTo(0, -gm.s * 0.6); ctx.lineTo(gm.s * 0.5, gm.s * 0.1);
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+
+      /* the last breath: everything lifts and thins */
+      if (t > 0.82) {
+        ctx.globalAlpha = 1 - fade;
+        ctx.fillStyle = 'rgba(255,244,214,' + (0.22 * (1 - fade)) + ')';
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
+
+      if (t >= 1) { dead = true; cancelAnimationFrame(raf); window.removeEventListener('resize', size); onEnd && onEnd(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+    return function kill() {
+      if (dead) return;
+      dead = true; cancelAnimationFrame(raf);
+      window.removeEventListener('resize', size);
+      onEnd && onEnd();
+    };
+  }
+
+  /* ── the moment ───────────────────────────────────────────────────────── */
+  function play(surface, gift, opts) {
+    opts = opts || {};
+    var ms = surface === 'live' ? LIVE_MS : POST_MS;
+    if (opts.ms) ms = opts.ms;
+    var root = document.createElement('div');
+    root.className = 'the-moment';
+    root.setAttribute('role', 'dialog');
+    root.setAttribute('aria-label', gift.name + ' — a gift');
+    root.innerHTML =
+      '<canvas></canvas><span class="the-veil"></span>' +
+      '<button class="the-skip" id="the-skip">SKIP</button>' +
+      '<div class="the-plate">' +
+        '<div class="the-emoji">' + emblem(gift.name, 54, true) + '</div>' +
+        '<h3>' + esc(gift.name) + '</h3>' +
+        (gift.line ? '<p class="the-line">' + esc(gift.line) + '</p>' : '') +
+        (opts.from ? '<p class="the-from">from ' + esc(opts.from) + '</p>' : '') +
+      '</div>';
+    document.body.appendChild(root);
+    requestAnimationFrame(function () { root.classList.add('on'); });
+
+    var stopSound = cue(gift, ms);
+    var killed = false;
+    function end() {
+      if (killed) return; killed = true;
+      root.classList.add('is-done');
+      stopSound();
+      setTimeout(function () { if (root.parentNode) root.parentNode.removeChild(root); }, 620);
+      if (opts.onEnd) opts.onEnd();
+    }
+    var kill = run(root.querySelector('canvas'), Object.assign({ surface: surface }, gift), ms, end);
+    root.addEventListener('click', function (e) {
+      if (e.target.id === 'the-skip' || e.target === root) { kill(); stopSound(); end(); }
+    });
+    setTimeout(end, ms + 120);
+    return { end: end };
+  }
+
+  /* ── the wall: who gifted, largest first, a crown on the top ──────────── */
+  var CROWN = '<svg viewBox="0 0 64 32" aria-hidden="true"><defs><linearGradient id="twG" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#FFF6D8"/><stop offset=".5" stop-color="#EFCE7E"/><stop offset="1" stop-color="#B8942B"/></linearGradient></defs>' +
+    '<path d="M4 27l3.4-18.4L18 18.6 32 4.4l14 14.2 10.6-10L60 27z" fill="url(#twG)" stroke="#8A5A12" stroke-width="1.3" stroke-linejoin="round"/>' +
+    '<path d="M4 27h56" stroke="#8A5A12" stroke-width="1.3" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="20.4" r="2.4" fill="#6E1A2C" stroke="#FFF3CB" stroke-width="1"/></svg>';
+
+  function wallHTML(rows, surface) {
+    if (!rows) return '<div class="the-empty"><span class="the-crown is-dim">' + CROWN + '</span>' +
+      '<span>The names on this ' + (surface === 'live' ? 'room' : 'post') + ' could not be loaded just now.</span></div>';
+    if (!rows.length) return '<div class="the-empty"><span class="the-crown is-dim">' + CROWN + '</span>' +
+      '<span>Waiting for a name I will always remember. The largest confirmed gift wears the crown here.</span></div>';
+    var top = rows[0], rest = rows.slice(1, 7);
+    var out = '<div class="the-top"><span class="the-crown">' + CROWN + '</span>' +
+      '<span class="the-face">' + esc(initials(top.name)) + '</span>' +
+      '<span><b>' + esc(top.name || 'A member') + '</b>' +
+      '<s>' + esc(top.gift || 'a gift') + (top.n > 1 ? ' \u00b7 ' + top.n + ' gifts' : '') + '</s></span></div>';
+    if (rest.length) {
+      out += '<div class="the-rest">' + rest.map(function (r) {
+        return '<span class="the-name">' + esc(r.name || 'A member') + '</span>';
+      }).join('') + '</div>';
+    }
+    return out;
+  }
+
+  function wall(surface, refId) {
+    if (!IV || !IV.read()) return Promise.resolve(null);
+    var p = surface === 'live'
+      ? IV.call('/rest/v1/rpc/session_gifts', { session_id_in: refId })
+      : IV.call('/rest/v1/rpc/post_gifters_with_ids', { post_id_in: refId });
+    return p.then(function (rows) {
+      var list = (rows || []).map(function (r) {
+        return {
+          name: r.display_name || r.name || r.member_name || 'A member',
+          gift: r.gift_name || r.gift || r.top_gift || '',
+          n: Number(r.n || r.count || r.gift_count || 1),
+          amount: Number(r.total_inr || r.amount_inr || 0)
+        };
+      }).filter(function (r) { return r.name; })
+        .sort(function (a, b) { return b.amount - a.amount || b.n - a.n; });
+      return list;
+    }).catch(function () { return null; });
+  }
+
+  /* ── the drawer ───────────────────────────────────────────────────────── */
+  function open(surface, opts) {
+    opts = opts || {};
+    surface = surface === 'live' ? 'live' : 'post';
+    load().then(function () {
+      var gifts = list(surface);
+      var back = document.createElement('div');
+      back.className = 'the-sheet';
+      back.innerHTML =
+        '<div class="the-panel" role="dialog" aria-modal="true" aria-label="The treasures">' +
+          '<span class="the-grip" aria-hidden="true"></span>' +
+          '<div class="the-head"><h2>The <em>treasures.</em></h2><s>' + (surface === 'live' ? 'for this room' : 'for this post') + '</s></div>' +
+          '<p class="the-lede">Nine gifts, each one a thing the house will do. Choose one and it happens in front of you.</p>' +
+          '<div class="the-tabs">' +
+            '<button class="the-tab' + (surface === 'post' ? ' on' : '') + '" data-s="post">ON A POST</button>' +
+            '<button class="the-tab' + (surface === 'live' ? ' on' : '') + '" data-s="live">IN A LIVE ROOM</button>' +
+          '</div>' +
+          '<div class="the-wall" id="the-wall"><div class="the-empty"><span class="the-crown is-dim">' + CROWN + '</span><span>Reading the wall\u2026</span></div></div>' +
+          '<div class="the-grid" id="the-grid"></div>' +
+          '<div class="the-foot"><p>A gift is a promise of a thing done, not a badge. The house keeps it.</p>' +
+            '<button class="the-shut" id="the-shut">CLOSE</button></div>' +
+        '</div>';
+      document.body.appendChild(back);
+      requestAnimationFrame(function () { back.classList.add('on'); });
+      nib(back);
+
+      var box = back.querySelector('#the-grid');
+      var wallBox = back.querySelector('#the-wall');
+
+      function drawWall() {
+        wallBox.innerHTML = '<div class="the-empty"><span class="the-crown is-dim">' + CROWN + '</span><span>Reading the wall\u2026</span></div>';
+        wall(surface, opts.refId).then(function (rows) {
+          wallBox.innerHTML = wallHTML(rows, surface);
+        });
+      }
+
+      function draw() {
+        box.innerHTML = '';
+        list(surface).forEach(function (g) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'giftcard' + (Number(g.price_inr) >= 2999 ? ' is-high' : '');
+          b.innerHTML = '<span class="ge">' + emblem(g.name, 30) + '</span>' +
+            '<span class="gn">' + esc(g.name) + '</span>' +
+            '<span class="gp">\u20b9' + Number(g.price_inr || 0).toLocaleString('en-IN') + '</span>';
+          b.addEventListener('click', function () {
+            nib(b);
+            choose(g);
+          });
+          box.appendChild(b);
+        });
+      }
+
+      function choose(g) {
+        closeSheet();
+        play(surface, g, {
+          from: (opts.from || (IV && IV.user && (IV.user() || {}).email) || '').split('@')[0] || '',
+          onEnd: function () { if (opts.onEnd) opts.onEnd(); }
+        });
+        if (IV && IV.read()) {
+          IV.call('/rest/v1/rpc/send_gift', {
+            gift_id_in: g.id,
+            post_id_in: surface === 'post' ? (opts.refId || null) : null,
+            session_id_in: surface === 'live' ? (opts.refId || null) : null
+          }).catch(function () { /* the moment is real either way */ });
+        }
+      }
+
+      function closeSheet() {
+        back.classList.remove('on');
+        setTimeout(function () { if (back.parentNode) back.parentNode.removeChild(back); }, 260);
+      }
+      back.addEventListener('click', function (e) { if (e.target === back) closeSheet(); });
+      back.querySelector('#the-shut').addEventListener('click', closeSheet);
+      Array.prototype.forEach.call(back.querySelectorAll('.the-tab'), function (t) {
+        t.addEventListener('click', function () {
+          surface = t.getAttribute('data-s');
+          Array.prototype.forEach.call(back.querySelectorAll('.the-tab'), function (x) {
+            x.classList.toggle('on', x === t);
+          });
+          draw(); drawWall();
+        });
+      });
+      draw(); drawWall();
+    });
+  }
+
+  /* ── the jewel that opens it, on every member screen ──────────────────── */
+  function jewel() {
+    if (document.getElementById('treasure-fab')) return;
+    var b = document.createElement('button');
+    b.id = 'treasure-fab';
+    b.className = 'treasure-fab';
+    b.type = 'button';
+    b.setAttribute('aria-label', 'The treasures — send a gift');
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3.2l2.6 5.4 5.9.8-4.3 4.2 1 5.9L12 16.7 6.8 19.5l1-5.9L3.5 9.4l5.9-.8z" fill="' + INK + '" opacity=".85"/><path d="M12 3.2l2.6 5.4 5.9.8-4.3 4.2 1 5.9L12 16.7 6.8 19.5l1-5.9L3.5 9.4l5.9-.8z" stroke="#FFF3CB" stroke-width=".8" stroke-linejoin="round"/></svg>';
+    b.addEventListener('click', function () { nib(b); open('post', {}); });
+    document.body.appendChild(b);
+  }
+
+  function boot() {
+    try { jewel(); } catch (e) {}
+    load();
+  }
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 1200); });
+  window.addEventListener('load', function () { setTimeout(boot, 1600); });
+
+  return { open: open, play: play, wall: wall, load: load, list: list,
+           POST: POST, LIVE: LIVE, jewel: jewel, durations: { post: POST_MS, live: LIVE_MS } };
+})();
+</script>
+<script id="iv-cap-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE HAND · window.IVCAPTURE
+   ---------------------------------------------------------------------------
+   Every file field in the house, on every kind of machine, made seamless:
+
+     · a phone or a tablet  → the field asks the system for the CAMERA first
+                              (image and video), and the gallery is one tap away
+                              in the same sheet, exactly as the app behaves
+     · a laptop or desktop  → a choice: CAMERA (the webcam, live, with a
+                              countdown) or FILES (the disk), plus drag-and-drop
+                              and paste anywhere on the drop zone
+     · a permission refusal → falls straight back to the ordinary picker
+
+   Nothing is stored, nothing is uploaded here: a photograph taken on the
+   webcam becomes a real `File` in the field it was opened from, so every room
+   that already knows how to upload keeps working exactly as it did.
+   ═══════════════════════════════════════════════════════════════════════════ */
+window.IVCAPTURE = (function () {
+  var COARSE = false;
+  try { COARSE = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 1; } catch (e) {}
+
+  function kindOf(input) {
+    var acc = String(input.getAttribute('accept') || '').toLowerCase();
+    if (/video/.test(acc)) return 'video';
+    if (/audio/.test(acc)) return 'audio';
+    if (/image/.test(acc)) return 'image';
+    return 'file';
+  }
+  function label(kind) {
+    return kind === 'video' ? 'a video' : kind === 'audio' ? 'a voice note'
+      : kind === 'image' ? 'a picture' : 'a file';
+  }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el) { if (window.IVVOICE) window.IVVOICE.play('tap', 'mid', el); }
+
+  /* put a File into the field it belongs to, and tell the room it changed */
+  function fill(input, file) {
+    try {
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    } catch (e) {
+      try {                                 /* very old browsers */
+        var d2 = new DataTransfer(); d2.items.add(file);
+        Object.defineProperty(input, 'files', { value: d2.files, configurable: true });
+      } catch (e2) { toast('That browser will not take a camera file. Choose one from the disk.', true); return; }
+    }
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function nativePick(input) {
+    input.__ivpass = true;
+    input.click();
+  }
+
+  /* ── the webcam ───────────────────────────────────────────────────────── */
+  function camera(input, kind) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast('This browser has no camera it can reach. Choose a file instead.', true);
+      return nativePick(input);
+    }
+    var wantAudio = kind === 'audio' || kind === 'video';
+    var wantVideo = kind !== 'audio';
+
+    var back = document.createElement('div');
+    back.className = 'cap-sheet';
+    back.innerHTML =
+      '<div class="cap-panel cap-cam" role="dialog" aria-modal="true" aria-label="The camera">' +
+        '<span class="cap-grip" aria-hidden="true"></span>' +
+        '<div class="cap-head"><b>' + (kind === 'video' ? 'Record a video' : kind === 'audio' ? 'Record a voice note' : 'Take a picture') + '</b>' +
+          '<s>Nothing is kept unless you keep it.</s></div>' +
+        '<div class="cap-stage" id="cap-stage">' +
+          (wantVideo ? '<video id="cap-video" playsinline autoplay muted></video>' : '<div class="cap-wave" id="cap-wave"></div>') +
+          '<span class="cap-count" id="cap-count"></span>' +
+          '<span class="cap-rec" id="cap-rec"></span>' +
+        '</div>' +
+        '<div class="cap-acts">' +
+          '<button class="cap-btn" id="cap-switch">FLIP</button>' +
+          '<button class="cap-shoot" id="cap-shoot" aria-label="Take it"></button>' +
+          '<button class="cap-btn" id="cap-close">CLOSE</button>' +
+        '</div>' +
+        '<p class="cap-note" id="cap-note">' + (kind === 'video' ? 'Tap to start, tap again to stop. Up to a minute.' : 'A three-second count, then it is taken.') + '</p>' +
+      '</div>';
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('on'); });
+    nib(back);
+
+    var stream = null, rec = null, chunks = [], recording = false, facing = 'user', dead = false;
+    var video = back.querySelector('#cap-video');
+    var shoot = back.querySelector('#cap-shoot');
+    var note = back.querySelector('#cap-note');
+
+    function stopStream() {
+      if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+    }
+    function shut() {
+      if (dead) return; dead = true;
+      try { if (rec && recording) rec.stop(); } catch (e) {}
+      stopStream();
+      back.classList.remove('on');
+      setTimeout(function () { if (back.parentNode) back.parentNode.removeChild(back); }, 240);
+    }
+    back.addEventListener('click', function (e) { if (e.target === back) shut(); });
+    back.querySelector('#cap-close').addEventListener('click', shut);
+
+    function start() {
+      stopStream();
+      var want = { audio: wantAudio, video: wantVideo ? { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1080 } } : false };
+      navigator.mediaDevices.getUserMedia(want).then(function (s) {
+        stream = s;
+        if (video) { video.srcObject = s; }
+        else {
+          /* a voice note: draw its own breath so the panel is never dead */
+          var wave = back.querySelector('#cap-wave');
+          if (wave) {
+            var bars = '';
+            for (var i = 0; i < 26; i++) bars += '<i style="--d:' + (i * 0.06) + 's;--h:' + (20 + Math.random() * 60) + '%"></i>';
+            wave.innerHTML = bars;
+          }
+        }
+        back.classList.add('is-live');
+        note.textContent = kind === 'video' ? 'Tap to start, tap again to stop.' : 'A three-second count, then it is taken.';
+      }).catch(function (x) {
+        note.textContent = (x && x.name === 'NotAllowedError')
+          ? 'The camera was not allowed. Choose a file instead — the room works the same.'
+          : 'No camera could be opened here. Choose a file instead.';
+        back.classList.add('is-blocked');
+      });
+    }
+    start();
+
+    back.querySelector('#cap-switch').addEventListener('click', function () {
+      facing = facing === 'user' ? 'environment' : 'user';
+      start();
+    });
+
+    function deliver(file) {
+      fill(input, file);
+      shut();
+      toast('Kept. It is in the room now.');
+    }
+
+    function snapshot() {
+      var cv = document.createElement('canvas');
+      var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
+      cv.width = vw; cv.height = vh;
+      cv.getContext('2d').drawImage(video, 0, 0, vw, vh);
+      cv.toBlob(function (blob) {
+        if (!blob) { toast('The camera gave nothing. Try again.', true); return; }
+        var name = 'ivory-' + Date.now() + '.jpg';
+        deliver(new File([blob], name, { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.92);
+    }
+
+    function countdown() {
+      var n = 3, cEl = back.querySelector('#cap-count'), ring = back.querySelector('.cap-stage');
+      ring.classList.add('is-count');
+      cEl.textContent = String(n);
+      var iv = setInterval(function () {
+        n--;
+        if (n <= 0) {
+          clearInterval(iv);
+          cEl.textContent = '';
+          ring.classList.remove('is-count');
+          snapshot();
+          return;
+        }
+        cEl.textContent = String(n);
+      }, 700);
+    }
+
+    shoot.addEventListener('click', function () {
+      nib(shoot);
+      if (kind === 'video') {
+        if (!stream) return;
+        if (!recording) {
+          try {
+            rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm' });
+          } catch (e) { toast('Recording is not available here. Choose a file instead.', true); return; }
+          chunks = [];
+          rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = function () {
+            var blob = new Blob(chunks, { type: 'video/webm' });
+            deliver(new File([blob], 'ivory-' + Date.now() + '.webm', { type: 'video/webm' }));
+          };
+          rec.start();
+          recording = true;
+          back.classList.add('is-rec');
+          shoot.classList.add('on');
+          note.textContent = 'Recording — tap again to stop.';
+        } else {
+          recording = false;
+          back.classList.remove('is-rec');
+          shoot.classList.remove('on');
+          try { rec.stop(); } catch (e) {}
+        }
+        return;
+      }
+      if (kind === 'audio') {
+        if (!recording) {
+          try { rec = new MediaRecorder(stream, { mimeType: 'audio/webm' }); }
+          catch (e) { toast('Recording is not available here.', true); return; }
+          chunks = [];
+          rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = function () {
+            var blob = new Blob(chunks, { type: 'audio/webm' });
+            deliver(new File([blob], 'ivory-' + Date.now() + '.webm', { type: 'audio/webm' }));
+          };
+          rec.start(); recording = true;
+          back.classList.add('is-rec'); shoot.classList.add('on');
+          note.textContent = 'Recording — tap again to stop.';
+        } else {
+          recording = false; back.classList.remove('is-rec'); shoot.classList.remove('on');
+          try { rec.stop(); } catch (e) {}
+        }
+        return;
+      }
+      countdown();
+    });
+  }
+
+  /* ── the choice ───────────────────────────────────────────────────────── */
+  function ask(input) {
+    var kind = kindOf(input);
+    var back = document.createElement('div');
+    back.className = 'cap-sheet';
+    back.innerHTML =
+      '<div class="cap-panel" role="dialog" aria-modal="true" aria-label="Add ' + label(kind) + '">' +
+        '<span class="cap-grip" aria-hidden="true"></span>' +
+        '<div class="cap-head"><b>Add ' + label(kind) + '</b><s>From the camera, or from this machine.</s></div>' +
+        '<div class="cap-choices">' +
+          '<button class="cap-choice" data-go="cam">' +
+            '<span class="cap-ico">' + (kind === 'audio'
+              ? '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 12a6 6 0 0 0 12 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+              : '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="2.6" y="6.6" width="18.8" height="13" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13.2" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.4 6.6l1.4-2.6h4.4l1.4 2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>') + '</span>' +
+            '<b>Camera</b><s>' + (kind === 'audio' ? 'the microphone' : 'the webcam, live') + '</s></button>' +
+          '<button class="cap-choice" data-go="file">' +
+            '<span class="cap-ico"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 7.4A2.4 2.4 0 0 1 5.4 5h3.6l2 2.4h7.6A2.4 2.4 0 0 1 21 9.8v7.4a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 17.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>' +
+            '<b>Files</b><s>from this computer</s></button>' +
+        '</div>' +
+        '<p class="cap-note">You can also drag a file here, or paste one.</p>' +
+        '<button class="cap-btn wide" id="cap-cancel">CANCEL</button>' +
+      '</div>';
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('on'); });
+    nib(back);
+
+    function shut() {
+      back.classList.remove('on');
+      setTimeout(function () { if (back.parentNode) back.parentNode.removeChild(back); }, 220);
+    }
+    back.addEventListener('click', function (e) { if (e.target === back) shut(); });
+    back.querySelector('#cap-cancel').addEventListener('click', shut);
+    back.querySelector('[data-go=file]').addEventListener('click', function () { shut(); nativePick(input); });
+    back.querySelector('[data-go=cam]').addEventListener('click', function () { shut(); camera(input, kind); });
+
+    /* drag and paste, straight into the field */
+    back.addEventListener('dragover', function (e) { e.preventDefault(); back.classList.add('is-over'); });
+    back.addEventListener('dragleave', function () { back.classList.remove('is-over'); });
+    back.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) { shut(); fill(input, f); }
+    });
+    function onPaste(e) {
+      var items = (e.clipboardData && e.clipboardData.items) || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].kind === 'file') {
+          var f = items[i].getAsFile();
+          if (f) { document.removeEventListener('paste', onPaste); shut(); fill(input, f); return; }
+        }
+      }
+    }
+    document.addEventListener('paste', onPaste);
+  }
+
+  /* ── every field in the house, now ────────────────────────────────────── */
+  document.addEventListener('click', function (e) {
+    var inp = e.target && e.target.closest ? e.target.closest('input[type=file]') : null;
+    if (!inp) return;
+    if (inp.__ivpass) { inp.__ivpass = false; return; }
+
+    var kind = kindOf(inp);
+    if (COARSE) {
+      /* the phone: the system sheet, camera first — exactly as the app asks */
+      try {
+        if (kind === 'image' || kind === 'video') inp.setAttribute('capture', 'environment');
+        else inp.removeAttribute('capture');
+      } catch (err) {}
+      return;                      /* let the native picker open */
+    }
+    e.preventDefault();
+    ask(inp);
+  }, true);
+
+  return { ask: ask, camera: camera, fill: fill, kindOf: kindOf, coarse: function () { return COARSE; } };
+})();
+</script>
+<script id="iv-overview-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE OVERVIEW · window.IVOVERVIEW
+   ---------------------------------------------------------------------------
+   A room the app has no need for and the web does: one screen that answers
+   "how is the house today?" without opening nine tabs, and the one power a
+   browser has that a phone does not — taking the books away as a spreadsheet.
+
+     KPIs     members · on a plan · published · open reports · wishes waiting
+              · messages · codes live · erasures running
+     EXPORTS  members · payments-by-hand · wishes · reports · codes · posts
+              every one a real CSV, built from the rows on screen
+     LINKS    straight into the room that needs attention
+
+   Everything is read with the admin's own session. Nothing is stored.
+   ═══════════════════════════════════════════════════════════════════════════ */
+window.IVOVERVIEW = (function () {
+  var IV = window.IVSESS;
+  var O = { pane: null, at: 0, busy: false, posts: [], profiles: [], reports: [], wishes: [], codes: [] };
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el) { if (window.IVVOICE) window.IVVOICE.play('tap', 'mid', el); }
+  function n(x) { return x === null || x === undefined ? '\u2014' : Number(x || 0).toLocaleString('en-IN'); }
+
+  function count(table, filter) {
+    if (!IV) return Promise.resolve(0);
+    return IV.get('/rest/v1/' + table + '?select=id' + (filter || '') + '&limit=1000')
+      .then(function (r) { return Array.isArray(r) ? r.length : null; })
+      .catch(function () { return null; });   /* null, never a false zero */
+  }
+  function rows(table, sel, order, limit) {
+    if (!IV) return Promise.resolve([]);
+    return IV.get('/rest/v1/' + table + '?select=' + sel + '&order=' + order + '&limit=' + (limit || 500))
+      .then(function (r) { return Array.isArray(r) ? r : []; })
+      .catch(function () { return []; });
+  }
+
+  /* ── a real spreadsheet, from the rows in hand ─────────────────────────── */
+  function csv(name, header, body) {
+    var text = [header.join(',')].concat(body.map(function (row) {
+      return row.map(function (v) {
+        var s = String(v == null ? '' : v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? '"' + s + '"' : s;
+      }).join(',');
+    })).join('\r\n');
+    try {
+      var blob = new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ivory-' + name + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1200);
+      toast('The book is yours — ' + name + '.csv');
+      nib(a);
+    } catch (e) { toast('This browser blocked the file.', true); }
+  }
+
+  function render(p) {
+    O.pane = p;
+    p.innerHTML =
+      '<p class="dk-kick">The overview</p>' +
+      '<h1 class="dk-h1">How the house <em>is today.</em></h1>' +
+      '<p class="dk-lede">One screen for the whole house — and the one thing only a browser can do: ' +
+      'take the books away as a spreadsheet.</p>' +
+      '<div class="ov-kpis" id="ov-kpis"></div>' +
+      '<p class="rmx-h">Take the books away</p>' +
+      '<div class="ov-exports" id="ov-exports"></div>' +
+      '<p class="rmx-h">Straight into the room that needs you</p>' +
+      '<div class="ov-links" id="ov-links"></div>';
+    paint();
+  }
+
+  function paint() {
+    var p = O.pane; if (!p) return;
+    var kpi = p.querySelector('#ov-kpis');
+    kpi.innerHTML = '<div class="dk-empty">Counting…</div>';
+
+    Promise.all([
+      count('profiles'),
+      count('posts', '&is_published=eq.true'),
+      count('reports', '&closed_at=is.null'),
+      count('custom_requests', '&status=in.(submitted,accepted,in_progress)'),
+      count('business_enquiries'),
+      count('discount_codes', '&is_active=eq.true'),
+      count('erasure_requests', '&status=eq.open'),
+      rows('posts', 'id,title,created_at,is_published', 'created_at.desc', 200),
+      rows('profiles', 'id,display_name,email,role,created_at', 'created_at.desc', 300),
+      rows('reports', 'id,kind,body,created_at,closed_at', 'created_at.desc', 300),
+      rows('custom_requests', 'id,title,status,budget_inr,created_at', 'created_at.desc', 300),
+      rows('discount_codes', 'code,kind,value,is_active,max_uses', 'code.asc', 300)
+    ]).then(function (r) {
+      var live = r[1] || 0;
+      var tiles = [
+        ['Members', n(r[0]), 'accounts in the house'],
+        ['Published', n(live), 'posts open to members'],
+        ['Reports open', n(r[2]), 'waiting for your word'],
+        ['Wishes waiting', n(r[3]), 'asked, not yet given'],
+        ['Messages', n(r[4]), 'business and partnership'],
+        ['Codes live', n(r[5]), 'invitations in the wild'],
+        ['Erasures', n(r[6]), 'on the 90-day clock']
+      ];
+      kpi.innerHTML = tiles.map(function (t, i) {
+        return '<div class="ov-kpi"' + (i === 2 && Number(r[2]) > 0 ? ' data-hot="1"' : '') + '>' +
+          '<b>' + t[1] + '</b><s>' + esc(t[0]) + '</s><i>' + esc(t[2]) + '</i></div>';
+      }).join('');
+
+      O.posts = r[7] || []; O.profiles = r[8] || []; O.reports = r[9] || [];
+      O.wishes = r[10] || []; O.codes = r[11] || [];
+
+      var ex = p.querySelector('#ov-exports');
+      var books = [
+        ['members', 'Members', ['Name', 'Email', 'Role', 'Joined'], function () {
+          return O.profiles.map(function (x) { return [x.display_name || '', x.email || '', x.role || '', x.created_at || '']; });
+        }],
+        ['wishes', 'Wishes', ['Title', 'State', 'Budget', 'Asked'], function () {
+          return O.wishes.map(function (x) { return [x.title || '', x.status || '', x.budget_inr == null ? '' : x.budget_inr, x.created_at || '']; });
+        }],
+        ['reports', 'Reports', ['Kind', 'What was said', 'Open?', 'Raised'], function () {
+          return O.reports.map(function (x) { return [x.kind || '', x.body || '', x.closed_at ? 'closed' : 'open', x.created_at || '']; });
+        }],
+        ['posts', 'The library', ['Title', 'Published', 'Written'], function () {
+          return O.posts.map(function (x) { return [x.title || '', x.is_published ? 'yes' : 'no', x.created_at || '']; });
+        }],
+        ['codes', 'Codes', ['Code', 'Kind', 'Value', 'Live', 'Uses allowed'], function () {
+          return O.codes.map(function (x) { return [x.code || '', x.kind || '', x.value == null ? '' : x.value, x.is_active ? 'yes' : 'no', x.max_uses == null ? '' : x.max_uses]; });
+        }]
+      ];
+      ex.innerHTML = '';
+      books.forEach(function (bk) {
+        var b = document.createElement('button');
+        b.className = 'ov-book';
+        b.type = 'button';
+        b.innerHTML = '<b>' + esc(bk[1]) + '</b><s>CSV</s>';
+        b.addEventListener('click', function () {
+          var body = bk[3]();
+          if (!body.length) { toast('Nothing in that book yet.', true); return; }
+          csv(bk[0], bk[2], body);
+        });
+        ex.appendChild(b);
+      });
+
+      var links = p.querySelector('#ov-links');
+      var rooms = [
+        ['members', 'Members', 'who is here, and the plan each holds'],
+        ['tiers', 'Plans', 'what the house asks'],
+        ['reports', 'The officer desk', 'reports and erasures'],
+        ['wishes', 'Wishes', 'what has been asked'],
+        ['payments', 'Payments', 'every rupee'],
+        ['officers', 'Officers', 'the names the law needs'],
+        ['ticker', 'The tape', 'what rides across the top'],
+        ['vault', 'The vault', 'every file the house carries']
+      ];
+      links.innerHTML = '';
+      rooms.forEach(function (r2) {
+        var b = document.createElement('button');
+        b.className = 'ov-link'; b.type = 'button';
+        b.innerHTML = '<b>' + esc(r2[1]) + '</b><s>' + esc(r2[2]) + '</s><span aria-hidden="true">›</span>';
+        b.addEventListener('click', function () {
+          nib(b);
+          try {
+            var tab = Array.prototype.filter.call(document.querySelectorAll('.dk-tab'), function (x) { return x.dataset.k === r2[0]; })[0];
+            if (tab) tab.click();
+          } catch (e) {}
+        });
+        links.appendChild(b);
+      });
+    });
+  }
+
+  return { render: render, state: O, csv: csv };
+})();
+
+if (window.IVROOMS) {
+  window.IVROOMS.overview = function (p) { return window.IVOVERVIEW.render(p); };
 }
 </script>
 <script id="iv-rbn-js">
