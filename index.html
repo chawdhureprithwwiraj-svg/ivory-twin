@@ -12418,6 +12418,179 @@ body.iv-quiet #iv-air{opacity:.4}
    room's structure are untouched by this pass. The law is surface and light,
    and it stops at the edge of anything she drew. */
 </style>
+<style id="iv-choreo-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 74 · CHOREOGRAPHY
+   The house already moves. This pass gives the movement a grammar: which way
+   a room comes from, what a card becomes when it opens, and one moment at the
+   door that the member will remember.
+
+   1 · THE DOOR'S ONE MOMENT.   Once in a session, a single band of light
+       crosses the door and one ring blooms behind the crest, then the house
+       is still. It never repeats — a signature is not a loop.
+   2 · ROOMS COME FROM A DIRECTION.   Forward, a room rises from below the
+       screen; back, it settles from above. Same 420 ms, one easing.
+   3 · A CARD BECOMES A SHEET.  The card lifts, a bloom ignites where it was,
+       and the sheet grows out of the card's own rectangle. On close it goes
+       back. This is the handoff, deepened.
+   4 · THE SCROLL DEEPENED.     Three scenes were promised; here they are given
+       their full weight: the crest's light, the wish band's travelling
+       highlight, and the ticker that drifts a little slower than the page.
+
+   Every rule below is a transform or an opacity. Nothing here animates on a
+   timer: the door moment fires once, the sheets answer a tap, the scroll
+   answers a scroll. Reduced motion keeps each one and removes the travel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · THE DOOR'S ONE MOMENT ────────────────────────────────────────────
+   The house's lights coming up. A warm bloom opens from the crest, the edges
+   of the frame darken for a breath and then lift, and a band of light crosses
+   the room once. Three layers, 2.6 s, and then nothing: it is a signature, not
+   a loop. It reads on any footage because it works on the frame, not on the
+   film's own brightness.                                                    */
+#iv-door-moment{
+  position:fixed;
+  inset:0;
+  z-index:9;
+  pointer-events:none;
+  overflow:hidden;
+}
+#iv-door-moment .ivdm-veil{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(46vmax 46vmax at 50% 38%,
+    rgba(255,246,214,.55) 0%,
+    rgba(255,236,186,.26) 34%,
+    rgba(255,236,186,0) 68%);
+  mix-blend-mode:screen;
+  animation:ivDoorVeil 2600ms cubic-bezier(.22,.61,.36,1) 1 both;
+}
+#iv-door-moment .ivdm-vignette{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(120% 90% at 50% 45%,
+    rgba(26,10,2,0) 46%,
+    rgba(26,10,2,.42) 100%);
+  animation:ivDoorVignette 2600ms cubic-bezier(.22,.61,.36,1) 1 both;
+}
+#iv-door-moment .ivdm-ring{
+  position:absolute;
+  left:50%;
+  top:38%;
+  width:34vmin;
+  height:34vmin;
+  margin:-17vmin 0 0 -17vmin;
+  border-radius:50%;
+  border:2px solid rgba(255,250,232,.72);
+  box-shadow:0 0 44px rgba(255,240,200,.55), inset 0 0 44px rgba(255,240,200,.32);
+  animation:ivDoorRing 2400ms cubic-bezier(.16,1,.3,1) 1 both;
+}
+#iv-door-moment .ivdm-band{
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:38vw;
+  height:190vh;
+  transform:rotate(14deg) translate3d(0,0,0);
+  background:linear-gradient(90deg,
+    rgba(255,253,235,0) 0%,
+    rgba(255,250,226,.40) 44%,
+    rgba(255,255,255,.78) 52%,
+    rgba(255,250,226,.36) 60%,
+    rgba(255,253,235,0) 100%);
+  mix-blend-mode:screen;
+  animation:ivDoorCross 2600ms cubic-bezier(.22,.61,.36,1) 1 both;
+}
+/* the room leans toward the member: the film steps in by a breath, once.
+   This is the part that reads on any footage, because it moves the frame
+   itself rather than adding light on top of an already bright picture. */
+#iv-open.iv-dm #ivo-film{
+  animation:ivDoorStep 3000ms cubic-bezier(.16,1,.3,1) 1 both;
+  transform-origin:50% 42%;
+  will-change:transform;
+}
+@keyframes ivDoorStep{
+  0%   {transform:scale(1.10)}
+  100% {transform:scale(1)}
+}
+@keyframes ivDoorVeil{
+  0%   {transform:scale(.55);opacity:0}
+  18%  {opacity:1}
+  100% {transform:scale(1.5);opacity:0}
+}
+@keyframes ivDoorVignette{
+  0%   {opacity:1}
+  38%  {opacity:.72}
+  100% {opacity:0}
+}
+@keyframes ivDoorCross{
+  0%   {transform:rotate(14deg) translate3d(-30vw,0,0);opacity:0}
+  12%  {opacity:1}
+  84%  {opacity:.95}
+  100% {transform:rotate(14deg) translate3d(150vw,0,0);opacity:0}
+}
+@keyframes ivDoorRing{
+  0%   {transform:scale(.5);opacity:0}
+  20%  {opacity:.95}
+  100% {transform:scale(1.55);opacity:0}
+}
+
+/* ── 2 · ROOMS COME FROM A DIRECTION ─────────────────────────────────────
+   The house's own `.stage` slides 10 px and fades. It keeps doing that; this
+   adds a direction and a little more travel, without touching the rule that
+   already exists. Set by iv-choreo-js on the stage itself.               */
+.stage.iv-from-below{transform:translate3d(0,18px,0)}
+.stage.iv-from-above{transform:translate3d(0,-14px,0)}
+.stage.in{transform:none}
+.stage.iv-arriving{will-change:transform,opacity}
+
+/* ── 3 · A CARD BECOMES A SHEET ──────────────────────────────────────────
+   The bloom is one element, created on demand, and removed when it fades. */
+#iv-bloom{
+  position:fixed;
+  pointer-events:none;
+  z-index:58;
+  border-radius:50%;
+  background:radial-gradient(closest-side,
+    rgba(255,250,232,.55) 0%,
+    rgba(255,240,200,.24) 44%,
+    rgba(255,255,255,0) 78%);
+  mix-blend-mode:screen;
+  animation:ivBloom 520ms cubic-bezier(.16,1,.3,1) 1 both;
+}
+@keyframes ivBloom{
+  0%   {transform:scale(.25);opacity:0}
+  35%  {opacity:.95}
+  100% {transform:scale(1);opacity:0}
+}
+.card.iv-lifting,.pcard.iv-lifting,.lcard.iv-lifting,.hp-doorcard.iv-lifting,.hp-tile.iv-lifting,.pf-card.iv-lifting{
+  transition:transform 220ms cubic-bezier(.16,1,.3,1), box-shadow 220ms ease, opacity 220ms ease;
+  transform:translate3d(0,-2px,0);
+}
+
+/* ── 4 · THE SCROLL, DEEPENED ────────────────────────────────────────────
+   The ticker drifts against the page; the wish band carries a highlight that
+   travels as the member scrolls. Both are transforms driven by ScrollTrigger;
+   with motion off, neither is created at all.                            */
+.hp-ticker.iv-parallax,.goldbar.metal.iv-parallax{will-change:transform}
+
+/* motion off: every moment above keeps its meaning and loses its travel */
+@media (prefers-reduced-motion:reduce){
+  #iv-open.iv-dm #ivo-film{animation:none;transform:scale(1.03)}
+  #iv-door-moment .ivdm-band{animation:none;opacity:0}
+  #iv-door-moment .ivdm-ring{animation:none;opacity:0}
+  #iv-door-moment .ivdm-veil{animation:ivDoorVeil 3200ms ease-out 1 both}
+  #iv-door-moment .ivdm-vignette{animation:none;opacity:0}
+  .stage.iv-from-below,.stage.iv-from-above{transform:none}
+  .card.iv-lifting,.pcard.iv-lifting,.lcard.iv-lifting,
+  .hp-doorcard.iv-lifting,.hp-tile.iv-lifting,.pf-card.iv-lifting{transform:none;opacity:.72}
+}
+
+/* quiet mode: the door's moment is light, not motion — it is kept, slowed */
+body.iv-quiet #iv-door-moment .ivdm-band,
+#iv-door-moment .ivdm-veil,
+#iv-door-moment .ivdm-vignette{animation-duration:4200ms}
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -29405,6 +29578,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
      appear. 240 ms out, 320 ms in, both compositor-only. */
   function handoff(card, sheet) {
     if (!ON || !card || !sheet) return;
+    if (window.IVCHOREO && IVCHOREO.handoff) return IVCHOREO.handoff(card, sheet);
     if (reduced) { try { G.fromTo(sheet, { opacity: 0 }, { opacity: 1, duration: 0.25 }); } catch (e) {} return; }
     var a = card.getBoundingClientRect();
     var b = sheet.getBoundingClientRect();
@@ -29999,6 +30173,290 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
     running: function () { return running; },
     fps: function () { return FPS; },
     count: function () { return { blobs: blobs.length, sparks: sparks.length, band: !!band }; }
+  };
+})();
+</script>
+<script id="iv-choreo-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 74 · CHOREOGRAPHY (script half)
+
+   Four gestures, and no more:
+
+     the door      one band of light and one ring, once in a session
+     a room        arrives from the direction the member went
+     a card        lifts, blooms where it stood, and becomes the sheet
+     the scroll    the crest's light, the wish band's highlight, the ticker's drift
+
+   Everything here is transform and opacity, driven by an event or a scroll.
+   Nothing polls, nothing runs on a timer, and with `prefers-reduced-motion`
+   every gesture keeps its meaning and loses only its travel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var G = window.gsap, ST = window.ScrollTrigger;
+  var reduced = false;
+  try { reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  function alive() { return !!(G && ST); }
+
+  /* ═══ 1 · THE DOOR'S ONE MOMENT ═══════════════════════════════════════
+     Fired when the door first appears in this session, and never again —
+     a signature repeated is a decoration. The film behind keeps playing, so
+     the door is never dead even after the light has passed.               */
+  var DOOR_KEY = 'ivory.door.moment';
+
+  function doorMoment(root) {
+    try { if (sessionStorage.getItem(DOOR_KEY) === '1') return false; } catch (e) {}
+    var host = root || document.getElementById('iv-open');
+    if (!host) return false;
+    if (document.getElementById('iv-door-moment')) return false;
+
+    var box = document.createElement('div');
+    box.id = 'iv-door-moment';
+    box.setAttribute('aria-hidden', 'true');
+    box.innerHTML = '<span class="ivdm-vignette"></span>' +
+                    '<span class="ivdm-veil"></span>' +
+                    '<span class="ivdm-ring"></span>' +
+                    '<span class="ivdm-band"></span>';
+    document.body.appendChild(box);
+
+    try { host.classList.add('iv-dm'); } catch (e) {}
+    try { sessionStorage.setItem(DOOR_KEY, '1'); } catch (e) {}
+    setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); },
+               reduced ? 600 : 3000);
+    return true;
+  }
+
+  /* the door is created by another module at boot, so watch for it rather
+     than guess a moment that may be earlier or later than this file */
+  function watchDoor() {
+    if (document.getElementById('iv-open')) { doorMoment(); return; }
+    var obs = new MutationObserver(function () {
+      if (document.getElementById('iv-open')) { obs.disconnect(); doorMoment(); }
+    });
+    try { obs.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+  }
+
+  /* ═══ 2 · A ROOM ARRIVES FROM A DIRECTION ═════════════════════════════
+     The member's place in the bottom bar is the direction: a later room
+     arrives from below, an earlier one settles from above. Same 420 ms.   */
+  var ORDER = ['home', 'explore', 'wish', 'premium', 'inbox', 'profile'];
+  var lastIdx = 0;
+
+  function stageOf(node) { return node && node.classList && node.classList.contains('stage') ? node : null; }
+
+  function markStage(stage) {
+    if (!alive() || !stage || reduced) return;
+    var id = String(stage.id || '').replace('-screen', '');
+    var idx = ORDER.indexOf(id);
+    if (idx < 0) idx = lastIdx;
+    var dir = idx >= lastIdx ? 'iv-from-below' : 'iv-from-above';
+    lastIdx = idx;
+    stage.classList.remove('iv-from-below', 'iv-from-above');
+    stage.classList.add(dir, 'iv-arriving');
+    /* let the class land before it is told to stand up */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        stage.classList.add('in');
+        setTimeout(function () { stage.classList.remove('iv-arriving', 'iv-from-below', 'iv-from-above'); }, 520);
+        /* a room that has just been laid out is exactly when its scroll scenes
+           can be measured — not on a timer that may fire while it is hidden */
+        setTimeout(function () { try { scrollScenes(); } catch (e) {} }, 120);
+      });
+    });
+  }
+
+  function watchStages() {
+    var stages = document.querySelectorAll('.stage');
+    if (!stages.length) return;
+    Array.prototype.forEach.call(stages, function (st) {
+      var wasHidden = st.classList.contains('hidden') || !st.classList.contains('in');
+      var obs = new MutationObserver(function () {
+        var shown = !st.classList.contains('hidden');
+        if (shown && wasHidden) { wasHidden = false; markStage(st); }
+        else if (!shown) { wasHidden = true; }
+      });
+      try { obs.observe(st, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    });
+  }
+
+  /* ═══ 3 · A CARD BECOMES A SHEET ══════════════════════════════════════
+     Replaces the first, plainer handoff: the card lifts, a bloom ignites
+     where the card stood, the sheet grows out of the card's own rectangle,
+     and closing it sends the sheet back the way it came.                  */
+  var lastOpened = null, lastFlight = null;
+
+  function bloomAt(r) {
+    var b = document.createElement('div');
+    b.id = 'iv-bloom';
+    var s = Math.max(r.width, r.height) * 2.2;
+    b.style.width = s + 'px';
+    b.style.height = s + 'px';
+    b.style.left = (r.left + r.width / 2 - s / 2) + 'px';
+    b.style.top = (r.top + r.height / 2 - s / 2) + 'px';
+    document.body.appendChild(b);
+    setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 700);
+  }
+
+  function handoff(card, sheet) {
+    if (!card || !sheet) return;
+    var a = card.getBoundingClientRect();
+    var b = sheet.getBoundingClientRect();
+    if (!a.width || !b.width) return;
+    lastOpened = { card: card, sheet: sheet };
+
+    if (!alive() || reduced) {
+      try { sheet.style.opacity = '0'; sheet.style.transition = 'opacity 240ms ease'; sheet.style.opacity = '1'; } catch (e) {}
+      return;
+    }
+
+    bloomAt(a);
+    card.classList.add('iv-lifting');
+    setTimeout(function () { card.classList.remove('iv-lifting'); }, 520);
+
+    var sx = Math.min(1, a.width / b.width);
+    var sy = Math.min(1, a.height / b.height);
+    var dx = (a.left + a.width / 2) - (b.left + b.width / 2);
+    var dy = (a.top + a.height / 2) - (b.top + b.height / 2);
+
+    /* the flight's own numbers, kept so the bench can prove the sheet really
+       started at the card's rectangle (and so a future room can reuse them) */
+    lastFlight = { sx: sx, sy: sy, dx: dx, dy: dy };
+
+    try {
+      G.fromTo(sheet,
+        { x: dx, y: dy, scaleX: sx, scaleY: sy, opacity: 0.18, transformOrigin: '50% 50%' },
+        {
+          x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1,
+          duration: 0.46, ease: 'power4.out',
+          clearProps: 'transform,opacity',
+          onComplete: function () { try { ST.refresh(); } catch (e) {} }
+        });
+    } catch (e) {}
+  }
+
+  /* closing: the sheet goes back to the card it came from */
+  function closeBack(sheet) {
+    if (!alive() || reduced || !lastOpened || !lastOpened.card) return;
+    if (lastOpened.sheet && lastOpened.sheet !== sheet) return;   /* not the one a card opened */
+    var card = lastOpened.card;
+    var a = card.getBoundingClientRect();
+    var b = sheet.getBoundingClientRect();
+    if (!a.width || !b.width) return;
+    var dx = (a.left + a.width / 2) - (b.left + b.width / 2);
+    var dy = (a.top + a.height / 2) - (b.top + b.height / 2);
+    try {
+      G.fromTo(sheet,
+        { x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1 },
+        {
+          x: dx, y: dy, scaleX: Math.max(.2, a.width / b.width), scaleY: Math.max(.2, a.height / b.height),
+          opacity: 0.1, duration: 0.3, ease: 'power2.in',
+          clearProps: 'transform,opacity'
+        });
+    } catch (e) {}
+  }
+
+  function watchSheets() {
+    Array.prototype.forEach.call(document.querySelectorAll('.ivsheet'), function (she) {
+      var on = she.classList.contains('on') || she.classList.contains('show');
+      var obs = new MutationObserver(function () {
+        var nowOn = she.classList.contains('on') || she.classList.contains('show');
+        if (on && !nowOn) closeBack(she);
+        on = nowOn;
+      });
+      try { obs.observe(she, { attributes: true, attributeFilter: ['class', 'style'] }); } catch (e) {}
+    });
+  }
+
+  /* ═══ 4 · THE SCROLL, DEEPENED ════════════════════════════════════════
+     Three scenes, each attached to a surface that exists on the home, and
+     each built only once that surface is genuinely laid out.              */
+  var wired = new WeakSet();
+
+  function scrollScenes() {
+    if (!alive() || reduced) return;
+    try { G.registerPlugin(ST); } catch (e) {}
+
+    /* a · the crest's light drifts against the page */
+    var crest = document.querySelector('.hp-plate');
+    if (crest && !wired.has(crest) && crest.getBoundingClientRect().width) {
+      wired.add(crest);
+      try {
+        G.to(crest, {
+          yPercent: 6, ease: 'none',
+          scrollTrigger: { trigger: crest, start: 'top bottom', end: 'bottom top', scrub: 0.8 }
+        });
+      } catch (e) {}
+    }
+
+    /* b · the ticker drifts a little slower than the page under it */
+    var ticker = document.querySelector('.hp-ticker');
+    if (ticker && !wired.has(ticker) && ticker.getBoundingClientRect().width) {
+      wired.add(ticker);
+      ticker.classList.add('iv-parallax');
+      try {
+        G.fromTo(ticker, { x: 0 }, {
+          x: -18, ease: 'none',
+          scrollTrigger: { trigger: ticker, start: 'top bottom', end: 'bottom top', scrub: 1.1 }
+        });
+      } catch (e) {}
+    }
+
+    /* c · the wish band: a highlight that travels as the member scrolls.
+       The band lives inside the home and can be zero-width until that room is
+       on show, so it is only wired once it has a rectangle it can be lit on. */
+    var band = document.querySelector('.hp-wish, .wish-band');
+    if (band && !wired.has(band) && band.getBoundingClientRect().width) {
+      wired.add(band);
+      band.classList.add('iv-parallax');
+      try {
+        G.fromTo(band,
+          { '--iv-band-x': '-40%' },
+          {
+            '--iv-band-x': '140%', ease: 'none',
+            scrollTrigger: { trigger: band, start: 'top bottom', end: 'bottom top', scrub: 1.2 }
+          });
+        band.style.setProperty('background-image',
+          'radial-gradient(120% 80% at var(--iv-band-x, 50%) 50%, rgba(255,250,235,.30), rgba(255,250,235,0) 60%)');
+      } catch (e) {}
+    }
+  }
+
+  /* ═══ boot ════════════════════════════════════════════════════════════ */
+  function boot() {
+    /* the house's own screen switcher is wrapped once, so a room that is shown
+       by the app — not only by a class change — gets its scenes built */
+    try {
+      var was = window.ivoryShow;
+      if (typeof was === 'function' && !was.__choreo) {
+        var wrapped = function () {
+          var r = was.apply(this, arguments);
+          setTimeout(function () { try { scrollScenes(); } catch (e) {} }, 260);
+          return r;
+        };
+        wrapped.__choreo = true;
+        window.ivoryShow = wrapped;
+      }
+    } catch (e) {}
+    watchDoor();
+    watchStages();
+    watchSheets();
+    setTimeout(scrollScenes, 600);
+    /* the desk builds its own sheets later; nothing else is watched for */
+    setTimeout(function () { watchSheets(); scrollScenes(); }, 3000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  window.IVCHOREO = {
+    doorMoment: doorMoment,
+    handoff: handoff,
+    closeBack: closeBack,
+    scenes: scrollScenes,
+    flight: function () { return lastFlight; },
+    order: ORDER
   };
 })();
 </script>
