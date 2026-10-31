@@ -12160,6 +12160,141 @@ body{
   }
 }
 </style>
+<style id="iv-hand-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 72 · THE HAND
+   Metal that behaves like metal, and a press that has weight.
+
+   Three laws, and nothing else:
+
+   1 · WHAT CAN BE PRESSED DIPS.       Every surface the member can touch
+       answers with one pixel of travel and a shadow that tightens — never a
+       bounce, never a scale. The dip uses the separate `translate` property,
+       so it composes with whatever press the house already draws instead of
+       fighting it in the cascade; a house this old does not jiggle.
+
+   2 · THE METAL'S LIGHT STAYS ON.     A pressed plate does not go dark under
+       the finger, the way cheap printed metal does: the inner highlight is
+       driven to the side the hand pressed, and the plate gets brighter where
+       it is touched.
+
+   3 · THE PHONE ANSWERS, SIX TIMES.   Not a buzz on everything: six named
+       moments with their own rhythms, in iv-hand-js. This file only carries
+       the visible half, which iOS can feel even though it cannot vibrate.
+
+   Nothing here animates on its own. There is no keyframe in this file: the
+   hand is the only clock, so this pass costs no frames when nothing is
+   touched — the one law that matters on a phone.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --dip:1px;                 /* how far a pressed surface travels */
+  --t-press:90ms;            /* faster than --t-move: a press is an answer */
+}
+
+/* ── 1 · THE PRESS LIST ────────────────────────────────────────────────────
+   Grouped by what each one is, because a chip does not press like a card. */
+
+/* the metal: buttons, the wish, the bars */
+.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish,.ivo-go,.ivo-go2,.wof-spin,.wof-spin,.mc-cta{
+  transition:transform var(--t-press) var(--e-out),
+             box-shadow var(--t-press) var(--e-out),
+             filter var(--t-press) var(--e-out);
+  -webkit-touch-callout:none;
+  touch-action:manipulation;          /* no 300 ms wait, no double-tap zoom */
+}
+
+/* the marks on the top bar */
+.med{transition:transform var(--t-press) var(--e-out);}
+
+/* what opens a room: a card answers by settling, not by rising */
+.hp-doorcard,.hp-tile,.pcard,.lcard,.pf-card,.dk-card,.fb-card,.ivr-card{
+  transition:transform var(--t-press) var(--e-out),
+             box-shadow var(--t-press) var(--e-out);
+}
+
+/* the tabs that tell the member where she is */
+.nav a,.nav button,.dk-tab,.fb-tab{
+  transition:transform var(--t-press) var(--e-out),opacity var(--t-press) var(--e-out);
+}
+
+/* ── 2 · THE METAL DIPS, AND THE LIGHT STAYS ON ──────────────────────────
+   A real gilt plate pressed by a thumb gets brighter where it is touched and
+   throws its shadow shorter; cheap printed metal goes dark. So: one pixel of
+   travel, the shadow closing under the hand, and a light that gathers where
+   the finger is — never a dimming.                                          */
+@media (hover:hover) and (pointer:fine){
+  :is(.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish,.ivo-go,.ivo-go2,.wof-spin,.mc-cta):active{
+    translate:0 var(--dip);
+    filter:brightness(1.04) saturate(1.03);
+  }
+  /* the gilt plates keep their shine, gathered low, where the thumb is */
+  .goldbar:active,.hp-wish:active,.btn-gold:active,.dk-btn.gold:active{
+    box-shadow:
+      inset 0 1px 0 rgba(255,250,235,.98),
+      inset 0 -10px 16px -10px rgba(255,255,255,.55),
+      inset 0 -1px 0 rgba(74,34,6,.5),
+      0 2px 6px rgba(74,34,6,.28);
+  }
+  /* what opens a room settles; it never lifts */
+  .hp-doorcard:active,.hp-tile:active,.pcard:active,.lcard:active,.pf-card:active,.dk-card:active,.fb-card:active{
+    translate:0 var(--dip);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.8),
+      inset 0 0 0 1px rgba(184,148,43,.36),
+      0 3px 8px rgba(74,34,6,.15),
+      0 1px 2px rgba(74,34,6,.10);
+  }
+  .med:active{translate:0 var(--dip);}
+  .nav a:active,.nav button:active,.dk-tab:active,.fb-tab:active{translate:0 var(--dip);}
+}
+
+/* a phone has no hover and no cursor, so the press does the whole job: the
+   plate travels, and it gets a shade brighter rather than a shade duller */
+@media (hover:none),(pointer:coarse){
+  :is(.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish,.ivo-go,.ivo-go2,.wof-spin,.mc-cta,
+      .hp-doorcard,.hp-tile,.pcard,.lcard,.pf-card,.dk-card,.fb-card,.med,
+      .nav a,.nav button,.dk-tab,.fb-tab):active{
+    translate:0 var(--dip);
+    filter:brightness(1.06) saturate(1.04);
+  }
+  .med:active{translate:0 var(--dip);scale:.97;}
+}
+
+/* ── 4 · THE HAND'S OWN HONESTY ON iOS ────────────────────────────────────
+   Safari paints a grey rectangle over anything it thinks was tapped. It is
+   the one thing on the page that is neither gold nor velvet, so it goes —
+   the press law above is the answer instead.                                */
+@supports (-webkit-touch-callout:none){
+  :is(.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish,
+      .ivo-go,.ivo-go2,.wof-spin,.mc-cta,.med,.nav a,.nav button,.dk-tab,.fb-tab,
+      .hp-doorcard,.hp-tile,.pcard,.lcard,.pf-card,.dk-card,.fb-card){
+    -webkit-tap-highlight-color:transparent;
+  }
+}
+
+/* ── 5 · WHEN MOTION IS OFF, THE HAND STILL ANSWERS ──────────────────────
+   The dip is movement, so it goes; the shadow and the light stay, because
+   feedback is not decoration and a member who cannot see movement still
+   needs to know her press was felt.                                         */
+@media (prefers-reduced-motion:reduce){
+  :is(.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish,
+      .ivo-go,.ivo-go2,.wof-spin,.mc-cta,.med,.nav a,.nav button,.dk-tab,.fb-tab,
+      .hp-doorcard,.hp-tile,.pcard,.lcard,.pf-card,.dk-card,.fb-card):active{
+    translate:none;
+    filter:brightness(1.05);
+  }
+  :root{--t-press:0ms;}
+}
+
+/* ── 6 · A QUIET HOUSE IS STILL A RESPONSIVE ONE ─────────────────────────
+   Quiet mode slows the picture to a still, moving image; the hand is not
+   picture, it is conversation, so nothing here is disabled by quiet. The
+   only concession: a pressed plate does not also glow.                     */
+body.iv-quiet :is(.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.btn-gold,.goldbar,.hp-wish):active{
+  filter:none;
+}
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -29099,8 +29234,14 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
 
   /* ── the house's own hand: a small tick on the phones that have one ─────
      Android answers; iOS has no Vibration API and ignores this silently. */
+  /* one voice for the hand. Pass 72's IVHAND listens to the press itself and
+     knows which of its six moments a touch is; when it is in the page this
+     older tick stays silent, so nothing is ever felt twice for one finger. */
   function tick(ms) {
-    try { if (navigator.vibrate) navigator.vibrate(ms || 10); } catch (e) {}
+    try {
+      if (window.IVHAND) return;
+      if (navigator.vibrate) navigator.vibrate(ms || 10);
+    } catch (e) {}
   }
 
   /* ── 1 · ARRIVAL ───────────────────────────────────────────────────────
@@ -29110,6 +29251,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
   function arrive(stage) {
     if (!ON || !stage || stage === lastStage) return;
     lastStage = stage;
+    try { if (window.IVHAND) IVHAND.tick('page'); } catch (e) {}
     var kids = stage.querySelectorAll('.hp-doorcard, .hp-tile, .card, .pf-card, .pcard, .lcard, .ivsheet > *, .dk-card, .fb-card, .lib-head');
     var list = Array.prototype.slice.call(kids).filter(function (el) {
       var r = el.getBoundingClientRect();
@@ -29339,6 +29481,148 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
     arrive: arrive, handoff: handoff,
     /* for the bench: is the library really here, and is it the real one? */
     version: G ? G.version : null
+  };
+})();
+</script>
+<script id="iv-hand-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 72 · THE HAND (script half)
+
+   The phone answers on six named moments, and only six. Anything more is a
+   rattle; anything less is a page that never says "I have you".
+
+     touch   press       8            anything pressable was touched
+     choose  choice      10·28·10     a chip or a tab was chosen
+     page    arrival     6            a screen became the standing one
+     send    leaving     12·38·16     something left the house, and it worked
+     refuse  no          34·46·34     something was not allowed
+     seal    a decision  18·34·18·34·26   entered the house, chose a metal
+
+   Rules it keeps:
+     · never twice within 90 ms          (a hand does not shake twice)
+     · never while the tab is hidden     (nobody is holding the phone)
+     · never on iOS, which cannot, and does not pretend to
+     · off is off, and remembered        (localStorage: ivory.hand = 'off')
+
+   There is no pointer-following light here, and that is a decision, not an
+   omission: it was built, measured, and cut. Over champagne it showed no
+   gain; over a gold plate it read as a box floating above the metal. What a
+   hand actually feels is the press — which the stylesheet carries on every
+   device — and the answer below.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var KEY = 'ivory.hand';
+  var can = (function () {
+    try { return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'; }
+    catch (e) { return false; }
+  })();
+
+  /* ── the six ─────────────────────────────────────────────────────────── */
+  var PATTERNS = {
+    touch:  [8],
+    choose: [10, 28, 10],
+    page:   [6],
+    send:   [12, 38, 16],
+    refuse: [34, 46, 34],
+    seal:   [18, 34, 18, 34, 26]
+  };
+
+  var on = true;
+  try { on = localStorage.getItem(KEY) !== 'off'; } catch (e) {}
+  var last = 0, lastName = '', speaking = '';
+
+  /* a heavier moment may interrupt a lighter one inside the same gesture (a
+     press that turns out to be a choice), but never the other way round, and
+     never the same moment twice */
+  var RANK = { page: 1, touch: 2, choose: 3, send: 3, refuse: 3, seal: 4 };
+
+  function tick(name) {
+    if (!on || !can) return false;
+    var p = PATTERNS[name];
+    if (!p) return false;
+    /* inside a gesture that already has a better word — a chip's click also
+       calls the house's own tick, and the chip must not be heard twice */
+    if (name === 'touch' && speaking) return false;
+    try { if (document.hidden) return false; } catch (e) {}
+    var now = Date.now();
+    if (now - last < 90 && !(RANK[name] > (RANK[lastName] || 0))) return false;
+    last = now; lastName = name;
+    try { navigator.vibrate(p); } catch (e) { return false; }
+    return true;
+  }
+
+  /* the switch, so she can turn the hand off and be believed next time */
+  function set(v) {
+    on = v !== false;
+    try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch (e) {}
+    return on;
+  }
+
+  /* ── the inside of a press ───────────────────────────────────────────── */
+  var PRESSABLE = 'button,a,[role="tab"],[role="button"],[data-tap],.dk-btn,.dk-chip,.chip,.lib-chip,.fb-chip,.med,.goldbar,.hp-wish,.btn-gold,.ivo-go,.ivo-go2,.wof-spin,.mc-cta,.hp-doorcard,.hp-tile,.pcard,.lcard,.pf-card,.dk-card,.fb-card';
+  var CHOOSING = '.chip,.lib-chip,.dk-chip,.fb-chip,[role="tab"],.dk-tab,.fb-tab';
+  var SEALING = '[data-act="join"],[data-act="comein"],[data-act="meet"],.ivr-metal,[data-wear]';
+
+  function closest(el, sel) {
+    try { return el && el.closest ? el.closest(sel) : null; } catch (e) { return null; }
+  }
+
+  /* a press is heard once, at pointerdown, which is when a real button feels
+     like it has been pressed — not at click, which can arrive half a second
+     later on a slow phone */
+  document.addEventListener('pointerdown', function (e) {
+    var t = e.target;
+    if (closest(t, SEALING)) { tick('seal'); return; }
+    /* a chip will speak on its click, as a choice — it does not also get
+       tapped twice in the ear for one finger */
+    if (closest(t, CHOOSING)) return;
+    if (!closest(t, PRESSABLE)) return;
+    tick('touch');
+  }, { passive: true, capture: true });
+
+  /* a choice is a different moment from a press, so it answers differently —
+     and it is announced in the capture phase, before the house's own handler
+     can add a plain tick of its own */
+  document.addEventListener('click', function (e) {
+    if (closest(e.target, SEALING)) { speaking = 'seal'; tick('seal'); setTimeout(function () { speaking = ''; }, 0); return; }
+    if (closest(e.target, CHOOSING)) { speaking = 'choose'; tick('choose'); setTimeout(function () { speaking = ''; }, 0); }
+  }, { passive: true, capture: true });
+
+  /* ── the house's own voice, wrapped once ───────────────────────────────
+     Every message the house says goes through window.ivoryToast. Two lines
+     here make every success and every refusal felt on the phone, in all
+     twenty-five rooms, without touching a single room.                      */
+  function wrapToast() {
+    if (!window.ivoryToast || window.ivoryToast.__hand) return false;
+    var inner = window.ivoryToast;
+    var wrapped = function (text, ok) {
+      tick(ok === false ? 'refuse' : 'send');
+      return inner.apply(this, arguments);
+    };
+    wrapped.__hand = true;
+    window.ivoryToast = wrapped;
+    return true;
+  }
+  if (!wrapToast()) {
+    /* the house installs it later in the boot; take it as soon as it exists */
+    var tries = 0;
+    var t = setInterval(function () {
+      if (wrapToast() || ++tries > 120) clearInterval(t);
+    }, 250);
+  }
+
+  /* ── what the house can call ─────────────────────────────────────────── */
+  window.IVHAND = {
+    tick: tick,
+    set: set,
+    on: function () { return set(true); },
+    off: function () { return set(false); },
+    enabled: function () { return on; },
+    supported: can,                 /* iOS: false, and it says so */
+    patterns: PATTERNS,             /* exactly six, with their rhythms */
+    names: Object.keys(PATTERNS)
   };
 })();
 </script>
