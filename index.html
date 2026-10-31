@@ -10475,6 +10475,11 @@ body.rbn-hush .rbn{opacity:0;transition:opacity .3s ease}
   @keyframes rbnSoft{0%{opacity:0}100%{opacity:1}}
   .rbn-pill::after{display:none}
 }
+
+/* Pass 65 · the desk's own sheets (a plan being opened, a plan being written,
+   the officers) take the sky as well — the lane waits behind them */
+body:has(.mk-sheet) .ribbonlay,
+body:has(.mk-sheet) .hp-ticker{opacity:0;pointer-events:none;transition:opacity .3s ease}
 </style>
 <style id="iv-type-css">
 /* ============================================================================
@@ -10679,6 +10684,380 @@ body.rbn-hush .rbn{opacity:0;transition:opacity .3s ease}
   .hp-head em,.dk-h1 em,.card .title em,.dk-tab.on::before,.dk-h1::after,
   .dk-kick::before,.eyebrow::before,.ivc-eyebrow::before{animation:none !important}
 }
+</style>
+<style id="iv-marks-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MARKS · the badge, the frame, the crown — and the IVORY plate
+   ---------------------------------------------------------------------------
+   The app's jewel language, brought across: a gold-leaf chip with a burgundy
+   core, a ring around the portrait graded by plan, a crown for the plan at the
+   top of the house, and the new IVORY plate — the house's own name, engraved.
+
+   Nothing here is black. Nothing here needs a font that has to load.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --mk-gold-1:#FFF3CB;
+  --mk-gold-2:#F3D98A;
+  --mk-gold-3:#D9AE4A;
+  --mk-gold-4:#B8942B;
+  --mk-ink:#4A1220;
+  --mk-wine:#5C1024;
+}
+
+/* ── the chip ───────────────────────────────────────────────────────────── */
+.mk-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  max-width:100%;
+  padding:5px 11px 5px 6px;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--mk-gold-1),var(--mk-gold-2) 34%,var(--mk-gold-3) 72%,#E8C766);
+  border:1px solid var(--mk-gold-4);
+  box-shadow:0 6px 16px -8px rgba(90,26,10,.5), inset 0 1px 0 rgba(255,255,255,.75);
+  color:var(--mk-ink);
+  font:800 9.6px/1 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  vertical-align:middle;
+  position:relative;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.mk-chip::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.72) 48%,transparent 72%);
+  transform:translateX(-120%);
+  animation:mkSheen 6.4s cubic-bezier(.5,0,.2,1) 1.1s infinite;
+  pointer-events:none;
+}
+.mk-chip .mk-lion{width:20px;height:20px;flex:0 0 auto;border-radius:50%;
+  display:grid;place-items:center;background:radial-gradient(circle at 34% 28%,#7C2C40,#4A1220 72%);
+  box-shadow:inset 0 0 0 1px rgba(255,240,200,.55)}
+.mk-chip .mk-lion svg{width:13px;height:13px;display:block}
+.mk-chip b{font-weight:900;letter-spacing:.11em;overflow:hidden;text-overflow:ellipsis}
+.mk-chip .mk-vip{letter-spacing:.06em;opacity:.72;margin-left:5px}
+
+/* the quiet chip — for a member with no paid plan */
+.mk-chip.is-plain{
+  background:linear-gradient(135deg,#FFFCF2,#F7E7C8);
+  border-color:#D9C6A6;color:#7A5A32;
+  box-shadow:0 4px 12px -8px rgba(90,26,10,.35);
+}
+.mk-chip.is-plain::after{display:none}
+
+/* ── the frame: a ring around the portrait, graded by plan ──────────────── */
+.me-avatar.mk-framed{position:relative}
+.me-avatar.mk-framed::before{
+  content:"";position:absolute;inset:-7px;border-radius:inherit;
+  padding:2.5px;
+  background:conic-gradient(from 210deg,#FFF3CB,#D9AE4A 24%,#8A5A12 42%,#F6E4AE 62%,#D9AE4A 80%,#FFF3CB);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  filter:drop-shadow(0 3px 10px rgba(120,70,10,.35));
+  animation:mkTurn 14s linear infinite;
+  pointer-events:none;
+}
+.me-avatar.mk-framed.mk-l1::before{background:conic-gradient(from 210deg,#F3E3C4,#C89258 30%,#8A5A2A 48%,#EED9B4 70%,#C89258 88%,#F3E3C4)}
+.me-avatar.mk-framed.mk-l2::before{background:conic-gradient(from 210deg,#FFF3CB,#D9AE4A 26%,#8A5A12 44%,#F6E4AE 64%,#D9AE4A 82%,#FFF3CB)}
+.me-avatar.mk-framed.mk-l3::before{
+  inset:-9px;padding:3px;
+  background:conic-gradient(from 210deg,#FFF6D8,#E9C25E 18%,#8A4A12 32%,#FFF0BE 46%,#C98F2A 60%,#FFF6D8 74%,#D9AE4A 88%,#FFF6D8);
+}
+.me-avatar.mk-framed.mk-l4::before{
+  inset:-11px;padding:3.5px;
+  background:conic-gradient(from 200deg,#FFF9E4,#F1CE72 14%,#8A2A3A 28%,#FFF0BE 44%,#B8942B 58%,#6E1A2C 74%,#F6E4AE 88%,#FFF9E4);
+  box-shadow:0 0 0 1px rgba(255,244,206,.6),0 10px 26px -10px rgba(120,60,10,.55);
+}
+.mk-framed .mk-crown{
+  position:absolute;left:50%;top:-30px;translate:-50% 0;
+  width:44px;height:24px;pointer-events:none;
+  filter:drop-shadow(0 4px 8px rgba(120,60,10,.42));
+  animation:mkFloat 5.6s ease-in-out infinite;
+  z-index:3;
+}
+.mk-framed .mk-crown svg{width:100%;height:100%;display:block}
+
+/* ── the IVORY plate — the house's own name, engraved ───────────────────── */
+.mk-ivory{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  margin:16px auto 4px;
+  padding:15px 36px 13px;
+  width:min(100%,330px);
+  border-radius:16px;
+  background:
+    radial-gradient(120% 150% at 50% -30%,rgba(255,236,190,.30),transparent 58%),
+    linear-gradient(162deg,#6A1226 0%,#4A0C1A 46%,#5C1024 74%,#3E0A16 100%);
+  box-shadow:
+    0 18px 38px -20px rgba(76,16,28,.75),
+    inset 0 1px 0 rgba(255,238,198,.42),
+    inset 0 0 0 1px rgba(216,174,74,.55);
+  overflow:hidden;
+  isolation:isolate;
+}
+.mk-ivory::before{
+  content:"";position:absolute;inset:5px;border-radius:12px;
+  box-shadow:inset 0 0 0 1px rgba(243,217,138,.42);
+  pointer-events:none;
+}
+.mk-ivory::after{
+  content:"";position:absolute;inset:-40% -20%;
+  background:linear-gradient(112deg,transparent 34%,rgba(255,246,214,.34) 48%,rgba(255,246,214,.06) 54%,transparent 64%);
+  transform:translateX(-70%);
+  animation:mkSweep 7.4s cubic-bezier(.45,0,.2,1) 1.4s infinite;
+  pointer-events:none;z-index:1;
+}
+.mk-ivory .mk-iv-crown{width:34px;height:19px;margin-bottom:2px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28))}
+.mk-ivory .mk-iv-crown svg{width:100%;height:100%;display:block}
+.mk-ivory .mk-iv-word{
+  font-family:"Didot","Bodoni 72","Bodoni MT","Playfair Display","Iowan Old Style",Georgia,serif;
+  font-size:30px;line-height:1;font-weight:700;
+  letter-spacing:.34em;text-indent:.34em;
+  background:linear-gradient(178deg,#FFF9E6 6%,#F6E0A4 34%,#D9AE4A 58%,#FFF2C6 78%,#C79A32 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(255,224,150,.32));
+}
+.mk-ivory .mk-iv-rule{
+  width:64%;height:1px;margin:7px 0 4px;
+  background:linear-gradient(90deg,transparent,rgba(243,217,138,.85),transparent);
+}
+.mk-ivory .mk-iv-sub{
+  font:800 7.4px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.44em;text-indent:.44em;text-transform:uppercase;
+  color:rgba(255,241,208,.72);
+}
+.mk-ivory.is-none{filter:saturate(.55) brightness(.92)}
+.mk-ivory.is-none .mk-iv-word{opacity:.5}
+.mk-ivory.is-none .mk-iv-sub{color:rgba(255,241,208,.45)}
+
+/* ── small reward jewels (the app's shape · metal) ───────────────────────── */
+.mk-jewels{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.mk-jewel{
+  width:19px;height:19px;border-radius:50%;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px rgba(255,248,226,.65),0 3px 7px -4px rgba(90,26,10,.6);
+  font:800 7px/1 ui-sans-serif,sans-serif;color:#4A1220;
+}
+.mk-jewel.gold{background:linear-gradient(150deg,#FFF3CB,#D9AE4A)}
+.mk-jewel.silver{background:linear-gradient(150deg,#FBFBF6,#CDCFC7);color:#4A4A44}
+.mk-jewel.bronze{background:linear-gradient(150deg,#F6E0C4,#B07742);color:#41200C}
+.mk-jewel.platinum{background:linear-gradient(150deg,#FFFDF4,#E7E3D2);color:#585440}
+.mk-jewel.rose{background:linear-gradient(150deg,#FFE9EC,#D98A9A);color:#4A1220}
+
+/* ── the desk: the marks inside a member's sheet ────────────────────────── */
+.mk-sheetmarks{display:flex;align-items:center;gap:12px;padding:12px 0 4px}
+.mk-sheetmarks .mk-face{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 26%,#7C2C40,#4A1220 74%);
+  color:#F7E7B0;font:700 20px/1 Georgia,serif;position:relative;
+}
+.mk-sheetmarks .mk-face.mk-has::after{
+  content:"";position:absolute;inset:-4px;border-radius:20px;padding:2px;
+  background:conic-gradient(from 210deg,#FFF3CB,#D9AE4A 30%,#8A5A12 50%,#F6E4AE 74%,#FFF3CB);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+.mk-sheetmarks .mk-who{min-width:0}
+.mk-sheetmarks .mk-who b{display:block;font:800 14px/1.25 Georgia,serif;color:#4A1220}
+.mk-sheetmarks .mk-who s{display:block;text-decoration:none;font-size:11.6px;color:#8A6A4A;margin-top:2px}
+
+/* ── motion, gently ─────────────────────────────────────────────────────── */
+@keyframes mkSheen{0%,62%{transform:translateX(-120%)}86%,100%{transform:translateX(120%)}}
+@keyframes mkSweep{0%,58%{transform:translateX(-70%)}88%,100%{transform:translateX(70%)}}
+@keyframes mkTurn{to{rotate:360deg}}
+@keyframes mkFloat{0%,100%{translate:-50% 0}50%{translate:-50% -3px}}
+
+@media (prefers-reduced-motion:reduce){
+  .mk-chip::after,.mk-ivory::after,.me-avatar.mk-framed::before,.mk-framed .mk-crown{animation:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE ROOMS · members · plans · officers — one language with the desk
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the roll ───────────────────────────────────────────────────────────── */
+.mk-search{display:flex;align-items:center;gap:10px;margin:14px 0 12px}
+.mk-search .dk-input{flex:1 1 auto}
+.mk-count{font:800 9.4px/1 ui-sans-serif,sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:#A07A4E;white-space:nowrap}
+
+.mk-row{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:13px 14px;margin-bottom:9px;border:0;cursor:pointer;
+  border-radius:16px;
+  background:linear-gradient(168deg,#FFFDF7,#FBF1DE);
+  box-shadow:0 8px 20px -16px rgba(90,26,10,.55),inset 0 0 0 1px rgba(190,150,90,.28);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s;
+  font-family:inherit;color:inherit;
+}
+.mk-row.is-plan{background:linear-gradient(168deg,#FFF8E6,#F7E6BF);box-shadow:0 10px 24px -16px rgba(120,70,10,.6),inset 0 0 0 1px rgba(184,148,43,.42)}
+.mk-row:active{transform:scale(.988)}
+.mk-face{
+  width:42px;height:42px;flex:0 0 auto;border-radius:14px;display:grid;place-items:center;position:relative;
+  background:linear-gradient(150deg,#FFFCF2,#F1E1C4);color:#6A3A16;
+  font:700 16px/1 Georgia,serif;box-shadow:inset 0 0 0 1px rgba(190,150,90,.4);
+}
+.mk-row.is-plan .mk-face{background:radial-gradient(circle at 34% 26%,#7C2C40,#4A1220 76%);color:#F7E7B0}
+.mk-face.mk-has::after{
+  content:"";position:absolute;inset:-3px;border-radius:17px;padding:2px;
+  background:conic-gradient(from 210deg,#FFF3CB,#D9AE4A 30%,#8A5A12 52%,#F6E4AE 76%,#FFF3CB);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+}
+.mk-shield{position:absolute;right:-4px;bottom:-4px;width:11px;height:11px;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#7C2C40,#3E0A16);box-shadow:0 0 0 1.5px #FFF6DC}
+.mk-body{min-width:0;flex:1 1 auto;display:block}
+.mk-body b{display:block;font:800 14px/1.25 Georgia,serif;color:#4A1220}
+.mk-body em{display:block;font-style:normal;font-size:11.6px;color:#8A6A4E;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mk-plan{display:block;text-decoration:none;margin-top:5px;font-size:11.8px;font-weight:700;color:#8A5A12}
+.mk-plan.is-free{color:#A08A6A;font-weight:600}
+.mk-chev{flex:0 0 auto;font-size:20px;color:#C6A778;line-height:1}
+
+/* ── the sheet, for members and plans alike ─────────────────────────────── */
+.mk-sheet{
+  position:fixed;inset:0;z-index:12040;display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(120% 90% at 50% 100%,rgba(74,18,32,.34),rgba(60,20,10,.5));
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  opacity:0;transition:opacity .22s ease;
+}
+.mk-sheet.on{opacity:1}
+.mk-sheet-panel{
+  width:min(520px,100%);max-height:88vh;overflow:auto;
+  padding:14px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius:24px 24px 0 0;
+  background:
+    radial-gradient(120% 90% at 50% -10%,rgba(255,246,220,.9),transparent 60%),
+    linear-gradient(180deg,#FFFDF6,#FBF0DA);
+  box-shadow:0 -18px 48px -24px rgba(70,20,10,.6),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateY(18px);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+  outline:none;
+}
+.mk-sheet.on .mk-sheet-panel{transform:translateY(0)}
+.mk-grip{display:block;width:46px;height:4px;border-radius:3px;margin:2px auto 14px;
+  background:linear-gradient(90deg,#E8CE8E,#B8942B,#E8CE8E)}
+.mk-sheet-badge{margin:2px 0 6px}
+.mk-lab{font:800 8.8px/1 ui-sans-serif,sans-serif;letter-spacing:.26em;text-transform:uppercase;
+  color:#A07A4E;margin:16px 0 8px}
+.mk-chips{display:flex;flex-wrap:wrap;gap:8px}
+.mk-chipbtn{
+  flex:1 1 auto;min-width:104px;padding:10px 12px;border-radius:13px;cursor:pointer;
+  border:1px solid rgba(190,150,90,.4);background:linear-gradient(170deg,#FFFDF8,#F9EFDC);
+  font-family:inherit;color:#5A3A1A;text-align:left;transition:transform .18s,box-shadow .2s;
+}
+.mk-chipbtn b{display:block;font:800 12.4px/1.2 Georgia,serif;color:#4A1220}
+.mk-chipbtn s{display:block;text-decoration:none;font-size:10.6px;color:#9A7A4E;margin-top:2px}
+.mk-chipbtn.on{background:linear-gradient(168deg,#FFF6D8,#EFD08C);border-color:#B8942B;
+  box-shadow:0 8px 18px -12px rgba(120,70,10,.7),inset 0 1px 0 rgba(255,255,255,.85)}
+.mk-chipbtn:active{transform:scale(.985)}
+.mk-open{width:100%;margin-top:18px}
+.mk-note{font-size:11.6px;line-height:1.5;color:#8A6A4E;text-align:center;margin:9px 4px 0}
+.mk-shut{display:block;width:100%;margin-top:10px;padding:10px;border:0;background:none;
+  font:800 9.6px/1 ui-sans-serif,sans-serif;letter-spacing:.24em;text-transform:uppercase;
+  color:#A07A4E;cursor:pointer}
+
+.mk-switch{
+  display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:11px 13px;
+  border-radius:13px;border:1px solid rgba(190,150,90,.4);background:#FFFDF8;
+  font:700 11.6px/1.3 ui-sans-serif,sans-serif;color:#7A5A32;cursor:pointer;text-align:left;
+}
+.mk-switch i{width:34px;height:19px;border-radius:999px;background:#E4D3BB;position:relative;flex:0 0 auto;transition:background .2s}
+.mk-switch i::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+  background:#FFFDF6;box-shadow:0 1px 3px rgba(90,26,10,.3);transition:transform .2s}
+.mk-switch.on i{background:linear-gradient(90deg,#B8942B,#D9AE4A)}
+.mk-switch.on i::after{transform:translateX(15px)}
+.mk-in{margin-top:9px}
+.mk-name-slot{margin:0 0 2px}
+
+/* ── the plans ──────────────────────────────────────────────────────────── */
+.tk-bar{display:flex;justify-content:flex-end;margin:10px 0 14px}
+.tk-card{
+  display:flex;gap:12px;align-items:flex-start;padding:14px;margin-bottom:10px;border-radius:16px;
+  background:linear-gradient(168deg,#FFFDF7,#FBF1DE);
+  box-shadow:0 8px 20px -16px rgba(90,26,10,.5),inset 0 0 0 1px rgba(190,150,90,.28);
+}
+.tk-card.is-off{opacity:.72;filter:saturate(.6)}
+.tk-lvl{
+  width:38px;height:38px;flex:0 0 auto;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(150deg,#FFF6D8,#EFD08C);color:#6A3A0E;
+  font:800 14px/1 Georgia,serif;box-shadow:inset 0 0 0 1px rgba(184,148,43,.55);
+}
+.tk-body{min-width:0;flex:1 1 auto}
+.tk-body b{display:block;font:800 14.4px/1.25 Georgia,serif;color:#4A1220}
+.tk-body s{display:block;text-decoration:none;font-size:11.8px;color:#8A6A4E;margin-top:2px;line-height:1.45}
+.tk-perks{margin:7px 0 0;padding:0 0 0 14px;list-style:none}
+.tk-perks li{position:relative;font-size:11.4px;line-height:1.5;color:#7A5A3A}
+.tk-perks li::before{content:"";position:absolute;left:-11px;top:6px;width:4px;height:4px;border-radius:50%;background:#D9AE4A}
+.tk-state{display:inline-block;margin-top:8px;padding:3px 8px;border-radius:999px;
+  font:800 8.4px/1 ui-sans-serif,sans-serif;letter-spacing:.2em;
+  background:#F3E6CC;color:#8A5A12}
+.tk-card.is-off .tk-state{background:#EFE7DA;color:#9A8A72}
+.tk-acts{display:flex;flex-direction:column;gap:6px;flex:0 0 auto}
+.tk-duo{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.tk-fl{flex:1 1 90px;display:block;min-width:0}
+.tk-fl span{display:block;font:800 8.6px/1 ui-sans-serif,sans-serif;letter-spacing:.2em;
+  text-transform:uppercase;color:#A07A4E;margin:12px 0 5px}
+.tk-fl .dk-input{width:100%}
+.mk-sheet-panel.is-tall{max-height:92vh}
+textarea.mk-in{min-height:74px;resize:vertical;font:600 12.4px/1.5 ui-sans-serif,sans-serif}
+
+/* ── the officers ───────────────────────────────────────────────────────── */
+.of-grid{display:grid;gap:12px;margin:14px 0 4px}
+@media(min-width:620px){.of-grid{grid-template-columns:1fr 1fr}}
+.of-card{padding:15px;border-radius:16px;background:linear-gradient(168deg,#FFFDF7,#FBF1DE);
+  box-shadow:0 8px 20px -16px rgba(90,26,10,.5),inset 0 0 0 1px rgba(190,150,90,.28)}
+.of-h{font:800 13.4px/1.3 Georgia,serif;color:#4A1220;margin:0}
+.of-n{font-size:11.4px;line-height:1.5;color:#8A6A4E;margin:4px 0 2px}
+.of-in{margin-top:8px}
+.of-state{margin:9px 0 0;font:700 10.4px/1.4 ui-sans-serif,sans-serif;color:#A08A6A}
+.of-state.on{color:#8A5A12}
+.of-duo{display:flex;gap:10px;flex-wrap:wrap}
+.of-preview{margin:16px 0 2px}
+.of-empty{display:block;font-size:11.6px;color:#A08A6A;font-style:italic}
+.of-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:16px 0 4px}
+.of-foot .dk-note{margin:0}
+
+/* ── the officer card on the legal pages ───────────────────────────────── */
+.ivl-off{
+  margin:22px 0 6px;padding:16px;border-radius:16px;
+  background:
+    radial-gradient(120% 120% at 50% -20%,rgba(255,246,214,.85),transparent 62%),
+    linear-gradient(170deg,#FFFDF6,#FAEFDA);
+  box-shadow:inset 0 0 0 1px rgba(184,148,43,.42),0 10px 24px -20px rgba(90,26,10,.5);
+}
+.ivl-off-h{font:800 8.8px/1 ui-sans-serif,sans-serif;letter-spacing:.3em;text-transform:uppercase;
+  color:#A07A4E;margin:0 0 10px}
+.ivl-off-c{padding:9px 0;border-top:1px solid rgba(190,150,90,.26)}
+.ivl-off-c:first-of-type{border-top:0;padding-top:0}
+.ivl-off-c b{display:block;font:800 12.6px/1.3 Georgia,serif;color:#4A1220}
+.ivl-off-c span{display:block;font-size:12.4px;color:#6A4A2A;margin-top:2px}
+.ivl-off-c a{display:inline-block;font-size:12.4px;color:#8A5A12;margin-top:2px;
+  text-decoration:underline;text-decoration-color:rgba(184,148,43,.5);text-underline-offset:2px}
+.ivl-off-c s{display:block;text-decoration:none;font-size:11.2px;line-height:1.5;color:#9A7A56;margin-top:4px}
+.ivl-off-n{font-size:11.4px;line-height:1.55;color:#8A6A4E;margin:10px 0 0}
+.ivl-off-n b{color:#6A3A16}
+.ivl-forget{
+  width:100%;margin-top:12px;padding:11px;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(184,148,43,.55);background:linear-gradient(168deg,#FFF6D8,#EFD08C);
+  font:800 9.8px/1 ui-sans-serif,sans-serif;letter-spacing:.22em;color:#5A2A0A;
+}
+.ivl-forget:disabled{opacity:.65;cursor:default}
+
+/* the officers room keeps the house's own spacing */
+.ivroom-officers .rmx-h{margin:22px 0 10px}
+.ivroom-officers .of-duo{margin-top:2px}
+.ivroom-officers .of-duo .tk-fl span{margin-top:8px}
+
+/* the sheet's own gold button — the house's gradient, ink on gold */
+.mk-sheet .dk-btn.gold,.mk-sheet .mk-open{
+  background:linear-gradient(135deg,#FFF0C2,#F3D98A 34%,#D9AE4A 72%,#E8C766);
+  color:#4A1220;border:1px solid #B8942B;
+  box-shadow:0 10px 24px -14px rgba(120,70,10,.8),inset 0 1px 0 rgba(255,255,255,.8);
+  font:800 10.4px/1 ui-sans-serif,sans-serif;letter-spacing:.22em;padding:15px 16px;border-radius:14px;
+}
+.mk-sheet .mk-switch.on{background:#FFF6DC;border-color:#C9A24E}
+.mk-name-slot{margin:-4px 0 8px;min-height:0}
+.mk-name-slot:empty{display:none}
+.mk-name-slot .mk-chip{font-size:9px;padding:5px 10px 5px 5px}
 </style>
 
 <style id="iv-store-css">
@@ -17891,9 +18270,9 @@ window.IVSESS = (function () {
     ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
     ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
     ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
-    ['TICKER','ticker'],['WHEEL','wheel'],['VAULT','vault']
+    ['TICKER','ticker'],['WHEEL','wheel'],['OFFICERS','officers'],['VAULT','vault']
   ];
-  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, vault:1};
+  var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, officers:1, vault:1};
   /* what each room is, in the app's own words — so no two rooms read alike */
   var NOTES = {
     create:'A new story, a poll, a teaser — written, attached and published from the phone.',
@@ -17917,6 +18296,7 @@ window.IVSESS = (function () {
     line:'The Line: letters and their settings.',
     translate:'Every word of the house, in its five tongues.',
     ticker:'The words that run across the top of the house.',
+    officers:'The two names the law and the members write to: a grievance officer and a support officer, printed on the legal pages the moment they are real.',
     wheel:'The wheel, its segments and its prizes.',
     vault:'The strongroom: both private rails, the public door, the switch that decides where each kind sleeps, and every file the house is carrying.'
   };
@@ -18303,44 +18683,15 @@ window.IVSESS = (function () {
   }
 
   /* ---------- TIERS ---------- */
-  function renderTiers(p){
-    p.innerHTML='<p class="dk-kick">The plans</p><h1 class="dk-h1">What the house <em>asks.</em></h1>'+
-      '<p class="dk-lede">Read from the house’s own table — the same rows the app and every room obey.</p><div id="dk-tiers"></div>';
-    loadTiers().then(function(rows){
-      var box=$('dk-tiers'); if(!box) return;
-      if(!rows.length){ box.innerHTML='<div class="dk-empty">The tier table did not answer.</div>'; return; }
-      box.innerHTML='';
-      rows.forEach(function(t){
-        box.appendChild(el('<div class="dk-rowcard"><div class="dk-ava">'+t.level+'</div>'+
-          '<div><b>'+esc(t.name)+' · ₹'+Number(t.price_inr||0).toLocaleString('en-IN')+'</b>'+
-          '<s>'+esc(t.description||'')+'</s></div></div>'));
-      });
-    });
+    function renderTiers(p){
+    if (window.IVTIERS) return IVTIERS.render(p);
+    p.innerHTML = '<div class="dk-empty">The plans did not open.</div>';
   }
 
   /* ---------- MEMBERS ---------- */
-  function renderMembers(p){
-    p.innerHTML='<p class="dk-kick">The members</p><h1 class="dk-h1">Who is <em>in the house.</em></h1>'+
-      '<p class="dk-lede">Everyone with an account, and the plan they hold.</p>'+
-      '<input class="dk-input" id="dk-mem-q" placeholder="find a name or an email…"><div id="dk-members"></div>';
-    var q='';
-    function paint(){
-      get('/rest/v1/profiles?select=id,display_name,role,created_at&order=created_at.desc&limit=300')
-        .then(function(rows){
-          var box=$('dk-members'); box.innerHTML='';
-          rows=(rows||[]).filter(function(r){
-            if(!q) return true;
-            var s=((r.display_name||'')+' '+(r.role||'')).toLowerCase(); return s.indexOf(q)>=0;
-          });
-          if(!rows.length){ box.innerHTML='<div class="dk-empty">No one matches that.</div>'; return; }
-          rows.forEach(function(r){
-            box.appendChild(el('<div class="dk-rowcard"><div class="dk-ava">'+esc((r.display_name||'A').slice(0,1).toUpperCase())+'</div>'+
-              '<div><b>'+esc(r.display_name||'A member')+'</b><s>'+esc(r.role||'user')+'</s></div></div>'));
-          });
-        }).catch(function(x){ $('dk-members').innerHTML='<div class="dk-empty">'+esc(x.message)+'</div>'; });
-    }
-    $('dk-mem-q').addEventListener('input',function(){ q=this.value.trim().toLowerCase(); paint(); });
-    paint();
+    function renderMembers(p){
+    if (window.IVMEMBERS) return IVMEMBERS.render(p);
+    p.innerHTML = '<div class="dk-empty">The roll did not open.</div>';
   }
 
   /* ---------- boots ---------- */
@@ -24418,6 +24769,892 @@ window.IVROOMS.wheel = function (pane) {
   });
 })();
 </script>
+<script id="iv-marks-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MARKS · window.IVMARKS
+   ---------------------------------------------------------------------------
+   Four things, one language, taken from the app's own premium_badge.dart:
+
+     IVMARKS.chip(level, name)   the gold-leaf chip with the burgundy core
+     IVMARKS.frame(level)        the ring a portrait wears
+     IVMARKS.crown()             the crown a portrait wears at the top
+     IVMARKS.ivory()             the new IVORY plate — the house's own name
+
+   and one verb:
+
+     IVMARKS.mount()             dress the member's own profile with all four
+
+   Nothing is fetched twice, nothing throws, and a house that does not answer
+   simply wears no jewel rather than an invented one.
+   =========================================================================== */
+window.IVMARKS = (function () {
+  var IV = window.IVSESS;
+  var S = { level: 0, name: '', top: 0, at: 0, busy: false, done: false };
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* the app's own rule: keep the tier's name, make its VIP number agree */
+  function label(level, name) {
+    var n = String(name == null ? '' : name).trim().replace(/\s+/g, ' ');
+    level = Number(level) || 0;
+    if (level <= 0) return n;
+    if (/\bVIP\s*\d+\b/i.test(n)) return n.replace(/\bVIP\s*\d+\b/gi, 'VIP' + level);
+    return (n ? n + ' ' : '') + 'VIP' + level;
+  }
+
+  function lion() {
+    return '<span class="mk-lion" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24"><path d="M12 3.2l2.3 2.1 3.1-.4 1 3 2.6 1.7-1.3 2.9.6 3.1-2.9.9-1.9 2.5-3-.8-2.6 1.6-2.3-2.2-3.1-.2-.2-3.1L2 12l2.4-1.9-.1-3.1 3 .2z" fill="none" stroke="#F7E7B0" stroke-width="1.15" stroke-linejoin="round"/>' +
+      '<circle cx="9.4" cy="11" r="1.05" fill="#F7E7B0"/><circle cx="14.6" cy="11" r="1.05" fill="#F7E7B0"/>' +
+      '<path d="M9.6 15c1.7 1.1 3.1 1.1 4.8 0" fill="none" stroke="#F7E7B0" stroke-width="1.1" stroke-linecap="round"/></svg></span>';
+  }
+
+  function crown() {
+    return '<svg viewBox="0 0 64 32" aria-hidden="true">' +
+      '<defs><linearGradient id="mkCrownG" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#FFF6D8"/><stop offset=".45" stop-color="#EFCE7E"/>' +
+      '<stop offset="1" stop-color="#B8942B"/></linearGradient></defs>' +
+      '<path d="M4 27l3.4-18.4L18 18.6 32 4.4l14 14.2 10.6-10L60 27z" fill="url(#mkCrownG)" stroke="#8A5A12" stroke-width="1.3" stroke-linejoin="round"/>' +
+      '<path d="M4 27h56" stroke="#8A5A12" stroke-width="1.3" stroke-linecap="round"/>' +
+      '<circle cx="7.4" cy="6.6" r="2.5" fill="#FFF3CB" stroke="#8A5A12" stroke-width="1"/>' +
+      '<circle cx="32" cy="2.9" r="2.7" fill="#FFF3CB" stroke="#8A5A12" stroke-width="1"/>' +
+      '<circle cx="56.6" cy="6.6" r="2.5" fill="#FFF3CB" stroke="#8A5A12" stroke-width="1"/>' +
+      '<circle cx="32" cy="20.4" r="2.5" fill="#6E1A2C" stroke="#FFF3CB" stroke-width="1.1"/></svg>';
+  }
+
+  function chip(level, name, plain) {
+    level = Number(level) || 0;
+    var bad = level > 0 && !plain;
+    return '<span class="mk-chip' + (bad ? '' : ' is-plain') + '" role="img" aria-label="' +
+      esc(label(level, name) || 'Member') + '">' + lion() +
+      '<b>' + esc(name || 'Ivory') + '</b>' + (bad ? '<span class="mk-vip">VIP' + level + '</span>' : '') +
+      '</span>';
+  }
+
+  function ivory(level) {
+    var on = Number(level) > 0;
+    return '<div class="mk-ivory' + (on ? '' : ' is-none') + '" role="img" aria-label="IVORY">' +
+      '<span class="mk-iv-crown">' + crown() + '</span>' +
+      '<span class="mk-iv-word">IVORY</span>' +
+      '<span class="mk-iv-rule"></span>' +
+      '<span class="mk-iv-sub">' + (on ? 'member of the house' : 'the house remembers you') + '</span>' +
+      '</div>';
+  }
+
+  function frame(level) {
+    level = Math.max(0, Math.min(4, Number(level) || 0));
+    return level > 0 ? ' mk-framed mk-l' + level : '';
+  }
+
+  function jewels(list) {
+    if (!list || !list.length) return '';
+    var out = '';
+    for (var i = 0; i < Math.min(list.length, 6); i++) {
+      var b = list[i] || {};
+      var metal = /gold/i.test(b.metal || '') ? 'gold'
+        : /silver/i.test(b.metal || '') ? 'silver'
+        : /bronze/i.test(b.metal || '') ? 'bronze'
+        : /platinum/i.test(b.metal || '') ? 'platinum'
+        : /rose/i.test(b.metal || '') ? 'rose' : 'gold';
+      var shape = String(b.shape || 'round').slice(0, 1).toUpperCase();
+      out += '<span class="mk-jewel ' + metal + '" title="' + esc(b.name || b.prize_name || 'A mark of the house') + '">' + esc(shape) + '</span>';
+    }
+    return '<div class="mk-jewels">' + out + '</div>';
+  }
+
+  /* ── the member's own profile ─────────────────────────────────────────── */
+  function dress(level, name) {
+    var av = document.getElementById('pf-ava');
+    if (av) {
+      av.className = av.className.replace(/\s*mk-framed\s*mk-l\d/g, '') + frame(level);
+      var old = av.querySelector('.mk-crown');
+      if (old) old.parentNode.removeChild(old);
+      var top = Number(S.top) > 0 && level >= Number(S.top);
+      if (level >= 3 || top) {
+        var c = document.createElement('span');
+        c.className = 'mk-crown';
+        c.setAttribute('aria-hidden', 'true');
+        c.innerHTML = crown();
+        av.appendChild(c);
+      }
+    }
+    var nm = document.getElementById('pf-name');
+    var slot = document.getElementById('mk-name-slot');
+    var html = level > 0 ? chip(level, name) : '';
+    var top = document.querySelector('#profile-screen .me-top');
+    if (nm && top) {
+      if (!slot) {
+        slot = document.createElement('div');
+        slot.id = 'mk-name-slot';
+        slot.className = 'mk-name-slot';
+        top.parentNode.insertBefore(slot, top.nextSibling);
+      }
+      slot.innerHTML = html;
+    }
+    var card = document.querySelector('#profile-screen .member-card');
+    if (card) {
+      var plate = card.querySelector('.mk-ivory');
+      if (!plate) {
+        var host = card.querySelector('.mc-chip');
+        var wrap = document.createElement('div');
+        wrap.innerHTML = ivory(level);
+        plate = wrap.firstChild;
+        if (host && host.nextSibling) card.insertBefore(plate, host.nextSibling);
+        else if (host) card.appendChild(plate);
+        else card.insertBefore(plate, card.firstChild.nextSibling || null);
+      } else {
+        plate.classList.toggle('is-none', !(Number(level) > 0));
+        var sub = plate.querySelector('.mk-iv-sub');
+        if (sub) sub.textContent = Number(level) > 0 ? 'member of the house' : 'the house remembers you';
+      }
+    }
+  }
+
+  function load(force) {
+    if (!IV) return Promise.resolve(S);
+    var fresh = Date.now() - S.at < 5 * 60 * 1000;
+    if (!force && fresh && (S.done || !IV.read())) return Promise.resolve(S);
+    S.at = Date.now();
+    if (!IV.read()) { S.level = 0; S.name = ''; S.done = true; return Promise.resolve(S); }
+    return Promise.all([
+      IV.get('/rest/v1/my_membership?select=tier_name,tier_level&order=tier_level.desc&limit=1').catch(function () { return []; }),
+      IV.get('/rest/v1/subscription_tiers?select=level&is_active=eq.true&order=level.desc&limit=1').catch(function () { return []; })
+    ]).then(function (r) {
+      var m = (r[0] && r[0][0]) || null;
+      S.level = m ? Number(m.tier_level || 0) : 0;
+      S.name = m ? String(m.tier_name || '') : '';
+      S.top = (r[1] && r[1][0] && Number(r[1][0].level)) || 0;
+      S.done = true;
+      return S;
+    }).catch(function () { S.done = true; return S; });
+  }
+
+  function mount() {
+    var ps = document.getElementById('profile-screen');
+    if (!ps) return;
+    if (!document.getElementById('iv-mk-css')) { /* css already spliced */ }
+    load().then(function () { dress(S.level, S.name); });
+  }
+
+  /* the member's own plan, for anything else that wants it */
+  function level() { return S.level; }
+
+  return { chip: chip, ivory: ivory, crown: crown, frame: frame, jewels: jewels,
+           label: label, mount: mount, load: load, dress: dress, level: level, state: S };
+})();
+
+/* dress the profile whenever it is shown, and once on boot */
+(function () {
+  function go() { try { window.IVMARKS.mount(); } catch (e) {} }
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(go, 900); });
+  var ps = document.getElementById('profile-screen');
+  if (ps && window.MutationObserver) {
+    new MutationObserver(function () {
+      if (!ps.classList.contains('hidden')) go();
+    }).observe(ps, { attributes: true, attributeFilter: ['class'] });
+  }
+  window.addEventListener('load', function () { setTimeout(go, 1400); });
+})();
+</script>
+<script id="iv-members-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MEMBERS ROOM · window.IVMEMBERS
+   ---------------------------------------------------------------------------
+   The app's MEMBERS tab, carried across with its teeth intact.
+
+   What the app does, and what this now does:
+     rpc list_members(search_in)   every member, their plan, their standing
+     subscription_tiers            the plans, in level order
+     reward_admin_member_badges    the jewels a member has earned
+     rpc grant_tier(member_in, level_in, days_in, note_in)
+                                   open a plan by hand · 7 · 30 · 90 · 365 days
+                                   · no end date · or set them back to Forever
+                                   Member — the same one door the app uses, so
+                                   a gift behaves exactly like a paid plan.
+
+   Nothing is deleted. A tier opened by hand lasts until you close it or its
+   days run out. Every answer is the database's.
+   =========================================================================== */
+window.IVMEMBERS = (function () {
+  var IV = window.IVSESS;
+  var M = { rows: null, tiers: [], badges: {}, q: '', err: null, busy: false, at: 0, src: '' };
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el, k) { if (window.IVVOICE) window.IVVOICE.play(k || 'tap', 'mid', el); }
+  function when(iso) {
+    if (!iso) return '';
+    var d = new Date(iso); if (isNaN(d)) return '';
+    var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d.getDate() + ' ' + mo[d.getMonth()];
+  }
+  function initials(n) {
+    var s = String(n || '').trim();
+    return (s ? s.slice(0, 1) : 'I').toUpperCase();
+  }
+  function vipName(level, name) { return window.IVMARKS ? IVMARKS.label(level, name) : (name || ''); }
+
+  /* ── the room ─────────────────────────────────────────────────────────── */
+  function render(p) {
+    M.pane = p;
+    p.innerHTML =
+      '<p class="dk-kick">The members</p>' +
+      '<h1 class="dk-h1">Who is <em>in the house.</em></h1>' +
+      '<p class="dk-lede">Every account, the plan it holds, and the same one door the app uses to open a ' +
+      'plan by hand — a gift behaves exactly like a paid one, and lasts until you close it.</p>' +
+      '<div class="mk-search"><input class="dk-input" id="mk-q" placeholder="find a name or an email…" ' +
+        'autocomplete="off" spellcheck="false"><span class="mk-count" id="mk-count"></span></div>' +
+      '<div id="mk-list"><div class="dk-empty">Reading the book…</div></div>';
+
+    var q = p.querySelector('#mk-q');
+    var t = null;
+    q.addEventListener('input', function () {
+      clearTimeout(t);
+      var v = q.value.trim().toLowerCase();
+      t = setTimeout(function () { M.q = v; load(); }, 280);
+    });
+    load(true);
+  }
+
+  /* ── data ─────────────────────────────────────────────────────────────── */
+  function load(force) {
+    if (!IV) return;
+    if (!IV.read()) {
+      paint('<div class="dk-empty">Sign in as the house to read the roll. The desk keeps the app’s rules: ' +
+        'every write is refused by the database for anyone else.</div>');
+      return;
+    }
+    if (M.busy) return;
+    M.busy = true;
+    var q = M.q;
+
+    var roll = IV.call('/rest/v1/rpc/list_members',
+      { search_in: q ? q : null })
+      .then(function (rows) { M.src = 'list_members'; return rows; })
+      .catch(function () {
+        /* the honest fallback: the public roll, without a plan column */
+        M.src = 'profiles';
+        return IV.get('/rest/v1/profiles?select=id,display_name,role,created_at&order=created_at.desc&limit=300')
+          .then(function (rows) {
+            rows = rows || [];
+            return q ? rows.filter(function (r) {
+              return ((r.display_name || '') + ' ' + (r.role || '')).toLowerCase().indexOf(q) >= 0;
+            }) : rows;
+          });
+      });
+
+    var tiers = IV.get('/rest/v1/subscription_tiers?select=id,name,level,price_inr,is_active&order=level.asc')
+      .catch(function () { return []; });
+    var badges = IV.call('/rest/v1/rpc/reward_admin_member_badges', {})
+      .catch(function () { return {}; });
+
+    Promise.all([roll, tiers, badges]).then(function (r) {
+      M.rows = Array.isArray(r[0]) ? r[0] : [];
+      M.tiers = Array.isArray(r[1]) ? r[1] : [];
+      M.badges = (r[2] && typeof r[2] === 'object') ? r[2] : {};
+      M.at = Date.now(); M.busy = false; M.err = null;
+      paintList();
+    }).catch(function (x) {
+      M.busy = false; M.err = x;
+      paint('<div class="dk-empty">The book did not open — ' + esc(x.message) + '.</div>');
+    });
+  }
+
+  function paint(html) {
+    var box = M.pane && M.pane.querySelector('#mk-list');
+    if (box) box.innerHTML = html;
+  }
+
+  function planLine(m) {
+    var level = Number(m.tier_level || 0);
+    if (level <= 0) return '<s class="mk-plan is-free">Forever Member · the open feed, polls and teasers</s>';
+    var name = m.tier_name || ('Level ' + level);
+    var until = m.expires_at ? (' until ' + when(m.expires_at)) : ', no end date';
+    var how = m.is_manual === true ? 'opened by you' : 'paid';
+    return '<s class="mk-plan">' + esc(vipName(level, name)) + ' · ' + how + esc(until) + '</s>';
+  }
+
+  function paintList() {
+    var box = M.pane && M.pane.querySelector('#mk-list');
+    if (!box) return;
+    var rows = M.rows || [];
+    var onPlan = rows.filter(function (r) { return Number(r.tier_level || 0) > 0; }).length;
+    var count = M.pane.querySelector('#mk-count');
+    if (count) {
+      count.textContent = rows.length
+        ? rows.length + (rows.length === 1 ? ' member' : ' members') +
+          (M.src === 'list_members' ? ' · ' + onPlan + ' on a plan' : '')
+        : '';
+    }
+    if (!rows.length) {
+      box.innerHTML = '<div class="dk-empty">' + (M.q ? 'No one matches that.' : 'No one has walked in yet.') + '</div>';
+      return;
+    }
+    box.innerHTML = '';
+    rows.forEach(function (m) {
+      var level = Number(m.tier_level || 0);
+      var isAdmin = String(m.role || '') === 'admin';
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'mk-row' + (level > 0 ? ' is-plan' : '');
+      row.innerHTML =
+        '<span class="mk-face' + (level > 0 ? ' mk-has' : '') + '">' + esc(initials(m.display_name)) +
+          (isAdmin ? '<i class="mk-shield" aria-label="the house"></i>' : '') + '</span>' +
+        '<span class="mk-body">' +
+          '<b>' + esc(m.display_name || 'A member') + '</b>' +
+          (m.email ? '<em>' + esc(m.email) + '</em>' : '') +
+          planLine(m) +
+          (window.IVMARKS ? IVMARKS.jewels(M.badges[String(m.id)]) : '') +
+        '</span>' +
+        '<span class="mk-chev" aria-hidden="true">›</span>';
+      row.addEventListener('click', function () { nib(row); open(m); });
+      box.appendChild(row);
+    });
+  }
+
+  /* ── the sheet that opens a plan ──────────────────────────────────────── */
+  function open(m) {
+    var level = Number(m.tier_level || 0);
+    var st = { level: level, days: 30, forever: false };
+
+    var back = document.createElement('div');
+    back.className = 'mk-sheet';
+    back.innerHTML =
+      '<div class="mk-sheet-panel" role="dialog" aria-modal="true" aria-label="Open a plan">' +
+        '<span class="mk-grip" aria-hidden="true"></span>' +
+        '<div class="mk-sheetmarks">' +
+          '<span class="mk-face' + (level > 0 ? ' mk-has' : '') + '">' + esc(initials(m.display_name)) + '</span>' +
+          '<span class="mk-who"><b>' + esc(m.display_name || 'A member') + '</b>' +
+            '<s>' + (level > 0 ? esc(vipName(level, m.tier_name || ('Level ' + level))) : 'Forever Member') + '</s></span>' +
+        '</div>' +
+        (window.IVMARKS && level > 0 ? '<div class="mk-sheet-badge">' + IVMARKS.chip(level, m.tier_name || '') + '</div>' : '') +
+        '<p class="mk-lab">Open which plan</p>' +
+        '<div class="mk-chips" id="mk-tiers"></div>' +
+        '<div id="mk-len-wrap"><p class="mk-lab">For how long</p>' +
+          '<div class="mk-chips" id="mk-lens"></div></div>' +
+        '<button class="dk-btn gold mk-open" id="mk-go">SET AS FOREVER MEMBER</button>' +
+        '<p class="mk-note" id="mk-note">They keep everything already sent to them.</p>' +
+        '<button class="mk-shut" id="mk-shut">Close</button>' +
+      '</div>';
+
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('on'); });
+    nib(back);
+    var panel = back.querySelector('.mk-sheet-panel');
+    setTimeout(function () { try { panel.focus(); } catch (e) {} }, 60);
+
+    function shut() {
+      back.classList.remove('on');
+      setTimeout(function () { if (back.parentNode) back.parentNode.removeChild(back); }, 220);
+    }
+    back.addEventListener('click', function (e) { if (e.target === back) shut(); });
+    back.querySelector('#mk-shut').addEventListener('click', shut);
+
+    var tiersBox = back.querySelector('#mk-tiers');
+    var lensBox = back.querySelector('#mk-lens');
+    var go = back.querySelector('#mk-go');
+    var note = back.querySelector('#mk-note');
+    var wrap = back.querySelector('#mk-len-wrap');
+
+    function chipEl(text, sub, on) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mk-chipbtn' + (on ? ' on' : '');
+      b.innerHTML = '<b>' + esc(text) + '</b>' + (sub ? '<s>' + esc(sub) + '</s>' : '');
+      return b;
+    }
+
+    function paintChoices() {
+      tiersBox.innerHTML = '';
+      var free = chipEl('Forever Member', 'the open feed', st.level === 0);
+      free.addEventListener('click', function () { st.level = 0; paintChoices(); });
+      tiersBox.appendChild(free);
+      (M.tiers || []).forEach(function (t) {
+        if (t.is_active === false && Number(t.level) !== level) return; /* retired plans stay reachable only for the plan held */
+        var b = chipEl(t.name, '₹' + Number(t.price_inr || 0).toLocaleString('en-IN'), st.level === Number(t.level));
+        b.addEventListener('click', function () { st.level = Number(t.level); paintChoices(); });
+        tiersBox.appendChild(b);
+      });
+
+      wrap.style.display = st.level > 0 ? '' : 'none';
+      lensBox.innerHTML = '';
+      [7, 30, 90, 365].forEach(function (d) {
+        var b = chipEl(d + ' days', '', !st.forever && st.days === d);
+        b.addEventListener('click', function () { st.forever = false; st.days = d; paintChoices(); });
+        lensBox.appendChild(b);
+      });
+      var noEnd = chipEl('No end date', 'until you close it', st.forever);
+      noEnd.addEventListener('click', function () { st.forever = true; paintChoices(); });
+      lensBox.appendChild(noEnd);
+
+      go.textContent = st.level === 0 ? 'SET AS FOREVER MEMBER' : 'OPEN THIS TIER';
+      note.textContent = st.level === 0
+        ? 'They keep everything already sent to them.'
+        : 'They are told at once, and it behaves exactly like a tier they paid for. You can close it any time.';
+    }
+    paintChoices();
+
+    go.addEventListener('click', function () {
+      if (M.busy) return;
+      M.busy = true; go.disabled = true;
+      nib(go);
+      IV.call('/rest/v1/rpc/grant_tier', {
+        member_in: m.id,
+        level_in: st.level,
+        days_in: st.level > 0 && !st.forever ? st.days : null,
+        note_in: 'Opened by hand from the admin console'
+      }).then(function (res) {
+        M.busy = false; go.disabled = false;
+        shut();
+        toast(st.level === 0 ? 'Set as Forever Member.' : 'Opened ' + (res || 'the plan') + '.');
+        load(true);
+      }).catch(function (x) {
+        M.busy = false; go.disabled = false;
+        toast(x.message || 'The house did not open that plan.', true);
+      });
+    });
+  }
+
+  return { render: render, load: load, state: M, open: open };
+})();
+</script>
+<script id="iv-tiers-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PLANS ROOM · window.IVTIERS
+   ---------------------------------------------------------------------------
+   The app's TIERS tab, with its teeth. Read from subscription_tiers, write to
+   the same table with the same rules:
+
+     create   insert one row, live at once
+     edit     name · level · price · days · description · perks · live
+     retire   is_active = false — plans are never deleted, because a plan a
+              member paid for must still exist to be read back
+
+   The door itself (grant_tier) lives in the MEMBERS room, exactly as in the
+   app: plans are written here, plans are handed out there.
+   =========================================================================== */
+window.IVTIERS = (function () {
+  var IV = window.IVSESS;
+  var T = { rows: [], busy: false, err: null, pane: null };
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el) { if (window.IVVOICE) window.IVVOICE.play('tap', 'mid', el); }
+
+  function render(p) {
+    T.pane = p;
+    p.innerHTML =
+      '<p class="dk-kick">The plans</p>' +
+      '<h1 class="dk-h1">What the house <em>asks.</em></h1>' +
+      '<p class="dk-lede">The same rows the app and every room obey. A plan is never deleted — it is ' +
+      'retired, so a member who paid for it can still be read back years later.</p>' +
+      '<div class="tk-bar"><button class="dk-btn gold mk-new" id="tk-new">A NEW PLAN</button></div>' +
+      '<div id="tk-plans"><div class="dk-empty">Reading the plans…</div></div>';
+    p.querySelector('#tk-new').addEventListener('click', function () { nib(this); edit(null); });
+    load();
+  }
+
+  function load() {
+    if (!IV || !IV.read()) {
+      var box = T.pane && T.pane.querySelector('#tk-plans');
+      if (box) box.innerHTML = '<div class="dk-empty">Sign in as the house to write a plan. The table stays readable.</div>';
+      return readOnly();
+    }
+    readOnly();
+  }
+
+  function readOnly() {
+    return IV.get('/rest/v1/subscription_tiers?select=*&order=level.asc').then(function (rows) {
+      T.rows = Array.isArray(rows) ? rows : [];
+      paintList();
+    }).catch(function (x) {
+      var box = T.pane && T.pane.querySelector('#tk-plans');
+      if (box) box.innerHTML = '<div class="dk-empty">The plan table did not answer — ' + esc(x.message) + '.</div>';
+    });
+  }
+
+  function paintList() {
+    var box = T.pane && T.pane.querySelector('#tk-plans');
+    if (!box) return;
+    if (!T.rows.length) { box.innerHTML = '<div class="dk-empty">No plans written yet.</div>'; return; }
+    box.innerHTML = '';
+    T.rows.forEach(function (t) {
+      var live = t.is_active !== false;
+      var card = document.createElement('div');
+      card.className = 'tk-card' + (live ? '' : ' is-off');
+      card.innerHTML =
+        '<span class="tk-lvl">' + esc(t.level) + '</span>' +
+        '<div class="tk-body">' +
+          '<b>' + esc(t.name) + '</b>' +
+          '<s>₹' + Number(t.price_inr || 0).toLocaleString('en-IN') + ' · ' +
+            esc(t.duration_days || 30) + ' days' + (t.description ? ' · ' + esc(t.description) : '') + '</s>' +
+          (Array.isArray(t.perks) && t.perks.length
+            ? '<ul class="tk-perks">' + t.perks.slice(0, 5).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
+            : '') +
+          '<span class="tk-state">' + (live ? 'LIVE' : 'RETIRED') + '</span>' +
+        '</div>' +
+        '<div class="tk-acts">' +
+          '<button class="dk-btn quiet mini" data-a="edit">Edit</button>' +
+          '<button class="dk-btn quiet mini" data-a="state">' + (live ? 'Retire' : 'Reopen') + '</button>' +
+        '</div>';
+      card.querySelector('[data-a="edit"]').addEventListener('click', function () { nib(this); edit(t); });
+      card.querySelector('[data-a="state"]').addEventListener('click', function () {
+        var b = this; b.disabled = true; nib(b);
+        IV.call('/rest/v1/subscription_tiers?id=eq.' + t.id, { is_active: !live },
+          { method: 'PATCH', extra: { Prefer: 'return=minimal' } })
+          .then(function () { toast(live ? 'Retired. Anyone on it keeps it until it runs out.' : 'Live again.'); readOnly(); })
+          .catch(function (x) { b.disabled = false; toast(x.message, true); });
+      });
+      box.appendChild(card);
+    });
+  }
+
+  function edit(t) {
+    var st = {
+      name: t ? t.name || '' : '',
+      level: t ? Number(t.level || 1) : (T.rows.length ? Math.max.apply(null, T.rows.map(function (x) { return Number(x.level || 0); })) + 1 : 1),
+      price: t ? Number(t.price_inr || 0) : 0,
+      days: t ? Number(t.duration_days || 30) : 30,
+      desc: t ? (t.description || '') : '',
+      perks: t && Array.isArray(t.perks) ? t.perks.join('\n') : '',
+      live: t ? t.is_active !== false : true
+    };
+
+    var back = document.createElement('div');
+    back.className = 'mk-sheet';
+    back.innerHTML =
+      '<div class="mk-sheet-panel is-tall" role="dialog" aria-modal="true" aria-label="' +
+        (t ? 'Edit this plan' : 'A new plan') + '">' +
+        '<span class="mk-grip" aria-hidden="true"></span>' +
+        '<p class="mk-lab">' + (t ? 'The plan' : 'A new plan') + '</p>' +
+        '<input class="dk-input mk-in" id="tk-name" placeholder="its name — Ivory Reader" value="' + esc(st.name) + '">' +
+        '<div class="tk-duo">' +
+          '<label class="tk-fl"><span>Level</span><input class="dk-input mk-in" id="tk-lvl" type="number" min="1" step="1" value="' + esc(st.level) + '"></label>' +
+          '<label class="tk-fl"><span>Price ₹</span><input class="dk-input mk-in" id="tk-price" type="number" min="0" step="1" value="' + esc(st.price) + '"></label>' +
+          '<label class="tk-fl"><span>Days</span><input class="dk-input mk-in" id="tk-days" type="number" min="1" step="1" value="' + esc(st.days) + '"></label>' +
+        '</div>' +
+        '<input class="dk-input mk-in" id="tk-desc" placeholder="one line under it" value="' + esc(st.desc) + '">' +
+        '<textarea class="dk-input mk-in" id="tk-perks" rows="4" placeholder="one perk a line">' + esc(st.perks) + '</textarea>' +
+        '<button class="mk-switch' + (st.live ? ' on' : '') + '" id="tk-live"><i></i><span>' +
+          (st.live ? 'LIVE — members can take it' : 'RETIRED — kept, not offered') + '</span></button>' +
+        '<button class="dk-btn gold mk-open" id="tk-save">' + (t ? 'SAVE THE PLAN' : 'WRITE IT') + '</button>' +
+        '<p class="mk-note" id="tk-said"></p>' +
+        '<button class="mk-shut" id="tk-shut">Close</button>' +
+      '</div>';
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('on'); });
+    nib(back);
+    setTimeout(function () { var n = back.querySelector('#tk-name'); if (n) n.focus(); }, 80);
+
+    function shut() {
+      back.classList.remove('on');
+      setTimeout(function () { if (back.parentNode) back.parentNode.removeChild(back); }, 220);
+    }
+    back.addEventListener('click', function (e) { if (e.target === back) shut(); });
+    back.querySelector('#tk-shut').addEventListener('click', shut);
+    var sw = back.querySelector('#tk-live');
+    sw.addEventListener('click', function () {
+      st.live = !st.live; sw.classList.toggle('on', st.live);
+      sw.querySelector('span').textContent = st.live ? 'LIVE — members can take it' : 'RETIRED — kept, not offered';
+    });
+
+    back.querySelector('#tk-save').addEventListener('click', function () {
+      var b = this;
+      var name = back.querySelector('#tk-name').value.trim();
+      if (!name) { back.querySelector('#tk-said').textContent = 'A plan needs a name.'; return; }
+      var body = {
+        name: name,
+        level: Math.max(1, parseInt(back.querySelector('#tk-lvl').value, 10) || 1),
+        price_inr: Math.max(0, parseInt(back.querySelector('#tk-price').value, 10) || 0),
+        duration_days: Math.max(1, parseInt(back.querySelector('#tk-days').value, 10) || 30),
+        description: back.querySelector('#tk-desc').value.trim() || null,
+        perks: back.querySelector('#tk-perks').value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
+        is_active: !!st.live
+      };
+      b.disabled = true; nib(b);
+      var url = t ? '/rest/v1/subscription_tiers?id=eq.' + t.id : '/rest/v1/subscription_tiers';
+      IV.call(url, body, { method: t ? 'PATCH' : 'POST', extra: { Prefer: 'return=minimal' } })
+        .then(function () {
+          b.disabled = false; shut();
+          toast(t ? 'Saved. The house follows it at once.' : 'Written. It is live.');
+          readOnly();
+        }).catch(function (x) {
+          b.disabled = false;
+          back.querySelector('#tk-said').textContent = x.message || 'That was not saved.';
+          toast(x.message || 'That was not saved.', true);
+        });
+    });
+  }
+
+  return { render: render, load: load, state: T };
+})();
+</script>
+<script id="iv-officers-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE OFFICERS · window.IVOFFICERS
+   ---------------------------------------------------------------------------
+   The app names one officer — the Grievance Officer — in app_policies
+   (key/value), and draws the name and address on the refunds page only when
+   the row is real. This carries that across, and adds the second officer the
+   house needs: a Support Officer, the first door a member knocks on.
+
+     IVOFFICERS.render(p)     the desk room: both officers, the windows, saved
+                              to the same app_policies rows the app reads
+     IVOFFICERS.legal(root)   the member's legal pages: the officer card, the
+                              erasure request, in the house's own voice
+
+   A row that is empty, says "to be set", or points at example.com is never
+   printed — exactly the app's rule (_officerSet).
+   =========================================================================== */
+window.IVOFFICERS = (function () {
+  var IV = window.IVSESS;
+  var O = { map: null, at: 0, busy: false, pane: null };
+
+  var KEYS = ['officer_name', 'officer_email', 'support_name', 'support_email',
+              'refund_report_window_hours', 'refund_process_days'];
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function toast(t, bad) { if (window.ivoryToast) window.ivoryToast(t, !bad); }
+  function nib(el) { if (window.IVVOICE) window.IVVOICE.play('tap', 'mid', el); }
+
+  function real(v) {
+    var s = String(v == null ? '' : v).trim();
+    return !!s && !/^\(to be set\)/i.test(s) && !/example\.com/i.test(s);
+  }
+
+  function read(force) {
+    if (!IV) return Promise.resolve({});
+    if (!force && O.map && Date.now() - O.at < 120000) return Promise.resolve(O.map);
+    return IV.get('/rest/v1/app_policies?select=key,value').then(function (rows) {
+      var m = {};
+      (rows || []).forEach(function (r) { if (r && r.key) m[r.key] = r.value == null ? '' : String(r.value); });
+      O.map = m; O.at = Date.now();
+      return m;
+    }).catch(function () { return O.map || {}; });
+  }
+
+  function write(pairs) {
+    if (!IV) return Promise.reject(new Error('No session.'));
+    var rows = Object.keys(pairs).map(function (k) { return { key: k, value: String(pairs[k]) }; });
+    return IV.call('/rest/v1/app_policies?on_conflict=key', rows,
+      { method: 'POST', extra: { Prefer: 'resolution=merge-duplicates,return=minimal' } })
+      .catch(function () {
+        /* older table shape: no key constraint — write them one by one */
+        return Promise.all(rows.map(function (r) {
+          return IV.call('/rest/v1/app_policies?key=eq.' + encodeURIComponent(r.key),
+            [{ key: r.key, value: r.value }],
+            { method: 'POST', extra: { Prefer: 'resolution=merge-duplicates,return=minimal' } })
+            .catch(function () {
+              return IV.call('/rest/v1/app_policies?key=eq.' + encodeURIComponent(r.key),
+                { value: r.value }, { method: 'PATCH', extra: { Prefer: 'return=minimal' } });
+            });
+        }));
+      });
+  }
+
+  /* ── the member's side: the card on the legal pages ───────────────────── */
+  function officerBlock(map, page) {
+    map = map || {};
+    var gName = real(map.officer_name) ? map.officer_name : '';
+    var gMail = real(map.officer_email) ? map.officer_email : '';
+    var sName = real(map.support_name) ? map.support_name : '';
+    var sMail = real(map.support_email) ? map.support_email : '';
+    var win = map.refund_report_window_hours || '72';
+    var days = map.refund_process_days || '5-7 business days';
+    if (!gName && !gMail && !sName && !sMail) return '';
+    var cards = '';
+    if (gName || gMail) {
+      cards += '<div class="ivl-off-c"><b>The Grievance Officer</b>' +
+        (gName ? '<span>' + esc(gName) + '</span>' : '') +
+        (gMail ? '<a href="mailto:' + esc(gMail) + '">' + esc(gMail) + '</a>' : '') +
+        '<s>Complaints, notices and anything the law needs a name for.</s></div>';
+    }
+    if (sName || sMail) {
+      cards += '<div class="ivl-off-c"><b>The Support Officer</b>' +
+        (sName ? '<span>' + esc(sName) + '</span>' : '') +
+        (sMail ? '<a href="mailto:' + esc(sMail) + '">' + esc(sMail) + '</a>' : '') +
+        '<s>A payment, a session, a door that would not open — write here first.</s></div>';
+    }
+    return '<section class="ivl-off">' +
+      '<p class="ivl-off-h">The officers</p>' + cards +
+      '<p class="ivl-off-n">Tell the house within <b>' + esc(win) + ' hours</b> for a payment matter; ' +
+      'approved refunds ride back to the original method in <b>' + esc(days) + '</b>. ' +
+      'A real person reads every letter, and the house answers within 30 days.</p>' +
+      (page === 'privacy'
+        ? '<button class="ivl-forget" id="ivl-forget">ASK TO BE FORGOTTEN</button>' +
+          '<p class="ivl-off-n" id="ivl-forget-note">Erasure removes what the law allows. Payment records stay for eight years.</p>'
+        : '') +
+      '</section>';
+  }
+
+  function legal(root) {
+    if (!root) return;
+    var pg = (window.ivLegal && ivLegal.current) ? ivLegal.current() : 'terms';
+    read().then(function (map) {
+      var body = root.querySelector('.ivl-body');
+      if (!body) return;
+      var old = body.querySelector('.ivl-off');
+      if (old) old.parentNode.removeChild(old);
+      var html = officerBlock(map, pg);
+      if (!html) return;
+      body.insertAdjacentHTML('beforeend', html);
+      var btn = body.querySelector('#ivl-forget');
+      if (btn) btn.addEventListener('click', function () {
+        var note = body.querySelector('#ivl-forget-note');
+        if (!IV || !IV.read()) { if (note) note.textContent = 'Sign in first, and the request will carry your name.'; return; }
+        btn.disabled = true; nib(btn);
+        IV.get('/rest/v1/erasure_requests?select=id&status=eq.open').then(function (rows) {
+          if (rows && rows.length) {
+            btn.disabled = false;
+            if (note) note.textContent = 'Already asked — the 90-day clock is running.';
+            return;
+          }
+          return IV.call('/rest/v1/erasure_requests', {
+            user_id: (IV.user() || {}).id, status: 'open'
+          }, { extra: { Prefer: 'return=minimal' } }).then(function () {
+            btn.textContent = 'ASKED — THE 90 DAYS HAVE BEGUN';
+            if (note) note.textContent = 'The house has your request. Everything it may remove is gone within 90 days.';
+            toast('Asked. The 90-day clock is running.');
+          });
+        }).catch(function (x) {
+          btn.disabled = false;
+          if (note) note.textContent = x.message || 'That did not go through.';
+        });
+      });
+    });
+  }
+
+  /* ── the desk: the room where the officers are written ────────────────── */
+  function render(p) {
+    O.pane = p;
+    p.innerHTML =
+      '<div class="rm ivroom-officers">' +
+      '<p class="dk-kick">The officers</p>' +
+      '<h1 class="dk-h1">The house’s <em>word.</em></h1>' +
+      '<p class="dk-lede">Two names, printed on the legal pages the moment they are real. The database ' +
+      'stays the only judge — these rows are read by the app and by the site alike.</p>' +
+      '<div class="of-grid"><div class="of-card" id="of-g"></div><div class="of-card" id="of-s"></div></div>' +
+      '<p class="rmx-h">The windows the pages quote</p>' +
+      '<div class="of-duo">' +
+        '<label class="tk-fl"><span>Answer a payment matter within</span>' +
+          '<input class="dk-input" id="of-win" type="number" min="1" max="720" step="1" placeholder="72"></label>' +
+        '<label class="tk-fl"><span>Refund arrives in</span>' +
+          '<input class="dk-input" id="of-days" placeholder="5-7 business days"></label>' +
+      '</div>' +
+      '<div class="of-preview" id="of-prev"></div>' +
+      '<div class="of-foot"><button class="dk-btn gold" id="of-save">SAVE THE HOUSE’S WORD</button>' +
+      '<p class="dk-note" id="of-said">Printed on the member’s refunds, privacy and terms pages.</p></div>' +
+      '</div>';
+
+    var cards = [
+      ['g', 'The Grievance Officer', 'officer_name', 'officer_email',
+        'The name the law needs: complaints, notices, anything that must not go astray.'],
+      ['s', 'The Support Officer', 'support_name', 'support_email',
+        'The first door a member knocks on — a payment, a session, a door that would not open.']
+    ];
+
+    function drawFields(map) {
+      cards.forEach(function (c) {
+        var box = p.querySelector('#of-' + c[0]);
+        box.innerHTML =
+          '<p class="of-h">' + esc(c[1]) + '</p>' +
+          '<p class="of-n">' + esc(c[4]) + '</p>' +
+          '<input class="dk-input of-in" id="of-' + c[0] + '-name" placeholder="their name" value="' + esc(map[c[2]] || '') + '">' +
+          '<input class="dk-input of-in" id="of-' + c[0] + '-mail" type="email" placeholder="their address — name@house.com" value="' + esc(map[c[3]] || '') + '">' +
+          '<p class="of-state' + (real(map[c[3]]) ? ' on' : '') + '">' +
+            (real(map[c[3]]) ? 'Printed on the pages' : 'Not printed — an empty row, a “to be set”, or an example address stays hidden') + '</p>';
+      });
+      p.querySelector('#of-win').value = map.refund_report_window_hours || '';
+      p.querySelector('#of-days').value = map.refund_process_days || '';
+      preview(map);
+      p.querySelectorAll('.of-in').forEach(function (el) {
+        el.addEventListener('input', function () {
+          var now = {};
+          cards.forEach(function (c) {
+            now[c[2]] = p.querySelector('#of-' + c[0] + '-name').value;
+            now[c[3]] = p.querySelector('#of-' + c[0] + '-mail').value;
+          });
+          now.refund_report_window_hours = p.querySelector('#of-win').value;
+          now.refund_process_days = p.querySelector('#of-days').value;
+          preview(now);
+        });
+      });
+      p.querySelector('#of-win').addEventListener('input', function () { previewNow(); });
+      p.querySelector('#of-days').addEventListener('input', function () { previewNow(); });
+      function previewNow() {
+        var now = {};
+        cards.forEach(function (c) {
+          now[c[2]] = p.querySelector('#of-' + c[0] + '-name').value;
+          now[c[3]] = p.querySelector('#of-' + c[0] + '-mail').value;
+        });
+        now.refund_report_window_hours = p.querySelector('#of-win').value;
+        now.refund_process_days = p.querySelector('#of-days').value;
+        preview(now);
+      }
+    }
+
+    function preview(map) {
+      var box = p.querySelector('#of-prev');
+      if (!box) return;
+      var html = officerBlock({
+        officer_name: map.officer_name, officer_email: map.officer_email,
+        support_name: map.support_name, support_email: map.support_email,
+        refund_report_window_hours: map.refund_report_window_hours,
+        refund_process_days: map.refund_process_days
+      }, 'refunds');
+      box.innerHTML = html || '<s class="of-empty">The pages print nothing yet — write a name and an address below.</s>';
+    }
+
+    read(true).then(drawFields).catch(function () { drawFields({}); });
+
+    p.querySelector('#of-save').addEventListener('click', function () {
+      var b = this; if (O.busy) return;
+      O.busy = true; b.disabled = true; nib(b);
+      var pairs = {};
+      cards.forEach(function (c) {
+        pairs[c[2]] = p.querySelector('#of-' + c[0] + '-name').value.trim();
+        pairs[c[3]] = p.querySelector('#of-' + c[0] + '-mail').value.trim();
+      });
+      pairs.refund_report_window_hours = p.querySelector('#of-win').value.trim();
+      pairs.refund_process_days = p.querySelector('#of-days').value.trim();
+      write(pairs).then(function () {
+        O.busy = false; b.disabled = false;
+        O.map = null;
+        p.querySelector('#of-said').textContent = 'Saved. The legal pages read it at once.';
+        toast('The house’s word is saved.');
+        read(true).then(drawFields);
+      }).catch(function (x) {
+        O.busy = false; b.disabled = false;
+        p.querySelector('#of-said').textContent = x.message || 'Not saved.';
+        toast(x.message || 'Not saved.', true);
+      });
+    });
+  }
+
+  return { render: render, legal: legal, read: read, officerBlock: officerBlock, real: real };
+})();
+
+/* the desk learns a room called OFFICERS, exactly like the others */
+if (window.IVROOMS) {
+  window.IVROOMS.officers = function (p) { return window.IVOFFICERS.render(p); };
+}
+</script>
 <script id="iv-rbn-js">
 /* ============================================================================
    IVORY · THE RIBBONS · pass 64
@@ -30198,6 +31435,9 @@ window.ivLegal = (function () {
     if (head) head.textContent = p.title;
     if (upd) upd.textContent = p.updated || '';
     if (body) body.innerHTML = html(p.body);
+    /* the officers, and the erasure door — read from app_policies, printed
+       only when the row is real (the app's own _officerSet rule) */
+    try { if (window.IVOFFICERS) IVOFFICERS.legal(SK.root); } catch (e) {}
     Array.prototype.forEach.call(SK.root.querySelectorAll('.ivl-tab'), function (t) {
       t.classList.toggle('on', t.getAttribute('data-page') === SK.page);
     });
@@ -30255,7 +31495,8 @@ window.ivLegal = (function () {
     } catch (e) {}
   }
 
-  return { open: open, close: close, pages: PAGES, isOpen: function () { return !!(SK.root && SK.root.classList.contains('on')); } };
+  return { open: open, close: close, pages: PAGES, current: function () { return SK.page; },
+           isOpen: function () { return !!(SK.root && SK.root.classList.contains('on')); } };
 })();
 </script>
 <script id="iv-voice-js">
