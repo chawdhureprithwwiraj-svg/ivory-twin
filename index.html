@@ -7392,7 +7392,7 @@ input::placeholder,label,.fl-search input,.ws-input,.ws-msg,
 .sets-sheet .foot{color:#A5761F !important;-webkit-text-fill-color:#A5761F}
 
 /* ---------- 8 · the wheel of fans — to the right, and filled ---------- */
-.wof-med{left:auto;right:14px;bottom:calc(92px + env(safe-area-inset-bottom))}
+.wof-med{display:none !important}
 .wof-med .wof-disc{width:58px;height:58px}
 .wof-med .wof-mini{width:48px;height:48px}
 .wof-med .wof-halo{width:120px;height:120px;margin:-60px 0 0 -60px}
@@ -14554,7 +14554,8 @@ body.iv-quiet #iv-door-moment .ivdm-band,
           <div class="mk r"><span>&#9889;</span><i>Knock-off Player</i></div>
         </div>
       </div>
-      <p class="foot dark">This platform is maintained by 'Infinity'. All rights reserved 2026</p>
+      <button class="ld-wheel-door" id="ld-wheel" type="button"><span class="lwd-disc" aria-hidden="true"></span><span class="lwd-tx"><b>The Wheel of Fans</b><s>One turn each Gilded Hour · the feather decides</s></span><span class="lwd-go" aria-hidden="true">&rsaquo;</span></button>
+<p class="foot dark">This platform is maintained by 'Infinity'. All rights reserved 2026</p>
     </div>
   </section>
 </div>
@@ -16797,6 +16798,9 @@ function sparkleAt(el){
     W.classList.remove('show');
     document.body.style.overflow='';
     card.classList.remove('on');
+    W.classList.remove('has-card');
+    bar.style.opacity=''; bar.style.pointerEvents='';
+    spinBtn.disabled=false; spinBtn.textContent='Turn the wheel'; busy=false;
     wheel.style.transition='none';
     wheel.style.setProperty('--rot', (parseFloat(wheel.style.getPropertyValue('--rot'))||0)+'deg');
     if(window.Sound) Sound.play('tap');
@@ -19552,7 +19556,11 @@ window.IVSESS = (function () {
     b.type = 'button'; b.className = 'med iv-admin-crest';
     b.setAttribute('aria-label', 'Admin console');
     b.title = 'Admin console';
-    b.innerHTML = '<span class="iv-admin-ring" aria-hidden="true">I</span>';
+    b.innerHTML = '<span class="iv-admin-ring" aria-hidden="true">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+      + 'stroke-linecap="round" stroke-linejoin="round">'
+      + '<circle cx="8.2" cy="8.2" r="4.1"/><path d="M11.3 11.3L20 20"/>'
+      + '<path d="M16.6 16.6l2.1-2.1M13.9 13.9l1.9-1.9"/></svg></span>';
     b.addEventListener('click', function (e) {
       e.preventDefault(); e.stopPropagation();
       if (window.ivDesk && window.ivDesk.open) window.ivDesk.open();
@@ -19573,11 +19581,11 @@ window.IVSESS = (function () {
     if (!isAdmin) return;
     Array.prototype.forEach.call(document.querySelectorAll('#home-screen .hp-bar, #explore-screen .topbar, #profile-screen .topbar, #wish-screen .topbar, #premium-screen .topbar, #inbox-screen .topbar'), function (bar) {
       if (bar.querySelector('.iv-admin-crest')) return;
-      var brand = bar.querySelector('.hp-brand, .top-brand');
-      if (brand && brand.parentNode === bar) brand.parentNode.insertBefore(chip(), brand.nextSibling);
+      /* one key only: the crest at the top right. The ADMIN pill is no longer drawn. */
       /* the crest takes its own seat at the far right, so nothing is ever squeezed off the phone */
       bar.classList.add('iv-has-admin');
-      bar.appendChild(crest());
+      var row = bar.querySelector('.hp-icons, .top-acts, .act-row');
+      (row || bar).appendChild(crest());
     });
   }
 
@@ -35292,6 +35300,8 @@ window.IVMEDALLION = (function () {
     var dust = Dust(stage);
     root.classList.add('ivm-descending');
     wrap.classList.add('ivm-veiled');
+      /* a watch, not a hope: the room is usable even if the film never ends */
+      setTimeout(function(){ try{ root.classList.remove('ivm-descending'); }catch(e){} }, 2600);
 
     /* 1 · the hand of the opening film comes apart into dust */
     if (feather) {
@@ -38051,6 +38061,93 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
    The same bronze two steps deeper, #89621A, is 4.65:1 and reads as the same
    engraving. Nothing about its size, spacing or place changes.               */
 .pf .foot{color:#89621A !important}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 83 · THE SHELL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── the one key ─────────────────────────────────────────────────────────
+   The admin medallion at the top right is the only way into the desk. It is
+   a key now, drawn in the same gold as the rest of the house, and it is
+   quiet: no ring pulsing for attention, no pill shouting its name. */
+/* its seat is the corner of the phone and every screen keeps it there — but
+   smaller, and high enough that it sits in the header row rather than over the
+   gold band beneath it */
+/* the page once pinned this key into an older icon row (`#iv-admin-eye{top:64px}`),
+   which is now the ribbon's own line. It belongs in the header, level with the
+   heart, the bell and the ladder — so the seat is spoken by the id it carries,
+   which is the only voice that can outrank that rule. */
+:root:root:root #iv-admin-eye.iv-admin-crest,
+:root:root:root .iv-admin-crest{
+  position:fixed !important;
+  top:calc(9px + env(safe-area-inset-top)) !important;
+  right:calc(9px + env(safe-area-inset-right)) !important;
+  /* a legal 44 px target for a thumb; the gold disc inside it is drawn 32 px,
+     so the key looks discreet and still answers a fingertip */
+  width:44px !important; height:44px !important; min-height:44px !important;
+  max-height:44px !important; min-width:44px !important;
+  background:none !important; box-shadow:none !important;
+  border:0 !important; z-index:96 !important;
+}
+:root:root:root #iv-admin-eye.iv-admin-crest .iv-admin-ring{
+  width:32px !important; height:32px !important; margin:0 auto !important;
+  background:radial-gradient(circle at 34% 28%,#FFF3CB,#E6C169 52%,#B8862C 100%) !important;
+  box-shadow:0 0 0 1px rgba(150,101,18,.45), 0 5px 10px -6px rgba(74,32,6,.8),
+             inset 0 1px 0 rgba(255,252,236,.9) !important;
+}
+:root:root:root #iv-admin-eye.iv-admin-crest .iv-admin-ring svg{ width:17px !important;height:17px !important }
+.iv-admin-crest::after{ animation:none !important; opacity:0 !important }
+.iv-admin-crest .iv-admin-ring svg{ width:19px;height:19px;display:block }
+/* inside the desk the key has done its work: it would only be a duplicate */
+body.desk-open .iv-admin-crest, body[data-screen="desk"] .iv-admin-crest{ display:none !important }
+
+/* the desk's role badge is a label, not a button — it must never read as a second key */
+.dk-head .dk-badge, #dk-role{
+  background:none !important; color:rgba(255,232,186,.66) !important;
+  border:1px solid rgba(255,232,186,.24) !important; box-shadow:none !important;
+  font-weight:600 !important; letter-spacing:.18em !important;
+}
+
+/* ── the wheel's own door, in the room that counts the Gilded Hours ──────── */
+.ld-wheel-door{
+  display:flex; align-items:center; gap:12px; width:100%; margin:16px 0 0; padding:13px 14px;
+  border:0; cursor:pointer; text-align:left; border-radius:16px;
+  background:linear-gradient(168deg,#FFF9EC 0%,#F8E9CB 52%,#F0DCB2 100%);
+  box-shadow:0 0 0 1px rgba(168,131,68,.34), 0 14px 26px -20px rgba(74,32,6,.8),
+             inset 0 1px 0 rgba(255,255,255,.9);
+  -webkit-tap-highlight-color:transparent;
+}
+.ld-wheel-door:active{ transform:scale(.994) }
+.lwd-disc{
+  flex:0 0 40px; width:40px; height:40px; border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, #FFF6DC 0 22%, rgba(255,246,220,0) 23%),
+    conic-gradient(from -90deg,
+      #7A1024 0 30deg, #0E5C46 30deg 60deg, #8A5A12 60deg 90deg, #3E3348 90deg 120deg,
+      #0B5F3C 120deg 150deg, #1B3A6B 150deg 180deg, #6E0C24 180deg 210deg, #5A1230 210deg 240deg,
+      #7A1024 240deg 270deg, #0E5C46 270deg 300deg, #8A5A12 300deg 330deg, #3E3348 330deg 360deg);
+  box-shadow:inset 0 0 0 3px #F3DCA4, 0 0 0 1px rgba(150,101,18,.5), 0 8px 14px -10px rgba(74,32,6,.8);
+}
+.lwd-tx{ flex:1 1 auto; display:flex; flex-direction:column; gap:3px; min-width:0 }
+.lwd-tx b{ font:700 12.5px/1.2 Georgia,serif; letter-spacing:.14em; text-transform:uppercase; color:var(--wine) }
+.lwd-tx s{ font:italic 11.5px/1.35 Georgia,serif; color:rgba(74,14,23,.62); text-decoration:none }
+.lwd-go{ flex:0 0 auto; font:400 20px/1 Georgia,serif; color:#A5761F }
+
+/* ── the two glyphs that were hard to see (her item 8) ─────────────────────
+   In the header row beside the heart, the bell and the ladder, the House Seal
+   and Share were drawn in a pale gold on a pale ground: present, but not
+   legible as controls. They keep their size, their seat and their outline —
+   only their ink deepens, and each gains a hairline so the shape reads at a
+   glance. Measured against the header's own ground, the pair goes from about
+   1.9:1 to 4.9:1 without turning gold into brown. */
+:root:root:root .med.seal,
+:root:root:root .topbar .med.share,
+:root:root:root .act.share{ color:#8A5A12 !important }
+:root:root:root .med.seal .sealicon,
+:root:root:root .med.seal svg{ color:#8A5A12 !important; stroke:#8A5A12 !important }
+:root:root:root .act.share .shareicon{ color:#8A5A12 !important; fill:#8A5A12 !important; stroke:#8A5A12 !important }
+:root:root:root .act.share .shareicon use{ fill:#8A5A12 !important }
+:root:root:root .act.share svg{ filter:drop-shadow(0 1px 0 rgba(255,252,240,.9)) }
 </style>
 <script id="iv-legal-js">
 /* ══════════════════════════════════════════════════════════════════════════
@@ -38765,11 +38862,12 @@ window.IVVOICE = (function () {
 
   /* ── share: the handset's own sheet, or the address on the clipboard ───── */
   function share(e) {
-    var data = { title: 'Ivory House', text: 'A private world of storytelling.', url: location.href };
+    var home = location.href.split('#')[0];
+  var data = { title: 'Ivory House', text: 'A private world of storytelling.', url: home };
     if (navigator.share) { navigator.share(data).catch(function () {}); return; }
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(location.href).then(
+        navigator.clipboard.writeText(home).then(
           function () { toast('The address is copied. Send it to whoever should see this.'); },
           function () { toast('This browser would not copy the address.', true); });
         return;
@@ -39166,6 +39264,154 @@ window.IVVOICE = (function () {
   }, true);
 
   window.IVFLOW = { refresh: refresh, load: load, paint: paint };
+})();
+</script>
+<script id="iv-shell-js">
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE SHELL · the browser's own Back button, and the rooms it walks
+
+   Her fifth correction: "Several screens do not have a back-arrow button…
+   Modals, pop-ups and full-screen overlays must have working close controls.
+   The browser back button must behave sensibly."
+
+   The house already writes the room into the address when a tab is pressed
+   (`walk()` → `location.hash = name + '-screen'`), and every sheet already has
+   its own back arrow and its own scrim. What was missing was anything listening
+   on the way back: pressing Back changed the address and left the screen where
+   it was, and pressing it again left the house altogether.
+
+   So this file only listens. It never draws, never closes by force, and never
+   fights a sheet's own code: on Back it presses the same control a finger
+   would (the sheet's own back arrow or scrim), and if a room is named in the
+   address it opens that room. Everything else stays exactly as it was.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  if (window.__ivShell) return;
+  window.__ivShell = 1;
+
+  var ROOMS = { home: 1, explore: 1, wish: 1, premium: 1, inbox: 1, profile: 1, live: 1 };
+  /* every layer that covers the house, and the control that closes it */
+  var LAYERS = ['.ivsheet-wrap', '#wof', '#ivc-sheet', '#ivx-sheet', '#ivp-sheet',
+                '#rbn-sheet', '.the-sheet', '#dk-drawer'];
+
+  function open(el) {
+    return el.classList.contains('show') || el.classList.contains('on') ||
+           (el.getAttribute('aria-hidden') === 'false' && el.classList.contains('show'));
+  }
+  function layers() {
+    var found = [];
+    for (var i = 0; i < LAYERS.length; i++) {
+      var list = document.querySelectorAll(LAYERS[i]);
+      for (var j = 0; j < list.length; j++) if (open(list[j])) found.push(list[j]);
+    }
+    return found;
+  }
+  function closer(el) {
+    /* the page's own control, in the order a member would find it */
+    return el.querySelector('.ivsheet-back') || el.querySelector('[data-close]') ||
+           el.querySelector('.ivsheet-x') || el.querySelector('#wof-x') ||
+           el.querySelector('[id$="-shut"]') || el.querySelector('[id$="-close"]') ||
+           el.querySelector('[id$="-x"]');
+  }
+
+  /* ── one history entry while any layer is open ────────────────────────── */
+  var pushed = false;
+  function note() {
+    var any = layers().length > 0;
+    if (any && !pushed) {
+      pushed = true;
+      try { history.pushState({ ivory: 'layer' }, ''); } catch (e) {}
+    } else if (!any) {
+      pushed = false;
+    }
+  }
+  try {
+    new MutationObserver(note).observe(document.documentElement, {
+      attributes: true, subtree: true, attributeFilter: ['class', 'aria-hidden']
+    });
+  } catch (e) {}
+
+  function shutAll() {
+    var list = layers(), closed = 0;
+    for (var i = list.length - 1; i >= 0; i--) {
+      var c = closer(list[i]);
+      if (c) { c.click(); closed++; }
+      else {
+        list[i].classList.remove('show', 'on');
+        if (list[i].classList.contains('ivsheet-wrap')) list[i].setAttribute('aria-hidden', 'true');
+        closed++;
+      }
+    }
+    return closed;
+  }
+
+  function roomFromAddress() {
+    var h = '';
+    try { h = String(location.hash || '').replace(/^#/, ''); } catch (e) {}
+    h = h.toLowerCase().replace(/-screen$/, '');
+    if (ROOMS[h]) return h;
+    var q = '';
+    try { q = (String(location.search).match(/[?&]room=([a-z]+)/i) || [])[1] || ''; } catch (e) {}
+    return ROOMS[q] ? q : '';
+  }
+
+  /* ── the rooms become history ──────────────────────────────────────────
+     The tabs in the dock switch rooms without touching the address (their own
+     handler calls show() directly), so Back had nothing to walk. Every room
+     the member actually moves to now gets an entry of its own; the entry says
+     which room it is, so coming back never has to guess. */
+  var fromBack = false, lastRoom = (document.body.dataset.screen || 'home');
+  /* The dock's own handler calls a private show(), not window.ivoryShow, so the
+     room is read from the page itself: every room change writes data-screen on
+     the body. One entry per room the member actually moves to. */
+  try {
+    new MutationObserver(function () {
+      var now = document.body.dataset.screen || 'home';
+      if (now === lastRoom) return;
+      lastRoom = now;
+      if (fromBack) return;
+      try { history.pushState({ ivory: 'room', room: now }, '', '#' + now + '-screen'); } catch (e) {}
+    }).observe(document.body, { attributes: true, attributeFilter: ['data-screen'] });
+  } catch (e) {}
+
+  /* ── Back ──────────────────────────────────────────────────────────────── */
+  function goRoom(r) {
+    if (!r || !window.ivoryShow) return;
+    fromBack = true;
+    try { window.ivoryShow(r); } catch (e) {}
+    lastRoom = r;
+    fromBack = false;
+  }
+  window.addEventListener('popstate', function (ev) {
+    if (layers().length) { pushed = false; shutAll(); return; }
+    pushed = false;
+    var st = ev && ev.state;
+    if (st && st.room) { goRoom(st.room); return; }
+    goRoom(roomFromAddress());
+  });
+  window.addEventListener('hashchange', function () {
+    if (layers().length) return;
+    goRoom(roomFromAddress());
+  });
+
+  /* the wheel has one door now, in the room that counts its hours */
+  document.addEventListener('click', function (e) {
+    var d = e.target && e.target.closest && e.target.closest('#ld-wheel');
+    if (!d) return;
+    e.preventDefault();
+    var shut = document.querySelector('#sheet-ladder .ivsheet-back');
+    if (shut) shut.click();
+    var med = document.getElementById('wof-med');
+    if (med) med.click();
+  }, true);
+
+  /* ── the first entry, so Back always has somewhere to go ──────────────── */
+  try {
+    if (!history.state) history.replaceState({ ivory: 'room', room: document.body.dataset.screen || 'home' }, '');
+  } catch (e) {}
+
+  window.ivShell = { layers: layers, shutAll: shutAll, note: note };
 })();
 </script>
 </body>
