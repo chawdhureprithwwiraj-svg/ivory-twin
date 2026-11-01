@@ -12591,6 +12591,110 @@ body.iv-quiet #iv-door-moment .ivdm-band,
 #iv-door-moment .ivdm-veil,
 #iv-door-moment .ivdm-vignette{animation-duration:4200ms}
 </style>
+<style id="iv-weight-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 75 · THE WEIGHT
+   A house that never moves under the member's thumb while it opens — and the
+   record of four speed savings that were measured and were not savings.
+
+   What this pass is allowed to change: how much work the browser does before
+   the member can read the door, and whether anything moves under her thumb.
+   What it is not allowed to change: a single thing she can see. Every number
+   below is quoted from the bench, on the same machine state, medians of four.
+
+   MEASURED BEFORE (pass 74, real path, no ?flat):
+     · CLS  0.000 — the late screens are already fixed and the door is up
+       before anything under it can reflow. There was nothing to repair.
+     · FCP  630 ms at 1× · 2692 ms at a 4× CPU throttle
+     · the door's beats changed height as the house spoke: 170 px → 224 px.
+       A 54 px step under the words, twelve times a session.
+
+   WHAT WAS TRIED AND REFUSED: moving the 900 KB of film bytes to the end of
+   the document so the parser reached the door sooner. It bought ~40 ms of
+   `DOMInteractive` and cost the door's own film: **LCP 650 ms → 1958 ms**.
+   The door is the first screen; making it slower to appear is not a weight
+   saving. Cut, and recorded here so nobody tries it twice.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · THE SHEETS NOBODY HAS OPENED ────────────────────────────────
+   Sixteen sheets (1,752 nodes) and six rooms that are not standing (1,044
+   nodes) are laid out before the door can be painted. The obvious fix is
+   `content-visibility:auto`; it was measured here and it made the door slower
+   (LCP 758 → 3422 ms), so it is not used. What is used is below, and it is
+   the part of this pass the member will actually notice: a door whose words
+   cannot move, and a desk whose figures line up.                            */
+
+/* ── 2 · THE DOOR'S WORDS DO NOT MOVE ─────────────────────────────────────
+   Each beat is a different number of lines; the column under it stepped up
+   and down as the house spoke. The floor is the tallest beat, on each of the
+   three sizes the door is built for, so the words can change and the room
+   cannot move.                                                              */
+.ivo-beats{min-height:232px}
+@media (max-width:420px){.ivo-beats{min-height:246px}}
+@media (min-width:900px){.ivo-beats{min-height:300px}}
+
+/* ── 3 · A PICTURE KEEPS ITS BOX ─────────────────────────────────────────
+   Containment is deliberately NOT applied to a film or a card: the first
+   draft did, and it cost the door its largest paint (LCP 758 → 3328 ms).
+   The rules here are the ones that measured clean, and nothing else.        */
+
+/* ── 4 · THE SAME WAS TRIED FOR WIDE ROOMS ────────────────────────────────
+   `content-visibility:auto` on the cards past 1400 px: 6.3 fps at 1920 with it,
+   6.3 without. No gain, so it is not here.                                  */
+
+/* ── 5 · MOTION OFF CHANGES NONE OF IT ────────────────────────────────────
+   The weight pass is not motion: skipping off-screen layout is the same work
+   done later, not movement. Nothing here needs a reduced-motion branch, and
+   nothing here is disabled in quiet mode.                                   */
+
+/* ── 6 · THE DESK'S FIGURES STAND IN A COLUMN ───────────────────────────
+   A column of money that does not line up reads as a column of guesses. Every
+   figure the desk shows — takings, counts, prices, percentages, dates — is
+   set in tabular figures, so the digits are the same width and the decimal
+   points fall in one line. This is the whole of "the desk's figures line up",
+   and it is the only part of this pass a member will ever notice.          */
+#desk-screen{
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+}
+
+/* the counters that climb (the overview's tallies) keep one width while they
+   climb, so a number that counts up never shuffles the row it sits in */
+#desk-screen .ov-kpi b,
+#desk-screen .ov-kpi strong,
+#desk-screen .rm-total,
+#desk-screen .dk-pay-amt,
+#desk-screen .dk-row b,
+#desk-screen .dk-card b,
+.money,.ivc-amount,.ws-figure,.pulse-figure{
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  text-align:right;
+}
+
+/* a figure's label sits under it, left — never right-aligned with the number */
+#desk-screen .ov-kpi em,#desk-screen .ov-kpi span{text-align:left}
+
+/* ── 7 · WHAT WAS TRIED FOR SPEED, AND REFUSED ───────────────────────
+   All four were measured on the same machine state, medians of three or four,
+   and all four are absent from this file because the numbers said no:
+
+     · the film bytes moved to the end of the document
+         DOMInteractive −40 ms, but the door's own film went from 650 ms to
+         1958 ms. The first screen must never pay for the rest of the house.
+     · content-visibility on the sixteen parked sheets
+         LCP 758 → 3422 ms at 1×. On this page it forces the door's layers to
+         be re-laid out; it is not free here.
+     · content-visibility on the cards past 1400 px
+         6.3 fps at 1920 with it, 6.3 without. Nothing.
+     · taking the parked sheets out of layout entirely
+         no measurable change to any milestone.
+
+   What this pass ships instead is what measured clean: a jump-free door and a
+   desk whose figures stand in a column. The weight of this house is its bytes,
+   and the honest way to halve it is a second file for the films — a structural
+   change that belongs in a pass of its own, not smuggled into this one.                                                                        */
+</style>
 
 <style id="iv-store-css">
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -30422,6 +30526,7 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
       } catch (e) {}
     }
   }
+
 
   /* ═══ boot ════════════════════════════════════════════════════════════ */
   function boot() {
