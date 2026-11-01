@@ -9418,6 +9418,23 @@ body.on-live #live-screen ~ *:not(#iv-call-screen):not(#ivc-sheet):not(#ivc-veil
 .ivc-note-in::placeholder{color:#A98B5C;font-style:italic}
 .ivc-note-in:focus{outline:none;box-shadow:0 0 0 1px rgba(180,132,40,.7),0 0 0 3px rgba(232,190,100,.22)}
 .ivc-hours .ivc-hr[data-until]{font-size:11px;letter-spacing:.04em;white-space:nowrap;padding:0 10px}
+
+/* ── PASS 80 · one card, one room ──────────────────────────────────────────
+   The seal under the lede names the room the sheet belongs to, and the only
+   way to the other room is its own card on the Wish page. `.ivc-this` is the
+   sentence that says what this hour will take from the minutes above it. */
+.ivc-seal{
+  margin:10px 2px 2px;padding:10px 13px;border-radius:12px;
+  border-left:2px solid rgba(180,132,40,.55);
+  background:linear-gradient(90deg,rgba(251,242,225,.92),rgba(255,253,247,.55));
+  font:italic 400 12.5px/1.5 Georgia,serif;color:#6E4A18;
+}
+.ivc-allow .ivc-this{
+  margin-top:9px;padding-top:9px;border-top:1px solid rgba(150,101,18,.20);
+  color:#5C3D14;
+}
+.ivc-allow .ivc-this b{font-style:normal;font-weight:700;color:#47250B}
+.ivc-btn.quiet#ivc-guide{margin-top:2px}
 </style>
 
 <style id="iv-cast-css">
@@ -20547,29 +20564,44 @@ window.IVCALL = (function () {
             ? 'A scheduled video session with me — live, unhurried, at a time we agree.'
             : 'My voice, your questions — completely unhurried.')) + '</p>';
 
-      h += '<div class="ivc-meds">' +
-        medBtn('video', 'Face to face', 'with the camera') +
-        medBtn('audio', 'Voice only', 'no camera') + '</div>';
+      /* one card, one room. The video card never offers a voice-only call,
+         and the voice card never offers a camera — that is the whole reason
+         the two cards exist. There is no switch here. */
+      h += '<p class="ivc-seal">' + (S.medium === 'video'
+        ? 'This is the video room \u2014 the camera is on. Voice-only calls have their own card on the Wish page.'
+        : 'This is the voice room \u2014 no camera, ever. Video sessions have their own card on the Wish page.') + '</p>';
 
       h += '<div class="ivc-lens">' + [15, 30, 60].map(function (m) {
         return '<button class="ivc-len' + (m === S.minutes ? ' on' : '') + '" data-len="' + m + '">' + m + ' minutes</button>';
       }).join('') + '</div>';
 
-      /* the allowance card — a jewel when it is already yours, cream when it is a wish */
+      /* the allowance card — a jewel when it is already yours, cream when it
+         is a wish. It speaks only of this room's own minutes: the video card
+         shows video minutes, the voice card shows audio minutes, and both are
+         read fresh every time the sheet opens, so what is left after a call is
+         what is left here. */
+      var word = S.medium === 'video' ? 'video' : 'audio';
       if (included) {
         var pc = bal.allowed ? Math.max(0, Math.min(100, Math.round((1 - bal.used / bal.allowed) * 100))) : 0;
         h += '<div class="ivc-allow included">' +
-          '<div class="ivc-eyebrow"><span class="dot"></span>Included with your membership</div>' +
-          '<div class="ivc-big"><b>' + bal.remaining + '</b><span>of ' + bal.allowed + ' minutes left ' + periodLabel(bal.period) + '</span></div>' +
-          '<div class="ivc-bar"><i style="width:' + pc + '%"></i></div>';
+          '<div class="ivc-eyebrow"><span class="dot"></span>Your ' + word + ' minutes</div>' +
+          '<div class="ivc-big"><b>' + bal.remaining + '</b><span>of ' + bal.allowed + ' minutes of ' + word + ' left ' + periodLabel(bal.period) + '</span></div>' +
+          '<div class="ivc-bar"><i style="width:' + pc + '%"></i></div>' +
+          '<p class="ivc-fine ivc-this">This session is <b>' + S.minutes + ' minutes</b>. ' +
+            (bal.remaining >= S.minutes
+              ? 'They come out of these when the call ends \u2014 by the time we actually spoke, never the hour on the card. ' +
+                'You would have ' + (bal.remaining - S.minutes) + ' minutes of ' + word + ' left.'
+              : 'Only ' + bal.remaining + ' are left ' + periodLabel(bal.period) + ', so this hour is a wish instead: ' +
+                'it is bought once, below, and your minutes are not touched.') +
+          '</p>';
         if (bal.resetsAt) {
           var rd = new Date(bal.resetsAt);
           h += '<p class="ivc-fine">' + (bal.period === 'membership'
             ? 'This cycle ends when your membership ends. Minutes do not carry over.'
             : 'Your cycle renews on ' + rd.getDate() + ' ' + MON[rd.getMonth()] + ' ' + rd.getFullYear() +
               ' — counted from the day you joined this tier, not the calendar month.') + '</p>';
-        } else {
-          h += '<p class="ivc-fine">These are already yours. A paid wish never touches them.</p>';
+        } else if (enough) {
+          h += '<p class="ivc-fine">These are already yours. Nothing more to pay for this hour.</p>';
         }
         if (bal.noShows > 0) {
           h += '<p class="ivc-fine" style="margin-top:8px">' + (bal.noShows === 1
@@ -20582,18 +20614,18 @@ window.IVCALL = (function () {
           h += '<button class="ivc-btn" id="ivc-next">Choose your time</button>';
         } else {
           h += '<div class="ivc-allow" style="margin-top:0"><div class="ivc-eyebrow"><span class="dot"></span>Available as a wish</div>' +
-            '<div class="ivc-price"><b>' + money(priceFor(S.minutes)) + '</b><span>for ' + S.minutes + ' minutes</span></div>' +
+            '<div class="ivc-price"><b>' + money(priceFor(S.minutes)) + '</b><span>for ' + S.minutes + ' minutes of ' + word + '</span></div>' +
             '<p class="ivc-fine" style="margin-top:9px">' + (bal.remaining > 0
-              ? 'Only ' + bal.remaining + ' minutes are left ' + periodLabel(bal.period) + ', and this session needs ' + S.minutes +
-                '. A wish does not touch your allowance.'
-              : 'Your tier carries no ' + S.medium + ' minutes this cycle. A wish does not touch your allowance.') + '</p></div>' +
+              ? 'You have ' + bal.remaining + ' minutes of ' + word + ' left, and this session needs ' + S.minutes +
+                '. A wish buys this hour on its own \u2014 the minutes you have are kept for another day.'
+              : 'Your tier carries no ' + word + ' minutes this cycle, so this hour is bought on its own. A wish never touches an allowance.') + '</p></div>' +
             '<button class="ivc-btn" id="ivc-next">Choose your time</button>';
         }
       } else {
         h += '<div class="ivc-allow">' +
           '<div class="ivc-eyebrow"><span class="dot"></span>Available as a wish</div>' +
-          '<div class="ivc-price"><b>' + money(priceFor(S.minutes)) + '</b><span>for ' + S.minutes + ' minutes</span></div>' +
-          '<p class="ivc-fine" style="margin-top:9px">Your tier does not carry ' + S.medium + ' minutes yet. You can still have this session by making it a wish.</p>' +
+          '<div class="ivc-price"><b>' + money(priceFor(S.minutes)) + '</b><span>for ' + S.minutes + ' minutes of ' + word + '</span></div>' +
+          '<p class="ivc-fine" style="margin-top:9px">Your plan does not carry ' + word + ' minutes yet. You can still have this hour \u2014 it is bought once, and nothing recurs.</p>' +
           '</div>' +
           '<button class="ivc-btn" id="ivc-next">Choose your time</button>';
       }
@@ -20602,6 +20634,7 @@ window.IVCALL = (function () {
       if (open_.length) {
         h += '<p class="ivc-sec">Your sessions</p>' + open_.map(row).join('');
       }
+      h += '<button class="ivc-btn quiet" id="ivc-guide">How the minutes work \u203a</button>';
       h += '<p class="ivc-note">The hour comes first. You choose the day and the time, see the whole of it on one card, and only then does it reach me — with the minutes and the payment already on it. I answer once, and then the slot is fixed.</p>';
 
       var msg = S.msg; S.msg = null;
@@ -20610,14 +20643,6 @@ window.IVCALL = (function () {
       body.innerHTML = h;
       wireAsk();
     });
-  }
-
-  function medBtn(k, title, sub) {
-    return '<button class="ivc-med' + (S.medium === k ? ' on' : '') + '" data-med="' + k + '">' +
-      '<span class="ico">' + (k === 'video'
-        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.6" y="6.4" width="12.6" height="11.2" rx="3"/><path d="M15.6 11.2l5-2.8v7.2l-5-2.8z" fill="currentColor" stroke="none"/></svg>'
-        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6.4 3.6h3l1.6 4-2 1.4a9.4 9.4 0 004.6 4.6l1.4-2 4 1.6v3a2 2 0 01-2.2 2A15.6 15.6 0 013.4 5.8a2 2 0 012-2.2z"/></svg>') +
-      '</span><span><b>' + title + '</b><s>' + sub + '</s></span></button>';
   }
 
   /* three states, and no fourth: with her, hers to keep, or fixed */
@@ -20684,14 +20709,16 @@ window.IVCALL = (function () {
   }
   function wireAsk() {
     var body = $('ivc-body'); if (!body) return;
-    [].forEach.call(body.querySelectorAll('[data-med]'), function (b) {
-      b.addEventListener('click', function () { S.medium = b.getAttribute('data-med'); S.msg = null; askPane(); });
-    });
     [].forEach.call(body.querySelectorAll('[data-len]'), function (b) {
       b.addEventListener('click', function () { S.minutes = Number(b.getAttribute('data-len')); S.msg = null; askPane(); });
     });
     var nxt = $('ivc-next');
     if (nxt) nxt.addEventListener('click', function () { S.msg = null; S.day = null; S.hour = null; timePane(); });
+    var gd = $('ivc-guide');
+    if (gd) gd.addEventListener('click', function () {
+      var bal = S.allow[S.medium];
+      guide(!!(bal && bal.included), null, S.medium);
+    });
     [].forEach.call(body.querySelectorAll('[data-book]'), function (b) {
       b.addEventListener('click', function () { S.callId = Number(b.getAttribute('data-book')); S.offer = null; timePane(); });
     });
@@ -20930,8 +20957,10 @@ window.IVCALL = (function () {
     h += '<p class="ivc-kick">With Ivory</p>';
     h += '<h1 class="ivc-h1">The hour is <em>with her.</em></h1>';
     h += '<p class="ivc-lede">' + (ch ? whenText(ch) + ' \u2014 ' : '') +
-      'she has the day, the hour and the minutes' + (paid ? ', with the payment against them' : '') +
-      '. She answers once. When she says yes the slot is fixed, and it appears on your Wish page.</p>';
+      'she has the day, the hour and the minutes' + (paid ? ', with your payment against them' : '') +
+      '. She answers once. When she says yes the slot is fixed, and it appears on your Wish page.</p>' +
+      (paid ? '<p class="ivc-fine">Your payment is with the house. It reads as settled in my book the moment I confirm it \u2014 ' +
+        'and the hour is never given to anyone else while it is being confirmed.</p>' : '');
     h += '<button class="ivc-btn" id="ivc-done">THAT IS EVERYTHING</button>';
     body.innerHTML = h;
     $('ivc-done').addEventListener('click', function () { S.offer = null; close(); });
@@ -21524,36 +21553,45 @@ window.IVCALL = (function () {
     return '<p class="ivc-eyebrow">' + G_ICON[icon] + text + '</p>';
   }
 
-  function guide(included, onGo) {
+  function guide(included, onGo, medium) {
     var body = $('ivc-body'), veil = $('ivc-veil'), sh = $('ivc-sheet');
     if (!body || !sh) return;
+    var m = (medium === 'audio' || medium === 'video') ? medium : null;
+    var word = m === 'audio' ? 'audio' : 'video';
+    var other = m === 'audio' ? 'video' : 'audio';
+    var see = m === 'audio' ? 'hear me' : 'see me';
     body.innerHTML =
-      '<p class="ivc-kick">The house · the manual</p>' +
+      '<p class="ivc-kick">The house \u00b7 the manual' + (m ? ' \u00b7 ' + word : '') + '</p>' +
       '<h1 class="ivc-h1">A session <em>with me.</em></h1>' +
       '<p class="ivc-lede">' + (included
         ? 'Live, unhurried, and already part of what you pay for. Here is everything, start to finish.'
         : 'Live and unhurried. Here is everything, start to finish.') + '</p>' +
       eyebrow('flag', 'Getting a session') +
       steps([
-        'Tap Wish at the bottom of the screen. Choose to see me, or only to hear me.',
-        'Tap the button to ask. I am told the moment you do, and I answer from my side.',
-        'When I say yes, a gold card appears at the top of the Wish page. That card is how you will know — nothing else is needed.',
-        'Tap PICK YOUR TIME on it and choose any day and time that suits you, up to a month ahead.'
+        'Tap Wish at the bottom of the screen. The card that says ' + (m ? (see.toUpperCase() === 'SEE ME' ? 'SEE ME' : 'HEAR ME') : 'SEE ME or HEAR ME') + ' opens ' +
+          (m ? 'this room \u2014 the ' + word + ' room \u2014 and nothing else. ' : 'the room for it. ') +
+          'Each card keeps its own minutes and its own price.',
+        'Choose how long you would like \u2014 fifteen, thirty or sixty minutes \u2014 and your ' + word + ' minutes are shown above the button before you choose anything.',
+        'Choose the day and the hour. Nothing is asked of me until you have.',
+        'You see the whole of it on one card \u2014 the hour, the minutes and, if your plan does not carry them, the price. Pay there if it is owed, and the ask reaches me with the payment already on it.'
       ]) +
       eyebrow('door', 'Arriving') +
       steps([
-        'I will remind you as the day comes closer — on your phone, not only in the app.',
-        'On the day, open Ivory about five minutes early. Nobody rings your phone. You come here.',
-        'Tap Wish, tap your session, tap JOIN. If it says you are early, close it and tap JOIN again in a few minutes.',
+        'I answer once. When I say yes the hour is fixed and it appears on your Wish page. If I cannot make it, I send you a window of my own \u2014 with a line saying when I can.',
+        'I will remind you as the day comes closer \u2014 on your phone, not only in the app.',
+        'On the day, open Ivory about five minutes early. Nobody rings your phone. Tap Wish, tap your session, tap JOIN.',
         'Then wait. I come in from my side, and the screen tells you the moment I do.'
       ]) +
       eyebrow('heart', 'Good to know') +
       steps([
-        'The clock starts when we are actually connected — never at the hour on the card.',
-        'If you lose the app, come straight back and tap JOIN again. Your place is held.',
+        'The clock starts when we are actually connected \u2014 never at the hour on the card.',
+        'Only the time we actually spoke is taken from your ' + (m ? word : '') + ' minutes, and it is taken when the call ends. Your Profile shows what is left the moment it does \u2014 and so does this page, the next time you open it.',
         'If we are still talking when the time runs out, I can offer you more. You will see it on your screen, and it is yours to refuse.',
-        'Something came up? Ask me to move it and I will. You will find me in the quiet door on your Profile page.'
+        'If you lose the app, come back and tap JOIN again \u2014 your place is held. Something came up? Ask me to move it and I will.'
       ]) +
+      (m ? '<p class="ivc-note">' + (word === 'video'
+        ? 'This is the video room. The voice room has its own minutes and its own card \u2014 the two never mix.'
+        : 'This is the voice room. The video room has its own minutes and its own card \u2014 the two never mix.') + '</p>' : '') +
       '<button class="ivc-btn" id="ivc-g-done">THAT IS EVERYTHING</button>';
     veil.classList.add('on'); sh.classList.add('on');
     document.body.classList.add('sheet-open');
@@ -22993,6 +23031,10 @@ window.IVPAY = (function () {
     var o = S.opts;
     if (o.purpose === 'call_extension') {
       return call('/rest/v1/rpc/submit_call_extension_payment', { call_id_in: o.callRequestId, utr_in: utr });
+    }
+    if (o.purpose === 'call_request') {
+      /* a session bought outright: the row is written against that hour */
+      return call('/rest/v1/rpc/submit_call_payment', { call_id_in: o.callRequestId, utr_in: utr });
     }
     return call('/rest/v1/rpc/submit_live_guest_payment',
       { request_id_in: o.guestRequestId, utr_in: utr, shot_in: null });
@@ -38743,7 +38785,7 @@ window.IVVOICE = (function () {
       var ids = (rows || []).filter(function (r) { return Number(r.price_inr) > 0; })
                           .map(function (r) { return r.id; });
       if (!ids.length) { pays = {}; return; }
-      return fetch(IV.sb + '/rest/v1/payments?select=amount_inr,status,call_request_id&call_request_id=in.(' +
+      return fetch(IV.sb + '/rest/v1/payments?select=id,amount_inr,status,call_request_id,utr&call_request_id=in.(' +
                    ids.join(',') + ')', { headers: IV.headers() })
         .then(function (r) { return r.ok ? r.json() : []; })
         .then(function (list) {
@@ -38758,8 +38800,12 @@ window.IVVOICE = (function () {
   }
   function payOf(id) {
     var p = pays[id];
-    if (!p) return { known: false, paid: false, amount: 0 };
-    return { known: true, paid: PAID.test(String(p.status || '')), amount: Number(p.amount_inr || 0) };
+    if (!p) return { known: false, paid: false, amount: 0, status: 'none', id: null, utr: '' };
+    var st = String(p.status || '').toLowerCase();
+    return {
+      known: true, paid: PAID.test(st), amount: Number(p.amount_inr || 0),
+      status: st || 'none', id: p.id || null, utr: String(p.utr || '')
+    };
   }
 
   /* ---------- the row ---------- */
@@ -38836,14 +38882,32 @@ window.IVVOICE = (function () {
        a second look from her — the money and the yes are one movement */
     if (due > 0 && !p.paid && !btn.__armed) {
       btn.__armed = true;
-      btn.textContent = p.known ? 'Not paid \u2014 agree anyway?' : 'No payment on record \u2014 agree?';
+      btn.textContent = p.known
+        ? 'Confirm ' + money(due) + ' received \u00b7 agree?'
+        : 'No payment on record \u2014 agree anyway?';
       setTimeout(function () {
         if (btn.isConnected) { btn.__armed = false; btn.textContent = 'Agree'; }
       }, 5000);
       return;
     }
     btn.disabled = true; btn.textContent = 'Agreeing\u2026';
-    IV.call('/rest/v1/rpc/respond_call', { call_id_in: c.id, accept_in: true })
+    /* One yes, and it settles both movements. A priced hour with a payment
+       waiting is confirmed in the same press (the desk is the one who can see
+       the money arrived); an hour with no payment on record at all is written
+       down as given without money, so the ledger is never silent. */
+    var pre = Promise.resolve();
+    if (due > 0) {
+      if (p.known && p.id) {
+        pre = IV.call('/rest/v1/rpc/verify_call_payment', { payment_id_in: p.id, accept_in: true })
+                .catch(function () { return null; });
+      } else if (!p.known) {
+        pre = IV.call('/rest/v1/rpc/waive_call_payment', { call_id_in: c.id, note_in: 'Agreed without a payment on record.' })
+                .catch(function () { return null; });
+      }
+    }
+    pre.then(function () {
+    return IV.call('/rest/v1/rpc/respond_call', { call_id_in: c.id, accept_in: true });
+    })
       .then(function () {
         say('Agreed. They are told, and the hour is fixed.');
         if (window.ivLive && window.ivLive.refresh) { try { window.ivLive.refresh(); } catch (e) {} }
@@ -38872,6 +38936,15 @@ window.IVVOICE = (function () {
       if (what) what.textContent = whatFor(c);
       var line = main && main.querySelector('.dk-when');
       if (line) line.textContent = lineFor(c);
+      var pay = main && main.querySelector('.dk-pay');
+      var due = Number(c.price_inr || 0), p = payOf(c.id);
+      if (due > 0 && p.known && !p.paid) {
+        if (!pay) { pay = mk('s', 'dk-when dk-pay'); main.appendChild(pay); }
+        pay.textContent = (p.status === 'waived' ? 'Given without payment'
+          : p.status === 'failed' ? 'Payment failed'
+          : p.utr ? 'They say they have paid \u00b7 reference ' + p.utr
+          : 'They say they have paid \u00b7 no reference given');
+      } else if (pay) { pay.remove(); }
       var acts = r.querySelector('.dk-acts');
       if (acts && !acts.dataset.mine) {
         acts.dataset.mine = '1';
