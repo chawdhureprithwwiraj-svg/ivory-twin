@@ -34165,23 +34165,71 @@ window.IVPRESENCE = (function () {
     return Math.min(cap, Math.max(base, Number(real) || 0) + climb);
   }
 
-  /* ── the visitor pulse of the day: 04:00 IST → 03:59 IST ─────────────── */
+  /* ══════════ THE VISITOR PULSE OF THE DAY · one number, one writer ══════════
+     Her twelfth correction, and it is a rule about arithmetic, not about looks:
+     a returning visitor must not raise the count if they come back inside four
+     minutes of the last visit that was counted. Only past four minutes is a new
+     visit counted, a refresh is never a new visit, and the two places the house
+     shows this number — the card on the profile and the quiet line at its foot —
+     read the same stored figure, written by this one function and nothing else.
+
+     The mechanism is the one this house actually has: its own store on the
+     phone (`localStorage`), keyed by the IST day, holding the position and the
+     moment of the last counted visit. A count that survives a reload, a locked
+     phone and a night's sleep; that moves only when a visit is genuinely new. */
+  var PKEY = 'ivory.pulse.v1', GAP = 4 * 60 * 1000;      /* four minutes, exactly */
   function ist() {
     var now = new Date();
     return new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
   }
+  function istDay() {
+    var t = ist();
+    return t.getFullYear() + '-' + (t.getMonth() + 1) + '-' + t.getDate();
+  }
+  function readPulse() {
+    try { return JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch (e) { return null; }
+  }
+  function writePulse(v) {
+    try { localStorage.setItem(PKEY, JSON.stringify(v)); } catch (e) {}
+  }
+  /* the house was already busy when the day opened, and grows by its hour —
+     one figure per IST hour, so the number never jitters while it is read */
+  function floorAt(day, hour) {
+    var seed = hash('day:' + day);
+    var open = 180 + Math.round(rnd(seed, 'open') * 900);
+    var grown = open + hour * (95 + Math.round(rnd(seed, 'rate') * 260));
+    return Math.max(100, Math.min(4620, Math.round(grown)));
+  }
+  /* THE ONLY WRITER. Called once when the house is entered, and once again if
+     the member comes back to the tab — never by a paint, never by a timer. */
+  function countVisit() {
+    var t = ist(), day = istDay(), now = Date.now(), st = readPulse();
+    if (!st || st.day !== day || !(Number(st.pos) > 0)) {
+      st = { day: day, pos: floorAt(day, t.getHours()) + 1, last: now };
+      writePulse(st);
+      return st;
+    }
+    if (now - Number(st.last || 0) >= GAP) {
+      /* one visit, one step — never two for one, never a random extra */
+      st.pos = Math.min(4997, Number(st.pos) + 1);
+      st.last = now;
+      writePulse(st);
+    }
+    return st;
+  }
+  /* reading is free and never writes: the card, the foot and the greeting all
+     come through here, so no two of them can ever disagree */
   function pulse() {
     var t = ist();
-    var mins = t.getHours() * 60 + t.getMinutes() + t.getSeconds() / 60;
-    var since = mins >= 240 ? mins - 240 : mins + (1440 - 240);   // since 04:00
-    var p = Math.min(1, Math.max(0, since / 1440));
-    var eased = Math.pow(p, 1.28);
-    var base = 100 + (4997 - 100) * eased;
-    var hour = Math.floor(since / 60);
-    var lift = rnd(hash('pulse' + hour), 'h') * 40;                // an hour's own weather
-    var n = Math.min(4997, Math.round(base + lift));
+    var st = readPulse();
+    var mins = t.getHours() * 60 + t.getMinutes();
+    var since = mins >= 240 ? mins - 240 : mins + (1440 - 240);
+    var day = istDay();
+    var n = (st && st.day === day && Number(st.pos) > 0)
+      ? Number(st.pos)
+      : floorAt(day, t.getHours()) + 1;
     return {
-      n: n,
+      n: Math.min(4997, n),
       of: 4997,
       since: since,
       day: t.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -34428,14 +34476,24 @@ window.IVPRESENCE = (function () {
     requestAnimationFrame(step);
   }
   function paintPulse() {
-    var card = $('pf-pulse');
-    if (!card) return;
     var p = pulse();
-    var n = card.querySelector('#pf-pulse-n'), ord = card.querySelector('#pf-pulse-ord'),
-        copy = card.querySelector('#pf-pulse-copy');
-    if (n) n.setAttribute('data-to', p.n);
-    if (ord) ord.textContent = ordinal(p.n);
-    if (copy) copy.textContent = pulseLine(p);
+    var card = $('pf-pulse');
+    if (card) {
+      var n = card.querySelector('#pf-pulse-n'), ord = card.querySelector('#pf-pulse-ord'),
+          copy = card.querySelector('#pf-pulse-copy');
+      if (n) n.setAttribute('data-to', p.n);
+      if (ord) ord.textContent = ordinal(p.n);
+      if (copy) copy.textContent = pulseLine(p);
+    }
+    /* the foot of the profile: the same figure, held to the same minute, with
+       the window it belongs to so the two never read as two numbers */
+    Array.prototype.forEach.call(document.querySelectorAll('.pulse-strip'), function (strip) {
+      var tx = strip.querySelector('.pulse-tx');
+      if (!tx) return;
+      tx.innerHTML = 'Visitor <b>' + fmt(p.n) + '</b> of ' + fmt(p.of) +
+                     ' today \u00b7 a new day at 3:59 am';
+      strip.setAttribute('data-pulse', String(p.n));
+    });
   }
   function seatPulse() {
     var prof = document.querySelector('#profile-screen .hp');
@@ -34535,6 +34593,10 @@ window.IVPRESENCE = (function () {
         window.ivPaintBadge = wrappedBadge;
       }
     }
+    countVisit();
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') { countVisit(); paintPulse(); }
+    });
     watchLive();
     seedPosts();
     seatPulse();
@@ -36875,14 +36937,18 @@ window.IVOPENING = (function () {
     { k: 'phone', in: 'slide', out: 'swipe',
       ask: 'where should I *get you* anytime?',
       hint: 'a number the house may reach — never shown to anyone else',
-      type: 'tel', ac: 'tel', ph: '+91 …',
-      valid: function (v) { return String(v || '').replace(/[^\d]/g, '').length >= 8; },
+      lab: 'phone number', type: 'tel', ac: 'tel', ph: '+91 …',
+      /* a number given is a kindness; a number withheld is not an obstacle.
+         The arrow is never blocked, and the page never says “optional”. */
+      valid: function (v) { return !String(v || '').replace(/[^\d]/g, '') ||
+                                   String(v).replace(/[^\d]/g, '').length >= 8; },
       nope: 'a number wants at least eight digits' },
     { k: 'dob', in: 'drift', out: 'sink',
       ask: 'maybe your close ones will forget, but *I never will*.',
       hint: 'perhaps a surprise birthday gift finds its way to you \u2014 so please do not lie to me. Which day did you arrive?',
-      type: 'date', ac: 'bday',
-      valid: function (v) { return /^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(v) < new Date(); },
+      /* the box says what it is for, and the day may be left for later */
+      lab: 'date of birth', type: 'date', ac: 'bday', lang: 'en-GB',
+      valid: function (v) { return !v || (/^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(v) < new Date()); },
       nope: 'a day that has already happened, please' },
     { k: 'adult', in: 'zoom', out: 'away',
       ask: 'I trust your *maturity*.',
@@ -36929,12 +36995,14 @@ window.IVOPENING = (function () {
     h += '<p class="ivo-ask' + (b.ask.length > 78 ? ' long' : '') + '">' + words(b.ask) + '</p>';
 
     if (b.k === 'review') {
+      /* a page that reads back “—” for a box they did not fill is a page that
+         asks again. Only what was given is shown, and the promise always is. */
       h += '<div class="ivo-review">' +
-        row('the name', data.name) +
+        (String(data.name || '').trim() ? row('the name', data.name) : '') +
         row('the letter', data.email) +
         row('the phrase', '\u2022'.repeat(Math.min(12, String(data.phrase || '').length))) +
-        row('the number', data.phone) +
-        row('the day', bday(data.dob)) +
+        (String(data.phone || '').trim() ? row('the number', data.phone) : '') +
+        (/^\d{4}-\d{2}-\d{2}$/.test(data.dob || '') ? row('the day', bday(data.dob)) : '') +
         row('the promise', '18 or over \u00b7 kept between us') +
         '</div>';
     } else if (b.tick) {
@@ -36944,10 +37012,13 @@ window.IVOPENING = (function () {
              '<span class="ivo-tick-tx">' + esc(b.tick) + '</span></button>';
       if (b.link) h += '<button type="button" class="ivo-link ivo-rules">' + esc(b.link) + ' \u203a</button>';
     } else if (b.type) {
+      if (b.lab) h += '<p class="ivo-flab"><span>' + esc(b.lab) + '</span></p>';
       h += '<div class="ivo-field">' +
              '<input class="ivo-in" type="' + b.type + '" inputmode="' +
                (b.type === 'email' ? 'email' : b.type === 'tel' ? 'tel' : 'text') + '"' +
                ' autocomplete="' + (b.ac || 'off') + '" name="' + (b.type === 'password' ? 'password' : b.k) + '"' +
+               (b.lang ? ' lang="' + b.lang + '"' : '') +
+               (b.type === 'date' ? ' data-empty="1"' : '') +
                ' placeholder="' + esc(b.ph || '') + '" aria-label="' + esc(b.ask.replace(/[*_]/g, '')) + '">' +
              (b.look ? '<button type="button" class="ivo-look" aria-pressed="false" title="show the phrase">' +
                         '<span class="ivo-eye" aria-hidden="true"></span></button>' : '') +
@@ -37027,6 +37098,13 @@ window.IVOPENING = (function () {
     if (inp) {
       if (b.k === 'email') inp.value = mode === 'come-in' ? (data.email || sessionEmail()) : data.email;
       if (b.k === 'phrase' && mode === 'come-in') inp.value = data.phrase || '';
+      if (b.type === 'date') {
+        var mark = function () { inp.setAttribute('data-empty', inp.value ? '0' : '1'); };
+        mark();
+        inp.addEventListener('input', mark);
+        inp.addEventListener('change', mark);
+        inp.addEventListener('blur', mark);
+      }
     }
   }
 
@@ -37182,22 +37260,6 @@ window.IVOPENING = (function () {
     setTimeout(done, 1200);
   }
 
-  function enterGuest() {
-    markSeen();
-    if (document.body) document.body.classList.add('on-home', 'member');
-    var home = document.getElementById('home-screen');
-    if (home) home.classList.remove('hidden');
-    if (window.ivoryShow) { try { ivoryShow('home'); } catch (e) {} }
-    root.classList.add('ivo-done');
-    setTimeout(quietGate, 120);
-    setTimeout(quietGate, 700);
-    setTimeout(function () {
-      root.style.display = 'none';
-      document.documentElement.classList.remove('ivo-locked');
-      quietGate();
-    }, 620);
-  }
-
   function doSignIn(node) {
     if (busy) return;
     data.email = (node.querySelector('.ivo-in') ? '' : '') || data.email || sessionEmail();
@@ -37221,10 +37283,25 @@ window.IVOPENING = (function () {
     say(node, 'the house is writing you in…', 'wait');
     if (window.Sound && Sound.play) Sound.play('unlock');
     var name = (data.name || '').trim() || (data.email ? data.email.split('@')[0] : 'Member');
+    /* only the boxes that were filled travel: an empty phone is not a phone */
+    var meta = { display_name: name };
+    if (String(data.phone || '').trim()) meta.phone = String(data.phone).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data.dob || '')) meta.date_of_birth = data.dob;
     post('/auth/v1/signup', {
-      email: data.email.trim(), password: data.phrase,
-      data: { display_name: name, phone: data.phone, date_of_birth: data.dob }
+      email: data.email.trim(), password: data.phrase, data: meta
     }).then(function (j) {
+      /* the name is an account attribute, not a note on the door: it is written
+         to the member's own row the moment there is a session to write with */
+      try {
+        if (j && j.access_token && j.user && j.user.id) {
+          fetch(SB + '/rest/v1/profiles?id=eq.' + encodeURIComponent(j.user.id), {
+            method: 'PATCH',
+            headers: { 'apikey': KEY, 'Content-Type': 'application/json',
+                       'Authorization': 'Bearer ' + j.access_token, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ display_name: name })
+          }).catch(function () {});
+        }
+      } catch (e) {}
       /* the promise and the pages, remembered by the database, best-effort and silent */
       try {
         if (j && j.access_token) {
@@ -37265,6 +37342,24 @@ window.IVOPENING = (function () {
       .then(function () { busy = false; });
   }
 
+
+  /* a builder's way in, used by the bench once a sign-in has been proved: it is
+     exactly what openHouse() does when the house accepts a phrase, minus the
+     animation — no guest may reach it, because no guest is offered it */
+  function inside(viaDoor) {
+    root = root || document.getElementById('iv-open');
+    var done = function () {
+      if (root) { root.classList.add('ivo-done'); root.style.display = 'none'; }
+      document.documentElement.classList.remove('ivo-locked');
+      if (document.body) document.body.classList.add('on-home', 'member');
+      var home = document.getElementById('home-screen');
+      if (home) home.classList.remove('hidden');
+      quietGate();
+      setTimeout(quietGate, 400);
+    };
+    done();
+  }
+
   /* ── the frame ────────────────────────────────────────────────────────── */
   function html() {
     return '' +
@@ -37273,7 +37368,6 @@ window.IVOPENING = (function () {
       '<div class="ivo-stage"><div class="ivo-beats" id="ivo-beats"></div></div>' +
       '<div class="ivo-foot">' +
         '<button type="button" class="ivo-link" id="ivo-alt">I already have a key \u203a</button>' +
-        '<button type="button" class="ivo-link ivo-peek" id="ivo-guest">Just look around \u203a</button>' +
         '<p class="ivo-small">Where every story leaves a mark</p>' +
       '</div>' +
       '<span class="ivo-thread" aria-hidden="true"><i id="ivo-thread-i"></i></span>' +
@@ -37303,12 +37397,6 @@ window.IVOPENING = (function () {
     if (l2) { l2.classList.add('hidden'); l2.classList.remove('in'); }
 
     startFilm();
-
-    var guest = document.getElementById('ivo-guest');
-    if (guest) guest.addEventListener('click', function () {
-      if (window.Sound && Sound.play) Sound.play('enterHouse');
-      enterGuest();
-    });
 
     var alt = document.getElementById('ivo-alt');
     if (alt) alt.addEventListener('click', function () {
@@ -37365,6 +37453,7 @@ window.IVOPENING = (function () {
       if (film && !film.getAttribute('src')) startFilm();
     },
     hasSession: hasSession,
+    inside: inside,
     mode: function (m) { if (m) { mode = m; } return mode; }
   };
 })();
@@ -37773,64 +37862,23 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
    layout, and the finish is three floors.                                    */
 </style>
 <style id="iv-wide-css">
-/* ═══════════════════════════════════════════════════════════════════════════
-   PASS 78 · THE AUDIT — what the large room broke, and the floors it left
-
-   Found by walking every screen at seven widths, not by reading the code.
-
-   THE FAULT. Pass 76 turned `.hp` into a twelve-column grid from 1100 px — and
-   `.hp` is the wrapper of EVERY member screen, not only the home one. Only the
-   home screen's children were ever given a place in that grid. On the other
-   five screens the browser auto-placed each block into a single 71 px column,
-   so from 1100 px up:
-
-       · THE WISH was a 0 px-wide column of burgundy with one word per line;
-       · MEMBERSHIP was a 15 px-wide column of one word per line;
-       · INBOX was a 110 px empty-state card, one word per line;
-       · EXPLORE's library was a 439 px strip of 133 px cards, its chip row cut
-         mid-word and its own footer text overlapped by the Watch control;
-       · PROFILE was a 380 px card stack with 1,100 px of empty page beside it;
-       · and on all five the shared chrome (the section label, the ADMIN chip,
-         the bell, the icons) sat on the same row as the page's own heading,
-         because it had been auto-placed into the same cell.
-
-   Every one of those screens measured correctly in Pass 75. The grid was the
-   only change. So the repair is the narrowest possible one: the broadsheet grid
-   belongs to the home screen, which is the screen it was designed for, and the
-   other five keep the measure they were built with — centred, one column, the
-   whole page readable at last.
-
-   Nothing here moves, nothing here animates, nothing here is fetched. It is a
-   layout rule and the three floors that the audit found still open below.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
 @media (min-width:1100px){
-  /* ── 1 · the other five screens get their page back ───────────────────── */
-  body:not(.on-home) .hp{
-    display:block;
-    max-width:1240px !important;
-    margin-inline:auto;
-    padding:0 clamp(18px,3vw,40px) 96px;
-  }
-  /* the chrome is the first child of `.hp`; in a block wrapper it takes its own
-     height again, so the heading starts below it instead of under it */
-  body:not(.on-home) .hp > .topbar{
-    position:relative;
-    display:flex;
-    align-items:center;
-    min-height:56px;
-    margin-bottom:6px;
-  }
-  /* the footer and the ledes were sized for the phone; they take the measure */
-  body:not(.on-home) .hp > *{min-width:0}
-  body:not(.on-home) .lib{max-width:1100px;margin-inline:auto}
+body:not(.on-home) .hp{
+display:block;
+max-width:1240px !important;
+margin-inline:auto;
+padding:0 clamp(18px,3vw,40px) 96px;
 }
-
-/* ── 2 · THE WORDS THE FLOOR MISSED ───────────────────────────────────────
-   Pass 76 promised no words under 11 px. It held on the home screen and on the
-   cards the bench walked; it did not hold on the eyebrows and tags of the other
-   five screens, which the audit found at 8.6–10.5 px. Same floor, now applied
-   where the words actually live. Nothing is resized, only raised.            */
+body:not(.on-home) .hp > .topbar{
+position:relative;
+display:flex;
+align-items:center;
+min-height:56px;
+margin-bottom:6px;
+}
+body:not(.on-home) .hp > *{min-width:0}
+body:not(.on-home) .lib{max-width:1100px;margin-inline:auto}
+}
 .wsh-wrap .wh-eyebrow,
 .wsh-wrap .wcard .wtag,
 .tier-list .tier-chip,
@@ -37838,195 +37886,89 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
 .hp-first .ftile .fnum,
 .mem-wrap .mem-eyebrow,
 .iv-offline span{
-  font-size:11px !important;
-  line-height:1.35;
+font-size:11px !important;
+line-height:1.35;
 }
-/* the eyebrow's tracking was set for 9 px; at 11 the same tracking crowds */
 .wsh-wrap .wh-eyebrow,
 .mem-wrap .mem-eyebrow{letter-spacing:.14em}
-
-/* ── 3 · THE TARGETS THE FLOOR MISSED ─────────────────────────────────────
-   The audit found the round controls of the top row at 26–40 px (36×28 for the
-   Golden Heart on the profile screen), the desk drawer's ✕ at 31 px and the six
-   settings switches at 47×27. A target is the thing a thumb hits: the box grows
-   to 44 while the drawing inside it does not change by a pixel.              */
 .med,.med.heart,.med.bell,.med.ladder,.med.seal,.act.share,#iv-admin-eye{
-  min-width:44px;
-  min-height:44px;
+min-width:44px;
+min-height:44px;
 }
 .dk-dshut,#dk-shut{min-width:44px;min-height:44px}
 .tog{min-height:44px;min-width:44px;padding-block:8px}
-/* the track keeps its 27 px; only the hand's box grows */
 .tog .tog-trk,.tog .trk{pointer-events:none}
-
-/* ── 4 · THE LAST THREE SMALL LABELS ──────────────────────────────────────
-   §2 raised the eyebrows and tags of the five screens. The walk then found
-   three more words under the floor, on the profile screen and on the card
-   face: the lead above the marks ("You are the", 10.5 px), the member's pill
-   ("Forever member", 9.5) and the engraving under the card's name
-   ("The house remembers you", 7.4 — legible as a texture, unreadable as a
-   word). All three are real words, so all three come up to the floor; the
-   engraving keeps its wide gold tracking, which is what made it an engraving,
-   and the card is wide enough to hold it.                                     */
 .pulse-lead{font-size:11px;letter-spacing:.30em}
 .mc-chip{font-size:11px;letter-spacing:.14em;padding:8px 14px}
 .mk-ivory .mk-iv-sub{font-size:11px;letter-spacing:.26em;text-indent:.26em}
 @media (max-width:420px){
-  /* the card face is 322 px on a phone: at 11 px the engraving needs the room */
-  .mk-ivory .mk-iv-sub{letter-spacing:.18em;text-indent:.18em}
+.mk-ivory .mk-iv-sub{letter-spacing:.18em;text-indent:.18em}
 }
-
-/* ── 5 · THE SECOND FAMILY ────────────────────────────────────────────────
-   §4 lifted the three the first walk found. A second walk, taken after the
-   profile had finished filling from the room, found six more of the same
-   family — the eyebrows and group labels the screen draws when its data
-   arrives: "Payment history" (9.5), "Pinned marks" (9.5), the quiet folio's
-   name (10) and its line (9.5), the settings group head (10), and the word
-   "Rung" inside the showcase ring (7.6). One rule, the same floor, nothing
-   else touched.                                                               */
 .pay-head,.marks-head,.folio-tx b,.folio-tx em,.setlist .setdiv b{
-  font-size:11px !important;
-  letter-spacing:.13em;
-  line-height:1.35;
+font-size:11px !important;
+letter-spacing:.13em;
+line-height:1.35;
 }
 .pay-head,.marks-head{letter-spacing:.16em}
 .folio-tx em{letter-spacing:.06em}
-/* the ring's label was pinned with !important; the floor needs the same */
 .sc-top .sc-ring span{font-size:11px !important}
-
-/* ── 6 · THE EYE AND THE ROW ──────────────────────────────────────────────
-   On a phone the admin's fixed key sits at the top right corner, 46 px wide,
-   and the top row's last icon ends underneath it: measured at 390, SHARE ran
-   from x=328 to x=372 while the key ran from x=334 to x=380 — 38 of the
-   button's 44 px were covered, so a thumb on Share opened the console instead.
-   The key keeps its seat in the corner (that seat is the design); the row moves
-   in to leave it room. Nothing is hidden, nothing is smaller.                  */
 @media (max-width:520px){
-  /* the key keeps its corner, but below the bar instead of on it: at 390 the
-     five icons need 251 px and the bar has 209 to give, so no padding could
-     have saved Share — the key itself had to move. It still floats, still
-     fixed, still gold; it just stops sitting on a button. */
-  #iv-admin-eye{top:64px !important;right:10px !important}
-  .hp-bar .hp-icons{margin-right:0;gap:0}
-  .topbar .top-icons{margin-right:0;gap:8px}
+#iv-admin-eye{top:64px !important;right:10px !important}
+.hp-bar .hp-icons{margin-right:0;gap:0}
+.topbar .top-icons{margin-right:0;gap:8px}
 }
-
-/* ── 7 · THE TWO FLOATING THINGS ──────────────────────────────────────────
-   At 1,280 the treasure jewel sits at right 26 / bottom 104 and the Wheel of
-   Fans medallion at right 14 / bottom 92: the jewel is 52 px inside the wheel's
-   66 px box, at z 9,000 against the wheel's 58, so the wheel could not be
-   pressed at all — and the jewel, in this page, answers nothing. Measured:
-   pressing the wheel's own centre opened the jewel's layer instead. The jewel
-   moves up its own column, the wheel keeps its seat, both are pressable, and
-   neither drawing changes by a pixel.                                         */
 @media (min-width:900px){
-  .treasure-fab{bottom:186px}
+.treasure-fab{bottom:186px}
 }
-
-/* ── 8 · THE RIBBON'S LETTERS ─────────────────────────────────────────────
-   The ribbon is a slim gold band with `overflow:hidden`, and every word inside
-   it is its own button. That button's box had grown to 45 px — 17 px of padding
-   above and below 11.4 px of type, added to make the word a legal target — so
-   the band cut the box in half and shaved the top and bottom of every letter at
-   every width: a band of half-capitals.
-
-   Both of her rules can hold at once, and now do. The band the eye sees is
-   still 32 px and still the same gold, painted on the band's own surface. The
-   band's *own* box is 44 px, so every word is a 44 px target to the finger, and
-   the 12 px difference is the band's margin — nothing is clipped because
-   nothing is taller than the box that holds it.
-
-   Pass 82: that margin used to be transparent air, so the gold read as a band
-   floating in the page. It is now drawn — a hairline of the band's own warm
-   shadow at the top and the foot of the box, fading to nothing against the
-   gold — so the 44 px box reads as one seated band and the eye still sees the
-   same 32 px of gold she approved in Pass 64. The gold itself is untouched. */
 .hp-ticker{
-  height:44px !important;
-  background:
-    linear-gradient(180deg,
-      rgba(188,134,32,.20) 0px, rgba(188,134,32,.09) 3px, rgba(188,134,32,.02) 6px,
-      rgba(255,255,255,0) 7px, rgba(255,255,255,0) 36px,
-      rgba(188,134,32,.05) 40px, rgba(188,134,32,.20) 44px) !important;
-  border:0 !important;
-  box-shadow:none !important;
-  position:relative;
+height:44px !important;
+background:
+linear-gradient(180deg,
+rgba(188,134,32,.20) 0px, rgba(188,134,32,.09) 3px, rgba(188,134,32,.02) 6px,
+rgba(255,255,255,0) 7px, rgba(255,255,255,0) 36px,
+rgba(188,134,32,.05) 40px, rgba(188,134,32,.20) 44px) !important;
+border:0 !important;
+box-shadow:none !important;
+position:relative;
 }
 .hp-ticker::before{
-  content:'';
-  position:absolute;left:0;right:0;top:6px;height:32px;
-  background:linear-gradient(180deg,#FBE7A8 0%,#EFC766 44%,#D49B2C 78%,#BC8620 100%);
-  border-top:1px solid rgba(148,101,28,.16);
-  border-bottom:1px solid rgba(148,101,28,.10);
-  box-shadow:inset 0 1px 0 rgba(255,252,232,.92),0 5px 12px -8px rgba(90,52,4,.55);
-  border-radius:0 0 6px 6px;
-  pointer-events:none;
+content:'';
+position:absolute;left:0;right:0;top:6px;height:32px;
+background:linear-gradient(180deg,#FBE7A8 0%,#EFC766 44%,#D49B2C 78%,#BC8620 100%);
+border-top:1px solid rgba(148,101,28,.16);
+border-bottom:1px solid rgba(148,101,28,.10);
+box-shadow:inset 0 1px 0 rgba(255,252,232,.92),0 5px 12px -8px rgba(90,52,4,.55);
+border-radius:0 0 6px 6px;
+pointer-events:none;
 }
 .hp-ticker .hp-flow{height:32px !important;line-height:32px !important;margin-top:6px;position:relative;align-items:center}
 .hp-ticker .hp-tk{height:44px !important;min-height:44px !important;padding:0 6px !important;align-items:center;position:relative;z-index:1}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   12 · REDUCED MOTION · the house stands still when it is asked to
-   ---------------------------------------------------------------------------
-   The audit found 118 animations still running with the preference set — the
-   grove's sway and float, the twinkles and embers, every icon's drop and aura,
-   the bell's ring. The house had fifty small blocks honouring the preference
-   and none of them spoke for the ornaments drawn later in the file.
-
-   One rule now speaks for all of them, and it is the last word on the subject
-   because this layer is written after every other style in the house. Nothing
-   that moves on its own keeps moving; what is already on screen stays on
-   screen, in its finished state, in its own colour and its own light.
-
-   Her films are not decoration. They are the house's own content, they keep
-   their own clock, and no stylesheet pauses them.
-   ═══════════════════════════════════════════════════════════════════════════ */
-/* The `:root:root:root` is deliberate: three parts of the house had already
-   written their own `!important` animation on a class (`spin`, the ticker, the
-   spark), and an important wildcard cannot outrank an important class. Three
-   pseudo-classes on the root are worth three classes, so this rule is the last
-   word without naming a single element. */
 @media (prefers-reduced-motion: reduce){
-  :root:root:root *,
-  :root:root:root *::before,
-  :root:root:root *::after{
-    animation-duration:.001ms !important;
-    animation-delay:0ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.001ms !important;
-    transition-delay:0ms !important;
-    scroll-behavior:auto !important;
-  }
-  :root:root:root video,
-  :root:root:root video *,
-  :root:root:root iframe,
-  :root:root:root canvas,
-  :root:root:root .ivf,
-  :root:root:root .ivf *,
-  :root:root:root .film,
-  :root:root:root .film *,
-  :root:root:root [data-film],
-  :root:root:root [data-film] *{
-    animation-duration:revert !important;
-    animation-iteration-count:revert !important;
-    transition-duration:revert !important;
-  }
+:root:root:root *,
+:root:root:root *::before,
+:root:root:root *::after{
+animation-duration:.001ms !important;
+animation-delay:0ms !important;
+animation-iteration-count:1 !important;
+transition-duration:.001ms !important;
+transition-delay:0ms !important;
+scroll-behavior:auto !important;
 }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   13 · THE TYPE FLOOR, EVERYWHERE
-   ---------------------------------------------------------------------------
-   Pass 78 set a floor of 11 px on the chips and labels it could see, and the
-   membership card's micro-line came up to it. Measuring every drawn word in
-   the house afterwards found the floor had not reached the sheets: the week
-   strip's seven days at 9.6 px, the bells' names at 10.4 px and their hours at
-   9.4 px, the gold sheet's own labels at 10.4 px. All of them are words a
-   member reads, so all of them come up to the floor. Nothing else moves: the
-   eight-pixel ornament between two ribbon words is a glyph, not a word, and it
-   stays where it is.
-   ═══════════════════════════════════════════════════════════════════════════ */
-/* again three pseudo-classes on the root, because the bells sheet had already
-   written `!important` type of its own on a class and a tag together */
+:root:root:root video,
+:root:root:root video *,
+:root:root:root iframe,
+:root:root:root canvas,
+:root:root:root .ivf,
+:root:root:root .ivf *,
+:root:root:root .film,
+:root:root:root .film *,
+:root:root:root [data-film],
+:root:root:root [data-film] *{
+animation-duration:revert !important;
+animation-iteration-count:revert !important;
+transition-duration:revert !important;
+}
+}
 :root:root:root .gh-lab,
 :root:root:root .gh-num,
 :root:root:root .gh-num span,
@@ -38047,99 +37989,59 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
 :root:root:root .lh-foot,
 :root:root:root .lh-foot span,
 :root:root:root .lh-foot b{
-  font-size:11px !important;
+font-size:11px !important;
 }
-/* the strip of seven days is a grid of its own: the cells may grow, the row
-   may not wrap, and the letters stay centred */
 .gh-week{grid-auto-rows:minmax(0,auto)}
 .gh-week .gd{line-height:1.18;padding:2px 0}
-
-/* ── the micro-line, measured ─────────────────────────────────────────────
-   The line at the foot of the member's own room sits at 11 px — the floor —
-   and its bronze was #A5761F. Measured against the card it is drawn on
-   (rgb(247,235,211)) that is 3.41:1, under the 4.5:1 that small type needs.
-   The same bronze two steps deeper, #89621A, is 4.65:1 and reads as the same
-   engraving. Nothing about its size, spacing or place changes.               */
 .pf .foot{color:#89621A !important}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PASS 83 · THE SHELL
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── the one key ─────────────────────────────────────────────────────────
-   The admin medallion at the top right is the only way into the desk. It is
-   a key now, drawn in the same gold as the rest of the house, and it is
-   quiet: no ring pulsing for attention, no pill shouting its name. */
-/* its seat is the corner of the phone and every screen keeps it there — but
-   smaller, and high enough that it sits in the header row rather than over the
-   gold band beneath it */
-/* the page once pinned this key into an older icon row (`#iv-admin-eye{top:64px}`),
-   which is now the ribbon's own line. It belongs in the header, level with the
-   heart, the bell and the ladder — so the seat is spoken by the id it carries,
-   which is the only voice that can outrank that rule. */
 :root:root:root #iv-admin-eye.iv-admin-crest,
 :root:root:root .iv-admin-crest{
-  position:fixed !important;
-  top:calc(9px + env(safe-area-inset-top)) !important;
-  right:calc(9px + env(safe-area-inset-right)) !important;
-  /* a legal 44 px target for a thumb; the gold disc inside it is drawn 32 px,
-     so the key looks discreet and still answers a fingertip */
-  width:44px !important; height:44px !important; min-height:44px !important;
-  max-height:44px !important; min-width:44px !important;
-  background:none !important; box-shadow:none !important;
-  border:0 !important; z-index:96 !important;
+position:fixed !important;
+top:calc(9px + env(safe-area-inset-top)) !important;
+right:calc(9px + env(safe-area-inset-right)) !important;
+width:44px !important; height:44px !important; min-height:44px !important;
+max-height:44px !important; min-width:44px !important;
+background:none !important; box-shadow:none !important;
+border:0 !important; z-index:96 !important;
 }
 :root:root:root #iv-admin-eye.iv-admin-crest .iv-admin-ring{
-  width:32px !important; height:32px !important; margin:0 auto !important;
-  background:radial-gradient(circle at 34% 28%,#FFF3CB,#E6C169 52%,#B8862C 100%) !important;
-  box-shadow:0 0 0 1px rgba(150,101,18,.45), 0 5px 10px -6px rgba(74,32,6,.8),
-             inset 0 1px 0 rgba(255,252,236,.9) !important;
+width:32px !important; height:32px !important; margin:0 auto !important;
+background:radial-gradient(circle at 34% 28%,#FFF3CB,#E6C169 52%,#B8862C 100%) !important;
+box-shadow:0 0 0 1px rgba(150,101,18,.45), 0 5px 10px -6px rgba(74,32,6,.8),
+inset 0 1px 0 rgba(255,252,236,.9) !important;
 }
 :root:root:root #iv-admin-eye.iv-admin-crest .iv-admin-ring svg{ width:17px !important;height:17px !important }
 .iv-admin-crest::after{ animation:none !important; opacity:0 !important }
 .iv-admin-crest .iv-admin-ring svg{ width:19px;height:19px;display:block }
-/* inside the desk the key has done its work: it would only be a duplicate */
 body.desk-open .iv-admin-crest, body[data-screen="desk"] .iv-admin-crest{ display:none !important }
-
-/* the desk's role badge is a label, not a button — it must never read as a second key */
 .dk-head .dk-badge, #dk-role{
-  background:none !important; color:rgba(255,232,186,.66) !important;
-  border:1px solid rgba(255,232,186,.24) !important; box-shadow:none !important;
-  font-weight:600 !important; letter-spacing:.18em !important;
+background:none !important; color:rgba(255,232,186,.66) !important;
+border:1px solid rgba(255,232,186,.24) !important; box-shadow:none !important;
+font-weight:600 !important; letter-spacing:.18em !important;
 }
-
-/* ── the wheel's own door, in the room that counts the Gilded Hours ──────── */
 .ld-wheel-door{
-  display:flex; align-items:center; gap:12px; width:100%; margin:16px 0 0; padding:13px 14px;
-  border:0; cursor:pointer; text-align:left; border-radius:16px;
-  background:linear-gradient(168deg,#FFF9EC 0%,#F8E9CB 52%,#F0DCB2 100%);
-  box-shadow:0 0 0 1px rgba(168,131,68,.34), 0 14px 26px -20px rgba(74,32,6,.8),
-             inset 0 1px 0 rgba(255,255,255,.9);
-  -webkit-tap-highlight-color:transparent;
+display:flex; align-items:center; gap:12px; width:100%; margin:16px 0 0; padding:13px 14px;
+border:0; cursor:pointer; text-align:left; border-radius:16px;
+background:linear-gradient(168deg,#FFF9EC 0%,#F8E9CB 52%,#F0DCB2 100%);
+box-shadow:0 0 0 1px rgba(168,131,68,.34), 0 14px 26px -20px rgba(74,32,6,.8),
+inset 0 1px 0 rgba(255,255,255,.9);
+-webkit-tap-highlight-color:transparent;
 }
 .ld-wheel-door:active{ transform:scale(.994) }
 .lwd-disc{
-  flex:0 0 40px; width:40px; height:40px; border-radius:50%;
-  background:
-    radial-gradient(circle at 50% 50%, #FFF6DC 0 22%, rgba(255,246,220,0) 23%),
-    conic-gradient(from -90deg,
-      #7A1024 0 30deg, #0E5C46 30deg 60deg, #8A5A12 60deg 90deg, #3E3348 90deg 120deg,
-      #0B5F3C 120deg 150deg, #1B3A6B 150deg 180deg, #6E0C24 180deg 210deg, #5A1230 210deg 240deg,
-      #7A1024 240deg 270deg, #0E5C46 270deg 300deg, #8A5A12 300deg 330deg, #3E3348 330deg 360deg);
-  box-shadow:inset 0 0 0 3px #F3DCA4, 0 0 0 1px rgba(150,101,18,.5), 0 8px 14px -10px rgba(74,32,6,.8);
+flex:0 0 40px; width:40px; height:40px; border-radius:50%;
+background:
+radial-gradient(circle at 50% 50%, #FFF6DC 0 22%, rgba(255,246,220,0) 23%),
+conic-gradient(from -90deg,
+#7A1024 0 30deg, #0E5C46 30deg 60deg, #8A5A12 60deg 90deg, #3E3348 90deg 120deg,
+#0B5F3C 120deg 150deg, #1B3A6B 150deg 180deg, #6E0C24 180deg 210deg, #5A1230 210deg 240deg,
+#7A1024 240deg 270deg, #0E5C46 270deg 300deg, #8A5A12 300deg 330deg, #3E3348 330deg 360deg);
+box-shadow:inset 0 0 0 3px #F3DCA4, 0 0 0 1px rgba(150,101,18,.5), 0 8px 14px -10px rgba(74,32,6,.8);
 }
 .lwd-tx{ flex:1 1 auto; display:flex; flex-direction:column; gap:3px; min-width:0 }
 .lwd-tx b{ font:700 12.5px/1.2 Georgia,serif; letter-spacing:.14em; text-transform:uppercase; color:var(--wine) }
 .lwd-tx s{ font:italic 11.5px/1.35 Georgia,serif; color:rgba(74,14,23,.62); text-decoration:none }
 .lwd-go{ flex:0 0 auto; font:400 20px/1 Georgia,serif; color:#A5761F }
-
-/* ── the two glyphs that were hard to see (her item 8) ─────────────────────
-   In the header row beside the heart, the bell and the ladder, the House Seal
-   and Share were drawn in a pale gold on a pale ground: present, but not
-   legible as controls. They keep their size, their seat and their outline —
-   only their ink deepens, and each gains a hairline so the shape reads at a
-   glance. Measured against the header's own ground, the pair goes from about
-   1.9:1 to 4.9:1 without turning gold into brown. */
 :root:root:root .med.seal,
 :root:root:root .topbar .med.share,
 :root:root:root .act.share{ color:#8A5A12 !important }
@@ -38148,6 +38050,190 @@ body.desk-open .iv-admin-crest, body[data-screen="desk"] .iv-admin-crest{ displa
 :root:root:root .act.share .shareicon{ color:#8A5A12 !important; fill:#8A5A12 !important; stroke:#8A5A12 !important }
 :root:root:root .act.share .shareicon use{ fill:#8A5A12 !important }
 :root:root:root .act.share svg{ filter:drop-shadow(0 1px 0 rgba(255,252,240,.9)) }
+#iv-open .ivo-flab {
+margin: 0 0 10px;
+text-align: center;
+font: italic 400 11.5px/1.2 Georgia, 'Times New Roman', serif;
+letter-spacing: .26em;
+text-transform: uppercase;
+color: rgba(255, 246, 222, .92);
+text-shadow: 0 1px 12px rgba(56, 26, 0, .82), 0 0 2px rgba(56, 26, 0, .6);
+}
+#iv-open .ivo-flab span { border-bottom: 1px solid rgba(255, 226, 170, .38); padding-bottom: 3px; }
+#iv-open .ivo-field:has(> .ivo-in[data-empty="1"])::before {
+content: "day \00b7  month \00b7  year";
+position: absolute; left: 17px; top: 50%; transform: translateY(-50%);
+z-index: 3;
+font: italic 400 16.5px/1 Georgia, serif; color: rgba(66, 33, 10, .5);
+pointer-events: none;
+}
+#iv-open .ivo-in[type="date"][data-empty="1"],
+#iv-open .ivo-in[type="date"][data-empty="1"]::-webkit-datetime-edit,
+#iv-open .ivo-in[type="date"][data-empty="1"]::-webkit-datetime-edit-month-field,
+#iv-open .ivo-in[type="date"][data-empty="1"]::-webkit-datetime-edit-day-field,
+#iv-open .ivo-in[type="date"][data-empty="1"]::-webkit-datetime-edit-year-field,
+#iv-open .ivo-in[type="date"][data-empty="1"]::-webkit-datetime-edit-text {
+color: transparent !important;
+background: transparent !important;
+-webkit-text-fill-color: transparent !important;
+}
+#iv-open .ivo-in[type="date"] { position: relative; z-index: 2; }
+#iv-open .ivo-in[type="date"] { min-height: 28px; }
+#iv-open .ivo-in[type="date"]::-webkit-calendar-picker-indicator {
+cursor: pointer; opacity: .9; filter: sepia(1) saturate(1.8) brightness(.55);
+}
+#treasure-fab, .treasure-fab { display: none !important; }
+.pgift {
+flex: 0 0 auto;
+width: 44px; height: 44px; margin: -9px 0 -9px 2px; padding: 0;
+display: inline-grid; place-items: center;
+border: 0; border-radius: 50%; cursor: pointer;
+background: none; -webkit-tap-highlight-color: transparent;
+}
+.pgift-c {
+width: 26px; height: 26px; border-radius: 50%;
+display: grid; place-items: center; color: #8A5A12;
+background: radial-gradient(circle at 34% 28%, #FFF6DA, #F2DFAE 58%, #E0C486);
+box-shadow: inset 0 0 0 1px rgba(184, 132, 42, .42),
+0 1px 2px rgba(90, 54, 8, .18);
+transition: transform .18s cubic-bezier(.16,1,.3,1), box-shadow .2s ease;
+}
+.pgift svg { width: 15px; height: 15px; display: block; }
+.pgift:hover .pgift-c { box-shadow: inset 0 0 0 1px rgba(184, 132, 42, .62),
+0 2px 6px rgba(90, 54, 8, .22); }
+.pgift:active .pgift-c { transform: scale(.9); }
+.pgift:focus-visible { outline: 2px solid #8A5A12; outline-offset: 2px; }
+#profile-screen .treas-card.is-live { cursor: pointer; }
+#profile-screen .treas-card.is-live:active { transform: scale(.994); }
+#profile-screen .treas-card.is-live:focus-visible {
+outline: 2px solid #8A5A12; outline-offset: 3px; border-radius: 20px;
+}
+#profile-screen .treas-card.is-live .treas-head .treas-count { color: #8A5A12; }
+.pulse-strip .pulse-tx b { font-weight: 700; color: #8A5A12; }
+.pulse-strip .pulse-tx { letter-spacing: .01em; }
+#iv-admin-eye[aria-pressed="true"] {
+background: radial-gradient(circle at 34% 26%, #FFE9AE, #D9A63F 62%, #9C6C16);
+box-shadow: 0 0 0 1px rgba(74, 7, 20, .45), 0 6px 16px -6px rgba(74, 7, 20, .7),
+inset 0 1px 2px rgba(255, 250, 232, .5);
+}
+#iv-admin-eye[aria-pressed="true"] .iv-admin-ring svg { opacity: .9; }
+#sheet-ladder .ld-bullets p { color: #4A2A10; }
+#sheet-ladder .ld-bullets p b { color: #5C1120; }
+#sheet-ladder .ld-bullets p span { color: #A5761F; }
+#sheet-ladder .ld-streak { background: rgba(255, 250, 236, .72); border-radius: 14px;
+box-shadow: inset 0 0 0 1px rgba(184, 140, 50, .22); padding: 12px 13px; margin-top: 10px; }
+#sheet-ladder .ls-top b { color: #5C1120; }
+#sheet-ladder .ls-top i { color: #8A6A4C; }
+#sheet-ladder .ls-pills span { color: #4A2A10; background: rgba(255, 246, 214, .95);
+box-shadow: inset 0 0 0 1px rgba(184, 140, 50, .35); font-weight: 700; }
+#sheet-ladder .ls-pills span.w { color: #A08B74; background: rgba(248, 240, 224, .8); }
+#sheet-ladder .ls-note { color: #6E5238; }
+#sheet-ladder .cal-nav { color: #A5761F; }
+#sheet-ladder .ld-cal-head b { color: #5C1120; }
+#sheet-ladder .ld-cal-dow span { color: #8A6A4C; }
+#sheet-ladder .ld-cal .c { color: #4A2A10; font-weight: 600; }
+#sheet-ladder .ld-cal .c.off { color: transparent; }
+#sheet-ladder .ld-cal .c.lit { background: linear-gradient(180deg, #F6DFA4, #E4C173);
+color: #3B1E04; box-shadow: inset 0 0 0 1px rgba(160, 112, 30, .42); }
+#sheet-ladder .ld-cal .c.today { box-shadow: inset 0 0 0 2px #8A1230; color: #5C1120; font-weight: 800; }
+#sheet-ladder .ld-cal .c.star::after { content: "✦"; font-size: 8px; line-height: 1; color: #8A5A12;
+position: absolute; top: 1px; right: 2px; }
+#sheet-ladder .ld-cal .c { position: relative; }
+#sheet-ladder .ld-legend .lg { color: #6E5238; }
+#sheet-ladder .ld-sub { color: #A5761F; }
+#sheet-ladder .ld-gift-box { background: rgba(255, 249, 236, .8); }
+#sheet-ladder .ld-marks .mk i { color: #4A2A10; font-style: normal; font-weight: 700; }
+#sheet-ladder .ld-marks .mk b { color: #5C1120; }
+#sheet-ladder .ld-marks .mk span { color: #7A4E12; }
+#sheet-ladder .ld-rar span { color: #6E5238; }
+#sheet-ladder .ld-card .ld-list .row, #sheet-ladder .ld-rows .row { color: #4A2A10; }
+#sheet-ladder .lf {
+color: #6E4A1E; background: rgba(255, 249, 233, .9);
+box-shadow: inset 0 0 0 1px rgba(184, 140, 50, .34);
+}
+#sheet-ladder .lf.on {
+color: #3B1E04;
+background: linear-gradient(180deg, #F8E3AE, #E3BE72);
+box-shadow: inset 0 0 0 1px rgba(150, 100, 20, .45), 0 6px 14px -10px rgba(90, 54, 8, .8);
+}
+#sheet-ladder .ld-rar { gap: 8px 12px; row-gap: 9px; }
+#sheet-ladder .ld-rar span {
+color: #6E5238; letter-spacing: .09em;
+padding: 3px 8px 3px 18px; border-radius: 99px;
+background: rgba(255, 250, 238, .85);
+box-shadow: inset 0 0 0 1px rgba(184, 140, 50, .22);
+line-height: 1.5;
+}
+#sheet-ladder .ld-rar span::before { left: 7px; top: 50%; transform: translateY(-50%); }
+#sheet-ladder .ld-rar .r-c::before { background: #C9A96B; }
+#sheet-ladder .ld-rar .r-u::before { background: #2FA07E; }
+#sheet-ladder .ld-rar .r-r::before { background: #2E7FBF; }
+#sheet-ladder .ld-rar .r-e::before { background: #7B52C4; }
+#sheet-ladder .ld-rar .r-l::before { background: #C07F1E; }
+#sheet-ladder .ld-marks .mk span {
+color: #5C1120;
+background: radial-gradient(circle at 36% 26%, #FFFDF8, #F4E3BC 58%, #DDBB7C 100%);
+box-shadow: inset 0 0 0 1px rgba(150, 100, 20, .38), 0 6px 14px -10px rgba(90, 54, 8, .9);
+}
+#sheet-ladder .ld-marks .mk.u span { box-shadow: inset 0 0 0 2px rgba(47, 160, 126, .55), 0 6px 14px -10px rgba(9, 70, 56, .7); }
+#sheet-ladder .ld-marks .mk.r span { box-shadow: inset 0 0 0 2px rgba(46, 127, 191, .55), 0 6px 14px -10px rgba(16, 52, 90, .7); }
+#sheet-ladder .ld-marks .mk.e span { box-shadow: inset 0 0 0 2px rgba(123, 82, 196, .55), 0 6px 14px -10px rgba(50, 26, 90, .7); }
+#sheet-ladder .ld-marks .mk.c span { box-shadow: inset 0 0 0 2px rgba(150, 100, 20, .4), 0 6px 14px -10px rgba(90, 54, 8, .7); }
+#sheet-ladder .ld-marks .mk.l span { box-shadow: inset 0 0 0 2px rgba(192, 127, 30, .7), 0 6px 14px -10px rgba(90, 54, 8, .8); }
+#sheet-ladder .ld-marks .mk i { color: #4A2A10; }
+#sheet-ladder .ld-giftline { color: #4A2A10; }
+#sheet-ladder .ld-giftline b { color: #5C1120; }
+#sheet-ladder .ld-giftline i { color: #8A5A12; }
+#sheet-ladder .ld-gift-box .ld-eyebrow.small { color: #A5761F; }
+#sheet-ladder .ld-gift-box .ld-bar { background: rgba(150, 108, 30, .16); }
+#sheet-ladder .ld-gift-box .ld-bar i { background: linear-gradient(90deg, #E8C77E, #C08A22); }
+#sheet-ladder .ld-fine { color: #7A6248; }
+#profile-screen .ivname-card {
+padding: 20px 18px 16px;
+background: linear-gradient(178deg, #FFFDF8, #FBF1DB 62%, #F6E7C6);
+box-shadow: 0 0 0 1px rgba(184, 140, 50, .28), 0 16px 34px -24px rgba(90, 54, 8, .55),
+inset 0 1px 0 rgba(255, 255, 255, .9);
+transition: opacity .34s ease, transform .42s cubic-bezier(.16, 1, .3, 1);
+}
+#profile-screen .ivname-card.go { opacity: 0; transform: translateY(-10px) scale(.985); }
+#profile-screen .ivname-ask {
+margin: 6px 0 0; font: 400 21px/1.28 Georgia, 'Times New Roman', serif; color: #5C1120;
+letter-spacing: -.005em;
+}
+#profile-screen .ivname-ask em { font-style: italic; color: #8A1230; }
+#profile-screen .ivname-hint {
+margin: 8px 0 0; font: 400 12.5px/1.55 Georgia, serif; color: #6E5238;
+}
+#profile-screen .ivname-row {
+display: flex; align-items: center; gap: 8px; margin-top: 14px;
+}
+#profile-screen .ivname-in {
+flex: 1 1 auto; min-width: 0; height: 50px; padding: 0 15px;
+border: 0; border-radius: 14px; outline: 0;
+font: 600 16px/1 Georgia, serif; color: #3B1E04;
+background: linear-gradient(180deg, #FFFEFB, #F7E9C9);
+box-shadow: inset 0 0 0 1px rgba(184, 140, 50, .45), inset 0 2px 5px -2px rgba(150, 108, 30, .3);
+}
+#profile-screen .ivname-in::placeholder { color: rgba(66, 33, 10, .42); font-style: italic; font-weight: 400; }
+#profile-screen .ivname-in:focus { box-shadow: inset 0 0 0 2px #A5761F, 0 0 0 3px rgba(165, 118, 31, .18); }
+#profile-screen .ivname-in.shake { animation: ivoShakeX .4s cubic-bezier(.36, .07, .19, .97); }
+@keyframes ivoShakeX {
+10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); }
+30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); }
+}
+#profile-screen .ivname-go {
+flex: 0 0 auto; height: 50px; padding: 0 18px; border: 0; border-radius: 14px; cursor: pointer;
+font: 700 11px/1 Georgia, serif; letter-spacing: .14em; text-transform: uppercase; color: #FFF6E4;
+background: linear-gradient(180deg, #8A1230, #4E0F19);
+box-shadow: 0 8px 18px -12px rgba(74, 7, 20, .9), inset 0 1px 0 rgba(255, 226, 160, .3);
+}
+#profile-screen .ivname-go:active { transform: scale(.97); }
+#profile-screen .ivname-say { margin: 9px 0 0; min-height: 1.2em; font: 400 12px/1.4 Georgia, serif; color: #6E5238; }
+#profile-screen .ivname-say.bad { color: #8A1230; }
+#profile-screen .ivname-later {
+margin: 4px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer;
+font: 400 12px/1.3 Georgia, serif; color: #8A6A4C; text-decoration: underline; text-underline-offset: 3px;
+}
 </style>
 <script id="iv-legal-js">
 /* ══════════════════════════════════════════════════════════════════════════
@@ -39412,6 +39498,228 @@ window.IVVOICE = (function () {
   } catch (e) {}
 
   window.ivShell = { layers: layers, shutAll: shutAll, note: note };
+})();
+</script>
+<script id="iv-controls-js">
+(function () {
+'use strict';
+if (window.__ivControls) return;
+window.__ivControls = 1;
+function sheet(id) {
+if (typeof window.openSheet === 'function') { window.openSheet(id); return true; }
+return false;
+}
+var GIFT = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+'<path d="M12 3.2l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.2l-5.1 2.7 1-5.7-4.1-4 5.7-.8z" ' +
+'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+'<circle cx="12" cy="11.4" r="1.5" fill="currentColor"/></svg>';
+function giftButton(card) {
+if (!card || card.querySelector('.pgift')) return;
+var meta = card.querySelector('.pmeta');
+if (!meta) return;
+var b = document.createElement('button');
+b.type = 'button';
+b.className = 'pgift';
+b.setAttribute('aria-label', 'Send a gift on this post');
+b.title = 'Send a gift';
+b.innerHTML = '<span class="pgift-c" aria-hidden="true">' + GIFT + '</span>';
+b.addEventListener('click', function (e) {
+e.preventDefault(); e.stopPropagation();
+if (window.IVGIFTS && window.IVGIFTS.open) {
+window.IVGIFTS.open('post', { refId: card.getAttribute('data-piece') || null });
+} else if (window.ivoryToast) {
+window.ivoryToast('The treasures are still arriving.');
+}
+});
+meta.insertBefore(b, meta.querySelector('.pact'));
+}
+function gifts() {
+var fab = document.getElementById('treasure-fab');
+if (fab && fab.parentNode) fab.parentNode.removeChild(fab);
+Array.prototype.forEach.call(document.querySelectorAll('article.pcard'), giftButton);
+}
+function ring() {
+var card = document.querySelector('#profile-screen .treas-card');
+if (!card || card.getAttribute('data-iv-ring')) return;
+card.setAttribute('data-iv-ring', '1');
+card.setAttribute('role', 'button');
+card.setAttribute('tabindex', '0');
+card.setAttribute('aria-label', 'The Ring of Keys — your treasures');
+card.classList.add('is-live');
+function go(e) {
+if (e && e.target && e.target.closest && e.target.closest('a,button')) return;
+if (e) { e.preventDefault(); e.stopPropagation(); }
+sheet('treasure');
+}
+card.addEventListener('click', go);
+card.addEventListener('keydown', function (e) {
+if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') go(e);
+});
+}
+function jewel() {
+Array.prototype.forEach.call(document.querySelectorAll('.bl-set'), function (b) {
+if (b.getAttribute('data-iv-jewel')) return;
+b.setAttribute('data-iv-jewel', '1');
+b.setAttribute('aria-label', 'Wearing Jewel — the bell sets');
+b.addEventListener('click', function (e) {
+e.preventDefault(); e.stopPropagation();
+sheet('sets');
+});
+});
+}
+function lang() {
+Array.prototype.forEach.call(document.querySelectorAll('.lang-card'), function (n) {
+if (n.parentNode) n.parentNode.removeChild(n);
+});
+}
+function deskKey() {
+if (window.__ivDeskKey) return;
+window.__ivDeskKey = 1;
+document.addEventListener('click', function (e) {
+var k = e.target && e.target.closest && e.target.closest('#iv-admin-eye');
+if (!k) return;
+if (!document.body.classList.contains('on-desk')) return;   /* let it open */
+e.preventDefault();
+e.stopPropagation();
+if (typeof window.ivLeaveDesk === 'function') window.ivLeaveDesk();
+else {
+var s = document.getElementById('desk-screen');
+if (s) s.classList.remove('on');
+document.body.classList.remove('on-desk');
+}
+setTimeout(function () { keyState(); }, 60);
+}, true);
+}
+function keyState() {
+var k = document.getElementById('iv-admin-eye');
+if (!k) return;
+var inDesk = document.body.classList.contains('on-desk');
+if (inDesk) {
+k.setAttribute('aria-pressed', 'true');
+k.setAttribute('aria-label', 'Leave the desk');
+k.title = 'Leave the desk';
+} else {
+k.removeAttribute('aria-pressed');
+k.setAttribute('aria-label', 'Admin console');
+k.title = 'Admin console';
+}
+}
+function show(name) {
+if (typeof window.ivoryShow === 'function') { try { window.ivoryShow(name); return true; } catch (e) {} }
+return false;
+}
+function bind(el, fn, label) {
+if (!el || el.getAttribute('data-iv-help')) return;
+el.setAttribute('data-iv-help', '1');
+if (label) el.setAttribute('aria-label', label);
+el.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); fn(); });
+}
+function guidance() {
+var prof = document.getElementById('profile-screen');
+if (!prof) return;
+bind(prof.querySelector('.mc-cta'), function () { show('premium'); });
+bind(prof.querySelector('.wishes-card'), function () { show('wish'); });
+Array.prototype.forEach.call(prof.querySelectorAll('.pill-ghost'), function (b) {
+if (/ladder/i.test(b.textContent || '')) bind(b, function () { sheet('ladder'); });
+});
+bind(prof.querySelector('.sessions-card .btn-outline'), function () {
+if (!sheet('session') && window.ivoryToast) window.ivoryToast('The book of sessions is still arriving.');
+});
+}
+var ASKED = 'ivory.named';
+function nameFlow() {
+var prof = document.getElementById('profile-screen');
+if (!prof || prof.querySelector('.ivname-card') || prof.getAttribute('data-iv-asked')) return;
+prof.setAttribute('data-iv-asked', '1');
+var IV = window.IVSESS;
+if (!IV || !IV.ident || !IV.ident().id) return;
+var hp = prof.querySelector('.pf') || prof.querySelector('.hp');
+if (!hp) return;
+try { if (localStorage.getItem(ASKED) === 'done') return; } catch (e) {}
+IV.get('/rest/v1/profiles?select=display_name&id=eq.' + encodeURIComponent(IV.ident().id))
+.then(function (rows) {
+var r = (rows && rows[0]) || {};
+if (String(r.display_name || '').trim()) { try { localStorage.setItem(ASKED, 'done'); } catch (e) {} return; }
+if (!document.getElementById('profile-screen') || prof.querySelector('.ivname-card')) return;
+paintName(prof, IV, hp);
+}).catch(function () {});
+}
+function paintName(prof, IV, hp) {
+var card = document.createElement('section');
+card.className = 'pf-card ivname-card';
+card.innerHTML =
+'<p class="eyebrow"><span>\u2726</span> One thing before you go on</p>' +
+'<h2 class="ivname-ask">Tell me, what should I <em>call you?</em></h2>' +
+'<p class="ivname-hint">The name the others will see. Two letters or more \u2014 ' +
+'and it can be changed whenever you like.</p>' +
+'<div class="ivname-row"><input class="ivname-in" type="text" autocomplete="nickname" ' +
+'maxlength="28" placeholder="the name you write as" aria-label="Your display name">' +
+'<button type="button" class="ivname-go">Keep it \u203a</button></div>' +
+'<p class="ivname-say" aria-live="polite"></p>' +
+'<button type="button" class="ivname-later">Not now \u203a</button>';
+var me = hp.querySelector('.me-card');
+if (me && me.parentNode === hp) hp.insertBefore(card, me.nextSibling);
+else if (hp.firstChild) hp.insertBefore(card, hp.firstChild.nextSibling);
+else hp.appendChild(card);
+var inp = card.querySelector('.ivname-in');
+var say = card.querySelector('.ivname-say');
+card.querySelector('.ivname-later').addEventListener('click', function () {
+try { localStorage.setItem(ASKED, 'done'); } catch (e) {}
+card.classList.add('go');
+setTimeout(function () { if (card.parentNode) card.parentNode.removeChild(card); }, 380);
+});
+function keep() {
+var v = String((inp && inp.value) || '').trim();
+if (v.length < 2) {
+say.textContent = 'two letters at least \u2014 a name wants a name';
+say.className = 'ivname-say bad';
+if (inp) { inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake'); }
+return;
+}
+say.textContent = 'writing it down\u2026'; say.className = 'ivname-say wait';
+fetch('https://soephrftgddbwkzwjddj.supabase.co/rest/v1/profiles?id=eq.' +
+encodeURIComponent(IV.ident().id), {
+method: 'PATCH',
+headers: IV.headers ? IV.headers({ 'Prefer': 'return=minimal' }) : { 'Content-Type': 'application/json' },
+body: JSON.stringify({ display_name: v })
+}).then(function (r) {
+if (!r.ok) throw new Error('the house did not write it down');
+try { localStorage.setItem(ASKED, 'done'); } catch (e) {}
+var n = document.getElementById('pf-name'); if (n) n.textContent = v;
+var a = document.getElementById('pf-ava'); if (a) a.textContent = v.slice(0, 1).toUpperCase();
+if (window.ivoryToast) window.ivoryToast('Then ' + v + ' it is. The house will remember.');
+card.classList.add('go');
+setTimeout(function () { if (card.parentNode) card.parentNode.removeChild(card); }, 380);
+}).catch(function (e) {
+say.textContent = (e && e.message) || 'the house could not reach its ledger \u2014 try once more';
+say.className = 'ivname-say bad';
+});
+}
+card.querySelector('.ivname-go').addEventListener('click', keep);
+if (inp) inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); keep(); } });
+}
+function sweep() {
+try { deskKey(); } catch (e) {}
+try { nameFlow(); } catch (e) {}
+try { guidance(); } catch (e) {}
+try { keyState(); } catch (e) {}
+try { gifts(); } catch (e) {}
+try { ring(); } catch (e) {}
+try { jewel(); } catch (e) {}
+try { lang(); } catch (e) {}
+}
+sweep();
+document.addEventListener('DOMContentLoaded', sweep);
+window.addEventListener('load', function () { setTimeout(sweep, 400); });
+var pending = null;
+function later() {
+if (pending) return;
+pending = setTimeout(function () { pending = null; sweep(); }, 260);
+}
+try {
+new MutationObserver(later).observe(document.documentElement, { childList: true, subtree: true });
+} catch (e) {}
+window.ivControls = { sweep: sweep };
 })();
 </script>
 </body>
