@@ -15490,6 +15490,33 @@ body.iv-quiet #iv-door-moment .ivdm-band,
       if(d && typeof d==='object' && d.ivory==='tab') go(d.tab);
     });
   })();
+  /* ── one first-level heading, whichever room you are in ──────────────────
+     Every room's title is an <h1> in the markup — the house styles its titles
+     by tag, and its sheets carry their own — so the page carried eleven of
+     them at once and thirty-five in the source. A screen reader only ever sees
+     one room, but the document said otherwise, and validation said so too.
+     The open room's title is level one; every other heading in the house, in
+     every closed room and every sheet, declares level two. No tag changes, no
+     class changes, nothing on screen moves — only what a screen reader hears. */
+  (function(){
+    var last='';
+    function levels(){
+      var cur=(document.body.dataset.screen||'home')+'-screen';
+      var hs=document.querySelectorAll('h1'), i, h, sc;
+      for(i=0;i<hs.length;i++){
+        h=hs[i]; sc=h.closest('[id$="-screen"]');
+        var lvl=(sc && sc.id===cur) ? '1' : '2';
+        if(h.getAttribute('aria-level')!==lvl) h.setAttribute('aria-level', lvl);
+      }
+    }
+    function now(){
+      var k=document.body.dataset.screen||'home';
+      if(k!==last){ last=k; levels(); }
+    }
+    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', now, {once:true}); }
+    else { now(); }
+    try{ new MutationObserver(now).observe(document.body,{attributes:true,attributeFilter:['data-screen']}); }catch(e){}
+  })();
   var back=document.getElementById('ex-back');
   if(back) back.addEventListener('click',function(){ show('home'); });
 })();
@@ -37896,11 +37923,21 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
    Both of her rules can hold at once, and now do. The band the eye sees is
    still 32 px and still the same gold, painted on the band's own surface. The
    band's *own* box is 44 px, so every word is a 44 px target to the finger, and
-   the 12 px difference is transparent air above and below the gold — nothing is
-   clipped because nothing is taller than the box that holds it.               */
+   the 12 px difference is the band's margin — nothing is clipped because
+   nothing is taller than the box that holds it.
+
+   Pass 82: that margin used to be transparent air, so the gold read as a band
+   floating in the page. It is now drawn — a hairline of the band's own warm
+   shadow at the top and the foot of the box, fading to nothing against the
+   gold — so the 44 px box reads as one seated band and the eye still sees the
+   same 32 px of gold she approved in Pass 64. The gold itself is untouched. */
 .hp-ticker{
   height:44px !important;
-  background:none !important;
+  background:
+    linear-gradient(180deg,
+      rgba(188,134,32,.20) 0px, rgba(188,134,32,.09) 3px, rgba(188,134,32,.02) 6px,
+      rgba(255,255,255,0) 7px, rgba(255,255,255,0) 36px,
+      rgba(188,134,32,.05) 40px, rgba(188,134,32,.20) 44px) !important;
   border:0 !important;
   box-shadow:none !important;
   position:relative;
@@ -37917,6 +37954,103 @@ body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
 }
 .hp-ticker .hp-flow{height:32px !important;line-height:32px !important;margin-top:6px;position:relative;align-items:center}
 .hp-ticker .hp-tk{height:44px !important;min-height:44px !important;padding:0 6px !important;align-items:center;position:relative;z-index:1}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   12 · REDUCED MOTION · the house stands still when it is asked to
+   ---------------------------------------------------------------------------
+   The audit found 118 animations still running with the preference set — the
+   grove's sway and float, the twinkles and embers, every icon's drop and aura,
+   the bell's ring. The house had fifty small blocks honouring the preference
+   and none of them spoke for the ornaments drawn later in the file.
+
+   One rule now speaks for all of them, and it is the last word on the subject
+   because this layer is written after every other style in the house. Nothing
+   that moves on its own keeps moving; what is already on screen stays on
+   screen, in its finished state, in its own colour and its own light.
+
+   Her films are not decoration. They are the house's own content, they keep
+   their own clock, and no stylesheet pauses them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* The `:root:root:root` is deliberate: three parts of the house had already
+   written their own `!important` animation on a class (`spin`, the ticker, the
+   spark), and an important wildcard cannot outrank an important class. Three
+   pseudo-classes on the root are worth three classes, so this rule is the last
+   word without naming a single element. */
+@media (prefers-reduced-motion: reduce){
+  :root:root:root *,
+  :root:root:root *::before,
+  :root:root:root *::after{
+    animation-duration:.001ms !important;
+    animation-delay:0ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    transition-delay:0ms !important;
+    scroll-behavior:auto !important;
+  }
+  :root:root:root video,
+  :root:root:root video *,
+  :root:root:root iframe,
+  :root:root:root canvas,
+  :root:root:root .ivf,
+  :root:root:root .ivf *,
+  :root:root:root .film,
+  :root:root:root .film *,
+  :root:root:root [data-film],
+  :root:root:root [data-film] *{
+    animation-duration:revert !important;
+    animation-iteration-count:revert !important;
+    transition-duration:revert !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   13 · THE TYPE FLOOR, EVERYWHERE
+   ---------------------------------------------------------------------------
+   Pass 78 set a floor of 11 px on the chips and labels it could see, and the
+   membership card's micro-line came up to it. Measuring every drawn word in
+   the house afterwards found the floor had not reached the sheets: the week
+   strip's seven days at 9.6 px, the bells' names at 10.4 px and their hours at
+   9.4 px, the gold sheet's own labels at 10.4 px. All of them are words a
+   member reads, so all of them come up to the floor. Nothing else moves: the
+   eight-pixel ornament between two ribbon words is a glyph, not a word, and it
+   stays where it is.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* again three pseudo-classes on the root, because the bells sheet had already
+   written `!important` type of its own on a class and a tag together */
+:root:root:root .gh-lab,
+:root:root:root .gh-num,
+:root:root:root .gh-num span,
+:root:root:root .gh-num *,
+:root:root:root .gh-week .gd,
+:root:root:root .gh-week .gd *,
+:root:root:root .bl-sub,
+:root:root:root .bl-lab,
+:root:root:root .bl-state,
+:root:root:root .bl-bell,
+:root:root:root .bl-bell b,
+:root:root:root .bl-bell i,
+:root:root:root .bl-orb,
+:root:root:root .bl-orb *,
+:root:root:root .hp-badge,
+:root:root:root .ld-eyebrow,
+:root:root:root .ld-eyebrow.small,
+:root:root:root .lh-foot,
+:root:root:root .lh-foot span,
+:root:root:root .lh-foot b{
+  font-size:11px !important;
+}
+/* the strip of seven days is a grid of its own: the cells may grow, the row
+   may not wrap, and the letters stay centred */
+.gh-week{grid-auto-rows:minmax(0,auto)}
+.gh-week .gd{line-height:1.18;padding:2px 0}
+
+/* ── the micro-line, measured ─────────────────────────────────────────────
+   The line at the foot of the member's own room sits at 11 px — the floor —
+   and its bronze was #A5761F. Measured against the card it is drawn on
+   (rgb(247,235,211)) that is 3.41:1, under the 4.5:1 that small type needs.
+   The same bronze two steps deeper, #89621A, is 4.65:1 and reads as the same
+   engraving. Nothing about its size, spacing or place changes.               */
+.pf .foot{color:#89621A !important}
 </style>
 <script id="iv-legal-js">
 /* ══════════════════════════════════════════════════════════════════════════
