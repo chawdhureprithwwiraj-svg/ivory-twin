@@ -27846,7 +27846,10 @@ window.IVGIFTS = (function () {
       ctx.fillStyle = haze; ctx.fillRect(0, 0, w, h);
 
       /* the room light: a slow radial that breathes with the sound */
-      var lightR = Math.max(w, h) * (0.24 + 0.30 * Math.sin(Math.PI * Math.min(1, t * 1.5)));
+      /* at t = 1 the sine reaches -1 and the radius went negative, which throws
+         in a browser and stops the gift mid-frame; a light never has a negative
+         size, so the frame is clamped at one pixel */
+      var lightR = Math.max(1, Math.max(w, h) * (0.24 + 0.30 * Math.sin(Math.PI * Math.min(1, t * 1.5))));
       var lg = ctx.createRadialGradient(cx, cy, 0, cx, cy, lightR);
       lg.addColorStop(0, 'rgba(255,240,200,' + (0.20 * fade) + ')');
       lg.addColorStop(0.5, 'rgba(217,174,74,' + (0.07 * fade) + ')');
@@ -29757,8 +29760,14 @@ window.IVREG_MANIFEST = {"frames": [{"id": "regent", "file": "a2.webp", "glow": 
       } catch (e) {}
     }
 
-    /* b · the hairlines under a heading, drawn */
-    var rules = root.querySelectorAll('.hp-bar + *, .rm-head i, .dk-hair, .hp-ticker');
+    /* b · the hairlines under a heading, drawn.
+       The ticker used to be in this list and had its own band scaled from 0 to
+       1 while pass 74's scroll scene drifted the same band on x — two modules
+       writing one transform, and the band could stay at zero width. The band is
+       not a hairline any more (pass 76 gave it borders and a fade), so it is
+       out of this list and only the drift touches it. It is excluded from the
+       structural selector too — `.hp-bar + *` is exactly the ticker. */
+    var rules = root.querySelectorAll('.hp-bar + *:not(.hp-ticker), .rm-head i, .dk-hair');
     Array.prototype.forEach.call(rules, function (el) {
       if (!reduced) once(el, { scaleX: 0, transformOrigin: 'left center' }, { scaleX: 1, duration: 0.9, ease: 'power3.inOut' });
     });
@@ -34972,10 +34981,17 @@ window.IVMEDALLION = (function () {
 })();
 </script>
 <style id="iv-film-css">
+/* NOTE (pass 76). Every rule in this file used to be written
+   `html.iv-curtain #home-screen …`. That prefix was added for the door's first
+   second and then never taken off the <html> element, so it applied for ever —
+   and being one class heavier than anything written later, it silently beat
+   every later pass. The prefix is removed here and nowhere else: because the
+   class was always on, removing it changes nothing a member can see, and the
+   house can be finished by the passes that come after this file. */
 /* ═══════════════════════════════════════════════════════════════════════════
    THE FILMS, WHERE THEY LIE · Pass 62 — nine places, nine different dresses
    ---------------------------------------------------------------------------
-   Everything here is written under `html.iv-curtain`, which the films module
+   Everything here is written under ``, which the films module
    adds only while `IVORY_FILMS_ON` is true — so the whole treatment is one
    switch away from never having happened.
 
@@ -34999,12 +35015,12 @@ window.IVMEDALLION = (function () {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── the plate: a film set into a card ──────────────────────────────────── */
-html.iv-curtain .ivf {
+.ivf {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
-html.iv-curtain .ivf-v {
+.ivf-v {
   position: absolute !important; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover; object-position: 50% 50%;
@@ -35014,17 +35030,17 @@ html.iv-curtain .ivf-v {
   transition: opacity 1.1s cubic-bezier(.22,.9,.24,1), transform 1.6s cubic-bezier(.22,.9,.24,1);
   background: #4E0A1F;
 }
-html.iv-curtain .ivf-on .ivf-v,
-html.iv-curtain .ivf-still .ivf-v { opacity: 1; transform: none; }
+.ivf-on .ivf-v,
+.ivf-still .ivf-v { opacity: 1; transform: none; }
 
 /* the glass between the picture and the words — one shape per card sets it */
-html.iv-curtain .ivf-scrim {
+.ivf-scrim {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
     linear-gradient(180deg, rgba(73,12,33,.10) 0%, rgba(73,12,33,.26) 38%, rgba(71,13,31,.74) 76%, rgba(70,12,29,.90) 100%),
     radial-gradient(120% 90% at 78% 8%, rgba(255,212,140,.16) 0%, rgba(255,212,140,0) 58%);
 }
-html.iv-curtain .ivf-scrim.is-hero {
+.ivf-scrim.is-hero {
   background:
     linear-gradient(180deg, rgba(77,19,13,.12) 0%, rgba(77,19,13,.02) 30%, rgba(255,244,226,.72) 78%, rgba(255,246,232,.94) 100%),
     radial-gradient(90% 70% at 50% 0%, rgba(255,236,200,.18) 0%, rgba(255,236,200,0) 60%);
@@ -35032,16 +35048,16 @@ html.iv-curtain .ivf-scrim.is-hero {
 
 /* the film's own two layers, in order — every card's words are lifted above
    them by its own rule further down, so nothing here can move a decoration */
-html.iv-curtain .ivf > .ivf-v { z-index: 0; }
-html.iv-curtain .ivf > .ivf-scrim { z-index: 1; }
+.ivf > .ivf-v { z-index: 0; }
+.ivf > .ivf-scrim { z-index: 1; }
 
 /* the words of every film card share one rule: above the picture, never in it */
-html.iv-curtain .hp-doorcard > *:not(.ivf-v):not(.ivf-scrim),
-html.iv-curtain .card.c-gold .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas):not(.tw),
-html.iv-curtain .card.c-line .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas),
-html.iv-curtain .card.c-plum .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas):not(.tw),
-html.iv-curtain .dawn-card > *:not(.ivf-v):not(.ivf-scrim),
-html.iv-curtain #sheet-door .dr-hero > *:not(.ivf-v):not(.ivf-scrim) {
+.hp-doorcard > *:not(.ivf-v):not(.ivf-scrim),
+.card.c-gold .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas):not(.tw),
+.card.c-line .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas),
+.card.c-plum .card-in > *:not(.ivf-v):not(.ivf-scrim):not(.fx):not(.fxcanvas):not(.tw),
+.dawn-card > *:not(.ivf-v):not(.ivf-scrim),
+#sheet-door .dr-hero > *:not(.ivf-v):not(.ivf-scrim) {
   /* only the stacking changes: the page already positions its own children,
      and re-declaring `position` here pulled the film and the spinners back
      into the flow (the card grew to 620 px for it) */
@@ -35051,9 +35067,9 @@ html.iv-curtain #sheet-door .dr-hero > *:not(.ivf-v):not(.ivf-scrim) {
 /* ═══════════════════════════════════════════════════════════════════════════
    THE FEED · mixed, not stacked — heights, offsets and corners all differ
    ═══════════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .hp-feed { display: block; }
-html.iv-curtain #home-screen .hp-feed > .card { margin-bottom: 18px; }
-html.iv-curtain #home-screen .hp-feed > .card:last-child { margin-bottom: 0; }
+#home-screen .hp-feed { display: block; }
+#home-screen .hp-feed > .card { margin-bottom: 18px; }
+#home-screen .hp-feed > .card:last-child { margin-bottom: 0; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    1 · THE DOOR FOR YOUR STORY — the miniature painting
@@ -35063,7 +35079,7 @@ html.iv-curtain #home-screen .hp-feed > .card:last-child { margin-bottom: 0; }
    The card is cut with one chamfered corner — the only card in the house with
    that cut — and its edge is a single hairline, inset, with no second rule.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .hp-doorcard {
+#home-screen .hp-doorcard {
   position: relative;
   min-height: 372px;
   padding: 0 !important;
@@ -35075,7 +35091,7 @@ html.iv-curtain #home-screen .hp-doorcard {
     0 26px 52px -26px rgba(40,10,6,.9),
     0 0 44px -22px rgba(232,186,96,.40) !important;
 }
-html.iv-curtain #home-screen .hp-doorcard::after {
+#home-screen .hp-doorcard::after {
   /* the chamfer's own gold line: it follows the cut, not the rectangle */
   content: ""; position: absolute; inset: 0; z-index: 8; pointer-events: none;
   background:
@@ -35083,17 +35099,17 @@ html.iv-curtain #home-screen .hp-doorcard::after {
     linear-gradient(180deg, rgba(255,236,190,.55), rgba(255,236,190,.55)) left top / 1px 100% no-repeat,
     linear-gradient(270deg, rgba(255,236,190,.55), rgba(255,236,190,.55)) right bottom / 100% 1px no-repeat;
 }
-html.iv-curtain #home-screen .hp-doorcard .ivf-v { object-position: 70% 34%; }
-html.iv-curtain #home-screen .hp-doorcard .ivf-scrim {
+#home-screen .hp-doorcard .ivf-v { object-position: 70% 34%; }
+#home-screen .hp-doorcard .ivf-scrim {
   background:
     linear-gradient(100deg, rgba(69,15,39,.94) 0%, rgba(69,15,39,.88) 34%, rgba(68,17,38,.52) 54%, rgba(68,17,38,.06) 74%, rgba(68,17,38,0) 88%),
     linear-gradient(180deg, rgba(67,13,40,.32) 0%, rgba(67,13,40,0) 26%, rgba(67,13,40,.46) 82%, rgba(67,13,40,.72) 100%);
 }
-html.iv-curtain #home-screen .hp-doorcard {
+#home-screen .hp-doorcard {
   display: flex; flex-direction: column; justify-content: flex-end;
   padding: 22px 20px 20px !important;
 }
-html.iv-curtain #home-screen .hp-doorcard h3 {
+#home-screen .hp-doorcard h3 {
   margin: 0 0 10px;
   font: 600 12.5px/1.5 Georgia, serif;
   letter-spacing: .20em; text-transform: uppercase;
@@ -35102,34 +35118,34 @@ html.iv-curtain #home-screen .hp-doorcard h3 {
   display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
   max-width: 62%;
 }
-html.iv-curtain #home-screen .hp-doorcard h3::before {
+#home-screen .hp-doorcard h3::before {
   content: ""; width: 22px; height: 1px; background: linear-gradient(90deg, rgba(255,226,168,.15), #FFD98E);
   flex: 0 0 auto;
 }
-html.iv-curtain #home-screen .hp-doorcard h3 .featherimg {
+#home-screen .hp-doorcard h3 .featherimg {
   width: 18px; height: 18px; opacity: .95;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
   animation: ivfFeather 5.2s ease-in-out infinite;
 }
 @keyframes ivfFeather { 0%,100% { transform: translateY(0) rotate(0); } 46% { transform: translateY(-4px) rotate(-6deg); } }
-html.iv-curtain #home-screen .hp-doorcard p {
+#home-screen .hp-doorcard p {
   margin: 0 0 10px;
   font: 400 13.2px/1.66 Georgia, serif;
   color: rgba(255,245,228,.95);
   text-shadow: 0 1px 9px rgba(14,2,5,.9);
   max-width: 56%;
 }
-html.iv-curtain #home-screen .hp-doorcard p b {
+#home-screen .hp-doorcard p b {
   color: #FFD98E; font-weight: 700;
   animation: ivfGlow 4.4s ease-in-out infinite;
 }
 @keyframes ivfGlow { 0%,100% { text-shadow: 0 1px 9px rgba(14,2,5,.9); } 50% { text-shadow: 0 0 16px rgba(255,206,120,.9), 0 1px 9px rgba(14,2,5,.9); } }
-html.iv-curtain #home-screen .hp-doorcard .door-tally {
+#home-screen .hp-doorcard .door-tally {
   font: 400 11.4px/1.5 Georgia, serif; font-style: italic;
   color: rgba(255,226,178,.82); margin-bottom: 12px;
   max-width: 56%;
 }
-html.iv-curtain #home-screen .hp-doorcard .door-read {
+#home-screen .hp-doorcard .door-read {
   align-self: flex-start;
   padding: 11px 17px; border-radius: 6px 999px 999px 999px;
   border: 1px solid rgba(255,226,168,.66);
@@ -35148,14 +35164,14 @@ html.iv-curtain #home-screen .hp-doorcard .door-read {
    the water is left alone. Its light is a leak, not a line: a warm bloom
    along the top edge only.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .card.c-plum {
+#home-screen .card.c-plum {
   background: #4E161D !important;
   margin-left: 26px;
   border-radius: 8px 26px 26px 8px;
   border: 0 !important;
   box-shadow: 0 20px 44px -26px rgba(4,6,30,.95), inset 0 0 0 1px rgba(196,236,255,.16) !important;
 }
-html.iv-curtain #home-screen .card.c-plum::after {
+#home-screen .card.c-plum::after {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 90px; z-index: 7;
   pointer-events: none; border-radius: inherit;
   background:
@@ -35163,26 +35179,26 @@ html.iv-curtain #home-screen .card.c-plum::after {
     linear-gradient(180deg, rgba(190,246,255,.55) 0%, rgba(190,246,255,0) 42%);
   mix-blend-mode: screen;
 }
-html.iv-curtain #home-screen .card.c-plum .ivf-v { object-position: 50% 26%; }
-html.iv-curtain #home-screen .card.c-plum .card-in {
+#home-screen .card.c-plum .ivf-v { object-position: 50% 26%; }
+#home-screen .card.c-plum .card-in {
   background: transparent !important;
   min-height: 200px;
   display: flex; flex-direction: column; justify-content: flex-start;
   padding: 18px 20px 16px !important;
   border: 0 !important;
 }
-html.iv-curtain #home-screen .card.c-plum .card-in > .door { display: none !important; }
-html.iv-curtain #home-screen .card.c-plum .ivf-scrim {
+#home-screen .card.c-plum .card-in > .door { display: none !important; }
+#home-screen .card.c-plum .ivf-scrim {
   background:
     linear-gradient(180deg, rgba(78,12,21,.72) 0%, rgba(78,12,21,.34) 34%, rgba(78,12,21,.04) 62%, rgba(78,16,24,.42) 100%),
     linear-gradient(90deg, rgba(78,12,21,.40) 0%, rgba(78,12,21,0) 46%);
 }
-html.iv-curtain #home-screen .card.c-plum .eyebrow {
+#home-screen .card.c-plum .eyebrow {
   color: #BFF3E2 !important; padding-right: 0 !important;
   text-shadow: 0 2px 10px rgba(4,10,22,.95);
   font-size: 9px !important; letter-spacing: .20em;
 }
-html.iv-curtain #home-screen .card.c-plum .title {
+#home-screen .card.c-plum .title {
   padding-right: 0 !important; margin: 4px 0 6px !important;
   background: linear-gradient(180deg, #FFFFFF 0%, #E8FBFF 46%, #B9E6F2 100%) !important;
   -webkit-background-clip: text !important; background-clip: text !important;
@@ -35190,13 +35206,13 @@ html.iv-curtain #home-screen .card.c-plum .title {
   font-size: 23px !important;
   filter: drop-shadow(0 2px 12px rgba(2,10,24,.95));
 }
-html.iv-curtain #home-screen .card.c-plum .lede {
+#home-screen .card.c-plum .lede {
   color: rgba(232,246,255,.95) !important;
   text-shadow: 0 1px 10px rgba(2,8,20,.95);
   max-width: 24ch;
   font-size: 12.4px !important; line-height: 1.55 !important;
 }
-html.iv-curtain #home-screen .card.c-plum .lede b {
+#home-screen .card.c-plum .lede b {
   color: #9FF2D6;
   animation: ivfPulse 3.6s ease-in-out infinite;
 }
@@ -35210,7 +35226,7 @@ html.iv-curtain #home-screen .card.c-plum .lede b {
    parchment of metal rather than a burgundy plate. The film's own gold runs
    through it in `screen` and dissolves before the words.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .card.c-gold {
+#home-screen .card.c-gold {
   border: 0 !important;
   border-radius: 24px;
   background:
@@ -35220,7 +35236,7 @@ html.iv-curtain #home-screen .card.c-gold {
     0 0 46px -20px rgba(255,196,90,.45),
     inset 0 0 0 1px rgba(255,240,196,.66) !important;
 }
-html.iv-curtain #home-screen .card.c-gold .card-in {
+#home-screen .card.c-gold .card-in {
   background:
     radial-gradient(120% 90% at 18% 0%, rgba(255,206,120,.26) 0%, rgba(255,206,120,0) 58%),
     linear-gradient(168deg, rgba(58,34,6,.90) 0%, rgba(74,44,8,.86) 44%, rgba(92,54,8,.92) 100%) !important;
@@ -35230,28 +35246,28 @@ html.iv-curtain #home-screen .card.c-gold .card-in {
   padding: 16px 18px 15px !important;
   height: auto;
 }
-html.iv-curtain #home-screen .card.c-gold { min-height: 0 !important; }
-html.iv-curtain #home-screen .card.c-gold .ivf-v { opacity: 0; transition: opacity 1.4s ease; }
-html.iv-curtain #home-screen .card.c-gold .ivf-on .ivf-v,
-html.iv-curtain #home-screen .card.c-gold.ivf-on .ivf-v {
+#home-screen .card.c-gold { min-height: 0 !important; }
+#home-screen .card.c-gold .ivf-v { opacity: 0; transition: opacity 1.4s ease; }
+#home-screen .card.c-gold .ivf-on .ivf-v,
+#home-screen .card.c-gold.ivf-on .ivf-v {
   opacity: .52;
   mix-blend-mode: screen;
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 30%, rgba(0,0,0,.44) 54%, transparent 84%);
   mask-image: linear-gradient(180deg, #000 0%, #000 34%, rgba(0,0,0,.5) 58%, transparent 88%);
 }
-html.iv-curtain #home-screen .card.c-gold .card-in::after {
+#home-screen .card.c-gold .card-in::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1; border-radius: inherit;
   background:
     radial-gradient(80% 80% at 16% 0%, rgba(255,216,140,.30) 0%, rgba(255,216,140,0) 60%),
     linear-gradient(180deg, rgba(255,226,160,.10) 0%, rgba(255,226,160,0) 40%);
 }
 /* a struck bar across the head — the knock-off's only ornament */
-html.iv-curtain #home-screen .card.c-gold .card-in::before {
+#home-screen .card.c-gold .card-in::before {
   content: ""; position: absolute; left: 18px; right: 18px; top: 0; height: 3px; z-index: 1;
   background: linear-gradient(90deg, rgba(255,240,200,0), #FFF1C8 20%, #E3B45E 50%, #FFF1C8 80%, rgba(255,240,200,0));
   box-shadow: 0 0 18px rgba(255,206,110,.8);
 }
-html.iv-curtain #home-screen .card.c-gold .eyebrow {
+#home-screen .card.c-gold .eyebrow {
   color: #FFE1A0 !important;
   text-shadow: 0 1px 8px rgba(20,8,0,.9);
   padding-right: 0 !important;
@@ -35259,7 +35275,7 @@ html.iv-curtain #home-screen .card.c-gold .eyebrow {
   max-width: calc(100% - 84px);
   line-height: 1.45 !important;
 }
-html.iv-curtain #home-screen .card.c-gold .title {
+#home-screen .card.c-gold .title {
   padding-right: 0 !important; margin: 6px 0 4px !important;
   max-width: calc(100% - 84px);
   background: linear-gradient(180deg, #FFF8E4 0%, #FFDE9C 40%, #E2AE4C 100%) !important;
@@ -35269,35 +35285,35 @@ html.iv-curtain #home-screen .card.c-gold .title {
   font-size: 24px !important;
   line-height: 1.05 !important;
 }
-html.iv-curtain #home-screen .card.c-gold .title { text-wrap: balance; }
-html.iv-curtain #home-screen .card.c-gold .lede {
+#home-screen .card.c-gold .title { text-wrap: balance; }
+#home-screen .card.c-gold .lede {
   color: rgba(255,241,214,.97) !important;
   text-shadow: 0 1px 9px rgba(16,6,0,.92);
   font-size: 11.8px !important; line-height: 1.45 !important;
   margin: 0 0 4px !important;
 }
-html.iv-curtain #home-screen .card.c-gold .kicker {
+#home-screen .card.c-gold .kicker {
   color: #FFD98E !important; opacity: .95 !important;
   font-size: 8.8px !important; letter-spacing: .14em !important;
 }
-html.iv-curtain #home-screen .card.c-gold .note {
+#home-screen .card.c-gold .note {
   color: rgba(246,226,190,.95) !important;
   text-shadow: 0 1px 10px rgba(12,5,0,.9);
   font-size: 10.4px !important; line-height: 1.4 !important;
   margin-top: 6px !important;
   max-width: 34ch;
 }
-html.iv-curtain #home-screen .card.c-gold .clock { margin: 4px 0 6px !important; }
-html.iv-curtain #home-screen .card.c-gold .clock b {
+#home-screen .card.c-gold .clock { margin: 4px 0 6px !important; }
+#home-screen .card.c-gold .clock b {
   color: #FFF4D8 !important;
   font-size: 27px !important;
   text-shadow: 0 0 22px rgba(255,196,90,.6);
 }
-html.iv-curtain #home-screen .card.c-gold .clock span { color: rgba(255,214,150,.9) !important; font-size: 9px !important; }
-html.iv-curtain #home-screen .card.c-gold .coinbar { filter: drop-shadow(0 2px 8px rgba(0,0,0,.55)); margin: 2px 0 4px !important; }
-html.iv-curtain #home-screen .card.c-gold .coin-ring { z-index: 4; }
-html.iv-curtain #home-screen .card.c-gold .tw { color: #FFDE9C !important; }
-html.iv-curtain #home-screen .card.c-gold .crossed { text-decoration-color: rgba(232,180,110,.6); }
+#home-screen .card.c-gold .clock span { color: rgba(255,214,150,.9) !important; font-size: 9px !important; }
+#home-screen .card.c-gold .coinbar { filter: drop-shadow(0 2px 8px rgba(0,0,0,.55)); margin: 2px 0 4px !important; }
+#home-screen .card.c-gold .coin-ring { z-index: 4; }
+#home-screen .card.c-gold .tw { color: #FFDE9C !important; }
+#home-screen .card.c-gold .crossed { text-decoration-color: rgba(232,180,110,.6); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    4 · THE PRIVATE LINE — the moonlit forest and the fairy
@@ -35307,14 +35323,14 @@ html.iv-curtain #home-screen .card.c-gold .crossed { text-decoration-color: rgba
    forest's floor dusted at the foot like spilled wax. Her wings are never
    crossed by a line of type.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .card.c-line {
+#home-screen .card.c-line {
   background: #41141A !important;
   margin-right: 26px;
   border-radius: 26px 8px 8px 26px;
   border: 0 !important;
   box-shadow: 0 22px 46px -26px rgba(10,0,20,.95), inset 0 0 0 1px rgba(240,200,255,.14) !important;
 }
-html.iv-curtain #home-screen .card.c-line::after {
+#home-screen .card.c-line::after {
   /* the wax: a scatter of warm dust along the foot, this card's alone */
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%; z-index: 6;
   pointer-events: none; border-radius: inherit;
@@ -35323,27 +35339,27 @@ html.iv-curtain #home-screen .card.c-line::after {
     radial-gradient(40% 70% at 78% 118%, rgba(196,180,255,.16) 0%, rgba(196,180,255,0) 72%);
   mix-blend-mode: screen;
 }
-html.iv-curtain #home-screen .card.c-line .ivf-v { object-position: 86% 40%; }
-html.iv-curtain #home-screen .card.c-line .card-in {
+#home-screen .card.c-line .ivf-v { object-position: 86% 40%; }
+#home-screen .card.c-line .card-in {
   background: transparent !important;
   min-height: 248px;
   display: flex; flex-direction: column; justify-content: flex-end;
   padding: 18px 19px 16px !important;
   border: 0 !important;
 }
-html.iv-curtain #home-screen .card.c-line .card-in > .envelope { display: none !important; }
-html.iv-curtain #home-screen .card.c-line .ivf-scrim {
+#home-screen .card.c-line .card-in > .envelope { display: none !important; }
+#home-screen .card.c-line .ivf-scrim {
   background:
     linear-gradient(96deg, rgba(72,10,19,.95) 0%, rgba(72,10,19,.86) 40%, rgba(73,12,20,.34) 62%, rgba(73,12,20,0) 82%),
     linear-gradient(180deg, rgba(72,10,19,.30) 0%, rgba(72,10,19,0) 30%, rgba(75,6,15,.50) 86%, rgba(75,6,15,.78) 100%);
 }
-html.iv-curtain #home-screen .card.c-line .eyebrow {
+#home-screen .card.c-line .eyebrow {
   color: #E9C6FF !important;
   text-shadow: 0 2px 10px rgba(10,0,18,.9);
   padding-right: 0 !important;
   font-size: 9px !important; letter-spacing: .20em;
 }
-html.iv-curtain #home-screen .card.c-line .title {
+#home-screen .card.c-line .title {
   padding-right: 0 !important; margin: 4px 0 6px !important;
   background: linear-gradient(180deg, #FFFFFF 0%, #F6E6FF 52%, #DCC4F4 100%) !important;
   -webkit-background-clip: text !important; background-clip: text !important;
@@ -35351,13 +35367,13 @@ html.iv-curtain #home-screen .card.c-line .title {
   font-size: 24px !important;
   filter: drop-shadow(0 2px 12px rgba(6,0,14,.9));
 }
-html.iv-curtain #home-screen .card.c-line .lede {
+#home-screen .card.c-line .lede {
   color: rgba(243,235,255,.94) !important;
   text-shadow: 0 1px 10px rgba(8,0,16,.92);
   max-width: 21ch;
   font-size: 12.2px !important; line-height: 1.55 !important;
 }
-html.iv-curtain #home-screen .card.c-line .note {
+#home-screen .card.c-line .note {
   color: #EFE4FF !important;
   text-shadow: 0 1px 10px rgba(6,0,14,1), 0 0 18px rgba(6,0,14,.85);
   opacity: 1;
@@ -35373,7 +35389,7 @@ html.iv-curtain #home-screen .card.c-line .note {
    edge, the only card in the house drawn twice. The sun sits low-right, so the
    words take the left third.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #profile-screen .dawn-card {
+#profile-screen .dawn-card {
   position: relative;
   min-height: 166px;
   padding: 18px 16px 16px !important;
@@ -35383,41 +35399,41 @@ html.iv-curtain #profile-screen .dawn-card {
   box-shadow: 0 20px 38px -26px rgba(60,24,6,.9) !important;
   overflow: hidden;
 }
-html.iv-curtain #profile-screen .dawn-card::after {
+#profile-screen .dawn-card::after {
   content: ""; position: absolute; inset: 7px; z-index: 8; pointer-events: none; border-radius: 3px 15px 15px 3px;
   border: 1px solid rgba(255,238,206,.55);
   box-shadow: inset 0 0 0 3px rgba(255,238,206,.14), inset 0 0 26px rgba(60,22,4,.35);
 }
-html.iv-curtain #profile-screen .dawn-card .ivf-v { object-position: 62% 72%; }
-html.iv-curtain #profile-screen .dawn-card .ivf-scrim {
+#profile-screen .dawn-card .ivf-v { object-position: 62% 72%; }
+#profile-screen .dawn-card .ivf-scrim {
   background:
     linear-gradient(94deg, rgba(86,29,6,.92) 0%, rgba(86,29,6,.70) 38%, rgba(86,29,6,.18) 62%, rgba(86,29,6,0) 80%),
     linear-gradient(180deg, rgba(86,29,6,.24) 0%, rgba(86,29,6,0) 40%, rgba(86,29,6,.42) 100%);
 }
-html.iv-curtain #profile-screen .dawn-card .dawn-key {
+#profile-screen .dawn-card .dawn-key {
   color: #FFE7B4 !important;
   background: rgba(89,27,9,.46) !important;
   box-shadow: inset 0 0 0 1px rgba(255,226,168,.55), 0 6px 14px -8px rgba(0,0,0,.9) !important;
   backdrop-filter: blur(3px);
 }
-html.iv-curtain #profile-screen .dawn-card .dawn-pill {
+#profile-screen .dawn-card .dawn-pill {
   color: #FFE7B4 !important;
   border-color: rgba(255,226,168,.72) !important;
   background: rgba(58,18,6,.50) !important;
   backdrop-filter: blur(3px);
   text-shadow: 0 1px 6px rgba(30,6,0,.9);
 }
-html.iv-curtain #profile-screen .dawn-card .dawn-body b { color: #FFF6E2 !important; }
-html.iv-curtain #profile-screen .dawn-card .dawn-count {
+#profile-screen .dawn-card .dawn-body b { color: #FFF6E2 !important; }
+#profile-screen .dawn-card .dawn-count {
   color: rgba(255,240,214,.92) !important;
   text-shadow: 0 1px 8px rgba(30,6,0,.95);
 }
-html.iv-curtain #profile-screen .dawn-card .dawn-count b { color: #FFD98E !important; }
+#profile-screen .dawn-card .dawn-count b { color: #FFD98E !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    6 · THE EARLY DOOR · inside the sheet — the hills at daybreak
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #sheet-door .dr-hero {
+#sheet-door .dr-hero {
   position: relative;
   min-height: 218px;
   display: flex; flex-direction: column; justify-content: flex-end;
@@ -35428,26 +35444,26 @@ html.iv-curtain #sheet-door .dr-hero {
   border: 0 !important;
   box-shadow: 0 18px 34px -24px rgba(120,60,10,.7) !important;
 }
-html.iv-curtain #sheet-door .dr-hero::after {
+#sheet-door .dr-hero::after {
   /* a dawn rule: one warm hairline along the head, this screen's alone */
   content: ""; position: absolute; left: 16px; right: 16px; top: 0; height: 2px; z-index: 8; pointer-events: none;
   background: linear-gradient(90deg, rgba(255,214,150,0), #FFE0A6 30%, #FFF3DA 50%, #FFE0A6 70%, rgba(255,214,150,0));
 }
-html.iv-curtain #sheet-door .dr-hero .ivf-v { object-position: 50% 62%; }
-html.iv-curtain #sheet-door .dr-hero > .dr-arch,
-html.iv-curtain #sheet-door .dr-hero > .dr-glow,
-html.iv-curtain #sheet-door .dr-hero > .dr-keyhole,
-html.iv-curtain #sheet-door .dr-hero > .dr-dust { display: none !important; }
-html.iv-curtain #sheet-door .dr-hero .dr-eyebrow {
+#sheet-door .dr-hero .ivf-v { object-position: 50% 62%; }
+#sheet-door .dr-hero > .dr-arch,
+#sheet-door .dr-hero > .dr-glow,
+#sheet-door .dr-hero > .dr-keyhole,
+#sheet-door .dr-hero > .dr-dust { display: none !important; }
+#sheet-door .dr-hero .dr-eyebrow {
   color: #8C2A18 !important;
   text-shadow: 0 1px 0 rgba(255,246,236,.85);
 }
-html.iv-curtain #sheet-door .dr-hero .dr-title {
+#sheet-door .dr-hero .dr-title {
   color: #4A0D1E !important;
   text-shadow: 0 1px 0 rgba(255,248,238,.9);
   font-size: 30px !important;
 }
-html.iv-curtain #sheet-door .dr-hero .dr-lede {
+#sheet-door .dr-hero .dr-lede {
   color: #6A2A1C !important;
   margin: 6px 0 0 !important;
   max-width: 32ch;
@@ -35461,7 +35477,7 @@ html.iv-curtain #sheet-door .dr-hero .dr-lede {
    only light is an inner shadow, so it reads as a photographic print rather
    than a plate.
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #profile-screen .folio-card {
+#profile-screen .folio-card {
   position: relative;
   overflow: hidden;
   background: #3F3317 !important;
@@ -35471,24 +35487,24 @@ html.iv-curtain #profile-screen .folio-card {
     0 22px 40px -26px rgba(20,12,2,.95),
     inset 0 0 0 1px rgba(255,226,168,.28) !important;
 }
-html.iv-curtain #profile-screen .folio-card .ivf-v { opacity: 0; transition: opacity 1.4s ease; }
-html.iv-curtain #profile-screen .folio-card.ivf-on .ivf-v { opacity: .58; }
-html.iv-curtain #profile-screen .folio-card::before {
+#profile-screen .folio-card .ivf-v { opacity: 0; transition: opacity 1.4s ease; }
+#profile-screen .folio-card.ivf-on .ivf-v { opacity: .58; }
+#profile-screen .folio-card::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
     linear-gradient(100deg, rgba(65,47,19,.92) 0%, rgba(65,47,19,.66) 46%, rgba(78,52,16,.28) 72%, rgba(84,54,17,.18) 100%),
     radial-gradient(80% 120% at 88% 12%, rgba(255,196,96,.18) 0%, rgba(255,196,96,0) 62%);
 }
-html.iv-curtain #profile-screen .folio-card .folio-tile,
-html.iv-curtain #profile-screen .folio-card .folio-tx { position: relative; z-index: 3; }
-html.iv-curtain #profile-screen .folio-card .folio-tile {
+#profile-screen .folio-card .folio-tile,
+#profile-screen .folio-card .folio-tx { position: relative; z-index: 3; }
+#profile-screen .folio-card .folio-tile {
   color: #FFE7B4 !important;
   background: linear-gradient(160deg, rgba(122,18,48,.92), rgba(58,6,20,.95)) !important;
   box-shadow: inset 0 0 0 1px rgba(255,226,168,.5), 0 8px 18px -10px rgba(0,0,0,.9) !important;
 }
-html.iv-curtain #profile-screen .folio-card .folio-tx b { color: #FFE3A6 !important; }
-html.iv-curtain #profile-screen .folio-card .folio-tx span { color: rgba(255,244,224,.90) !important; }
-html.iv-curtain #profile-screen .folio-card .folio-tx em {
+#profile-screen .folio-card .folio-tx b { color: #FFE3A6 !important; }
+#profile-screen .folio-card .folio-tx span { color: rgba(255,244,224,.90) !important; }
+#profile-screen .folio-card .folio-tx em {
   color: #F0C674 !important;
   display: block;
   white-space: normal;          /* one long line runs off the card — let it wrap */
@@ -35498,54 +35514,54 @@ html.iv-curtain #profile-screen .folio-card .folio-tx em {
   line-height: 1.5;
   padding-right: 8px;
 }
-html.iv-curtain #profile-screen .folio-card { padding-right: 26px; }
-html.iv-curtain #profile-screen .folio-card::after { display: none; }
+#profile-screen .folio-card { padding-right: 26px; }
+#profile-screen .folio-card::after { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    8 · MAKE A WISH · the rain of light, behind the hand and the moon
    ═══════════════════════════════════════════════════════════════════════ */
-html.iv-curtain #home-screen .wish-band { background: #520B14 !important; }
-html.iv-curtain #home-screen .wish-band .ivf-v { z-index: 0; opacity: 0; transition: opacity 1.6s ease; }
-html.iv-curtain #home-screen .wish-band.ivf-on .ivf-v { opacity: .92; }
-html.iv-curtain #home-screen .wish-band .wish-art {
+#home-screen .wish-band { background: #520B14 !important; }
+#home-screen .wish-band .ivf-v { z-index: 0; opacity: 0; transition: opacity 1.6s ease; }
+#home-screen .wish-band.ivf-on .ivf-v { opacity: .92; }
+#home-screen .wish-band .wish-art {
   z-index: 1 !important;
   opacity: .46;
   mix-blend-mode: screen;
   animation: none !important;
   filter: saturate(1.05) contrast(1.02);
 }
-html.iv-curtain #home-screen .wish-band .wish-glow { z-index: 2 !important; }
-html.iv-curtain #home-screen .wish-band .wish-dust { z-index: 3 !important; }
-html.iv-curtain #home-screen .wish-band .wish-word { z-index: 5 !important; }
-html.iv-curtain #home-screen .wish-band .ivf-scrim { display: none; }
-html.iv-curtain #home-screen .wish-band { border-radius: 24px 24px 6px 24px; }
+#home-screen .wish-band .wish-glow { z-index: 2 !important; }
+#home-screen .wish-band .wish-dust { z-index: 3 !important; }
+#home-screen .wish-band .wish-word { z-index: 5 !important; }
+#home-screen .wish-band .ivf-scrim { display: none; }
+#home-screen .wish-band { border-radius: 24px 24px 6px 24px; }
 
 /* ── a wide house: the four cards keep their own shapes, only taller ─────── */
 @media (min-width: 900px) {
-  html.iv-curtain #home-screen .hp-doorcard { min-height: 400px; }
-  html.iv-curtain #home-screen .card.c-plum .card-in { min-height: 228px; }
-  html.iv-curtain #home-screen .card.c-line .card-in { min-height: 280px; }
+  #home-screen .hp-doorcard { min-height: 400px; }
+  #home-screen .card.c-plum .card-in { min-height: 228px; }
+  #home-screen .card.c-line .card-in { min-height: 280px; }
 }
 
 /* ── a house asked to hold still: the picture is held, the words stay calm ─ */
 @media (prefers-reduced-motion: reduce) {
-  html.iv-curtain .ivf-v { transition: none; }
-  html.iv-curtain #home-screen .hp-doorcard h3 .featherimg,
-  html.iv-curtain #home-screen .hp-doorcard p b,
-  html.iv-curtain #home-screen .card.c-plum .lede b { animation: none !important; }
+  .ivf-v { transition: none; }
+  #home-screen .hp-doorcard h3 .featherimg,
+  #home-screen .hp-doorcard p b,
+  #home-screen .card.c-plum .lede b { animation: none !important; }
 }
 
 /* a still frame for anyone who asked the house to hold still — the same
    picture, held, never a blank plate */
-html.iv-curtain .ivf-still .ivf-v { display: none; }
-html.iv-curtain .ivf-still {
+.ivf-still .ivf-v { display: none; }
+.ivf-still {
   background-image: var(--ivf-still);
   background-size: cover;
   background-position: 50% 50%;
   background-repeat: no-repeat;
 }
-html.iv-curtain .ivf-still.ivf-solo > h3,
-html.iv-curtain .ivf-still.ivf-solo > p { position: relative; z-index: 4; }
+.ivf-still.ivf-solo > h3,
+.ivf-still.ivf-solo > p { position: relative; z-index: 4; }
 </style>
 <style id="iv-open-css">
 /* ══════════════════════════════════════════════════════════════════════════
@@ -36994,6 +37010,294 @@ html.ivl-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   #iv-legal.ivl.on, #iv-legal .ivl-sheet { animation: none !important; }
 }
+</style>
+<style id="iv-large-css">
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASS 76 · THE LARGE ROOM, AND THE FINISH
+
+   Two things, and only two.
+
+   THE LARGE ROOM. Until now the house was a phone column that happened to be
+   centred on a bigger screen: the hero measured 1,260 px, the sections under it
+   900 px, so every section began at a different left edge, and nothing had been
+   decided for a screen wider than a laptop. From 1100 px up the house is laid
+   out on purpose — one measure, a broadsheet grid, one type scale, and the
+   ticker in a band of its own instead of running under the header.
+
+   THE FINISH. Three floors, at every width, because they are decency and not
+   decoration: no words smaller than 11 px, no words fainter than 4.5:1 (3:1 if
+   large), and no control smaller than a 44 px target — the finger that touches
+   it is the same finger on every screen.
+
+   Nothing here moves, so nothing here needs a reduced-motion branch; nothing
+   here is disabled in quiet mode; nothing here fetches anything.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Some of these declarations carry !important, and it is not laziness. The
+   house's own modules reach their elements through `html.iv-curtain #home-screen
+   .hp-feed` — a selector built for the door's first second, which is more
+   specific than anything a later module can write without editing them. The
+   thirteen words below are the only ones fought for that way, and every one of
+   them is asserted by the bench on computed style.                           */
+
+/* ── 1 · THE MEASURE ──────────────────────────────────────────────────────
+   One number decides where the house stands on a wide screen. Everything that
+   was 900 px wide and everything that was 1,260 px wide now answer to it, so
+   the house has one left edge and one right edge from the crest to the foot. */
+@media (min-width:1100px){
+  #home-screen{max-width:none}
+  .hp{
+    --iv-m:1240px;
+    max-width:var(--iv-m) !important;
+    margin-inline:auto;
+    padding:0 clamp(18px,3vw,40px) 104px;
+    display:grid;
+    grid-template-columns:repeat(12,minmax(0,1fr));
+    column-gap:28px;
+    row-gap:0;
+    align-items:start;
+  }
+  /* every section is given its place in the room, row by row: the door card
+     beside the live room, the first-time rail beside the recent posts. Left to
+     itself the grid pushed them a screen apart because the feed between them
+     spans all twelve columns. */
+  .hp-bar{grid-row:1;grid-column:1/-1}
+  .hp-ticker{grid-row:2;grid-column:1/-1}
+  .hp-crest{grid-row:3;grid-column:1/-1}
+  .hp-doorcard{grid-row:4;grid-column:1/span 6}
+  .hp-live{grid-row:4;grid-column:7/span 6}
+  .hp-feed{grid-row:5;grid-column:1/-1}
+  .hp-first{grid-row:6;grid-column:1/span 6}
+  .hp-recent{grid-row:6;grid-column:7/span 6}
+  .promise{grid-row:7;grid-column:1/-1}
+  .pulse-strip{grid-row:8;grid-column:1/-1}
+  .hp-footwrap{grid-row:9;grid-column:1/-1}
+  .hp>*{min-width:0}
+  .hp-bar,.hp-ticker,.hp-crest,.hp-feed,.promise,.pulse-strip,.hp-footwrap{grid-column:1/-1}
+  .hp-live{align-self:stretch}
+  /* every section used to carry its own max-width and its own auto margins */
+  .hp-bar,.hp-ticker,.hp-crest,.hp-feed,.hp-live,.hp-first,.hp-recent,
+  .promise,.hp-footwrap,.hp-doorcard,.wish-band{
+    max-width:none !important;width:auto;margin-inline:0 !important;
+  }
+}
+@media (min-width:1600px){
+  .hp{--iv-m:1400px;column-gap:36px;padding-bottom:104px}
+}
+
+/* ── 2 · THE TICKER HAS A BAND OF ITS OWN ─────────────────────────────────
+   The strip used to slide under the header's bottom edge and be cut off at the
+   screen's edge — the first thing a member sees at 1280 was text chopped in the
+   middle of a word. It now sits in its own band, with a hairline above it and a
+   fade at both ends, so a phrase leaving the room dissolves instead of being
+   sliced. The fade is the whole fix; it is the same at every width.          */
+.hp-ticker{
+  position:relative;
+  width:100% !important;
+  height:32px !important;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  border-top:1px solid rgba(148,101,28,.16) !important;
+  border-bottom:1px solid rgba(148,101,28,.10) !important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
+}
+.hp-ticker .hp-flow{line-height:32px}
+/* the words in the ticker are controls: their hit area is 44 px even though the
+   band is 32 — a pad that does not change the picture */
+.hp-ticker .hp-tk{
+  padding-block:17px;
+  margin-block:-17px;
+  display:inline-flex;
+  align-items:center;
+}
+
+/* ── 3 · THE HERO IS SET, NOT STRETCHED ───────────────────────────────────
+   The crest and the words were a 300 px picture beside a 56 px title with the
+   rest of the width left empty. From 1100 the plate grows with the room and the
+   words get the measure they deserve, in the house's own three voices.       */
+@media (min-width:1100px){
+  .hp-crest{padding-top:44px}
+  .hp-head{font-size:clamp(44px,3.4vw,64px);max-width:900px}
+  .hp-lede{font-size:17px;line-height:1.6;max-width:760px}
+  .hp-quote{font-size:16px;line-height:1.62}
+  .ex-line{font-size:clamp(28px,2.2vw,40px)}
+  .hp-open{font-size:13px}
+}
+@media (min-width:1600px){
+  .hp-plate{width:340px;height:340px}
+  .hp-head{font-size:64px}
+}
+
+/* ── 4 · TWO REAL COLUMNS UNDER THE CREST ─────────────────────────────────
+   The door card and the live room were two 900 px cards stacked down the
+   middle; the first-time rail and the recent posts the same. Side by side they
+   are one room with a left wall and a right wall.                            */
+/* the feed was five banners stacked down a 1,380 px column, each one a picture
+   in its left half and paper in its right. As a two-column wall they are read
+   the way a feed is read — two at a time — and no card is wider than the
+   picture inside it can carry. */
+@media (min-width:1100px){
+  .hp-feed{display:grid !important;grid-template-columns:1fr 1fr !important;gap:20px !important;align-items:start}
+  .hp-feed .card.c-gold,.hp-feed .card.c-seal{grid-column:1/-1}
+  .hp-feed .card{width:auto;max-width:none;margin:0}
+  /* the seal card used to stretch to match a row it no longer shares with
+     anything; it now stands at its own height */
+  .hp-feed .card.c-seal{align-self:start;min-height:0}
+}
+@media (min-width:1100px){
+  .hp-doorcard,.hp-live{padding-block:26px}
+  .hp-doorcard video,.hp-doorcard .ivf-scrim{height:100%}
+  .hp-live .live-chart{height:96px}
+  .hp-first .hp-rail{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .hp-recent .pcards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .promise{max-width:760px;justify-self:center}
+}
+
+/* ── 5 · THE DESK IN A LARGE ROOM ─────────────────────────────────────────
+   The desk was a phone form poured into 1,920 px: one input 1,240 px wide and
+   a publish button half off the screen. The desk's own work is reading and
+   writing, so it is given a measure (it is a page, not a wall), the room ribbon
+   is allowed to wrap instead of running off the edge, and the publish rail has
+   room to stand on.                                                          */
+@media (min-width:1100px){
+  #desk-screen .dk-body{max-width:1120px;margin-inline:auto;padding-inline:28px}
+  #desk-screen .dk-ribbon,
+  #desk-screen #dk-ribbon{flex-wrap:wrap;row-gap:6px;max-width:1120px;margin-inline:auto}
+  #desk-screen .dk-tab{min-height:44px}
+  #desk-screen .dk-sheet,
+  #desk-screen .dk-pane{max-width:1120px;margin-inline:auto}
+  #desk-screen textarea{min-height:320px;max-height:56vh}
+}
+@media (min-width:1400px){
+  #desk-screen .dk-two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  #desk-screen .dk-two>*{min-width:0}
+}
+
+/* ── 5b · THE BOTTOM BAR BECOMES A DOCK ───────────────────────────────────
+   On a phone the six rooms live in a floating pill under the thumb, and that is
+   right. On a wide screen that same pill floats over the middle of the page and
+   hides the words under it — the first thing I noticed at 1920 was "Explore"
+   gone behind the bar. From 1100 it is docked: full width, flush to the bottom
+   edge, behind a veil of the house's own gold, so the page scrolls under
+   chrome instead of under a coin.                                            */
+@media (min-width:1100px){
+  .nav{
+    left:0 !important;right:0 !important;bottom:0 !important;
+    width:auto !important;max-width:none !important;
+    transform:none !important;
+    margin:0;border-radius:0;
+    padding:0 env(safe-area-inset-right) 4px env(safe-area-inset-left);
+    background:linear-gradient(180deg,rgba(255,250,238,.82),rgba(250,240,216,.97));
+    -webkit-backdrop-filter:blur(14px) saturate(1.05);
+            backdrop-filter:blur(14px) saturate(1.05);
+    box-shadow:0 -1px 0 rgba(148,101,28,.18),0 -18px 40px rgba(120,80,20,.10);
+  }
+  .nav{display:flex !important;justify-content:center;gap:6px;
+       grid-template-columns:none !important}
+  .nav>*{flex:0 0 auto}
+  .nav a{min-width:150px;justify-content:center}
+}
+
+/* ── 6 · THE TARGET FLOOR · 44 px ─────────────────────────────────────────
+   Every control is at least 44 px to the finger. Where a control is drawn
+   smaller than that on purpose — a pip, a seal, a line of small print — its hit
+   area is grown with a pad that is cancelled by a negative margin, so the
+   picture does not change by a single pixel.                                 */
+.med.heart,.med.bell,.med.ladder,.med.seal,.act.share,
+.dk-dshut,.dk-icon{position:relative}
+.med.heart::after,.med.bell::after,.med.ladder::after,.med.seal::after,.act.share::after,
+.dk-dshut::after,.dk-icon::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:44px;height:44px;transform:translate(-50%,-50%);
+}
+.dk-tab{min-height:44px}
+.cr-kind,.dk-chip,.dk-btn,.cr-sw,.dk-ditem,#desk-screen label{min-height:44px}
+#desk-screen input,#desk-screen select,#desk-screen textarea{min-height:44px}
+.cr-title,.cr-sum,.cr-sel,.dk-input{min-height:44px}
+.foot-fine{padding-block:15px;margin-block:-15px}
+/* the bottom bar's labels were 9.6 px at 3:1 — they are 11 px and darker now,
+   and each tab keeps its 44 px target */
+.nav a{min-height:44px}
+
+/* ── 7 · THE TYPE FLOOR · 11 px ───────────────────────────────────────────
+   The house had captions at 8.5 px and labels at 7.5 px — legible on a 27-inch
+   studio display and not on the phone this house is mostly read on. Nothing a
+   member is meant to read is smaller than 11 px now.
+
+   Two of these rules are written at the same weight as the module they answer,
+   because the film module sets the cards' small caps at 8.5–9 px `!important`
+   and a lighter selector would never be heard.                              */
+.hp-footwrap .foot,.foot-fine{font-size:11px !important}
+.hp-open{font-size:11.5px !important}
+#home-screen .card.c-gold .eyebrow,#home-screen .card.c-gold .kicker,#home-screen .card.c-gold .kicker i,
+#home-screen .card.c-plum .eyebrow,#home-screen .card.c-plum .kicker,
+#home-screen .card.c-line .eyebrow,#home-screen .card.c-line .kicker,
+#home-screen .card.c-rose .eyebrow,#home-screen .card.c-rose .kicker,
+#home-screen .card.c-seal .eyebrow,#home-screen .card.c-seal .kicker,
+#home-screen .card.c-gold .clock span,#home-screen .card.c-plum .clock span,
+#home-screen .card.c-line .clock span,#home-screen .card.c-rose .clock span,
+#home-screen .card.c-seal .clock span{
+  font-size:11px !important;letter-spacing:.14em !important;
+}
+body .eyebrow,body .kicker,body .ftype,body .iv-admin-chip,body .iv-chip-mini,
+body .foot,body .foot-fine,body .dk-label,body .dk-kick,body .dk-badge,
+body .hp-tk,body .door-read,body .nav a,body .ptype,body .pstate,
+#home-screen .card.c-gold .note,#home-screen .card.c-plum .note,
+#home-screen .card.c-line .note,#home-screen .card.c-rose .note,
+#home-screen .card.c-seal .note,
+#desk-screen .cr-gut i,#desk-screen .cr-f i,#desk-screen .cr-lab,#desk-screen .cr-kind,
+#desk-screen .cr-seal span,#desk-screen .rmx-h,
+#desk-screen .dk-ditem i,#desk-screen .dk-ditem span,
+.dk-drawer .dk-ditem i,.dk-drawer .dk-ditem span,#desk-screen .cr-count i,#desk-screen .cr-sw{font-size:11px !important}
+
+/* ── 8 · THE CONTRAST FLOOR · 4.5:1, AND WHERE IT WAS NOT ─────────────────
+   Measured from the pixels actually behind each word, not from the stylesheet:
+   a caption on a photograph is not the caption its CSS describes. So the rule
+   is written per surface:
+
+     · on the three photographed cards the words are cream over a deeper scrim,
+       with a shadow so they hold over the light parts of the picture
+     · on the two paper cards the small caps are the deep gold that reads on
+       paper
+     · the line under the door, the drawer's own note and the desk's small caps
+       were the faintest things in the house                               */
+#home-screen .card.c-gold .ivf-scrim,
+#home-screen .card.c-plum .ivf-scrim,
+#home-screen .card.c-line .ivf-scrim,
+#home-screen .card.c-gold .card-in,
+#home-screen .card.c-plum .card-in,
+#home-screen .card.c-line .card-in{
+  background-image:linear-gradient(100deg,rgba(24,9,0,.62) 0%,rgba(24,9,0,.40) 38%,rgba(24,9,0,.10) 68%,rgba(24,9,0,0) 100%) !important;
+}
+#home-screen .card.c-gold .eyebrow,#home-screen .card.c-gold .kicker,#home-screen .card.c-gold .kicker i,
+#home-screen .card.c-plum .eyebrow,#home-screen .card.c-plum .kicker,#home-screen .card.c-plum .kicker i,
+#home-screen .card.c-line .eyebrow,#home-screen .card.c-line .kicker,#home-screen .card.c-line .kicker i{
+  color:rgba(255,249,234,.97) !important;
+  text-shadow:0 1px 2px rgba(46,22,2,.62),0 0 14px rgba(46,22,2,.40) !important;
+}
+#home-screen .card.c-rose .eyebrow,#home-screen .card.c-rose .kicker,
+#home-screen .card.c-seal .eyebrow,#home-screen .card.c-seal .kicker{
+  color:#63440d !important;
+}
+#home-screen .card.c-gold .title,#home-screen .card.c-plum .title,#home-screen .card.c-line .title{
+  color:#fffaea !important;
+  text-shadow:0 1px 3px rgba(42,20,2,.55) !important;
+}
+#home-screen .hp-open i{color:#6f4f14 !important}
+.dk-drawer .dk-dhead b{color:#fff6e2 !important}
+.dk-drawer .dk-dhead s{color:rgba(255,246,226,.88) !important}
+.dk-drawer .dk-dlist button{color:rgba(255,244,220,.94) !important}
+#desk-screen .dk-label,#desk-screen .dk-kick,#desk-screen .dk-sheet label{color:rgba(255,238,205,.82) !important}
+.nav a{color:#5c4318 !important}
+.nav a.on{color:#3f2a06 !important}
+
+/* ── 9 · WHAT THIS PASS DID NOT DO ────────────────────────────────────────
+   It did not change a single word, a single colour of the palette, or the gold
+   itself — only how much room the words are given and how far they sit from the
+   paper. It added no script, no request and no animation. The large room is a
+   layout, and the finish is three floors.                                    */
 </style>
 <script id="iv-legal-js">
 /* ══════════════════════════════════════════════════════════════════════════
