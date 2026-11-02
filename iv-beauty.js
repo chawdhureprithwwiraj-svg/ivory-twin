@@ -542,8 +542,7 @@
     '.bty-lab{font:700 13px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.04em}',
     '.bty-lab s{display:block;text-decoration:none;font:400 11px/1.3 system-ui,sans-serif;color:rgba(255,240,214,.55)}',
     '.bty-mval{margin-left:auto;font:800 13px/1 Georgia,serif;color:#F3D08A}',
-    '.bty-presets{display:flex;gap:7px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none}',
-    '.bty-presets::-webkit-scrollbar{display:none}',
+    '.bty-presets{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 10px}',
     '.bty-p{flex:none;min-height:34px;padding:0 12px;border-radius:999px;cursor:pointer;',
     '  font:700 10px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;',
     '  color:#F6DFAE;background:rgba(255,246,226,.06);border:1px solid rgba(243,208,138,.26)}',
@@ -568,10 +567,11 @@
     '.bty-r::-moz-range-track{height:6px;border-radius:99px;background:rgba(255,246,226,.16)}',
     '.bty-r::-moz-range-thumb{width:18px;height:18px;border-radius:50%;border:2px solid #3A0512;',
     '  background:radial-gradient(circle at 35% 30%,#FFF6D8,#DCB063 70%,#A87B2C)}',
-    '.bty-ft{display:flex;gap:8px;padding:8px 16px 4px;border-top:1px solid rgba(243,208,138,.14)}',
-    '.bty-b{flex:1;min-height:46px;border-radius:12px;border:1px solid rgba(243,208,138,.30);cursor:pointer;',
-    '  background:rgba(255,246,226,.06);color:#F6DFAE;font:800 10px/1 system-ui,sans-serif;letter-spacing:.14em;',
-    '  text-transform:uppercase}',
+    '.bty-ft{display:grid;grid-template-columns:1.24fr 1fr 1fr;gap:8px;padding:8px 16px 4px;',
+    '  border-top:1px solid rgba(243,208,138,.14)}',
+    '.bty-b{min-height:46px;border-radius:12px;border:1px solid rgba(243,208,138,.30);cursor:pointer;',
+    '  background:rgba(255,246,226,.06);color:#F6DFAE;font:800 9.5px/1 system-ui,sans-serif;letter-spacing:.12em;',
+    '  text-transform:uppercase;white-space:nowrap}',
     '.bty-b.hold{background:rgba(255,246,226,.12)}',
     '.bty-b.hold:active{background:linear-gradient(180deg,#FFF3D2,#DFAE55);color:#3F2405}',
     '.bty-q{padding:4px 16px 6px;font:400 10.5px/1.3 system-ui,sans-serif;color:rgba(255,240,214,.5)}',
@@ -610,7 +610,7 @@
           '<span class="bty-lab">Beauty<s id="bty-state">off · your camera is untouched</s></span>' +
           '<span class="bty-mval" id="bty-mv">55</span>' +
         '</div>' +
-        '<div class="bty-row" style="border-top:0">' +
+        '<div class="bty-row" style="border-top:0;padding-top:12px">' +
           '<span class="bty-name" style="grid-area:dot/name">All effects — strength</span>' +
           '<input class="bty-r" id="bty-master" type="range" min="0" max="100" value="55" aria-label="Overall beauty strength">' +
         '</div>' +
