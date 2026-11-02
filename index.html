@@ -37216,7 +37216,15 @@ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1
 .lv-x { flex: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
 display: grid; place-items: center; color: #FFF6E2; border-radius: 50%; }
 .lv-x:hover { background: rgba(255,246,226,.12); }
-.lv-pillrow { position: absolute; left: 14px; top: calc(66px + env(safe-area-inset-top, 0px)); z-index: 6; }
+.lv-pillrow { position: absolute; left: 14px; right: 14px; top: calc(66px + env(safe-area-inset-top, 0px));
+z-index: 6; display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
+.lv-pillrow > * { pointer-events: auto; }
+.lv-bty { margin-left: auto; background: rgba(58,4,16,.72); color: #F6DFAE;
+border: 1px solid rgba(243,208,138,.34); box-shadow: 0 3px 14px rgba(10,0,4,.40); }
+.lv-bty svg { color: #EFCE86; }
+.lv-bty.on { background: linear-gradient(180deg, #FFF0C8, #D9AE5A); color: #4A0B18;
+border-color: transparent; box-shadow: 0 3px 16px rgba(233,193,97,.45); }
+.lv-bty.on svg { color: #4A0B18; }
 .lv-gpill { display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
 padding: 7px 12px; border: 0; border-radius: 22px; cursor: pointer;
 background: rgba(64,6,18,.78); color: #FFF3DC;
@@ -37308,6 +37316,8 @@ background: linear-gradient(180deg, #FFE9A6 0%, #E9C161 52%, #C9971F 100%);
 box-shadow: 0 6px 16px rgba(8,0,4,.5), inset 0 1px 0 rgba(255,255,255,.55);
 transition: transform .14s ease, filter .14s ease; }
 .lv-key:active { transform: scale(.96); }
+.lv-key.lit { background: linear-gradient(180deg,#FFF0C8,#D9AE5A); color:#4A0B18;
+box-shadow: 0 6px 16px rgba(10,0,4,.45), inset 0 1px 0 rgba(255,255,255,.7); }
 .lv-key.off { background: rgba(255,246,226,.14); color: #FFF6E2;
 box-shadow: 0 6px 16px rgba(8,0,4,.45), inset 0 0 0 1.4px rgba(255,246,226,.8); }
 .lv-key.danger { background: #5E0A22; color: #FFF3DC;
@@ -40564,7 +40574,7 @@ client: null, uid: 0, hostUid: 0, mic: null, cam: null,
 micOn: true, camOn: true, requestId: null, over: false, mounted: false,
 lastId: 0, seen: {}, tiles: {}, positions: {}, guests: [], mine: null,
 openRequests: true, busy: false, sheet: null, stageLive: false,
-myId: '', myName: '', last: [], stepped: false, selfTileEl: null, reqs: []
+myId: '', myName: '', last: [], stepped: false, selfTileEl: null, reqs: [], vTrack: null
 };
 var SLOTS = [{ x: 1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: .5 }, { x: 0, y: .5 }, { x: .5, y: 1 }];
 function $(id) { return document.getElementById(id); }
@@ -40592,6 +40602,7 @@ for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 1677
 return h === 0 ? 1 : h;
 }
 var ICO = {
+face: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l1.7 4.1 4.1 1.7-4.1 1.7L12 15.2l-1.7-4.1L6.2 9.4l4.1-1.7z"/><path d="M18.4 15.1l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg>',
 groups: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.6" r="3"/><path d="M3.6 19c.5-3.3 2.6-5 5.4-5s4.9 1.7 5.4 5"/><path d="M15.6 6.2a2.9 2.9 0 010 5.6M17 14.6c2 .6 3.1 2.3 3.4 4.4"/></svg>',
 bell: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2c-3 0-4.7 2.1-4.7 5.3 0 3.3-1.1 4.3-1.7 5h12.8c-.6-.7-1.7-1.7-1.7-5 0-3.2-1.7-5.3-4.7-5.3z"/><path d="M10.3 17.6a1.9 1.9 0 003.4 0"/></svg>',
 cam: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.4" width="12.6" height="11.2" rx="2.4"/><path d="M15.6 11l5.4-3v8l-5.4-3z"/></svg>',
@@ -40621,7 +40632,8 @@ return '' +
 '<span class="lv-ttl"><b id="lvr-title">The room</b><s id="lv-note"></s></span>' +
 '<button class="lv-x" id="lv-x" aria-label="Step out of the room">' + ICO.x + '</button>' +
 '</div>' +
-'<div class="lv-pillrow"><button class="lv-gpill" id="lv-guest" hidden></button></div>' +
+'<div class="lv-pillrow"><button class="lv-gpill" id="lv-guest" hidden></button>' +
+'<button class="lv-gpill lv-bty" id="lv-beauty" hidden></button></div>' +
 '<div class="lv-tiles" id="lv-tiles"></div>' +
 '<div class="lv-talkwrap"><div class="lv-talk" id="lv-talk" role="log" aria-live="polite"></div></div>' +
 '<form class="lv-say" id="lvr-say" autocomplete="off">' +
@@ -40677,6 +40689,8 @@ S.from = opts.startedAt ? new Date(opts.startedAt) : new Date();
 S.over = false; S.lastId = 0; S.tiles = {}; S.guests = []; S.reqs = []; S.stageLive = false;
 S.micOn = true; S.camOn = true;
 S.myId = meId(); S.myName = myName(); S.stepped = false; S.selfTileEl = null;
+if (window.IVBEAUTY && window.IVBEAUTY.detach) window.IVBEAUTY.detach();
+S.bv = null; S.bvTrack = null;
 if (!Array.isArray(S.last)) S.last = [];
 var root = $('lv');
 root.classList.add('on');
@@ -40750,12 +40764,24 @@ left: function () { return ['REJOIN', 'replay']; },
 cancelled: function (r) { return [(r.credit_applied_inr || r.cash_paid_inr) ? 'CREDIT SAVED FOR A FUTURE LIVE' : 'REQUEST ENDED', 'wallet']; },
 payment_rejected: function () { return ['TRY GUEST REQUEST AGAIN', 'cam']; }
 };
+function paintBeauty() {
+var b = $('lv-beauty');
+if (!b) return;
+var mine = (S.role === 'host' || (S.role === 'seat' && !S.stepped));
+if (!mine) { b.hidden = true; return; }
+var on = !!(window.IVBEAUTY && window.IVBEAUTY.on());
+b.hidden = false;
+b.classList.toggle('on', on);
+b.innerHTML = ICO.face + '<span>' + (on ? 'BEAUTY · ON' : 'BEAUTY') + '</span>';
+b.onclick = function () { openBeauty(); };
+}
 function paintPill() {
+paintBeauty();
 var b = $('lv-guest');
 if (!b) return;
 if (!S.id) { b.hidden = true; return; }
 if (S.role === 'host') {
-var filled = S.guests.filter(function (g) { return g.status === 'active' || g.status === 'joining' || g.status === 'approved'; }).length;
+var filled = Math.min(seatsTaken(S.guests), SEATS);
 var waiting = (S.reqs || []).filter(function (g) { return g.status === 'waiting_host' || g.status === 'payment_review'; }).length;
 b.hidden = false;
 b.innerHTML = (waiting > 0 ? ICO.bell : ICO.groups) +
@@ -40913,20 +40939,19 @@ return c.setClientRole(S.role === 'watch' ? 'audience' : 'host')
 if (S.role === 'watch') return null;
 var want = S.role === 'seat' && !S.camOn ? [] : null;
 var audioOnly = S.role === 'seat' && !S.camOn;
+var warm = beautyOn() ? loadBeauty().catch(function () {}) : Promise.resolve(null);
+return warm.then(function () {
 return Promise.all([AgoraRTC.createMicrophoneAudioTrack(),
 audioOnly ? Promise.resolve(null) : AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' })]).then(function (tr) {
 S.mic = tr[0]; S.cam = tr[1];
+S.vTrack = S.cam;
 var pubs = S.mic ? [S.mic] : [];
-if (S.cam) pubs.push(S.cam);
+if (S.vTrack) pubs.push(S.vTrack);
 return c.publish(pubs).then(function () {
-if (!S.cam) return;
-if (S.role === 'host') {
-S.cam.play('lvr-video');
-S.stageLive = true;
-offPlate(null);
-} else {
-selfTile();
-}
+if (!S.vTrack) return;
+showLocal(S.vTrack);
+if (beautyEngine() && beautyOn()) beautyAttach();
+});
 });
 });
 });
@@ -40936,6 +40961,8 @@ offPlate('The room did not open', (x && x.message) || 'Check your signal, then s
 });
 }
 function leaveRTC() {
+try { var E = beautyEngine(); if (E && E.detach) E.detach(); } catch (e) {}
+S.bv = null; S.bvTrack = null;
 try { if (S.mic) { S.mic.stop(); S.mic.close(); } } catch (e) {}
 try { if (S.cam) { S.cam.stop(); S.cam.close(); } } catch (e) {}
 S.mic = null; S.cam = null;
@@ -40945,11 +40972,63 @@ var v = $('lvr-video'); if (v) v.innerHTML = '';
 var t = $('lv-tiles'); if (t) t.innerHTML = '';
 S.tiles = {};
 }
+var BEAUTY_SRC = null;
+function beautyEngine() { return window.IVBEAUTY || null; }
+function beautyOn() {
+var E = beautyEngine();
+if (E) return !!(E.on ? E.on() : (E.state && E.state.on));
+try { var raw = localStorage.getItem('ivory.beauty.v2'); return !!(raw && JSON.parse(raw).on); } catch (e) { return false; }
+}
+function loadBeauty() {
+if (window.IVBEAUTY) return Promise.resolve(window.IVBEAUTY);
+if (BEAUTY_SRC) return BEAUTY_SRC;
+BEAUTY_SRC = new Promise(function (res, rej) {
+var sc = document.createElement('script');
+sc.src = 'iv-beauty.js';
+sc.async = true;
+sc.onload = function () { window.IVBEAUTY ? res(window.IVBEAUTY) : rej(new Error('no engine')); };
+sc.onerror = function () { rej(new Error('the studio did not arrive')); };
+document.head.appendChild(sc);
+setTimeout(function () { if (!window.IVBEAUTY) rej(new Error('the studio is slow to arrive')); }, 9000);
+});
+return BEAUTY_SRC;
+}
+function openBeauty() {
+loadBeauty().then(function (E) {
+E.open();
+}).catch(function () {
+toast('The studio did not load. Check your signal, then tap again.', true);
+});
+}
+function showLocal(t) {
+if (!t) return;
+if (S.role === 'host') {
+var v = $('lvr-video'); if (v) v.innerHTML = '';
+try { t.play('lvr-video'); } catch (e) {}
+S.stageLive = true;
+offPlate(null);
+} else {
+selfTile(t);
+}
+}
+function swapBeauty(on) {
+var E = beautyEngine();
+if (!E) { loadBeauty().then(function (E2) { E2.setOn(!!on); }).catch(function () {}); return; }
+if (E.setOn) E.setOn(!!on);
+paintBeauty();
+}
+var SEATS = 5;   /* five co-hosts — Ivory herself is the sixth picture, the stage */
+function seatsTaken(list) {
+return (list || []).filter(function (g) {
+return g.status === 'active' || g.status === 'joining' || g.status === 'approved';
+}).length;
+}
 function tileEl(memberId, name) {
 var box = $('lv-tiles');
 if (!box) return null;
 var el = box.querySelector('[data-mid="' + memberId + '"]');
 if (el) return el;
+if (box.querySelectorAll('.lv-tile').length >= SEATS) return null;
 el = document.createElement('div');
 el.className = 'lv-tile';
 el.setAttribute('data-mid', memberId);
@@ -40980,13 +41059,16 @@ if (user.videoTrack) user.videoTrack.play(slot);
 el.classList.add('live');
 placeTiles();
 }
-function selfTile() {
+function selfTile(track) {
 if (S.role !== 'seat' || !S.myId) return;
 var el = tileEl(S.myId, 'You');
 if (!el) return;
 S.selfTileEl = el;
 el.classList.add('live');
-if (S.cam) S.cam.play(el.querySelector('.lv-tile-v'));
+var slot = el.querySelector('.lv-tile-v');
+if (slot) slot.innerHTML = '';
+var t = track || S.vTrack || S.cam;
+if (t) { try { t.play(slot); } catch (e) {} }
 placeTiles();
 }
 function dropTile(uid) {
@@ -41210,6 +41292,73 @@ if (!live.some(function (g) { return g.user_id === mid; })) el.classList.remove(
 paintPill();
 placeTiles();
 }
+function loadBeauty() {
+if (window.IVBEAUTY) return Promise.resolve(window.IVBEAUTY);
+if (S.bvLoad) return S.bvLoad;
+S.bvLoad = new Promise(function (res, rej) {
+var sc = document.createElement('script');
+sc.src = 'iv-beauty.js';
+sc.async = true;
+sc.onload = function () {
+if (window.IVBEAUTY) res(window.IVBEAUTY);
+else rej(new Error('the studio did not arrive'));
+};
+sc.onerror = function () { rej(new Error('the studio did not arrive')); };
+document.head.appendChild(sc);
+});
+return S.bvLoad;
+}
+function openBeauty() {
+loadBeauty().then(function (E) { E.open(); })
+.catch(function () { toast('The studio did not arrive. Check your signal and try once more.', true); });
+}
+function beautyAttach() {
+if (S.role === 'watch' || !S.cam || S.bv) return;
+var E = window.IVBEAUTY;
+if (!E || !E.attach) return;
+S.bv = E.attach(S.cam, function (track) {
+if (!track) {
+if (E.setOn) E.setOn(false);
+toast('This device cannot run the studio — the camera stays exactly as it is.', true);
+return;
+}
+S.bvTrack = track;
+var c = S.client;
+if (!c) return;
+c.unpublish(S.cam).catch(function () {}).then(function () {
+return c.publish(track);
+}).then(function () {
+if (S.role === 'host') {
+var v = $('lvr-video'); if (v) v.innerHTML = '';
+track.play('lvr-video');
+S.stageLive = true; offPlate(null);
+} else {
+selfTile(track);
+}
+paintBeauty();
+}).catch(function () {});
+});
+paintBeauty();
+}
+function beautyDetach() {
+var E = window.IVBEAUTY;
+if (!S.bv) return;
+var c = S.client, cam = S.cam;
+try { S.bv.destroy(); } catch (e) {}
+S.bv = null;
+S.bvTrack = null;
+if (c && cam) {
+c.publish(cam).catch(function () {});
+if (S.role === 'host') {
+var v = $('lvr-video'); if (v) v.innerHTML = '';
+cam.play('lvr-video');
+} else {
+selfTile(cam);
+}
+}
+if (E) E.detach();
+paintBeauty();
+}
 function sheetOpen(html) {
 var back = $('lv-sheetback');
 if (!back) return;
@@ -41255,14 +41404,17 @@ var box = $('lv-reqs'); if (!box) return;
 rows = Array.isArray(rows) ? rows : [];
 S.reqs = rows; paintPill();
 if (!rows.length) { box.innerHTML = '<p class="lv-empty">No paid guest requests yet.</p>'; return; }
-box.innerHTML = rows.map(function (r) {
+var full = seatsTaken(rows) >= SEATS;
+box.innerHTML = (full ? '<p class="lv-empty" style="padding:0 0 10px">All five places are filled. Remove one to make room.</p>' : '') +
+rows.map(function (r) {
 var waiting = r.status === 'waiting_host';
 var occupies = r.status === 'approved' || r.status === 'joining' || r.status === 'active' || r.status === 'left';
 return '<div class="lv-req' + (waiting ? ' waiting' : '') + '">' +
 '<div class="lv-req-top"><b>' + esc(r.display_name || 'A member') + '</b><span>' + money(r.fee_inr || 0) + '</span></div>' +
 '<p class="lv-req-meta">' + ((r.media_kind === 'audio') ? 'AUDIO ONLY' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + '</p>' +
 (waiting
-? '<div class="lv-req-btns"><button class="lv-btno gold" data-let="' + r.id + '">APPROVE</button>' +
+? '<div class="lv-req-btns"><button class="lv-btno gold" data-let="' + r.id + '"' + (full ? ' disabled' : '') + '>' +
+(full ? 'FIVE PLACES FILLED' : 'APPROVE') + '</button>' +
 '<button class="lv-btno" data-no="' + r.id + '">DECLINE</button></div>'
 : (occupies ? '<div class="lv-req-btns"><button class="lv-btno" data-off="' + r.id + '">REMOVE</button></div>' : '')) +
 '</div>';
@@ -41575,12 +41727,15 @@ IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: s.id }).th
 var box = pane.querySelector('#lvd-guests'); if (!box) return;
 rows = Array.isArray(rows) ? rows : [];
 if (!rows.length) { box.innerHTML = '<p class="lvd-hint">' + (s.guestPrice > 0 ? 'No one has asked for a seat yet. The price is ' + money(s.guestPrice) + '.' : 'No seats tonight — a seat price of zero means no one can ask.') + '</p>'; return; }
-box.innerHTML = rows.map(function (r) {
+var full = seatsTaken(rows) >= SEATS;
+box.innerHTML = (full ? '<p class="lvd-hint">All five places are filled. Remove one to make room.</p>' : '') +
+rows.map(function (r) {
 var waiting = r.status === 'waiting_host';
 return '<div class="lvd-guest' + (waiting ? ' waiting' : '') + '">' +
 '<b>' + esc(r.display_name || 'A member') + '</b>' +
 '<s>' + ((r.media_kind === 'audio') ? 'AUDIO' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + ' · ' + money(r.fee_inr || 0) + '</s>' +
-(waiting ? '<div class="lvd-gbtns"><button class="lvd-gb gold" data-let="' + r.id + '">APPROVE</button><button class="lvd-gb" data-no="' + r.id + '">DECLINE</button></div>' : '') +
+(waiting ? '<div class="lvd-gbtns"><button class="lvd-gb gold" data-let="' + r.id + '"' + (full ? ' disabled' : '') + '>' +
+(full ? 'FIVE PLACES FILLED' : 'APPROVE') + '</button><button class="lvd-gb" data-no="' + r.id + '">DECLINE</button></div>' : '') +
 '</div>';
 }).join('');
 Array.prototype.forEach.call(box.querySelectorAll('[data-let]'), function (b) {
@@ -41660,6 +41815,8 @@ box.innerHTML = '<p class="lvd-hint" style="margin:0 0 4px">' + money(total) + '
 }
 window.IVLIVE = {
 open: open, close: close, isOpen: isOpen, desk: desk,
+beautyAttach: beautyAttach, beautyDetach: beautyDetach, beautyOpen: openBeauty,
+applyBeauty: swapBeauty, beauty: { load: loadBeauty, open: openBeauty, on: beautyOn },
 state: S, S: S, D: D,
 say: say, paintPill: paintPill, placeTiles: placeTiles,
 money: money, clockOf: clockOf
