@@ -1090,9 +1090,12 @@
     ensureTracker(); paint();
   }
   function ensureTracker() {
-    if (TR.state === 'idle' || TR.state === 'off') {
-      TR.state = 'loading';
-      loadTracker().catch(function () {
+    if (TR.state === 'ready' || TR.state === 'loading') return;
+    /* loadTracker owns the state machine — let it set 'loading', or the first
+       call would ask for a promise that does not exist yet */
+    var p = loadTracker();
+    if (p && p.catch) {
+      p.catch(function () {
         say('The eye tracker could not be fetched — your own eyes stay as they are.', true);
         if (sheet) paint();
       }).then(function () { if (sheet) paint(); });
