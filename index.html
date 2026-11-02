@@ -19349,10 +19349,21 @@ window.IVSESS = (function () {
     openRoom(r);
   }
 
+  /* the gold banner walks in by this name */
+  window.ivWalkInLive = walkIn;
   function openRoom(r){
     /* THE ROOM IS THE ROOM. The list stays as it is; walking in now opens the
        broadcast itself — her full screen, the gold disc, the five seats — with
        every number read from the house, exactly as the app opens it. */
+    if(window.IVLIVE && IVLIVE.watch){
+      show('lv-list-view',false); show('lv-door-view',false); show('lv-room-view',false);
+      IVLIVE.watch({ id:r.id, title:r.title||'The room', price:Number(r.price_inr||0),
+        seatPrice:Number(r.guest_price_inr||0),
+        allowed:Array.isArray(r.allowed_tiers)?r.allowed_tiers:[],
+        minTier:Number(r.min_tier||1), tierName:r.tier_name||'',
+        hostVideo:r.host_video_enabled!==false, startedAt:r.started_at||null });
+      return;
+    }
     if(window.IVCAST && IVCAST.watch){
       show('lv-list-view',false); show('lv-door-view',false); show('lv-room-view',false);
       IVCAST.watch({ id:r.id, title:r.title||'The room', price:Number(r.price_inr||0),
@@ -19756,7 +19767,7 @@ window.IVSESS = (function () {
   function render(k){
     var p=$('dk-pane'); if(!p) return;
     stopClocks();
-    if(k==='live') return renderLive(p);
+    if(k==='live') return (window.IVLIVE && IVLIVE.desk) ? IVLIVE.desk(p) : renderLive(p);
     if(k==='calls') return renderCalls(p);
     if(k==='tiers') return renderTiers(p);
     if(k==='members') return renderMembers(p);
@@ -33098,7 +33109,10 @@ window.IVPRESENCE = (function () {
       host.innerHTML = html;
       var el = $('iv-live-disc');
       if (el) {
-        el.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
+        el.addEventListener('click', function () {
+          if (window.ivWalkInLive && discLive) { try { window.ivWalkInLive(discLive); return; } catch (e) {} }
+          if (window.ivLive) ivLive.open();
+        });
         requestAnimationFrame(function () { el.classList.add('on'); });
         milled();
       }
@@ -37157,6 +37171,309 @@ pointer-events: none; z-index: 0; opacity: .96; }
 .bg-art, .bg-tagx { transition: none; }
 }
 </style>
+<style id="iv-live88-css">
+.lv { position: fixed; inset: 0; z-index: 9200; display: none;
+background: #3A0410; color: #FFF3DC; font-family: var(--f-ui, Georgia, serif);
+-webkit-tap-highlight-color: transparent; overscroll-behavior: contain; }
+.lv.on { display: block; }
+body.on-live88 { overflow: hidden; }
+.lv-stage { position: absolute; inset: 0; overflow: hidden; background: #3A0412; }
+.lv-video { position: absolute; inset: 0; }
+.lv-video video { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; }
+.lv-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+background:
+linear-gradient(180deg, rgba(58,4,16,.62) 0%, rgba(58,4,16,.18) 14%, transparent 30%),
+linear-gradient(0deg, rgba(58,4,16,.78) 0%, rgba(58,4,16,.28) 22%, transparent 46%); }
+.lv-off { position: absolute; inset: 0; display: none; place-content: center; text-align: center;
+gap: 8px; padding: 0 30px; z-index: 2; }
+.lv-off.on { display: grid; }
+.lv-off-b { font: 600 17px/1.3 var(--f-display, Georgia), serif; color: #FFF6E2; }
+.lv-off-s { font-size: 12.5px; line-height: 1.5; color: rgba(255,240,214,.66); max-width: 34ch; margin: 0 auto; }
+.lv-top { position: absolute; left: 0; right: 0; top: 0; z-index: 6;
+display: flex; align-items: center; gap: 10px; padding: 14px 8px 10px 14px;
+padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
+.lv-pill { flex: none; display: inline-flex; align-items: center; gap: 6px;
+padding: 4px 9px; border-radius: 20px;
+background: linear-gradient(180deg, #FFE9A6 0%, #E9C161 55%, #C9971F 100%);
+color: #4A0C1B; font-size: 11.5px; font-weight: 900; letter-spacing: 1.1px;
+box-shadow: 0 2px 6px rgba(20,2,6,.4), inset 0 1px 0 rgba(255,255,255,.6); }
+.lv-pill i { width: 6px; height: 6px; border-radius: 50%; background: #8E0F27;
+box-shadow: 0 0 0 2px rgba(142,15,39,.18); animation: lvPulse 2.4s ease-in-out infinite; }
+@keyframes lvPulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+.lv-gift { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgba(239,206,134,.62);
+cursor: pointer; display: grid; place-items: center; color: #F6D98A;
+background: rgba(58,4,16,.46);
+box-shadow: 0 4px 14px rgba(8,0,4,.35), inset 0 1px 0 rgba(255,255,255,.08);
+-webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.lv-gift:active { transform: translateY(1px); }
+.lv-gift[hidden] { display: none; }
+.lv-ttl { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.lv-ttl b { font-size: 15px; font-weight: 800; color: #FFF8EA; line-height: 1.2;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+text-shadow: 0 1px 3px rgba(10,0,4,.7); }
+.lv-ttl s { font-size: 11px; color: rgba(255,240,214,.62); text-decoration: none; line-height: 1.35;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(10,0,4,.7); }
+.lv-x { flex: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+display: grid; place-items: center; color: #FFF6E2; border-radius: 50%; }
+.lv-x:hover { background: rgba(255,246,226,.12); }
+.lv-pillrow { position: absolute; left: 14px; top: calc(66px + env(safe-area-inset-top, 0px)); z-index: 6; }
+.lv-gpill { display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+padding: 7px 12px; border: 0; border-radius: 22px; cursor: pointer;
+background: rgba(64,6,18,.78); color: #FFF3DC;
+font-size: 10.5px; font-weight: 900; letter-spacing: .45px; text-transform: uppercase;
+box-shadow: 0 3px 12px rgba(10,0,4,.35), inset 0 0 0 1px rgba(243,208,138,.18);
+-webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.lv-gpill[hidden] { display: none; }
+.lv-gpill svg { color: #EFCE86; flex: none; }
+.lv-gpill.alert { background: rgba(122,16,32,.92); box-shadow: 0 3px 14px rgba(10,0,4,.45), inset 0 0 0 1px rgba(243,208,138,.42); }
+.lv-gpill.quiet { cursor: default; opacity: .9; }
+.lv-gpill:active { transform: translateY(1px); }
+.lv-tiles { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.lv-tile { position: absolute; border-radius: 12px; overflow: visible; pointer-events: auto;
+transition: box-shadow .2s ease; }
+.lv-tile::before { content: ""; position: absolute; inset: 0; border-radius: 12px;
+background: linear-gradient(180deg, rgba(74,8,22,.55), rgba(58,4,16,.72));
+box-shadow: 0 10px 26px rgba(8,0,4,.55), inset 0 0 0 1px rgba(243,208,138,.22); }
+.lv-tile.live::before { box-shadow: 0 10px 26px rgba(8,0,4,.5), inset 0 0 0 1px rgba(243,208,138,.42); }
+.lv-tile.dragging { z-index: 9; }
+.lv-tile.dragging::before { box-shadow: 0 16px 34px rgba(8,0,4,.6), inset 0 0 0 2px #E9C161; }
+.lv-tile-grab { position: absolute; left: 50%; top: -18px; transform: translateX(-50%);
+width: 34px; height: 22px; display: none; place-items: center; cursor: grab;
+color: rgba(255,244,222,.86); filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); touch-action: none; }
+.lv.on.hostmode .lv-tile-grab { display: grid; }
+.lv-tile-grab:active { cursor: grabbing; }
+.lv-tile-v { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; background: #3A0512; }
+.lv-tile-v video { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; }
+.lv-tile-name { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 8px;
+font-size: 10.5px; font-weight: 800; letter-spacing: .3px; color: #FFF6E2; text-align: center;
+background: rgba(70,8,20,.82); border-radius: 0 0 12px 12px;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-talkwrap { position: absolute; left: 0; right: 0; z-index: 6;
+bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+height: min(30vh, 300px); display: flex; align-items: flex-end; pointer-events: none; }
+.lv-talk { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior: contain;
+padding: 8px 14px 4px; pointer-events: auto; scrollbar-width: none; }
+.lv-talk::-webkit-scrollbar { display: none; }
+.lv-talk-empty { margin: 0; padding: 10px 2px; font-size: 12px; color: rgba(255,240,214,.55); }
+.lv-m { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 9px; animation: lvIn .28s ease both; }
+@keyframes lvIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.lv-m-ava { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+font: 700 15px/1 Georgia, serif; color: #5A1020;
+background: radial-gradient(120% 120% at 30% 20%, #FFF4C9 0%, #F6D98A 42%, #DBB25C 78%, #C09544 100%);
+box-shadow: 0 2px 8px rgba(10,0,4,.4); }
+.lv-m-ava.premium { box-shadow: 0 0 0 2px #E9C161, 0 2px 10px rgba(10,0,4,.45); }
+.lv-m-b { max-width: 82%; padding: 6px 9px; border-radius: 13px;
+background: rgba(74,10,24,.24); border: 1px solid rgba(244,231,203,.10);
+box-shadow: 0 2px 12px rgba(66,8,20,.30);
+-webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+font-size: 15.5px; line-height: 1.35; color: #FFF4E0;
+text-shadow: 0 1px 5px rgba(66,8,20,.88), 0 0 11px rgba(66,8,20,.42); }
+.lv-m-b b { font-weight: 900; font-size: 14.5px; color: #FFC9A2; margin-right: 6px;
+text-shadow: 0 1px 5px rgba(66,8,20,.9); }
+.lv-m-b em { display: block; margin-top: 2px; font-style: italic; font-size: 15px; color: #F2CE84; }
+.lv-m.host { justify-content: flex-start; }
+.lv-m.host .lv-m-b { display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px;
+border-radius: 14px; background: rgba(74,10,24,.82);
+border: 1px solid rgba(233,193,97,.16);
+box-shadow: 0 2px 12px rgba(66,8,20,.34);
+font-size: 16px; line-height: 1.32; }
+.lv-m.host .lv-m-b b { margin: 0; padding-top: 3px; flex: none;
+font-family: var(--f-display, Georgia), serif; font-weight: 900; font-size: 12.5px;
+letter-spacing: 1px; color: #EFCE86; }
+.lv-m.host .lv-m-b i { font-style: italic; font-weight: 700; color: #FFF3DC; }
+.lv-m-dot { flex: none; width: 8px; height: 8px; margin-top: 9px; border-radius: 50%;
+background: #EFCE86; box-shadow: 0 0 8px rgba(239,206,134,.7); }
+.lv-say { position: absolute; left: 14px; right: 14px; z-index: 7;
+bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+display: flex; align-items: center; gap: 10px; }
+.lv-say input { flex: 1 1 auto; min-width: 0; height: 46px; padding: 0 18px;
+border-radius: 999px; border: 1.5px solid rgba(239,206,134,.55);
+background: rgba(58,4,16,.46); color: #FFF6E6; font-size: 15px;
+font-family: inherit; outline: none;
+-webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+box-shadow: inset 0 1px 2px rgba(0,0,0,.28), 0 4px 14px rgba(8,0,4,.35); }
+.lv-say input::placeholder { color: rgba(255,240,214,.6); }
+.lv-say input:focus { border-color: #F2DA9C; background: rgba(64,6,20,.64); }
+.lv-send { flex: none; width: 46px; height: 46px; border: 0; border-radius: 50%; cursor: pointer;
+display: grid; place-items: center; color: #4A0C1B;
+background: linear-gradient(180deg, #FFE9A6, #DFAF4C);
+box-shadow: 0 4px 12px rgba(8,0,4,.45), inset 0 1px 0 rgba(255,255,255,.5); }
+.lv-send:active { transform: translateY(1px); }
+.lv-dock { position: absolute; left: 0; right: 0; z-index: 7;
+bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+display: flex; align-items: center; justify-content: center; gap: 14px; }
+.lv-key { width: 54px; height: 54px; border: 0; border-radius: 50%; cursor: pointer;
+display: grid; place-items: center; color: #4A0C1B;
+background: linear-gradient(180deg, #FFE9A6 0%, #E9C161 52%, #C9971F 100%);
+box-shadow: 0 6px 16px rgba(8,0,4,.5), inset 0 1px 0 rgba(255,255,255,.55);
+transition: transform .14s ease, filter .14s ease; }
+.lv-key:active { transform: scale(.96); }
+.lv-key.off { background: rgba(255,246,226,.14); color: #FFF6E2;
+box-shadow: 0 6px 16px rgba(8,0,4,.45), inset 0 0 0 1.4px rgba(255,246,226,.8); }
+.lv-key.danger { background: #5E0A22; color: #FFF3DC;
+box-shadow: 0 6px 18px rgba(70,4,18,.6), inset 0 1px 0 rgba(255,255,255,.16); }
+.lv-key.arming { background: #8E0F27; animation: lvArm 1s ease-in-out infinite; }
+@keyframes lvArm { 0%,100% { box-shadow: 0 0 0 0 rgba(233,193,97,.5), 0 6px 18px rgba(70,4,18,.6); }
+50% { box-shadow: 0 0 0 8px rgba(233,193,97,0), 0 6px 18px rgba(70,4,18,.6); } }
+.lv-sheetback { position: absolute; inset: 0; z-index: 20; display: grid; align-items: end;
+background: rgba(58,4,16,.56); opacity: 0; transition: opacity .22s ease; }
+.lv-sheetback[hidden] { display: none; }
+.lv-sheetback.on { opacity: 1; }
+.lv-sheet { max-height: 82%; overflow-y: auto; padding: 14px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+background: linear-gradient(180deg, #FDF6E6 0%, #F7EBD1 100%);
+color: #3A1018; border-radius: 26px 26px 0 0;
+box-shadow: 0 -18px 40px rgba(8,0,4,.5);
+transform: translateY(12px); transition: transform .24s cubic-bezier(.2,.8,.2,1); }
+.lv-sheetback.on .lv-sheet { transform: none; }
+.lv-grip { display: block; width: 42px; height: 4px; margin: 0 auto 14px; border-radius: 4px; background: #D9B65F; }
+.lv-sheethead { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.lv-sheethead b { flex: 1 1 auto; font: 700 20px/1.25 var(--f-display, Georgia), serif; color: #5A1020; }
+.lv-shut { flex: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+display: grid; place-items: center; color: #5A1020; border-radius: 50%; }
+.lv-shut:hover { background: rgba(90,16,32,.08); }
+.lv-switchrow { display: flex; align-items: center; gap: 14px; padding: 8px 0 12px; }
+.lv-switchrow span { flex: 1 1 auto; display: flex; flex-direction: column; }
+.lv-switchrow b { font-size: 15px; color: #5A1020; }
+.lv-switchrow s { font-size: 12.5px; color: #7A5A4A; text-decoration: none; margin-top: 2px; line-height: 1.4; }
+.lv-switch { flex: none; width: 54px; height: 32px; border: 0; border-radius: 999px; cursor: pointer;
+background: #C9B79B; position: relative; transition: background .2s ease; }
+.lv-switch.on { background: #5A1020; }
+.lv-switch[disabled] { opacity: .45; cursor: default; }
+.lv-switch i { position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
+background: #FFF9EE; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s ease; }
+.lv-switch.on i { transform: translateX(22px); }
+.lv-rule { height: 1px; margin: 2px 0 12px; background: rgba(90,16,32,.16); }
+.lv-empty { text-align: center; padding: 26px 10px; font-size: 13.5px; color: #7A5A4A; }
+.lv-req { padding: 13px; border-radius: 14px; margin-bottom: 9px;
+background: #FFFDF8; border: 1px solid rgba(168,131,68,.34);
+box-shadow: 0 4px 12px rgba(90,40,10,.07); }
+.lv-req.waiting { border-color: #C9A227; box-shadow: 0 0 0 1px rgba(201,162,39,.4), 0 6px 16px rgba(90,40,10,.12); }
+.lv-req-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lv-req-top b { font-size: 15.5px; color: #3A1018; }
+.lv-req-top span { font-size: 14px; font-weight: 800; color: #5A1020; }
+.lv-req-meta { margin: 3px 0 0; font-size: 11.5px; letter-spacing: .06em; color: #8A6A5A; }
+.lv-req-btns { display: flex; gap: 8px; margin-top: 11px; }
+.lv-btno { flex: 1 1 auto; min-height: 46px; padding: 0 16px; border-radius: 12px; cursor: pointer;
+font: 700 11.5px/1 var(--f-ui, Georgia); letter-spacing: .1em; text-transform: uppercase;
+background: #FFFDF8; color: #5A1020; border: 1px solid rgba(90,16,32,.3);
+display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.lv-btno.gold { background: linear-gradient(180deg, #FFE9A6, #DDB14C); border-color: rgba(140,100,20,.4); color: #4A0C1B; }
+.lv-btno.big { width: 100%; min-height: 52px; font-size: 12.5px; margin-top: 6px; }
+.lv-btno + .lv-btno { margin-top: 8px; }
+.lv-btno:disabled { opacity: .6; cursor: default; }
+.lv-lede2 { margin: 4px 0 14px; font-size: 13.5px; line-height: 1.55; color: #4A2A22; }
+.lv-sub { margin: 0 0 14px; font-size: 13px; color: #7A5A4A; }
+.lv-wait { margin: 0; padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5;
+color: #5A1020; background: rgba(201,162,39,.14); border: 1px solid rgba(201,162,39,.35); }
+.lv-err { margin: 8px 0 0; font-size: 12.5px; line-height: 1.45; color: #8E0F27; }
+.lv-pickrow { display: flex; gap: 10px; margin-bottom: 12px; }
+.lv-pick { flex: 1 1 0; min-height: 64px; padding: 10px 12px; border-radius: 14px; cursor: pointer;
+text-align: left; background: #FFFDF8; border: 1px solid rgba(168,131,68,.34); }
+.lv-pick b { display: block; font-size: 14px; color: #3A1018; }
+.lv-pick s { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.35; color: #7A5A4A; text-decoration: none; }
+.lv-pick.on { border-color: #5A1020; box-shadow: 0 0 0 2px rgba(90,16,32,.14); background: #FFF9EC; }
+.lv-bye { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center;
+background: rgba(58,4,16,.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.lv-bye[hidden] { display: none; }
+.lv-byecard { width: min(92%, 380px); padding: 26px 22px; border-radius: 20px; text-align: center;
+background: linear-gradient(180deg, #FDF6E6, #F5E6C8); color: #3A1018;
+box-shadow: 0 26px 60px rgba(8,0,4,.6); }
+.lv-byecard b { display: block; font: 700 21px/1.25 var(--f-display, Georgia), serif; color: #5A1020; }
+.lv-byecard s { display: block; margin: 8px 0 18px; font-size: 13.5px; line-height: 1.5; color: #6A4A3A; text-decoration: none; }
+@media (max-width: 420px) {
+.lv-ttl b { font-size: 14px; }
+.lv-gift { width: 38px; height: 38px; }
+.lv-talkwrap { height: min(28vh, 260px); }
+.lv-key { width: 52px; height: 52px; }
+}
+@media (min-width: 900px) {
+.lv-talk { max-width: 620px; padding-left: 22px; }
+.lv-talkwrap { bottom: calc(140px + env(safe-area-inset-bottom, 0px)); }
+.lv-say { left: 22px; right: auto; width: min(560px, 60%); }
+.lv-sheet { max-width: 560px; margin: 0 auto; border-radius: 26px; margin-bottom: 3vh; }
+.lv-sheetback { align-items: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+.lv-m, .lv-key, .lv-sheet, .lv-sheetback { animation: none !important; transition: none !important; }
+.lv-pill i { animation: none !important; }
+}
+.lvd { display: flex; flex-direction: column; gap: 14px; max-width: 720px; }
+.lvd-card { padding: 18px 18px 16px; border-radius: 16px;
+background: linear-gradient(180deg, rgba(255,248,232,.97), rgba(252,238,210,.94));
+border: 1px solid rgba(233,196,124,.5); color: #40241A;
+box-shadow: 0 16px 38px rgba(10,0,3,.45), 0 1px 0 rgba(255,255,255,.6) inset; }
+.lvd-kick { display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+font: 700 11px/1.3 var(--f-ui, Georgia); letter-spacing: .1em; color: #8A5E22; }
+.lvd-mark { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+background: rgba(201,162,39,.16); color: #8A5E22; flex: none; }
+.lvd-say { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: #4A2A22; }
+.lvd-l { display: block; margin: 14px 0 6px; font: 700 11px/1.2 var(--f-ui, Georgia);
+letter-spacing: .12em; text-transform: uppercase; color: #8A5E22; }
+.lvd-in { width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px; font-size: 15px;
+border: 1px solid rgba(168,131,68,.4); background: #FFFDF8; color: #3A1018; font-family: inherit; }
+.lvd-in:focus { outline: none; border-color: #8A5E22; box-shadow: 0 0 0 3px rgba(201,162,39,.18); }
+.lvd-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lvd-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px;
+border-radius: 999px; cursor: pointer; font: 700 11.5px/1 var(--f-ui, Georgia);
+letter-spacing: .05em; background: #FFFDF8; color: #6A4A3A;
+border: 1px solid rgba(168,131,68,.42); }
+.lvd-chip span { color: #8A5E22; display: inline-flex; }
+.lvd-chip.on { background: linear-gradient(180deg, #F6D98A, #D9B255); color: #3A1018;
+border-color: rgba(140,100,20,.5); box-shadow: 0 3px 10px rgba(120,80,10,.22), inset 0 1px 0 rgba(255,255,255,.6); }
+.lvd-chip.on span { color: #4A2C06; }
+.lvd-ppv { display: inline-flex; align-items: center; gap: 8px; }
+.lvd-ppv .lvd-in { width: 110px; min-height: 44px; }
+.lvd-ppv s { font-size: 11.5px; color: #6A4A3A; text-decoration: none; }
+.lvd-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: #6A4A3A; }
+.lvd-err { margin: 10px 0 0; font-size: 12.5px; color: #8E0F27; }
+.lvd-go { width: 100%; min-height: 54px; margin-top: 16px; border: 0; border-radius: 999px; cursor: pointer;
+display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+font: 800 12.5px/1 var(--f-ui, Georgia); letter-spacing: .12em;
+color: #4A0C1B; background: linear-gradient(180deg, #FFE9A6 0%, #E9C161 52%, #C9971F 100%);
+box-shadow: 0 10px 22px rgba(140,90,10,.28), inset 0 1px 0 rgba(255,255,255,.6); }
+.lvd-go:disabled { opacity: .7; cursor: default; }
+.lvd-onair { padding: 18px; border-radius: 16px;
+background: linear-gradient(160deg, #E8BE6A 0%, #D9A84A 46%, #C08F33 100%); color: #3A1018;
+box-shadow: 0 16px 38px rgba(10,0,3,.45), inset 0 1px 0 rgba(255,255,255,.45); }
+.lvd-oa-k { margin: 0; font: 800 11px/1 var(--f-ui, Georgia); letter-spacing: .18em; color: #5A2A0A; }
+.lvd-oa-t { display: block; margin: 8px 0 6px; font: 700 24px/1.2 var(--f-display, Georgia), serif; color: #3A1018; }
+.lvd-oa-s { margin: 0; font-size: 13px; color: #4A2A0A; }
+.lvd-oa-btns { display: flex; gap: 10px; margin-top: 16px; }
+.lvd-open { flex: 1.4 1 0; min-height: 50px; border: 0; border-radius: 12px; cursor: pointer;
+font: 800 11.5px/1 var(--f-ui, Georgia); letter-spacing: .1em;
+background: linear-gradient(180deg, #B81A34, #8E0F27); color: #FFF3DC;
+box-shadow: 0 8px 18px rgba(110,12,36,.3); }
+.lvd-end { flex: 1 1 0; min-height: 50px; border-radius: 12px; cursor: pointer;
+font: 800 11.5px/1 var(--f-ui, Georgia); letter-spacing: .1em;
+background: #FFFBEF; color: #5A1020; border: 1px solid rgba(90,16,32,.24); }
+.lvd-guests { display: flex; flex-direction: column; gap: 9px; }
+.lvd-guest { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 13px;
+border-radius: 13px; background: #FFFDF8; border: 1px solid rgba(168,131,68,.34); }
+.lvd-guest b { font-size: 14.5px; color: #3A1018; }
+.lvd-guest s { flex: 1 1 auto; font-size: 11.5px; color: #7A5A4A; text-decoration: none; }
+.lvd-guest.waiting { border-color: #C9A227; box-shadow: 0 0 0 1px rgba(201,162,39,.35); }
+.lvd-gbtns { display: flex; gap: 8px; flex: 0 0 auto; }
+.lvd-gb { min-height: 42px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+font: 700 11px/1 var(--f-ui, Georgia); letter-spacing: .08em;
+background: #FFFDF8; color: #5A1020; border: 1px solid rgba(90,16,32,.28); }
+.lvd-gb.gold { background: linear-gradient(180deg, #FFE9A6, #DDB14C); border-color: rgba(140,100,20,.4); color: #4A0C1B; }
+.lvd-gifts { display: flex; flex-direction: column; gap: 9px; }
+.lvd-gift { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 13px;
+border-radius: 13px; background: #FFFDF8; border: 1px solid rgba(168,131,68,.34); }
+.lvd-gift b { font-size: 14.5px; color: #3A1018; }
+.lvd-gift s { flex: 1 1 auto; font-size: 11.5px; color: #7A5A4A; text-decoration: none; }
+@media (max-width: 420px) {
+.lvd-card { padding: 14px 12px; }
+.lvd-oa-btns { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+.lvd-go, .lvd-open, .lvd-chip { transition: none !important; }
+}
+.lvd-tag { flex: none; padding: 4px 9px; border-radius: 999px; font: 800 9.5px/1 var(--f-ui, Georgia);
+letter-spacing: .1em; color: #7A5A4A; background: rgba(90,16,32,.08);
+border: 1px solid rgba(90,16,32,.16); }
+.lvd-tag.ok { color: #2E5A24; background: rgba(46,90,36,.10); border-color: rgba(46,90,36,.24); }
+</style>
 <script id="iv-legal-js">
 window.ivLegal = (function () {
   var PAGES = {
@@ -40232,6 +40549,1122 @@ try { var iv = IV(); var id = iv && iv.ident ? iv.ident() : {}; return id && id.
 }
 window.IVBADGE.curId = curId;
 window.IVBADGE.curMail = curMail;
+})();</script>
+<script id="iv-live88-js">
+(function () {
+'use strict';
+if (window.__ivLive88) return;
+window.__ivLive88 = 1;
+var IV = window.IVSESS;
+var S = {
+id: null, title: '', sub: '', role: 'watch', price: 0, seatPrice: 0,
+allowed: [], minTier: 0, tierName: '', hostVideo: true,
+from: null, tickT: null, pollT: null, talkT: null, guestT: null,
+client: null, uid: 0, hostUid: 0, mic: null, cam: null,
+micOn: true, camOn: true, requestId: null, over: false, mounted: false,
+lastId: 0, seen: {}, tiles: {}, positions: {}, guests: [], mine: null,
+openRequests: true, busy: false, sheet: null, stageLive: false,
+myId: '', myName: '', last: [], stepped: false, selfTileEl: null, reqs: []
+};
+var SLOTS = [{ x: 1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: .5 }, { x: 0, y: .5 }, { x: .5, y: 1 }];
+function $(id) { return document.getElementById(id); }
+function esc(t) {
+return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+});
+}
+function money(n) { return '\u20b9' + String(Number(n) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function toast(m, bad) { if (window.ivoryToast) window.ivoryToast(m, bad); }
+function clockOf(sec) {
+sec = Math.max(0, Math.floor(sec));
+var m = Math.floor(sec / 60), r = sec % 60;
+return m + ':' + (r < 10 ? '0' : '') + r;
+}
+function isAdmin() { return !!(window.ivIsAdmin && window.ivIsAdmin()); }
+function meId() { return (IV && IV.ident && IV.ident().id) || ''; }
+function myName() {
+var u = (IV && IV.user && IV.user()) || {};
+return u.display_name || u.name || (u.email ? String(u.email).split('@')[0] : 'You');
+}
+function liveUid(str) {
+var h = 2166136261, t = String(str || '');
+for (var i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+return h === 0 ? 1 : h;
+}
+var ICO = {
+groups: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.6" r="3"/><path d="M3.6 19c.5-3.3 2.6-5 5.4-5s4.9 1.7 5.4 5"/><path d="M15.6 6.2a2.9 2.9 0 010 5.6M17 14.6c2 .6 3.1 2.3 3.4 4.4"/></svg>',
+bell: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2c-3 0-4.7 2.1-4.7 5.3 0 3.3-1.1 4.3-1.7 5h12.8c-.6-.7-1.7-1.7-1.7-5 0-3.2-1.7-5.3-4.7-5.3z"/><path d="M10.3 17.6a1.9 1.9 0 003.4 0"/></svg>',
+cam: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.4" width="12.6" height="11.2" rx="2.4"/><path d="M15.6 11l5.4-3v8l-5.4-3z"/></svg>',
+camOff: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.4" width="12.6" height="11.2" rx="2.4"/><path d="M15.6 11l5.4-3v8l-5.4-3z"/><path d="M3.4 3.4l17.2 17.2"/></svg>',
+mic: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.6 11.4a6.4 6.4 0 0012.8 0M12 17.8V21"/></svg>',
+micOff: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.6 11.4a6.4 6.4 0 0012.8 0M12 17.8V21"/><path d="M3.6 3.6l16.8 16.8"/></svg>',
+swap: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 8.6h11.2l-3-3M19.6 15.4H8.4l3 3"/><circle cx="12" cy="12" r="9.4" opacity=".34"/></svg>',
+end: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 14.6c4.6-4.4 11-4.4 15.6 0l-2.2 2.4-3.4-1.5.4-2.2a10.6 10.6 0 00-5.2 0l.4 2.2-3.4 1.5z"/></svg>',
+leave: '<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.6h4.4a1.6 1.6 0 011.6 1.6v11.6a1.6 1.6 0 01-1.6 1.6H14"/><path d="M9.6 15.4L6 12l3.6-3.4M6 12h8.4"/></svg>',
+gift: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="9.4" width="16.8" height="10.4" rx="1.8"/><path d="M2.8 6h18.4v3.4H2.8zM12 6v13.8"/><path d="M12 6c-1.5-2.8-5-2.4-5-.6 0 1.3 1.9 1.9 5 1.9s5-.6 5-1.9c0-1.8-3.5-2.2-5 .6z"/></svg>',
+grab: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="17" r="1.5"/><circle cx="15" cy="17" r="1.5"/></svg>',
+send: '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l15-7.2-5.4 15.2L10 13.6z"/></svg>',
+x: '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+live: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path d="M7.6 7.6a6.2 6.2 0 000 8.8M16.4 7.6a6.2 6.2 0 010 8.8M5 5a9.9 9.9 0 000 14M19 5a9.9 9.9 0 010 14"/></svg>',
+crown: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 18.6l1.8-9.2L10 14l2-6.4 2 6.4 4.6-4.6 1.8 9.2z"/><path d="M3.6 18.6h16.8"/></svg>',
+check: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 12.6l4.8 4.8L19.4 7.4"/></svg>'
+};
+function markup() {
+return '' +
+'<div class="lv-stage" id="lv-stage">' +
+'<div class="lv-video" id="lvr-video"></div>' +
+'<div class="lv-off" id="lv-off"><span class="lv-off-b" id="lv-off-b">Opening the room</span>' +
+'<span class="lv-off-s" id="lv-off-s">One moment.</span></div>' +
+'</div>' +
+'<div class="lv-top" id="lv-top">' +
+'<span class="lv-pill" id="lv-clock"><i></i>LIVE 0:00</span>' +
+'<span class="lv-ttl"><b id="lvr-title">The room</b><s id="lv-note"></s></span>' +
+'<button class="lv-x" id="lv-x" aria-label="Step out of the room">' + ICO.x + '</button>' +
+'</div>' +
+'<div class="lv-pillrow"><button class="lv-gpill" id="lv-guest" hidden></button></div>' +
+'<div class="lv-tiles" id="lv-tiles"></div>' +
+'<div class="lv-talkwrap"><div class="lv-talk" id="lv-talk" role="log" aria-live="polite"></div></div>' +
+'<form class="lv-say" id="lvr-say" autocomplete="off">' +
+'<button type="button" class="lv-gift" id="lv-giftbtn" aria-label="Send a gift" hidden>' + ICO.gift + '</button>' +
+'<input id="lv-input" type="text" maxlength="240" placeholder="Write to me…" aria-label="Write to the room">' +
+'<button type="submit" class="lv-send" aria-label="Send">' + ICO.send + '</button>' +
+'</form>' +
+'<div class="lv-dock" id="lv-dock"></div>' +
+'<div class="lv-sheetback" id="lv-sheetback" hidden>' +
+'<div class="lv-sheet" role="dialog" aria-modal="true" aria-label="The room">' +
+'<span class="lv-grip" aria-hidden="true"></span>' +
+'<div class="lv-sheetbody" id="lv-sheetbody"></div>' +
+'</div>' +
+'</div>' +
+'<div class="lv-bye" id="lv-bye" hidden><div class="lv-byecard">' +
+'<b id="lv-bye-b">The room is closed</b><s id="lv-bye-s">Thank you for being here.</s>' +
+'<button class="lv-btno" id="lv-bye-x">STEP OUT</button>' +
+'</div></div>';
+}
+function build() {
+if (S.mounted) return;
+var root = document.createElement('section');
+root.id = 'lv'; root.className = 'lv';
+root.setAttribute('aria-label', 'The live room');
+root.innerHTML = markup();
+document.body.appendChild(root);
+S.mounted = true;
+$('lvr-say').addEventListener('submit', function (e) { e.preventDefault(); say(); });
+$('lv-x').addEventListener('click', function () { close(false); });
+$('lv-bye-x').addEventListener('click', function () { close(false); });
+$('lv-sheetback').addEventListener('click', function (e) { if (e.target === $('lv-sheetback')) sheetClose(); });
+var g = $('lv-giftbtn');
+if (g) g.addEventListener('click', function () {
+if (window.IVGIFTS && window.IVGIFTS.open) window.IVGIFTS.open('live', { refId: S.id, onEnd: function () { loadTalk(true); } });
+else toast('The treasures did not load. Try once more.', true);
+});
+window.addEventListener('resize', function () { if (S.mounted && document.body.classList.contains('on-live88')) placeTiles(); });
+}
+function open(opts) {
+opts = opts || {};
+build();
+S.id = opts.id != null ? opts.id : S.id;
+S.title = opts.title || S.title || 'The room';
+S.sub = opts.sub || '';
+S.role = opts.role === 'host' ? 'host' : (opts.role === 'seat' ? 'seat' : 'watch');
+S.price = Number(opts.price || 0);
+S.seatPrice = Number(opts.seatPrice || 0);
+S.allowed = Array.isArray(opts.allowed) ? opts.allowed : [];
+S.minTier = Number(opts.minTier || 0);
+S.tierName = opts.tierName || '';
+S.requestId = opts.requestId || null;
+S.from = opts.startedAt ? new Date(opts.startedAt) : new Date();
+S.over = false; S.lastId = 0; S.tiles = {}; S.guests = []; S.reqs = []; S.stageLive = false;
+S.micOn = true; S.camOn = true;
+S.myId = meId(); S.myName = myName(); S.stepped = false; S.selfTileEl = null;
+if (!Array.isArray(S.last)) S.last = [];
+var root = $('lv');
+root.classList.add('on');
+root.classList.toggle('hostmode', S.role === 'host');
+document.body.classList.add('on-live88');
+$('lv-bye').hidden = true;
+$('lv-sheetback').hidden = true;
+$('lv-talk').innerHTML = '';
+$('lvr-title').textContent = S.title;
+$('lv-note').textContent = S.role === 'host' ? 'Only you see this count' : (S.sub || '');
+var g = $('lv-giftbtn');
+if (g) g.hidden = !(S.role === 'watch' || S.role === 'seat');
+var plate = opts.hostVideo === false && S.role !== 'host'
+? ['Her camera is off tonight', 'Her voice is still in the room.']
+: (S.role === 'host'
+? ['Your picture is opening', 'The room is already live. Your camera appears here the moment it wakes.']
+: ['Ivory is not on camera yet', 'You are in. The moment she appears she will be here on this screen.']);
+offPlate(plate[0], plate[1]);
+paintDock(); paintPill(); loadPositions();
+joinRTC();
+tick(); clearInterval(S.tickT); S.tickT = setInterval(tick, 1000);
+poll(); clearInterval(S.pollT); S.pollT = setInterval(poll, 5000);
+loadTalk(true); clearInterval(S.talkT); S.talkT = setInterval(function () { loadTalk(false); }, 3500);
+loadGuests(); clearInterval(S.guestT); S.guestT = setInterval(loadGuests, 5000);
+}
+function close(silent) {
+if (!S.mounted) return;
+clearInterval(S.tickT); clearInterval(S.pollT); clearInterval(S.talkT); clearInterval(S.guestT);
+S.tickT = S.pollT = S.talkT = S.guestT = null;
+leaveRTC();
+var root = $('lv');
+if (root) root.classList.remove('on');
+document.body.classList.remove('on-live88');
+if (!silent && S.role === 'watch' && S.id && IV && IV.call) IV.call('/rest/v1/rpc/leave_live', { session_id_in: S.id }).catch(function () {});
+if (!silent && S.role === 'seat' && S.requestId && IV && IV.call) {
+IV.call('/rest/v1/rpc/leave_live_guest', { request_id_in: S.requestId }).catch(function () {});
+S.requestId = null;
+}
+S.stepped = false;
+if (!silent) window.dispatchEvent(new CustomEvent('iv-live-closed'));
+}
+function isOpen() { return !!$('lv') && $('lv').classList.contains('on'); }
+function tick() {
+if (!S.from) return;
+var el = $('lv-clock');
+if (!el) return;
+var sec = Math.floor((Date.now() - S.from.getTime()) / 1000);
+if (S.over) { el.innerHTML = '<i></i>ENDED'; return; }
+el.innerHTML = '<i></i>LIVE ' + clockOf(sec);
+var bye = $('lv-bye-s');
+if (S.role === 'host' && bye && !$('lv-bye').hidden) bye.textContent = 'It ran ' + clockOf(sec) + '. Thank you for being here.';
+}
+function offPlate(a, b) {
+var h = $('lv-off-b'), s = $('lv-off-s');
+if (h && a) h.textContent = a;
+if (s && b) s.textContent = b;
+var off = $('lv-off');
+if (off) off.classList.toggle('on', !!a);
+}
+var PILL = {
+awaiting_payment: function (r) { return ['CONTINUE PAYMENT · ' + money(r.amount_due_inr || S.seatPrice), 'cam']; },
+payment_review: function () { return ['UPI PAYMENT IN REVIEW', 'hour']; },
+waiting_host: function () { return ['PAID · WAITING FOR IVORY', 'hour']; },
+approved: function () { return ['JOIN AS GUEST', 'cam']; },
+joining: function () { return ['JOIN AS GUEST', 'cam']; },
+active: function () { return ['YOU ARE LIVE', 'cam']; },
+declined: function () { return ['CREDIT SAVED FOR A FUTURE LIVE', 'wallet']; },
+expired: function (r) { return [(r.credit_applied_inr || r.cash_paid_inr) ? 'CREDIT SAVED FOR A FUTURE LIVE' : 'GUEST REQUEST CLOSED', 'hour']; },
+removed: function (r) { return [r.joined_at == null && (r.credit_applied_inr || r.cash_paid_inr) ? 'CREDIT SAVED FOR A FUTURE LIVE' : 'GUEST PLACE ENDED', 'hour']; },
+left: function () { return ['REJOIN', 'replay']; },
+cancelled: function (r) { return [(r.credit_applied_inr || r.cash_paid_inr) ? 'CREDIT SAVED FOR A FUTURE LIVE' : 'REQUEST ENDED', 'wallet']; },
+payment_rejected: function () { return ['TRY GUEST REQUEST AGAIN', 'cam']; }
+};
+function paintPill() {
+var b = $('lv-guest');
+if (!b) return;
+if (!S.id) { b.hidden = true; return; }
+if (S.role === 'host') {
+var filled = S.guests.filter(function (g) { return g.status === 'active' || g.status === 'joining' || g.status === 'approved'; }).length;
+var waiting = (S.reqs || []).filter(function (g) { return g.status === 'waiting_host' || g.status === 'payment_review'; }).length;
+b.hidden = false;
+b.innerHTML = (waiting > 0 ? ICO.bell : ICO.groups) +
+'<span>' + (waiting > 0 ? 'GUEST REQUESTS ' + waiting + ' · ' + filled + '/5' : 'GUESTS ' + filled + '/5') + '</span>';
+b.classList.toggle('alert', waiting > 0);
+b.onclick = function () { guestSheet(); };
+return;
+}
+var r = S.mine;
+if (S.role === 'seat' && !S.stepped) {
+b.hidden = false;
+b.innerHTML = ICO.cam + '<span>YOU ARE LIVE</span>';
+b.classList.add('quiet');
+b.onclick = function () { memberSheet(); };
+return;
+}
+var canRejoin = r && r.status === 'left' && r.joined_at;
+if (S.seatPrice <= 0 && !canRejoin) { b.hidden = true; return; }
+var label, ico;
+if (!r || r.status === 'payment_rejected' || r.status === 'cancelled') {
+if (!S.openRequests && S.seatPrice > 0) {
+b.hidden = false;
+b.innerHTML = ICO.groups + '<span>GUEST PLACES CLOSED TONIGHT</span>';
+b.onclick = null;
+return;
+}
+label = (!r ? 'REQUEST TO JOIN · ' + money(S.seatPrice) : 'TRY GUEST REQUEST AGAIN');
+ico = 'cam';
+} else if (r.status === 'approved' || r.status === 'left') {
+label = r.status === 'left' ? 'REJOIN' : 'JOIN AS GUEST';
+ico = r.status === 'left' ? 'replay' : 'cam';
+} else {
+var f = PILL[r.status] || function () { return ['GUEST REQUEST IN PROGRESS', 'hour']; };
+var pair = f(r); label = pair[0]; ico = pair[1];
+}
+var map = { cam: ICO.cam, hour: ICO.bell, wallet: ICO.gift, replay: ICO.swap };
+b.hidden = false;
+b.innerHTML = (map[ico] || ICO.groups) + '<span>' + esc(label) + '</span>';
+b.classList.toggle('alert', r && r.status === 'waiting_host');
+var tappable = !r || r.status === 'payment_rejected' || r.status === 'cancelled' ||
+r.status === 'awaiting_payment' || r.status === 'approved' || r.status === 'left' || r.status === 'active';
+b.onclick = tappable ? function () { memberSheet(); } : null;
+b.classList.toggle('quiet', !tappable);
+}
+function paintDock() {
+var d = $('lv-dock');
+if (!d) return;
+var publishes = S.role === 'host' || (S.role === 'seat' && !S.stepped);
+var h = '';
+if (!publishes && S.role !== 'seat') {
+d.innerHTML = '';
+return;
+}
+if (publishes) {
+h += '<button class="lv-key' + (S.micOn ? '' : ' off') + '" id="lv-mic" aria-label="' + (S.micOn ? 'Mute my microphone' : 'Unmute my microphone') + '">' + (S.micOn ? ICO.mic : ICO.micOff) + '</button>';
+h += '<button class="lv-key' + (S.camOn ? '' : ' off') + '" id="lv-cam" aria-label="' + (S.camOn ? 'Turn my camera off' : 'Turn my camera on') + '">' + (S.camOn ? ICO.cam : ICO.camOff) + '</button>';
+h += '<button class="lv-key" id="lv-swap" aria-label="Swap camera">' + ICO.swap + '</button>';
+}
+h += '<button class="lv-key danger" id="lv-exit" aria-label="' +
+(S.role === 'host' ? 'End the broadcast for everyone' : 'Step down from the seat') + '">' +
+(S.role === 'host' ? ICO.end : ICO.leave) + '</button>';
+d.innerHTML = h;
+var mic = $('lv-mic');
+if (mic) mic.addEventListener('click', function () {
+S.micOn = !S.micOn;
+if (S.mic) S.mic.setEnabled(S.micOn);
+paintDock();
+});
+var cam = $('lv-cam');
+if (cam) cam.addEventListener('click', function () {
+S.camOn = !S.camOn;
+if (S.cam) S.cam.setEnabled(S.camOn);
+if (S.role === 'host') {
+$('lvr-video').style.visibility = S.camOn ? '' : 'hidden';
+if (!S.camOn) offPlate('Your camera is off', 'Your voice is still in the room.');
+else if (document.querySelector('#lvr-video video') || S.cam) offPlate(null);
+} else if (S.selfTileEl) {
+S.selfTileEl.style.visibility = S.camOn ? '' : 'hidden';
+}
+paintDock();
+if (S.role === 'host' && IV && IV.call) IV.call('/rest/v1/rpc/set_live_host_video', { session_id_in: S.id, enabled_in: S.camOn }).catch(function () {});
+if (S.requestId && IV && IV.call) IV.call('/rest/v1/rpc/set_live_guest_video', { request_id_in: S.requestId, enabled_in: S.camOn }).catch(function () {});
+});
+var sw = $('lv-swap');
+if (sw && window.AgoraRTC && AgoraRTC.createCameraVideoTrack) sw.addEventListener('click', function () {
+try {
+AgoraRTC.getCameras().then(function (cams) {
+cams = cams || [];
+if (cams.length > 1 && S.cam) { S.cam.setDevice(cams[1].deviceId); toast('The other camera.'); }
+else toast('This device has only one camera.');
+}).catch(function () { toast('The camera did not answer.', true); });
+} catch (e) { toast('The camera did not answer.', true); }
+});
+var ex = $('lv-exit');
+if (ex) ex.addEventListener('click', function () {
+if (S.role !== 'host') { stepDown(); return; }
+if (ex.dataset.armed === '1') { endShow(); return; }
+ex.dataset.armed = '1';
+ex.classList.add('arming');
+ex.setAttribute('aria-label', 'Press again to end the broadcast');
+setTimeout(function () { if (ex.isConnected) { ex.dataset.armed = ''; ex.classList.remove('arming'); } }, 4200);
+});
+}
+function joinRTC() {
+if (!S.id) return;
+if (!window.AgoraRTC) {
+offPlate('The room engine did not load', 'Check your signal, then step out and back in.');
+return;
+}
+if (!IV || !IV.call) { offPlate('The house did not answer', 'Step out and back in.'); return; }
+IV.call('/functions/v1/agora-token', S.requestId
+? { mode: 'guest', id: S.id, requestId: S.requestId }
+: { mode: 'live', id: S.id })
+.then(function (tk) {
+if (!tk || !tk.token) throw new Error((tk && tk.error) || 'The room did not open.');
+var c = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
+S.client = c; S.uid = Number(tk.uid) || 0;
+S.hostUid = Number(tk.hostUid || tk.host_uid || 0);
+c.on('user-published', function (user, mediaType) {
+c.subscribe(user, mediaType).then(function () {
+if (mediaType === 'video') {
+var hers = S.role !== 'host' && (
+(S.hostUid && String(user.uid) === String(S.hostUid)) || (!S.hostUid && !S.stageLive));
+if (hers) {
+if (user.videoTrack) { user.videoTrack.play('lvr-video'); S.stageLive = true; offPlate(null); }
+if (!S.hostUid) S.hostUid = Number(user.uid);
+} else {
+tileVideo(user);
+}
+} else if (mediaType === 'audio' && user.audioTrack) {
+user.audioTrack.play();
+}
+}).catch(function () {});
+});
+c.on('user-unpublished', function (user, mediaType) {
+if (mediaType === 'video') {
+if (S.hostUid && String(user.uid) === String(S.hostUid)) {
+S.stageLive = false;
+offPlate('Ivory is not on camera yet', 'The room is still open. She may come back at any moment.');
+}
+dropTile(user.uid);
+}
+});
+c.on('user-left', function (user) {
+dropTile(user.uid);
+if (S.hostUid && String(user.uid) === String(S.hostUid)) {
+S.stageLive = false;
+offPlate('She has stepped away', 'The broadcast is still open. Stay here — she can come back at any moment.');
+}
+});
+return c.setClientRole(S.role === 'watch' ? 'audience' : 'host')
+.then(function () { return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null); })
+.then(function () {
+if (S.role === 'watch') return null;
+var want = S.role === 'seat' && !S.camOn ? [] : null;
+var audioOnly = S.role === 'seat' && !S.camOn;
+return Promise.all([AgoraRTC.createMicrophoneAudioTrack(),
+audioOnly ? Promise.resolve(null) : AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' })]).then(function (tr) {
+S.mic = tr[0]; S.cam = tr[1];
+var pubs = S.mic ? [S.mic] : [];
+if (S.cam) pubs.push(S.cam);
+return c.publish(pubs).then(function () {
+if (!S.cam) return;
+if (S.role === 'host') {
+S.cam.play('lvr-video');
+S.stageLive = true;
+offPlate(null);
+} else {
+selfTile();
+}
+});
+});
+});
+})
+.catch(function (x) {
+offPlate('The room did not open', (x && x.message) || 'Check your signal, then step out and back in.');
+});
+}
+function leaveRTC() {
+try { if (S.mic) { S.mic.stop(); S.mic.close(); } } catch (e) {}
+try { if (S.cam) { S.cam.stop(); S.cam.close(); } } catch (e) {}
+S.mic = null; S.cam = null;
+try { if (S.client) { S.client.leave(); S.client.removeAllListeners && S.client.removeAllListeners(); } } catch (e) {}
+S.client = null; S.uid = 0;
+var v = $('lvr-video'); if (v) v.innerHTML = '';
+var t = $('lv-tiles'); if (t) t.innerHTML = '';
+S.tiles = {};
+}
+function tileEl(memberId, name) {
+var box = $('lv-tiles');
+if (!box) return null;
+var el = box.querySelector('[data-mid="' + memberId + '"]');
+if (el) return el;
+el = document.createElement('div');
+el.className = 'lv-tile';
+el.setAttribute('data-mid', memberId);
+el.innerHTML = '<span class="lv-tile-grab" aria-hidden="true">' + ICO.grab + '</span>' +
+'<span class="lv-tile-v" data-vid="' + memberId + '"></span>' +
+'<span class="lv-tile-name">' + esc(name || 'A guest') + '</span>';
+box.appendChild(el);
+wireDrag(el);
+return el;
+}
+function tileVideo(user) {
+var free = S.guests.filter(function (g) { return (g.status === 'active' || g.status === 'joining'); });
+var member = null;
+for (var i = 0; i < free.length; i++) {
+if (String(liveUid(free[i].user_id)) === String(user.uid)) { member = free[i]; break; }
+}
+if (!member) {
+for (var j = 0; j < free.length; j++) {
+if (!free[j].__seen) { free[j].__seen = String(user.uid); member = free[j]; break; }
+}
+}
+if (!member) return;
+member.__seen = String(user.uid);
+var el = tileEl(member.user_id, member.display_name);
+if (!el) return;
+var slot = el.querySelector('.lv-tile-v');
+if (user.videoTrack) user.videoTrack.play(slot);
+el.classList.add('live');
+placeTiles();
+}
+function selfTile() {
+if (S.role !== 'seat' || !S.myId) return;
+var el = tileEl(S.myId, 'You');
+if (!el) return;
+S.selfTileEl = el;
+el.classList.add('live');
+if (S.cam) S.cam.play(el.querySelector('.lv-tile-v'));
+placeTiles();
+}
+function dropTile(uid) {
+var box = $('lv-tiles'); if (!box) return;
+Array.prototype.forEach.call(box.querySelectorAll('.lv-tile'), function (el) {
+var mid = el.getAttribute('data-mid');
+if (mid === S.myId && S.role === 'seat') return;      /* my own window answers to me */
+if (String(liveUid(mid)) !== String(uid)) return;
+el.classList.remove('live');
+setTimeout(function () { if (el.parentNode && !el.classList.contains('live')) el.parentNode.removeChild(el); }, 2600);
+});
+}
+function safeRect() {
+var top = 96, bottom = Math.min(innerHeight * 0.30, 300) + 124;
+return { l: 14, t: top, r: innerWidth - 14, b: Math.max(top + 90, innerHeight - bottom) };
+}
+function placeTiles() {
+var box = $('lv-tiles'); if (!box) return;
+var R = safeRect();
+var w = Math.min(100, Math.max(72, innerWidth * 0.26));
+var h = Math.min(134, Math.max(96, w * 1.34));
+var els = Array.prototype.slice.call(box.querySelectorAll('.lv-tile'));
+els.forEach(function (el, i) {
+var mid = el.getAttribute('data-mid');
+var p = S.positions[mid] || SLOTS[i % SLOTS.length];
+var left = R.l + p.x * Math.max(0, (R.r - w) - R.l);
+var top = R.t + p.y * Math.max(0, (R.b - h) - R.t);
+el.style.width = w + 'px';
+el.style.height = h + 'px';
+el.style.left = Math.round(left) + 'px';
+el.style.top = Math.round(top) + 'px';
+});
+}
+function wireDrag(el) {
+var drag = null;
+el.addEventListener('pointerdown', function (e) {
+if (S.role !== 'host') return;
+if (!e.target.closest('.lv-tile-grab')) return;
+el.setPointerCapture(e.pointerId);
+var r = el.getBoundingClientRect();
+drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+el.classList.add('dragging');
+e.preventDefault();
+});
+el.addEventListener('pointermove', function (e) {
+if (!drag) return;
+var R = safeRect();
+var w = el.offsetWidth, h = el.offsetHeight;
+var left = Math.min(Math.max(R.l, e.clientX - drag.dx), Math.max(R.l, R.r - w));
+var top = Math.min(Math.max(R.t, e.clientY - drag.dy), Math.max(R.t, R.b - h));
+el.style.left = Math.round(left) + 'px';
+el.style.top = Math.round(top) + 'px';
+});
+el.addEventListener('pointerup', function () {
+if (!drag) return;
+drag = null;
+el.classList.remove('dragging');
+var R = safeRect();
+var w = el.offsetWidth, h = el.offsetHeight;
+var fx = (R.r - w) > R.l ? (parseFloat(el.style.left) - R.l) / ((R.r - w) - R.l) : .5;
+var fy = (R.b - h) > R.t ? (parseFloat(el.style.top) - R.t) / ((R.b - h) - R.t) : .5;
+var mid = el.getAttribute('data-mid');
+var p = { x: Math.round(Math.min(1, Math.max(0, fx)) * 10000) / 10000, y: Math.round(Math.min(1, Math.max(0, fy)) * 10000) / 10000 };
+S.positions[mid] = p;
+savePosition(mid, p);
+});
+}
+function loadPositions() {
+S.positions = {};
+try {
+var raw = localStorage.getItem('iv.live.tiles.' + S.id);
+if (raw) S.positions = JSON.parse(raw) || {};
+} catch (e) {}
+if (!IV || !IV.get) return;
+IV.get('/rest/v1/live_sessions?select=guest_tile_positions&id=eq.' + S.id)
+.then(function (rows) {
+var map = rows && rows[0] && rows[0].guest_tile_positions;
+if (!map || typeof map !== 'object') return;
+Object.keys(map).forEach(function (k) {
+var v = map[k];
+if (v && typeof v.x === 'number' && typeof v.y === 'number') S.positions[k] = { x: v.x, y: v.y };
+});
+placeTiles();
+}).catch(function () {});
+}
+function savePosition(mid, p) {
+try { localStorage.setItem('iv.live.tiles.' + S.id, JSON.stringify(S.positions)); } catch (e) {}
+if (S.role !== 'host' || !IV || !IV.call) return;
+IV.call('/rest/v1/rpc/set_live_guest_tile_position',
+{ session_id_in: S.id, member_id_in: mid, x_in: p.x, y_in: p.y })
+.then(function () { toast('Placed. Everyone sees it there.'); })
+.catch(function () {
+IV.call('/rest/v1/live_sessions?id=eq.' + S.id, { guest_tile_positions: S.positions }, 'PATCH', 'return=minimal')
+.then(function () { toast('Placed. Everyone sees it there.'); })
+.catch(function () { toast('Placed on your screen — the house will carry it once the table answers.', true); });
+});
+}
+function poll() {
+if (!S.id || !IV || !IV.get) return;
+IV.get('/rest/v1/live_public?select=id,title,subtitle,status,viewer_count,guest_price_inr,allowed_tiers,min_tier,price_inr,host_video_enabled,guest_requests_open,started_at&id=eq.' + S.id)
+.then(function (rows) {
+var r = rows && rows[0];
+if (!r) return;
+S.openRequests = r.guest_requests_open !== false;
+if (S.role !== 'host' && r.subtitle && r.subtitle !== S.sub) {
+S.sub = r.subtitle;
+var nt = $('lv-note'); if (nt) nt.textContent = S.sub;
+}
+if (S.role === 'watch' || S.role === 'seat') {
+S.seatPrice = Number(r.guest_price_inr || S.seatPrice);
+var off = r.host_video_enabled === false;
+if (off && !S.stageLive && S.role === 'watch') offPlate('Her camera is off tonight', 'Her voice is still in the room.');
+}
+if (r.status && r.status !== 'live' && !S.over) {
+S.over = true;
+showBye('The room has closed', 'Ivory ended this broadcast. The walls stay up for the night.');
+clearInterval(S.talkT); clearInterval(S.guestT); clearInterval(S.pollT);
+}
+paintPill();
+}).catch(function () {});
+}
+function showBye(b, s) {
+var bye = $('lv-bye');
+if (!bye) return;
+$('lv-bye-b').textContent = b;
+$('lv-bye-s').textContent = s;
+bye.hidden = false;
+}
+function say() {
+var inp = $('lv-input');
+if (!inp) return;
+var body = String(inp.value || '').trim();
+if (!body || !S.id) return;
+inp.value = '';
+var bubble = { id: 'me' + Date.now(), body: body, is_host: S.role === 'host', mine: true, sender_name: 'You' };
+S.last = Array.isArray(S.last) ? S.last : [];
+drawTalk([bubble].concat(S.last));
+if (IV && IV.call) {
+IV.call('/rest/v1/rpc/send_live_message', { session_id_in: S.id, body_in: body })
+.catch(function () { toast('That line did not reach the room.', true); })
+.then(function () { loadTalk(true); });
+}
+}
+function loadTalk(force) {
+if (!S.id || !IV || !IV.get) return;
+IV.get('/rest/v1/live_messages?select=id,member_id,body,is_host,sender_name,sender_avatar_path,sender_has_active_paid_tier&session_id=eq.' + S.id + '&order=created_at.desc&limit=40')
+.then(function (rows) {
+rows = (rows || []).slice().reverse();
+if (!rows.length && !force) return;
+S.last = rows;
+drawTalk(rows);
+}).catch(function () {});
+}
+function drawTalk(rows) {
+var box = $('lv-talk');
+if (!box) return;
+var near = box.scrollTop + box.clientHeight > box.scrollHeight - 60;
+var out = '';
+(rows || []).forEach(function (m) {
+var name = m.sender_name || (m.is_host ? 'Ivory' : 'A member');
+var body = String(m.body || '');
+var cut = body.indexOf('\n');
+var said = cut < 0 ? body : body.slice(0, cut);
+var note = cut < 0 ? '' : body.slice(cut + 1).trim().replace(/^"|"$/g, '');
+if (m.is_host) {
+out += '<div class="lv-m host"><span class="lv-m-dot" aria-hidden="true"></span>' +
+'<span class="lv-m-b"><b>IVORY</b><i>' + esc(said) + '</i>' +
+(note ? '<em>\u201C' + esc(note) + '\u201D</em>' : '') + '</span></div>';
+} else {
+var init = String(name || 'A').trim().slice(0, 1).toUpperCase();
+var premium = m.sender_has_active_paid_tier === true;
+out += '<div class="lv-m">' +
+'<span class="lv-m-ava' + (premium ? ' premium' : '') + '" aria-hidden="true">' + esc(init) + '</span>' +
+'<span class="lv-m-b"><b>' + esc(name) + '</b>' + esc(said) +
+(note ? '<em>\u201C' + esc(note) + '\u201D</em>' : '') + '</span></div>';
+}
+});
+box.innerHTML = out || '<p class="lv-talk-empty">Say something. She is listening.</p>';
+if (near) box.scrollTop = box.scrollHeight;
+}
+function loadGuests() {
+if (!S.id || !IV || !IV.call) return;
+if (S.role === 'host') {
+IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: S.id })
+.then(function (rows) { S.reqs = Array.isArray(rows) ? rows : []; paintPill(); })
+.catch(function () {});
+}
+IV.call('/rest/v1/rpc/live_guest_participants', { session_id_in: S.id })
+.then(function (rows) { S.guests = Array.isArray(rows) ? rows : []; afterGuests(); })
+.catch(function () {
+IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: S.id })
+.then(function (rows) { S.guests = Array.isArray(rows) ? rows.filter(function (g) {
+return g.status === 'active' || g.status === 'joining' || g.status === 'approved' || g.status === 'waiting_host';
+}) : []; afterGuests(); })
+.catch(function () {});
+});
+if (S.role === 'host') { S.mine = null; paintPill(); return; }
+var mineQ = '/rest/v1/live_guest_requests?select=id,session_id,user_id,status,media_kind,fee_inr,amount_due_inr,credit_applied_inr,cash_paid_inr,joined_at,created_at&session_id=eq.' + S.id;
+if (S.myId) mineQ += '&user_id=eq.' + encodeURIComponent(S.myId);
+IV.get(mineQ + '&order=created_at.desc&limit=1')
+.then(function (rows) {
+S.mine = (rows && rows[0]) || null;
+paintPill();
+}).catch(function () {});
+}
+function afterGuests() {
+if (!S.id) return;
+var box = $('lv-tiles');
+if (!box) return;
+var live = S.guests.filter(function (g) { return g.status === 'active' || g.status === 'joining'; });
+if (S.role === 'seat' && !S.stepped) {
+if (!live.some(function (g) { return g.user_id === S.myId; })) live.push({ user_id: S.myId, display_name: 'You' });
+}
+if (S.role === 'watch' || S.role === 'seat') {
+Array.prototype.forEach.call(box.querySelectorAll('.lv-tile'), function (el) {
+var mid = el.getAttribute('data-mid');
+if (mid === S.myId && S.role === 'seat') return;
+if (!live.some(function (g) { return g.user_id === mid; })) el.classList.remove('live');
+});
+}
+paintPill();
+placeTiles();
+}
+function sheetOpen(html) {
+var back = $('lv-sheetback');
+if (!back) return;
+S.sheetSeq = (S.sheetSeq || 0) + 1;
+$('lv-sheetbody').innerHTML = html;
+back.hidden = false;
+requestAnimationFrame(function () { back.classList.add('on'); });
+var closeBtn = back.querySelector('[data-shut]');
+if (closeBtn) closeBtn.addEventListener('click', sheetClose);
+}
+function sheetClose() {
+var back = $('lv-sheetback');
+if (!back) return;
+back.classList.remove('on');
+var seq = S.sheetSeq || 0;
+setTimeout(function () {
+if ((S.sheetSeq || 0) !== seq) return;      /* something was asked for since */
+back.hidden = true; $('lv-sheetbody').innerHTML = '';
+}, 220);
+}
+function guestSheet() {
+var h = '<div class="lv-sheethead"><b>Guest speakers · ' +
+S.guests.filter(function (g) { return g.status === 'active' || g.status === 'joining' || g.status === 'approved'; }).length +
+'/5 places</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<div class="lv-switchrow"><span><b>' + (S.openRequests && S.seatPrice > 0 ? 'Requests are open' : (S.seatPrice > 0 ? 'Requests are closed' : 'Guest places are off')) + '</b>' +
+'<s>' + (S.seatPrice > 0 ? 'Closing stops new paid requests.' : 'Guest places are off because the fee is zero.') + '</s></span>' +
+'<button class="lv-switch' + (S.openRequests && S.seatPrice > 0 ? ' on' : '') + '" id="lv-switch" role="switch" aria-checked="' + (S.openRequests && S.seatPrice > 0 ? 'true' : 'false') + '"' +
+(S.seatPrice > 0 ? '' : ' disabled') + ' aria-label="Guest requests"><i></i></button></div>' +
+'<div class="lv-rule"></div><div id="lv-reqs"><p class="lv-empty">Reading the queue…</p></div>';
+sheetOpen(h);
+var sw = $('lv-switch');
+if (sw) sw.addEventListener('click', function () {
+var next = !(S.openRequests && S.seatPrice > 0);
+S.openRequests = next;
+sw.classList.toggle('on', next);
+sw.setAttribute('aria-checked', next ? 'true' : 'false');
+if (IV && IV.call) IV.call('/rest/v1/rpc/set_live_guest_requests_open', { session_id_in: S.id, open_in: next }).catch(function () {});
+guestSheet();
+});
+IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: S.id })
+.then(function (rows) {
+var box = $('lv-reqs'); if (!box) return;
+rows = Array.isArray(rows) ? rows : [];
+S.reqs = rows; paintPill();
+if (!rows.length) { box.innerHTML = '<p class="lv-empty">No paid guest requests yet.</p>'; return; }
+box.innerHTML = rows.map(function (r) {
+var waiting = r.status === 'waiting_host';
+var occupies = r.status === 'approved' || r.status === 'joining' || r.status === 'active' || r.status === 'left';
+return '<div class="lv-req' + (waiting ? ' waiting' : '') + '">' +
+'<div class="lv-req-top"><b>' + esc(r.display_name || 'A member') + '</b><span>' + money(r.fee_inr || 0) + '</span></div>' +
+'<p class="lv-req-meta">' + ((r.media_kind === 'audio') ? 'AUDIO ONLY' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + '</p>' +
+(waiting
+? '<div class="lv-req-btns"><button class="lv-btno gold" data-let="' + r.id + '">APPROVE</button>' +
+'<button class="lv-btno" data-no="' + r.id + '">DECLINE</button></div>'
+: (occupies ? '<div class="lv-req-btns"><button class="lv-btno" data-off="' + r.id + '">REMOVE</button></div>' : '')) +
+'</div>';
+}).join('');
+Array.prototype.forEach.call(box.querySelectorAll('[data-let]'), function (b) {
+b.addEventListener('click', function () {
+b.disabled = true; b.textContent = 'PLEASE WAIT';
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.let), approve_in: true })
+.then(function () { toast('Let in. The window opens the moment they join.'); loadGuests(); guestSheet(); })
+.catch(function (x) { b.disabled = false; b.textContent = 'APPROVE'; toast((x && x.message) || 'That did not go through.', true); });
+});
+});
+Array.prototype.forEach.call(box.querySelectorAll('[data-no]'), function (b) {
+b.addEventListener('click', function () {
+b.disabled = true;
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.no), approve_in: false })
+.then(function () { toast('Declined. Their credit is kept for a future live.'); guestSheet(); })
+.catch(function () { b.disabled = false; toast('That did not go through.', true); });
+});
+});
+Array.prototype.forEach.call(box.querySelectorAll('[data-off]'), function (b) {
+b.addEventListener('click', function () {
+b.disabled = true;
+IV.call('/rest/v1/rpc/remove_live_guest', { request_id_in: Number(b.dataset.off) })
+.then(function () { toast('The place is free again.'); guestSheet(); loadGuests(); })
+.catch(function () { b.disabled = false; toast('That did not go through.', true); });
+});
+});
+}).catch(function () {
+var box = $('lv-reqs');
+if (box) box.innerHTML = '<p class="lv-empty">The queue did not answer. Try again in a moment.</p>';
+});
+}
+function memberSheet() {
+var r = S.mine;
+var fee = S.seatPrice;
+if (r && (r.status === 'approved')) { joinAsSeat(r); return; }
+if (r && (r.status === 'left' || r.status === 'active')) {
+sheetOpen('<div class="lv-sheethead"><b>Your place</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<p class="lv-lede2">Your guest place is still yours in this room. Nothing more is owed for it.</p>' +
+'<button class="lv-btno gold big" id="lv-rejoin">REJOIN THE ROOM</button>');
+var rj = $('lv-rejoin');
+if (rj) rj.addEventListener('click', function () { sheetClose(); joinAsSeat(r, true); });
+return;
+}
+if (r && r.status === 'awaiting_payment') {
+sheetOpen('<div class="lv-sheethead"><b>One payment left</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<p class="lv-lede2">Your request is open. ' + money(r.amount_due_inr || fee) + ' stands between you and the queue.</p>' +
+'<button class="lv-btno gold big" id="lv-pay">CONTINUE PAYMENT · ' + money(r.amount_due_inr || fee) + '</button>');
+var pb = $('lv-pay');
+if (pb) pb.addEventListener('click', function () { sheetClose(); paySeat(r.id, Number(r.amount_due_inr) || fee); });
+return;
+}
+if (r && (r.status === 'waiting_host' || r.status === 'payment_review')) {
+var label = r.status === 'waiting_host' ? 'Paid · waiting for Ivory' : 'Your payment is waiting for verification';
+var under = r.status === 'waiting_host'
+? 'Your request is with Ivory. Nothing more is needed from you. If she lets you in, JOIN appears right here.'
+: 'Your request appears in Ivory’s guest queue after she verifies the UPI reference. If she lets you in, JOIN appears right here.';
+sheetOpen('<div class="lv-sheethead"><b>' + label + '</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<p class="lv-lede2">' + under + '</p>' +
+'<p class="lv-wait">You will stay in this room. The window opens the moment she approves.</p>');
+return;
+}
+if (fee <= 0) {
+sheetOpen('<div class="lv-sheethead"><b>No seat tonight</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<p class="lv-lede2">No seat is for sale in this room tonight. When Ivory prices one, it appears here.</p>');
+return;
+}
+sheetOpen('<div class="lv-sheethead"><b>Join Ivory on camera or audio</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
+'<p class="lv-sub">' + esc(S.title) + ' · ' + money(fee) + ' for one guest connection</p>' +
+'<div class="lv-pickrow" id="lv-media">' +
+'<button class="lv-pick on" data-m="video"><b>On camera</b><s>They see you as well as hear you</s></button>' +
+'<button class="lv-pick" data-m="audio"><b>Voices only</b><s>Your camera stays off</s></button>' +
+'</div>' +
+'<p class="lv-lede2">This one-time fee is separate from your viewing access, which you still need. After payment is verified, Ivory reviews your request. If approved, tap JOIN to choose your camera and microphone before you go live.</p>' +
+'<p class="lv-err" id="lv-ferr" hidden></p>' +
+'<button class="lv-btno gold big" id="lv-ask">CONTINUE</button>');
+var media = 'video';
+Array.prototype.forEach.call($('lv-sheetbody').querySelectorAll('.lv-pick'), function (b) {
+b.addEventListener('click', function () {
+Array.prototype.forEach.call($('lv-sheetbody').querySelectorAll('.lv-pick'), function (x) { x.classList.remove('on'); });
+b.classList.add('on'); media = b.dataset.m;
+});
+});
+var ask = $('lv-ask');
+if (ask) ask.addEventListener('click', function () {
+ask.disabled = true; ask.textContent = 'OPENING YOUR REQUEST…';
+IV.call('/rest/v1/rpc/start_live_guest_request', { session_id_in: S.id, media_kind_in: media })
+.then(function (res) {
+var row = Array.isArray(res) ? res[0] : res;
+var due = Number((row && (row.amount_due_inr !== undefined ? row.amount_due_inr : row.fee_inr)) || 0);
+var reqId = Number(row && row.request_id) || null;
+S.requestId = reqId;
+loadGuests();
+if (!reqId || !(due > 0)) { toast('Your guest request is with Ivory.'); sheetClose(); return; }
+sheetClose(); paySeat(reqId, due);
+})
+.catch(function (x) {
+var e = $('lv-ferr');
+if (e) { e.hidden = false; e.textContent = (x && x.message) || 'That did not go through.'; }
+ask.disabled = false; ask.textContent = 'CONTINUE';
+});
+});
+}
+function paySeat(requestId, due) {
+if (!window.IVPAY) { toast('The pay door did not load. Try once more.', true); return; }
+window.IVPAY.open({
+eyebrow: 'A seat beside her',
+heading: 'One seat, <em>once.</em>',
+sub: (S.title || 'The broadcast') + ' \u00B7 ' + money(due) + ' for one guest connection',
+amount: due,
+amountNote: 'one seat \u00B7 one night',
+note: 'This one-time fee is separate from your viewing access, which you still need. After payment is verified, Ivory reviews your request.',
+purpose: 'live_guest_slot',
+guestRequestId: Number(requestId),
+label: 'Live guest place \u00B7 ' + (S.title || 'Ivory'),
+doneTitle: 'Payment confirmed.',
+doneLine: 'Your paid guest request is with Ivory. If approved, JOIN appears in this room.',
+onPaid: function () { loadGuests(); }
+});
+}
+function joinAsSeat(req, straight) {
+if (straight) { seatNow(req); return; }
+var video = (req.media_kind || 'video') !== 'audio';
+sheetOpen('<div class="lv-sheethead"><b>' + (video ? 'Join on video?' : 'Join on audio?') + '</b></div>' +
+'<p class="lv-lede2">You will join \u201C' + esc(S.title) + '\u201D as a guest. Everyone watching this live broadcast can hear you' +
+(video ? ' and see your video. You can turn your camera off and stay on audio.' : '. You will join on audio only.') +
+' Ready to join?</p>' +
+'<button class="lv-btno gold big" id="lv-go">JOIN BROADCAST</button>' +
+'<button class="lv-btno" data-shut>NOT NOW</button>');
+var go = $('lv-go');
+if (go) go.addEventListener('click', function () { sheetClose(); seatNow(req); });
+}
+function seatNow(req) {
+open({ id: S.id, title: S.title, role: 'seat', price: S.price, seatPrice: S.seatPrice,
+allowed: S.allowed, minTier: S.minTier, requestId: req.id, startedAt: S.from });
+if (IV && IV.call) IV.call('/rest/v1/rpc/mark_live_guest_joined', { request_id_in: req.id })
+.then(function (res) { if (res === 'expired') toast('The broadcast ended before you connected.', true); })
+.catch(function () {});
+}
+function stepDown() {
+if (S.role !== 'seat') { close(false); return; }
+var req = S.requestId;
+S.stepped = true;
+if (S.cam) { try { S.cam.stop(); } catch (e) {} }
+if (S.mic) { try { S.mic.enabled = false; } catch (e) {} }
+if (S.client && S.cam) { try { S.client.unpublish([S.cam]); } catch (e) {} }
+if (S.selfTileEl && S.selfTileEl.parentNode) S.selfTileEl.parentNode.removeChild(S.selfTileEl);
+S.selfTileEl = null;
+S.requestId = null;
+paintDock();
+offPlate('You have stepped down', 'Your place is kept for this broadcast. Tap REJOIN whenever you are ready.');
+if (req && IV && IV.call) {
+IV.call('/rest/v1/rpc/leave_live_guest', { request_id_in: req })
+.then(function () { toast('Stepped down. Your place is kept — REJOIN costs nothing tonight.'); loadGuests(); })
+.catch(function () { toast('Stepped down. Your place is kept for this broadcast.'); loadGuests(); });
+}
+}
+function endShow() {
+if (IV && IV.call && S.id) IV.call('/rest/v1/rpc/end_live', { session_id_in: S.id }).catch(function () {});
+S.over = true;
+showBye('You ended the room', 'Everyone has been let out. The house keeps the record.');
+clearInterval(S.pollT); clearInterval(S.guestT);
+window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: S.id } }));
+}
+var D = { session: null, tiers: [], chosen: {}, forever: true, nobody: false, ppv: 0, busy: false, clockT: null };
+function desk(pane) {
+if (!pane) return;
+if (D.session) return deskOnAir(pane);
+deskPrep(pane);
+}
+function deskPrep(pane) {
+clearInterval(D.clockT); D.clockT = null;
+pane.innerHTML =
+'<div class="lvd">' +
+'<div class="lvd-card">' +
+'<p class="lvd-kick"><span class="lvd-mark" aria-hidden="true">' + ICO.groups + '</span>A BROADCAST, NOT A CALL</p>' +
+'<p class="lvd-say">Everyone entitled may watch, nobody but you speaks, and they take part by writing to you on screen.</p>' +
+'<label class="lvd-l" for="lvd-title">Title</label>' +
+'<input class="lvd-in" id="lvd-title" maxlength="70" placeholder="Tonight, only for you" value="' + esc(D.title || '') + '">' +
+'<label class="lvd-l" for="lvd-sub">A line underneath (optional)</label>' +
+'<input class="lvd-in" id="lvd-sub" maxlength="90" placeholder="Stay as long as you like" value="' + esc(D.sub || '') + '">' +
+'<p class="lvd-l">Who may watch</p>' +
+'<div class="lvd-chips" id="lvd-chips"></div>' +
+'<p class="lvd-hint">Pick any mix · Forever Members, one tier, several tiers, or nobody at all. Pay per view adds a paid way in for everyone not picked.</p>' +
+'<label class="lvd-l" for="lvd-guest">Guest co-host fee per person</label>' +
+'<input class="lvd-in" id="lvd-guest" inputmode="numeric" value="' + (D.guest == null ? '0' : D.guest) + '">' +
+'<p class="lvd-hint">Separate from the viewing pass. Set zero to turn guest places off.</p>' +
+'<button class="lvd-go" id="lvd-go">' +
+'<span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW</button>' +
+'<p class="lvd-hint">Everyone entitled is pushed the moment you tap this, and the gold banner appears on their Home screen.</p>' +
+'<p class="lvd-err" id="lvd-err" hidden></p>' +
+'</div>' +
+giftsBlock() +
+'</div>';
+var box = pane.querySelector('#lvd-chips');
+function chips() {
+var h = '<button class="lvd-chip' + (D.nobody ? ' on' : '') + '" data-k="nobody"><span>₹</span>Nobody · all pay</button>' +
+'<button class="lvd-chip' + (D.forever ? ' on' : '') + '" data-k="forever"><span aria-hidden="true">' + ICO.crown + '</span>Forever Members</button>';
+D.tiers.forEach(function (t) {
+var on = D.chosen[t.level] !== false;
+h += '<button class="lvd-chip' + (on ? ' on' : '') + '" data-k="t' + t.level + '"><span aria-hidden="true">' + ICO.crown + '</span>' + esc(t.name || ('Tier ' + t.level)) + '</button>';
+});
+h += '<button class="lvd-chip' + (D.ppv > 0 ? ' on' : '') + '" data-k="ppv"><span>₹</span>Pay per view</button>';
+if (D.ppv > 0) h += '<label class="lvd-ppv"><input class="lvd-in" id="lvd-ppv" inputmode="numeric" value="' + D.ppv + '"><s>per person, in ₹</s></label>';
+box.innerHTML = h;
+Array.prototype.forEach.call(box.querySelectorAll('[data-k]'), function (b) {
+b.addEventListener('click', function () {
+var k = b.dataset.k;
+if (k === 'nobody') { D.nobody = !D.nobody; if (D.nobody) { D.forever = false; D.chosen = {}; } }
+else if (k === 'forever') { D.forever = !D.forever; if (D.forever) D.nobody = false; }
+else if (k === 'ppv') { D.ppv = D.ppv > 0 ? 0 : 199; }
+else { var lv = Number(k.slice(1)); D.chosen[lv] = D.chosen[lv] === false; if (D.chosen[lv]) D.nobody = false; }
+chips();
+});
+});
+var ppv = box.querySelector('#lvd-ppv');
+if (ppv) ppv.addEventListener('input', function () { D.ppv = Math.max(0, parseInt(ppv.value || '0', 10) || 0); });
+}
+chips();
+var go = pane.querySelector('#lvd-go');
+go.addEventListener('click', function () {
+var title = (pane.querySelector('#lvd-title').value || '').trim();
+var sub = (pane.querySelector('#lvd-sub').value || '').trim();
+var guest = Math.max(0, parseInt(pane.querySelector('#lvd-guest').value || '0', 10) || 0);
+var err = pane.querySelector('#lvd-err');
+function fail(m) { err.hidden = false; err.textContent = m; }
+if (!title) { fail('Give the broadcast a title first.'); return; }
+D.title = title; D.sub = sub; D.guest = guest;
+var allowed = [];
+if (!D.nobody) {
+if (D.forever) allowed.push(0);
+D.tiers.forEach(function (t) { if (D.chosen[t.level] !== false) allowed.push(Number(t.level)); });
+}
+if (!allowed.length && D.ppv <= 0) { fail('Choose who may watch, or put a price on the door.'); return; }
+err.hidden = true;
+go.disabled = true; go.innerHTML = 'GOING LIVE…';
+IV.call('/rest/v1/rpc/start_live_with_guests', {
+title_in: title, subtitle_in: sub || null, access_in: 'tier', min_tier_in: allowed.length ? Math.min.apply(null, allowed) : 9,
+price_in: D.ppv, cover_in: null, allowed_tiers_in: allowed, guest_price_in: guest
+}).then(function (res) {
+var id = (res && res[0] && res[0].id) || (res && res.id) || null;
+if (!id) throw new Error('The broadcast was made but the house did not return its number.');
+return IV.call('/rest/v1/rpc/activate_live_start', { session_id_in: id }).catch(function () { return null; }).then(function () { return id; });
+}).then(function (id) {
+D.session = { id: id, title: title, sub: sub, guestPrice: guest, price: D.ppv, allowed: allowed, startedAt: Date.now() };
+D.from = new Date();
+desk(pane);
+open({ id: id, title: title, sub: sub, role: 'host', price: D.ppv, seatPrice: guest, allowed: allowed, startedAt: D.from });
+}).catch(function (x) {
+fail((x && x.message) || 'That did not go through.');
+go.disabled = false; go.innerHTML = '<span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW';
+});
+});
+IV.get('/rest/v1/subscription_tiers?select=name,level&order=level.asc')
+.then(function (rows) { D.tiers = Array.isArray(rows) ? rows : []; if (pane.isConnected) chips(); })
+.catch(function () {});
+}
+function statusWord(st) {
+return ({
+waiting_host: 'WAITING FOR YOU',
+payment_review: 'PAYMENT TO CHECK',
+awaiting_payment: 'NOT PAID YET',
+approved: 'APPROVED',
+joining: 'JOINING',
+active: 'ON AIR',
+left: 'STEPPED DOWN',
+declined: 'DECLINED',
+removed: 'REMOVED',
+expired: 'EXPIRED',
+cancelled: 'CANCELLED',
+payment_rejected: 'PAYMENT REFUSED'
+})[st] || String(st || '').replace(/_/g, ' ').toUpperCase();
+}
+function deskOnAir(pane) {
+var s = D.session;
+pane.innerHTML =
+'<div class="lvd">' +
+'<div class="lvd-onair">' +
+'<p class="lvd-oa-k">YOU ARE ON AIR</p>' +
+'<b class="lvd-oa-t">' + esc(s.title) + '</b>' +
+'<p class="lvd-oa-s"><span id="lvd-oa-clock">on air 0:00</span> · <span id="lvd-oa-view">0 watching</span>, <span id="lvd-oa-see">only you see this count</span></p>' +
+'<div class="lvd-oa-btns">' +
+'<button class="lvd-open" id="lvd-open">OPEN THE ROOM</button>' +
+'<button class="lvd-end" id="lvd-end">END</button>' +
+'</div>' +
+'</div>' +
+'<p class="lvd-l" style="margin-top:18px">Guests</p>' +
+'<div id="lvd-guests" class="lvd-guests"><p class="lvd-hint">No guest places taken yet.</p></div>' +
+giftsBlock() +
+'</div>';
+var tick = function () {
+var el = pane.querySelector('#lvd-oa-clock');
+if (!el) return;
+el.textContent = 'on air ' + clockOf((Date.now() - s.startedAt) / 1000);
+};
+tick(); clearInterval(D.clockT); D.clockT = setInterval(tick, 1000);
+var v = function () {
+IV.get('/rest/v1/live_public?select=viewer_count,status&id=eq.' + s.id).then(function (rows) {
+var r = rows && rows[0]; if (!r) return;
+var el = pane.querySelector('#lvd-oa-view'); if (el) el.textContent = (r.viewer_count || 0) + ' watching';
+var see = pane.querySelector('#lvd-oa-see'); if (see) see.textContent = 'only you see this count';
+if (r.status && r.status !== 'live') {
+D.session = null;
+if (isOpen()) showBye('The room has closed', 'Ivory ended this broadcast.');
+if (pane.isConnected) desk(pane);
+}
+}).catch(function () {});
+IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: s.id }).then(function (rows) {
+var box = pane.querySelector('#lvd-guests'); if (!box) return;
+rows = Array.isArray(rows) ? rows : [];
+if (!rows.length) { box.innerHTML = '<p class="lvd-hint">' + (s.guestPrice > 0 ? 'No one has asked for a seat yet. The price is ' + money(s.guestPrice) + '.' : 'No seats tonight — a seat price of zero means no one can ask.') + '</p>'; return; }
+box.innerHTML = rows.map(function (r) {
+var waiting = r.status === 'waiting_host';
+return '<div class="lvd-guest' + (waiting ? ' waiting' : '') + '">' +
+'<b>' + esc(r.display_name || 'A member') + '</b>' +
+'<s>' + ((r.media_kind === 'audio') ? 'AUDIO' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + ' · ' + money(r.fee_inr || 0) + '</s>' +
+(waiting ? '<div class="lvd-gbtns"><button class="lvd-gb gold" data-let="' + r.id + '">APPROVE</button><button class="lvd-gb" data-no="' + r.id + '">DECLINE</button></div>' : '') +
+'</div>';
+}).join('');
+Array.prototype.forEach.call(box.querySelectorAll('[data-let]'), function (b) {
+b.addEventListener('click', function () {
+b.disabled = true; b.textContent = 'PLEASE WAIT';
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.let), approve_in: true })
+.then(function () { toast('Let in. Their window opens the moment they join.'); v(); })
+.catch(function () { b.disabled = false; b.textContent = 'APPROVE'; });
+});
+});
+Array.prototype.forEach.call(box.querySelectorAll('[data-no]'), function (b) {
+b.addEventListener('click', function () {
+b.disabled = true;
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.no), approve_in: false })
+.then(function () { v(); }).catch(function () { b.disabled = false; });
+});
+});
+}).catch(function () {});
+};
+v(); var pv = setInterval(v, 5000);
+var stop = function () { clearInterval(pv); };
+window.addEventListener('iv-live-ended', stop, { once: true });
+window.addEventListener('iv-live-closed', function () { if (!D.session) stop(); });
+paintDeskGifts();
+pane.querySelector('#lvd-open').addEventListener('click', function () {
+open({ id: s.id, title: s.title, sub: s.sub, role: 'host', price: s.price, seatPrice: s.guestPrice,
+allowed: s.allowed, startedAt: new Date(s.startedAt) });
+});
+pane.querySelector('#lvd-end').addEventListener('click', function () {
+var b = pane.querySelector('#lvd-end');
+if (b.dataset.armed === '1') {
+IV.call('/rest/v1/rpc/end_live', { session_id_in: s.id }).catch(function () {});
+D.session = null;
+if (isOpen()) showBye('You ended the room', 'Everyone has been let out.');
+clearInterval(D.clockT);
+desk(pane);
+return;
+}
+b.dataset.armed = '1'; b.textContent = 'TAP AGAIN';
+setTimeout(function () { if (b.isConnected) { b.dataset.armed = ''; b.textContent = 'END'; } }, 4000);
+});
+}
+function giftsBlock() {
+return '<p class="lvd-l" style="margin-top:20px">Gifts</p>' +
+'<div id="lvd-gifts" class="lvd-gifts"><p class="lvd-hint">Reading tonight’s gifts…</p></div>';
+}
+function paintDeskGifts() {
+var box = document.getElementById('lvd-gifts');
+if (!box || !D.session) return;
+if (!IV || !IV.get) return;
+var sid = D.session.id;
+IV.get('/rest/v1/gift_sends?select=id,amount_inr,status,created_at,gifts(name,emoji),member_id(display_name)'
++ '&session_id=eq.' + encodeURIComponent(sid) + '&order=created_at.desc&limit=30')
+.catch(function () {
+return IV.get('/rest/v1/gift_sends?select=id,amount_inr,status,created_at&session_id=eq.'
++ encodeURIComponent(sid) + '&order=created_at.desc&limit=30');
+})
+.then(function (rows) {
+if (!box.isConnected) return;
+rows = Array.isArray(rows) ? rows : [];
+if (!rows.length) { box.innerHTML = '<p class="lvd-hint">Nothing has been sent to this room yet. It will appear here the moment it is.</p>'; return; }
+var total = 0, waiting = 0;
+var list = rows.map(function (g) {
+var row = g.gifts || {};
+var who = (g.member_id && g.member_id.display_name) || 'A member';
+var ok = g.status === 'confirmed';
+var amt = Number(g.amount_inr || 0);
+if (ok) total += amt; else waiting += 1;
+return '<div class="lvd-gift"><b>' + esc((row.emoji ? row.emoji + ' ' : '') + (row.name || 'A gift')) + ' · ' + money(amt) + '</b>' +
+'<s>' + esc(who) + (ok ? '' : ' · WAITING FOR PAYMENT') + '</s>' +
+'<span class="lvd-tag' + (ok ? ' ok' : '') + '">' + (ok ? 'RECEIVED' : 'PENDING') + '</span></div>';
+}).join('');
+box.innerHTML = '<p class="lvd-hint" style="margin:0 0 4px">' + money(total) + ' received'
++ (waiting ? ' · ' + waiting + ' still waiting for payment' : '') + '</p>' + list;
+})
+.catch(function () { if (box.isConnected) box.innerHTML = '<p class="lvd-hint">The gift ledger did not answer just now.</p>'; });
+}
+window.IVLIVE = {
+open: open, close: close, isOpen: isOpen, desk: desk,
+state: S, S: S, D: D,
+say: say, paintPill: paintPill, placeTiles: placeTiles,
+money: money, clockOf: clockOf
+};
+setInterval(function () { if (D.session && document.getElementById('lvd-gifts')) paintDeskGifts(); }, 12000);
+window.IVLIVE.watch = function (opts) { open(Object.assign({ role: 'watch' }, opts || {})); };
 })();</script>
 </body>
 </html>
