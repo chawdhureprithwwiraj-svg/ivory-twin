@@ -40840,7 +40840,8 @@ if (S.role === 'host' && IV && IV.call) IV.call('/rest/v1/rpc/set_live_host_vide
 if (S.requestId && IV && IV.call) IV.call('/rest/v1/rpc/set_live_guest_video', { request_id_in: S.requestId, enabled_in: S.camOn }).catch(function () {});
 });
 var sw = $('lv-swap');
-if (sw && window.AgoraRTC && AgoraRTC.createCameraVideoTrack) sw.addEventListener('click', function () {
+if (sw) sw.addEventListener('click', function () {
+if (!(window.AgoraRTC && AgoraRTC.getCameras)) { toast('This device has only one camera.'); return; }
 try {
 AgoraRTC.getCameras().then(function (cams) {
 cams = cams || [];
