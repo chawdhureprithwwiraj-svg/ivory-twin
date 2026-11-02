@@ -40,7 +40,7 @@
   'use strict';
   if (window.IVBEAUTY) return;
 
-  var LS = 'ivory.beauty.v2';
+  var LS = 'ivory.beauty.v3';
 
   /* ── what she may dial ─────────────────────────────────────────────────── */
   var FX = [
@@ -71,7 +71,7 @@
     { k: 'highlight', g: 'light', name: 'Highlight & shadow', d: 0.18 },
     { k: 'cinematic', g: 'light', name: 'Cinematic finish', d: 0.14 }
   ];
-  var GROUPS = [['skin', 'Skin'], ['face', 'Face'], ['makeup', 'Makeup'], ['light', 'Light']];
+  var GROUPS = [['skin', 'Skin'], ['face', 'Face'], ['makeup', 'Makeup'], ['light', 'Light'], ['lens', 'Eyes']];
 
   var PRESETS = {
     natural: { master: 0.55, smooth: .50, blemish: .40, spots: .35, undereye: .30, lines: .25, texture: .60,
@@ -92,9 +92,26 @@
                illum: .40, studio: .40, highlight: .32, cinematic: .24 }
   };
 
+  /* ── ten green lenses, light to deep ────────────────────────────────────
+     c0 collarette (by the pupil) · c1 the body of the iris · c2 the limbal
+     ring. Nothing grey, nothing blue: every one of them is a green.        */
+  var LENSES = [
+    { id: 'mint',    name: 'Crystal Mint',   c0: [0.62, 0.74, 0.63], c1: [0.48, 0.62, 0.50], c2: [0.20, 0.31, 0.23], warm: 0.06 },
+    { id: 'aqua',    name: 'Light Aqua',     c0: [0.54, 0.72, 0.66], c1: [0.40, 0.60, 0.55], c2: [0.14, 0.27, 0.25], warm: 0.04 },
+    { id: 'sage',    name: 'Soft Sage',      c0: [0.62, 0.65, 0.50], c1: [0.50, 0.55, 0.40], c2: [0.24, 0.27, 0.17], warm: 0.12 },
+    { id: 'spring',  name: 'Fresh Spring',   c0: [0.56, 0.68, 0.38], c1: [0.44, 0.58, 0.30], c2: [0.20, 0.29, 0.12], warm: 0.07 },
+    { id: 'emerald', name: 'Natural Emerald', c0: [0.30, 0.55, 0.42], c1: [0.20, 0.42, 0.31], c2: [0.06, 0.19, 0.14], warm: 0.05 },
+    { id: 'olive',   name: 'Olive',          c0: [0.48, 0.48, 0.26], c1: [0.38, 0.40, 0.20], c2: [0.16, 0.17, 0.08], warm: 0.16 },
+    { id: 'jade',    name: 'Jade',           c0: [0.32, 0.58, 0.48], c1: [0.22, 0.46, 0.38], c2: [0.07, 0.20, 0.17], warm: 0.06 },
+    { id: 'forest',  name: 'Deep Forest',    c0: [0.20, 0.36, 0.25], c1: [0.14, 0.28, 0.19], c2: [0.04, 0.12, 0.08], warm: 0.07 },
+    { id: 'bottle',  name: 'Rich Bottle',   c0: [0.13, 0.25, 0.17], c1: [0.08, 0.19, 0.13], c2: [0.02, 0.08, 0.05], warm: 0.06 },
+    { id: 'ench',    name: 'Dark Enchanted', c0: [0.08, 0.17, 0.13], c1: [0.05, 0.11, 0.08], c2: [0.01, 0.04, 0.03], warm: 0.05 }
+  ];
+
   var S = {
     on: false, open: false, tab: 'skin', preset: 'natural',
     master: 0.55, before: false, quality: 1,
+    lens: 'emerald', lensAmt: 0.90, lensOn: false,
     fx: {}, off: {}, saved: null
   };
   FX.forEach(function (f) { S.fx[f.k] = f.d; S.off[f.k] = false; });
@@ -110,6 +127,9 @@
       if (d.fx) FX.forEach(function (f) { if (typeof d.fx[f.k] === 'number') S.fx[f.k] = d.fx[f.k]; });
       if (d.off) FX.forEach(function (f) { S.off[f.k] = !!d.off[f.k]; });
       if (d.preset) S.preset = d.preset;
+      if (typeof d.lens === 'string' && LENSES.some(function (l) { return l.id === d.lens; })) S.lens = d.lens;
+      if (typeof d.lensAmt === 'number') S.lensAmt = d.lensAmt;
+      if (typeof d.lensOn === 'boolean') S.lensOn = d.lensOn;
       if (d.saved) S.saved = d.saved;
     } catch (e) {}
   }
@@ -117,6 +137,7 @@
     try {
       localStorage.setItem(LS, JSON.stringify({
         on: S.on, master: S.master, preset: S.preset, saved: S.saved,
+        lens: S.lens, lensAmt: S.lensAmt, lensOn: S.lensOn,
         fx: S.fx, off: S.off
       }));
     } catch (e) {}
@@ -126,7 +147,10 @@
   function eff(k) { return S.off[k] ? 0 : (S.fx[k] || 0); }
 
   /* ── the WebGL engine ─────────────────────────────────────────────────── */
-  var VS = 'attribute vec2 p;varying vec2 v;void main(){v=p*0.5+0.5;gl_Position=vec4(p,0.,1.);}';
+  /* v is the picture's own coordinates: (0,0) at its top-left, exactly the
+     space the face landmarks are given in. The old build mapped v to clip
+     space, which drew every filtered frame upside down.                    */
+  var VS = 'attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*0.5+0.5,0.5-p.y*0.5);gl_Position=vec4(p,0.,1.);}';
 
   var FS_MASK = [
     'precision mediump float;varying vec2 v;',
@@ -159,7 +183,61 @@
     'uniform float uIl,uSt,uHi,uCi;',
     'uniform float before;',
     '',
+    /* the two eyes: centre, radii · lid: the open lid's y, the low lid's y,
+       confidence, unused                                                     */
+    'uniform vec4 eyeL;uniform vec4 lidL;uniform vec4 eyeR;uniform vec4 lidR;',
+    'uniform vec3 lc0;uniform vec3 lc1;uniform vec3 lc2;',
+    'uniform float lensAmt;uniform float lensOn;uniform vec2 lensTune;',
+    /* the face's own width, band by band, read off the landmarks */
+    'uniform sampler2D prof;uniform vec2 profY;uniform float profOn;',
+    '',
     'float mAt(vec2 uv){ return texture2D(mask,uv).r; }',
+    '',
+    /* one lens, worn by one eye. The colour is ours; the light, the shade,
+       the fibres, the limbal ring and the catchlight are the eye's own —
+       so the tint sits inside the eye instead of on top of it.          */
+    'vec3 lensEye(vec3 col, vec2 uv, vec4 e, vec4 lid){',
+    '  vec2 d=(uv-e.xy)/max(e.zw,vec2(1e-4));',
+    '  float rad=length(d);',
+    '  if(rad>1.24) return col;',
+    '  float shape=1.0-smoothstep(0.92,1.06,rad);',
+    '  float f=0.0050;',
+    '  float band=smoothstep(lid.x-f,lid.x+f,uv.y)*(1.0-smoothstep(lid.y-f,lid.y+f,uv.y));',
+    '  float open=smoothstep(0.26,0.72,(lid.y-lid.x)/max(e.w*2.0,1e-4));',
+    '  vec3 kL=vec3(0.299,0.587,0.114);',
+    '  float m0=dot(texture2D(tex,e.xy+e.zw*vec2(0.42,0.0)).rgb,kL);',
+    '  float m1=dot(texture2D(tex,e.xy-e.zw*vec2(0.42,0.0)).rgb,kL);',
+    '  float m2=dot(texture2D(tex,e.xy+e.zw*vec2(0.0,0.42)).rgb,kL);',
+    '  float m3=dot(texture2D(tex,e.xy-e.zw*vec2(0.0,0.42)).rgb,kL);',
+    '  float mean=max(0.045,(m0+m1+m2+m3)*0.25);',
+    '  vec3 src=texture2D(tex,uv).rgb;',
+    '  float lum=dot(src,kL);',
+    '  vec2 q=e.zw*0.16;',
+    '  float b0=dot(texture2D(tex,uv+vec2(q.x,0.0)).rgb,kL);',
+    '  float b1=dot(texture2D(tex,uv-vec2(q.x,0.0)).rgb,kL);',
+    '  float b2=dot(texture2D(tex,uv+vec2(0.0,q.y)).rgb,kL);',
+    '  float b3=dot(texture2D(tex,uv-vec2(0.0,q.y)).rgb,kL);',
+    /* bl: the eye's own light and shade across the iris — lid shadow above */
+    '  float bl=max(0.020,(lum+b0+b1+b2+b3)*0.2);',
+    '  float sh=clamp(bl/max(mean,0.05),0.50,1.70);',
+    /* det: the fibres, read off the photograph itself */
+    '  float det=clamp((lum-bl)/max(bl,0.05),-0.70,0.70);',
+    '  float t=clamp(rad,0.0,1.0);',
+    '  vec3 bse=mix(lc0,lc1,smoothstep(0.06,0.72,t));',
+    '  bse=mix(bse,lc2,smoothstep(0.76,1.08,t));',
+    '  vec3 c=bse*(0.66+0.34*sh)*(1.0+det*0.75);',
+    '  c=mix(c,c*1.07+vec3(0.010),clamp(1.0-smoothstep(0.30,0.56,rad),0.0,1.0)*0.45);',
+    '  c*=mix(1.0,0.45,smoothstep(0.86,1.10,rad));',
+    /* a catchlight is white light on the surface: only that comes back */
+    '  float spec=smoothstep(0.70,0.96,lum)*smoothstep(1.45,2.10,lum/max(mean,0.05))*smoothstep(0.98,0.86,rad);',
+    '  c=mix(c,src*1.04,clamp(spec,0.0,1.0)*0.62);',
+    '  c=mix(c,vec3(dot(c,kL)),0.10);',
+    '  float pupil=smoothstep(0.16,0.34,rad);',
+    '  float a=lensAmt*shape*band*open*pupil*clamp(lid.z,0.0,1.0);',
+    /* the pupil and the lashes are not pigment: leave them be */
+    '  a*=smoothstep(0.022,0.080,lum);',
+    '  return mix(col,c,clamp(a,0.0,0.94));',
+    '}',
     '',
     'void main(){',
     '  vec2 uv=v;',
@@ -168,11 +246,22 @@
     '  float inside=smoothstep(1.15,0.55,length(q));',
     '  float w=mix(0.0,1.0,inside)*smoothstep(0.05,0.45,m);',
     '',
-    '  /* geometry, inside the face only */',
+    '  /* geometry, inside the face only — and driven by the face’s own width */',
     '  vec2 wuv=uv;',
-    /* slimming: the picture is sampled from further out at the sides, so the
-       silhouette comes in — never a pinch, never a moving background */
-    '  wuv.x=box.x+(uv.x-box.x)*(1.0+uSl*0.14*w);',
+    '  if(profOn>0.5){',
+    '    float pb=(uv.y-profY.x)*profY.y;',
+    '    if(pb>0.004&&pb<0.996){',
+    '      vec4 pf=texture2D(prof,vec2(pb,0.5));',
+    '      float dx=uv.x-pf.r;',
+    '      float rel=abs(dx)/max(pf.g,0.004);',
+    /* the narrowing peaks on the cheek and is gone by the contour, so the
+       hair line and the backdrop never move */
+    '      float edge=smoothstep(0.16,0.86,rel)*(1.0-smoothstep(0.90,1.12,rel));',
+    '      wuv.x=clamp(pf.r+dx*(1.0+uSl*0.17*pf.b*edge),0.0,1.0);',
+    '    }',
+    '  } else {',
+    '    wuv.x=box.x+(uv.x-box.x)*(1.0+uSl*0.14*w);',
+    '  }',
     '  wuv.x=box.x+(wuv.x-box.x)*(1.0+uNs*0.20*w*smoothstep(0.42,0.0,abs(q.x))*smoothstep(0.55,0.05,abs(q.y+0.05)));',
     '  wuv.y+= -uJw*0.055*w*smoothstep(-0.05,-0.95,q.y);',
     '  wuv.y+= uCk*0.012*w*smoothstep(0.15,0.75,q.y)*(step(0.0,q.x)-0.5)*2.0;',
@@ -276,8 +365,187 @@
     '',
     '  /* her master strength, and the mask keeps the room out of it */',
     '  vec3 out_c=mix(base,col,clamp(master*w,0.0,1.0));',
+    '',
+    '  /* the lenses, after every grade — her eyes are never tinted by warmth */',
+    '  if(lensOn>0.001){',
+    '    out_c=lensEye(out_c,uv,eyeL,lidL);',
+    '    out_c=lensEye(out_c,uv,eyeR,lidR);',
+    '  }',
     '  gl_FragColor=vec4(clamp(out_c,0.0,1.0),1.0);',
     '}'].join('\n');
+
+
+  /* ══ the face, followed ══════════════════════════════════════════════════
+     MediaPipe's Face Landmarker — Apache-2.0, free, no key, no cloud, no
+     frame leaves the device. 478 points: the full mesh, the face oval, and
+     both iris rings (468-477), which is what a lens has to sit on. It is
+     fetched the first time a lens or a landmark-driven slim is asked for,
+     and never at page load.                                                */
+  var TR = { state: 'idle', err: '', bootMs: 0, ms: 0, every: 1, hits: 0, lastAt: 0, src: null };
+  var FL = null;                 /* the landmarker */
+  var LM = { pts: null, raw: null, t: 0, conf: 0, vel: [0, 0, 0, 0, 0, 0, 0, 0] };
+  var FACE = null;               /* what the shader needs, computed once a frame */
+  var EYE_IDX = {
+    L: { c: 468, ring: [469, 470, 471, 472], up: [33, 160, 159, 158, 133], lo: [33, 144, 145, 146, 133] },
+    R: { c: 473, ring: [474, 475, 476, 477], up: [263, 387, 386, 385, 362], lo: [263, 373, 374, 380, 362] }
+  };
+  /* the app's own face oval, 36 points, in order round the face */
+  var OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378,
+              400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+
+  function trackerBase() {
+    var sc = document.currentScript;
+    var src = (sc && sc.src) || '';
+    if (!src) {
+      var all = document.getElementsByTagName('script');
+      for (var i = all.length - 1; i >= 0; i--) { if (/iv-beauty\.js/.test(all[i].src)) { src = all[i].src; break; } }
+    }
+    return src ? src.replace(/[^\/]*$/, '') : './';
+  }
+  var TBASE = trackerBase();
+
+  function loadTracker() {
+    if (FL) return Promise.resolve(FL);
+    if (TR.state === 'loading') return TR.p;
+    TR.state = 'loading';
+    var t0 = (window.performance || Date).now();
+    TR.p = import(TBASE + 'media/face/vision.js').then(function (vision) {
+      return vision.FilesetResolver.forVisionTasks(TBASE + 'media/face').then(function (files) {
+        function make(delegate) {
+          return vision.FaceLandmarker.createFromOptions(files, {
+            baseOptions: { modelAssetPath: TBASE + 'media/face/face_landmarker.task', delegate: delegate },
+            runningMode: 'VIDEO', numFaces: 1,
+            outputFaceBlendshapes: false, outputFacialTransformationMatrixes: false
+          });
+        }
+        return make('GPU').catch(function () { return make('CPU'); });
+      });
+    }).then(function (fl) {
+      FL = fl; TR.state = 'ready'; TR.bootMs = (window.performance || Date).now() - t0;
+      LM.pts = null; LM.conf = 0;
+      return fl;
+    }).catch(function (e) {
+      TR.state = 'off'; TR.err = String((e && e.message) || e).slice(0, 160);
+      TR.p = null;
+      throw e;
+    });
+    return TR.p;
+  }
+  function trackerReady() { return TR.state === 'ready'; }
+  function trackerBusy() { return TR.state === 'loading'; }
+
+  /* one detection, now. The engine calls it on the frame it has a picture. */
+  function feed(src) {
+    if (!FL) return false;
+    var now = (window.performance || Date).now();
+    if (now - TR.lastAt < TR.every * 24) return false;
+    var ts = Math.max(now, (TR.ts || 0) + 1); TR.ts = ts;
+    var t0 = now, res = null;
+    try { res = FL.detectForVideo(src, ts); } catch (e) {
+      LM.conf = 0; return false;
+    }
+    TR.ms = (window.performance || Date).now() - t0;
+    TR.lastAt = (window.performance || Date).now();
+    /* a slow device detects less often — it never stops drawing */
+    TR.every = TR.ms > 90 ? 3 : (TR.ms > 45 ? 2 : 1);
+    var pts = res && res.faceLandmarks && res.faceLandmarks[0];
+    if (!pts || pts.length < 478) { TR.misses = (TR.misses || 0) + 1; if (TR.misses > 2) LM.conf = Math.max(0, LM.conf - 0.5); return false; }
+    TR.misses = 0;
+    var raw = new Float32Array(956);
+    for (var i = 0; i < 478; i++) { raw[i * 2] = pts[i].x; raw[i * 2 + 1] = pts[i].y; }
+    LM.raw = raw;
+    var k = TR.every > 1 ? 0.80 : 0.58;
+    if (!LM.pts) { LM.pts = new Float32Array(raw); }
+    else {
+      for (var j = 0; j < 956; j++) {
+        var d = raw[j] - LM.pts[j];
+        LM.pts[j] += d * k;
+        if (j < 8) LM.vel[j] = LM.vel[j] * 0.6 + d * 0.4;
+      }
+    }
+    LM.t = (window.performance || Date).now();
+    LM.conf = Math.min(1, LM.conf + 0.55);
+    TR.hits++;
+    return true;
+  }
+
+  function yOnChain(P, chain, x) {
+    for (var i = 0; i < chain.length - 1; i++) {
+      var a = chain[i], b = chain[i + 1];
+      var ax = P[a * 2], ay = P[a * 2 + 1], bx = P[b * 2], by = P[b * 2 + 1];
+      var lo = Math.min(ax, bx), hi = Math.max(ax, bx);
+      if (x >= lo && x <= hi && Math.abs(bx - ax) > 1e-6) {
+        var t = (x - ax) / (bx - ax);
+        return ay + (by - ay) * t;
+      }
+    }
+    var first = chain[0], last = chain[chain.length - 1];
+    return (P[first * 2 + 1] + P[last * 2 + 1]) / 2;
+  }
+
+  /* the whole face, from the smoothed points, once a frame */
+  function computeFace(w, h) {
+    var P = LM.pts;
+    if (!P) { FACE = null; return null; }
+    var age = (window.performance || Date).now() - LM.t;
+    var conf = Math.max(0, Math.min(1, LM.conf * (1 - Math.max(0, (age - 420)) / 1400)));
+    function eye(spec) {
+      var cx = P[spec.c * 2], cy = P[spec.c * 2 + 1];
+      var r0 = spec.ring[0], r1 = spec.ring[1], r2 = spec.ring[2], r3 = spec.ring[3];
+      var rx = (Math.hypot(P[r0 * 2] - cx, P[r0 * 2 + 1] - cy) + Math.hypot(P[r2 * 2] - cx, P[r2 * 2 + 1] - cy)) / 2;
+      var ry = (Math.hypot(P[r1 * 2] - cx, P[r1 * 2 + 1] - cy) + Math.hypot(P[r3 * 2] - cx, P[r3 * 2 + 1] - cy)) / 2;
+      /* a little prediction so a fast glance does not slide the lens */
+      var dx = LM.vel[0] * 0, dy = 0;
+      var yUp = yOnChain(P, spec.up, cx), yLo = yOnChain(P, spec.lo, cx);
+      return { c: [cx, cy], r: [Math.max(0.004, rx * 1.04), Math.max(0.004, ry * 1.04)], up: yUp, lo: yLo };
+    }
+    var eL = eye(EYE_IDX.L), eR = eye(EYE_IDX.R);
+    /* the face's own width, band by band */
+    var yTop = 1, yBot = 0, i;
+    for (i = 0; i < OVAL.length; i++) {
+      var y = P[OVAL[i] * 2 + 1];
+      if (y < yTop) yTop = y;
+      if (y > yBot) yBot = y;
+    }
+    var eyeY = (P[EYE_IDX.L.up[2] * 2 + 1] + P[EYE_IDX.R.up[2] * 2 + 1]) / 2;
+    var chinY = P[152 * 2 + 1];
+    var prof = FACE && FACE.prof ? FACE.prof : new Uint8Array(256);
+    for (var b = 0; b < 64; b++) {
+      var yb = yTop + (b + 0.5) / 64 * Math.max(1e-4, yBot - yTop);
+      var xl = 1, xr = 0, hit = 0;
+      for (i = 0; i < OVAL.length; i++) {
+        var a0 = OVAL[i], a1 = OVAL[(i + 1) % OVAL.length];
+        var y0 = P[a0 * 2 + 1], y1 = P[a1 * 2 + 1];
+        if ((y0 <= yb && yb <= y1) || (y1 <= yb && yb <= y0)) {
+          if (Math.abs(y1 - y0) < 1e-7) continue;
+          var t = (yb - y0) / (y1 - y0);
+          var x = P[a0 * 2] + (P[a1 * 2] - P[a0 * 2]) * t;
+          if (x < xl) xl = x;
+          if (x > xr) xr = x;
+          hit++;
+        }
+      }
+      var cx = 0.5, half = 0.20, wt = 0;
+      if (hit && xr > xl) {
+        cx = (xl + xr) / 2; half = (xr - xl) / 2;
+        var tt = (yb - eyeY) / Math.max(1e-4, chinY - eyeY);
+        tt = Math.max(0, Math.min(1, tt));
+        wt = (tt <= 0 ? 0 : Math.min(1, (tt - 0.08) / 0.42)) * (1 - 0.30 * Math.max(0, Math.min(1, (tt - 0.86) / 0.14)));
+        wt *= (1 - 0.55 * Math.max(0, Math.min(1, Math.abs(yb - eyeY) / Math.max(1e-4, (chinY - eyeY) * 0.22)) * 0));
+      }
+      prof[b * 4] = Math.round(cx * 255);
+      prof[b * 4 + 1] = Math.round(half * 255);
+      prof[b * 4 + 2] = Math.round(Math.max(0, Math.min(1, wt)) * 255);
+      prof[b * 4 + 3] = 255;
+    }
+    FACE = { conf: conf, eyeL: eL, eyeR: eR, prof: prof, yTop: yTop, yBot: yBot, h: h, w: w };
+    return FACE;
+  }
+
+  function lensDef() {
+    for (var i = 0; i < LENSES.length; i++) if (LENSES[i].id === S.lens) return LENSES[i];
+    return LENSES[4];
+  }
 
   var G = null;
 
@@ -330,7 +598,14 @@
       m1: fbo(gl, MW, MH), m2: fbo(gl, MW, MH),
       hist: { t: null, f: null, w: MW, h: MH },
       box: { x: 0.5, y: 0.5, rx: 0.26, ry: 0.34 },
+      prof: tex(gl), u: {},
       ticks: 0, last: 0, slow: 0, fast: 0, ready: false
+    };
+    gl.bindTexture(gl.TEXTURE_2D, g.prof);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 64, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(256));
+    g.U = function (n) {
+      if (!(n in g.u)) g.u[n] = gl.getUniformLocation(g.px, n);
+      return g.u[n];
     };
     g.hist = g.m1;
     gl.bindBuffer(gl.ARRAY_BUFFER, g.buf);
@@ -399,6 +674,37 @@
     gl.uniform2f(gl.getUniformLocation(G.px, 'texel'), 1 / w, 1 / h);
     gl.uniform1f(gl.getUniformLocation(G.px, 'master'), S.on ? S.master : 0);
     gl.uniform1f(gl.getUniformLocation(G.px, 'before'), S.before ? 1 : 0);
+    /* ── the face: one geometry per frame, uploaded as four little uniforms
+       and one 64-band width strip ── */
+    var F = computeFace(w, h), U = G.U;
+    var eL = F ? F.eyeL : null, eR = F ? F.eyeR : null, cf = F ? F.conf : 0;
+    var lensWanted = (S.on && S.lensOn && !S.before) ? 1 : 0;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, G.prof);
+    if (F) {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 64, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, F.prof);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
+    gl.uniform1i(U('prof'), 2);
+    gl.uniform2f(U('profY'), F ? F.yTop : 0, F ? 1 / Math.max(1e-4, F.yBot - F.yTop) : 0);
+    gl.uniform1f(U('profOn'), (F && cf > 0.2) ? 1 : 0);
+    if (!eL) { eL = { c: [0.5, 0.5], r: [0.001, 0.001], up: 0, lo: 0 }; }
+    if (!eR) { eR = { c: [0.5, 0.5], r: [0.001, 0.001], up: 0, lo: 0 }; }
+    gl.uniform4f(U('eyeL'), eL.c[0], eL.c[1], eL.r[0], eL.r[1]);
+    gl.uniform4f(U('lidL'), eL.up, eL.lo, cf, 0);
+    gl.uniform4f(U('eyeR'), eR.c[0], eR.c[1], eR.r[0], eR.r[1]);
+    gl.uniform4f(U('lidR'), eR.up, eR.lo, cf, 0);
+    var LDL = lensDef();
+    gl.uniform3fv(U('lc0'), LDL.c0);
+    gl.uniform3fv(U('lc1'), LDL.c1);
+    gl.uniform3fv(U('lc2'), LDL.c2);
+    gl.uniform1f(U('lensOn'), lensWanted);
+    gl.uniform1f(U('lensAmt'), S.lensOn ? S.lensAmt : 0);
+    gl.uniform2f(U('lensTune'), 0.55, LDL.warm);
+
     uni(gl, G.px,
       ['uSm','uBl','uSp','uUe','uLn','uTx','uTn','uRd','uSl','uJw','uCk','uNs','uSy',
        'uBh','uLp','uEy','uWm','uEx','uCt','uIl','uSt','uHi','uCi'],
@@ -473,6 +779,7 @@
       var w = Math.min(cap, vid.videoWidth), h = Math.round(vid.videoHeight * (w / vid.videoWidth));
       if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
       var t0 = performance.now();
+      if (TR.state === 'ready') feed(vid);
       render(vid, w, h);
       var dt = performance.now() - t0;
       /* the governor: if the phone is struggling, the mask resolution and the
@@ -574,6 +881,17 @@
     '  text-transform:uppercase;white-space:nowrap}',
     '.bty-b.hold{background:rgba(255,246,226,.12)}',
     '.bty-b.hold:active{background:linear-gradient(180deg,#FFF3D2,#DFAE55);color:#3F2405}',
+    '.bty-lrow{display:flex;align-items:center;gap:10px;padding:6px 0 12px}',
+    '.bty-lensgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px 6px;padding:2px 0 10px}',
+    '.bty-lens{border:0;background:transparent;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px}',
+    '.bty-lens i{display:block;width:44px;height:44px;border-radius:50%;position:relative;',
+    '  box-shadow:inset 0 0 0 1px rgba(243,208,138,.22),0 2px 8px rgba(0,0,0,.45)}',
+    '.bty-lens i:after{content:"";position:absolute;inset:35%;border-radius:50%;background:#150609;',
+    '  box-shadow:inset 0 0 3px rgba(255,255,255,.12)}',
+    '.bty-lens s{text-decoration:none;font:600 8.5px/1.15 system-ui,sans-serif;letter-spacing:.02em;',
+    '  color:rgba(255,240,214,.62);text-align:center}',
+    '.bty-lens.on i{box-shadow:inset 0 0 0 2px #F3D08A,0 0 0 3px rgba(243,208,138,.16),0 2px 10px rgba(0,0,0,.5)}',
+    '.bty-lens.on s{color:#FFE9B8}',
     '.bty-q{padding:4px 16px 6px;font:400 10.5px/1.3 system-ui,sans-serif;color:rgba(255,240,214,.5)}',
     '.bty-no{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#2D1A12;color:#FFF6E2;',
     '  padding:11px 16px;border-radius:99px;font:600 12px/1 system-ui,sans-serif;z-index:9400;opacity:0;',
@@ -633,6 +951,13 @@
       if (p) { applyPreset(p.getAttribute('data-preset')); return; }
       var t = e.target.closest('[data-tab]');
       if (t) { S.tab = t.getAttribute('data-tab'); paint(); return; }
+      var ln = e.target.closest('[data-lens]');
+      if (ln) { setLens(ln.getAttribute('data-lens')); return; }
+      if (e.target.closest('[data-lon]')) {
+        S.lensOn = !S.lensOn; save();
+        if (S.lensOn) ensureTracker();
+        paint(); return;
+      }
       var d = e.target.closest('[data-off]');
       if (d) {
         var k = d.getAttribute('data-off');
@@ -658,6 +983,13 @@
       say('Kept as “Mine” on this device');
     });
     sheet.querySelector('#bty-list').addEventListener('input', function (e) {
+      if (e.target.closest('[data-sl2="lens"]')) {
+        S.lensAmt = (+e.target.value) / 100;
+        save();
+        var v = sheet.querySelector('[data-v="lens"]');
+        if (v) v.textContent = Math.round(S.lensAmt * 100);
+        return;
+      }
       var r = e.target.closest('[data-sl]');
       if (!r) return;
       var k = r.getAttribute('data-sl');
@@ -710,6 +1042,7 @@
       return '<button class="bty-tab' + (g[0] === S.tab ? ' on' : '') + '" data-tab="' + g[0] + '">' + g[1] + '</button>';
     }).join('');
     var list = sheet.querySelector('#bty-list');
+    if (S.tab === 'lens') { list.innerHTML = lensPanel(); ensureTracker(); return; }
     list.innerHTML = FX.filter(function (f) { return f.g === S.tab; }).map(function (f) {
       return '<div class="bty-row">' +
         '<button class="bty-dot' + (S.off[f.k] ? '' : ' on') + '" data-off="' + f.k + '" aria-label="' + f.name + ' on or off">' +
@@ -721,6 +1054,49 @@
           Math.round((S.fx[f.k] || 0) * 100) + '" aria-label="' + f.name + '">' +
       '</div>';
     }).join('');
+  }
+
+  function hex(c) {
+    function b(v) { var s = Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16); return s.length < 2 ? '0' + s : s; }
+    return '#' + b(c[0]) + b(c[1]) + b(c[2]);
+  }
+  function lensPanel() {
+    var cur = lensDef();
+    var state = TR.state === 'ready'
+      ? 'Eyes found · ' + Math.round(TR.ms) + ' ms a face'
+      : (TR.state === 'loading' ? 'Waking the eye tracker…' : (TR.state === 'off' ? 'The tracker did not load — no lens to wear' : 'The tracker wakes the moment you choose a lens'));
+    return '<div class="bty-lrow">' +
+        '<button class="bty-sw' + (S.lensOn ? ' on' : '') + '" data-lon role="switch" aria-checked="' + (S.lensOn ? 'true' : 'false') + '" aria-label="Green lenses on or off"><i></i></button>' +
+        '<span class="bty-lab">Green lenses<s>' + (S.lensOn ? 'worn · ' + cur.name : 'off · your own eye colour') + '</s></span>' +
+      '</div>' +
+      '<div class="bty-lensgrid">' + LENSES.map(function (l) {
+        var on = (l.id === S.lens);
+        return '<button class="bty-lens' + (on ? ' on' : '') + '" data-lens="' + l.id + '" aria-label="' + l.name + '" aria-pressed="' + on + '">' +
+          '<i style="background:radial-gradient(circle at 50% 46%,' + hex(l.c0) + ' 0%,' + hex(l.c1) + ' 52%,' + hex(l.c2) + ' 100%)"></i>' +
+          '<s>' + l.name + '</s></button>';
+      }).join('') + '</div>' +
+      '<div class="bty-row" style="border-top:1px solid rgba(243,208,138,.10)">' +
+        '<span class="bty-name" style="grid-area:dot/name">Lens strength</span>' +
+        '<span class="bty-val" data-v="lens">' + Math.round((S.lensAmt || 0) * 100) + '</span>' +
+        '<input class="bty-r" type="range" min="0" max="100" data-sl2="lens" value="' + Math.round((S.lensAmt || 0) * 100) + '" aria-label="Lens strength">' +
+      '</div>' +
+      '<p class="bty-q" style="padding:6px 0 2px">' + state + ' · both eyes, no frame leaves this device</p>';
+  }
+
+  function setLens(id) {
+    S.lens = id; S.lensOn = true;
+    if (S.fx.eyes < 0.02) S.fx.eyes = 0.10;
+    if (!S.on) setOn(true); else save();
+    ensureTracker(); paint();
+  }
+  function ensureTracker() {
+    if (TR.state === 'idle' || TR.state === 'off') {
+      TR.state = 'loading';
+      loadTracker().catch(function () {
+        say('The eye tracker could not be fetched — your own eyes stay as they are.', true);
+        if (sheet) paint();
+      }).then(function () { if (sheet) paint(); });
+    }
   }
 
   function applyPreset(name) {
@@ -746,6 +1122,7 @@
 
   function setOn(v) {
     S.on = !!v;
+    if (S.on && S.lensOn) ensureTracker();
     save(); paintMaster();
     if (S.on && !LIVE && window.IVLIVE && window.IVLIVE.beautyAttach) window.IVLIVE.beautyAttach();
     if (!S.on) {
@@ -768,6 +1145,15 @@
     canvas: function () { return LIVE && LIVE.canvas; },
     track: function () { return LIVE && LIVE.track(); },
     state: S,
+    lenses: LENSES,
+    setLens: setLens,
+    tracker: {
+      load: loadTracker, feed: feed, state: TR,
+      ready: trackerReady, busy: trackerBusy,
+      face: function () { return FACE; },
+      points: function () { return LM.pts; },
+      conf: function () { return LM.conf; }
+    },
     preset: applyPreset,
     /* the bench's own door: draw one frame from any source, synchronously */
     renderOnce: function (src, w, h) {
@@ -775,6 +1161,23 @@
       if (!G) return null;
       render(src, w, h);
       return G.canvas;
+    },
+    /* the bench's door to the tracker: one detection on a still, forced */
+    look: function (src) {
+      if (!FL) return false;
+      var res = null, pts = null;
+      /* a new source sometimes answers empty on its very first frame */
+      for (var attempt = 0; attempt < 2 && !pts; attempt++) {
+        var ts = Math.max((window.performance || Date).now(), (TR.ts || 0) + 1); TR.ts = ts;
+        res = FL.detectForVideo(src, ts);
+        pts = res && res.faceLandmarks && res.faceLandmarks[0];
+      }
+      if (!pts) return false;
+      var raw = new Float32Array(956);
+      for (var i = 0; i < 478; i++) { raw[i * 2] = pts[i].x; raw[i * 2 + 1] = pts[i].y; }
+      LM.raw = raw; LM.pts = raw; LM.t = (window.performance || Date).now(); LM.conf = 1;
+      computeFace((src && src.width) || 0, (src && src.height) || 0);
+      return true;
     },
     faceBox: function () { return G && G.box; },
     quality: function () { return { frameMs: (G && G.frameMs) || 0, scale: S.quality }; },
