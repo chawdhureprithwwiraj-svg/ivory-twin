@@ -44,14 +44,16 @@
 
   /* ── what she may dial ─────────────────────────────────────────────────── */
   var FX = [
-    { k: 'smooth',    g: 'skin',  name: 'Smoothing',        d: 0.55 },
-    { k: 'blemish',   g: 'skin',  name: 'Blemish lift',     d: 0.45 },
-    { k: 'spots',     g: 'skin',  name: 'Spot & pigment',   d: 0.40 },
-    { k: 'undereye',  g: 'skin',  name: 'Under-eye',        d: 0.35 },
-    { k: 'lines',     g: 'skin',  name: 'Fine lines',       d: 0.30 },
-    { k: 'texture',   g: 'skin',  name: 'Pore & texture',   d: 0.55 },
-    { k: 'tone',      g: 'skin',  name: 'Tone balance',     d: 0.30 },
-    { k: 'radiance',  g: 'skin',  name: 'Brightening',      d: 0.25 },
+    { k: 'blemish',   g: 'skin',  name: 'Blemish & acne',   d: 0.42 },
+    { k: 'pigment',   g: 'skin',  name: 'Pigmentation',      d: 0.38 },
+    { k: 'darkspot',  g: 'skin',  name: 'Dark spots',        d: 0.36 },
+    { k: 'scar',      g: 'skin',  name: 'Scar softening',    d: 0.26 },
+    { k: 'smooth',    g: 'skin',  name: 'Skin smoothening',  d: 0.45 },
+    { k: 'bright',    g: 'skin',  name: 'Skin brightening',  d: 0.20 },
+    { k: 'balance',   g: 'skin',  name: 'Complexion balance',d: 0.30 },
+    { k: 'undereye',  g: 'skin',  name: 'Under-eye',         d: 0.34 },
+    { k: 'radiance',  g: 'skin',  name: 'Natural radiance',  d: 0.30 },
+    { k: 'texture',   g: 'skin',  name: 'Pore & texture',    d: 0.60 },
 
     { k: 'slim',      g: 'face',  name: 'Face slimming',    d: 0.20 },
     { k: 'jaw',       g: 'face',  name: 'Jawline',          d: 0.18 },
@@ -74,22 +76,26 @@
   var GROUPS = [['skin', 'Skin'], ['face', 'Face'], ['makeup', 'Makeup'], ['light', 'Light'], ['lens', 'Eyes']];
 
   var PRESETS = {
-    natural: { master: 0.55, smooth: .50, blemish: .40, spots: .35, undereye: .30, lines: .25, texture: .60,
-               tone: .25, radiance: .18, slim: .12, jaw: .10, cheek: .10, nose: .08, symmetry: .06,
-               blush: .14, lip: .12, eyes: .10, warmth: .10, exposure: .06, contrast: .06,
-               illum: .22, studio: .18, highlight: .14, cinematic: .08 },
-    glam:    { master: 0.72, smooth: .62, blemish: .55, spots: .48, undereye: .42, lines: .35, texture: .48,
-               tone: .38, radiance: .30, slim: .20, jaw: .16, cheek: .18, nose: .12, symmetry: .10,
-               blush: .28, lip: .30, eyes: .24, warmth: .16, exposure: .12, contrast: .14,
-               illum: .34, studio: .26, highlight: .24, cinematic: .16 },
-    radiant: { master: 0.80, smooth: .50, blemish: .42, spots: .40, undereye: .45, lines: .30, texture: .62,
-               tone: .34, radiance: .55, slim: .10, jaw: .10, cheek: .12, nose: .08, symmetry: .06,
-               blush: .20, lip: .16, eyes: .16, warmth: .22, exposure: .20, contrast: .08,
-               illum: .46, studio: .34, highlight: .30, cinematic: .10 },
-    studio:  { master: 0.65, smooth: .58, blemish: .50, spots: .45, undereye: .38, lines: .30, texture: .50,
-               tone: .30, radiance: .22, slim: .14, jaw: .12, cheek: .14, nose: .10, symmetry: .08,
-               blush: .10, lip: .10, eyes: .12, warmth: .08, exposure: .08, contrast: .10,
-               illum: .40, studio: .40, highlight: .32, cinematic: .24 }
+    natural:  { master: 0.55, smooth: .42, blemish: .30, pigment: .26, darkspot: .26, scar: .18,
+                texture: .74, bright: .10, balance: .16, undereye: .26, radiance: .10,
+                slim: .12, jaw: .10, cheek: .10, nose: .08, symmetry: .06,
+                blush: .14, lip: .12, eyes: .10, warmth: .10, exposure: .06, contrast: .06,
+                illum: .22, studio: .18, highlight: .14, cinematic: .08 },
+    radiant:  { master: 0.78, smooth: .56, blemish: .40, pigment: .34, darkspot: .34, scar: .24,
+                texture: .60, bright: .38, balance: .30, undereye: .44, radiance: .44,
+                slim: .10, jaw: .10, cheek: .12, nose: .08, symmetry: .06,
+                blush: .20, lip: .16, eyes: .16, warmth: .22, exposure: .18, contrast: .08,
+                illum: .46, studio: .34, highlight: .30, cinematic: .10 },
+    glamour:  { master: 0.90, smooth: .66, blemish: .74, pigment: .66, darkspot: .70, scar: .44,
+                texture: .52, bright: .30, balance: .42, undereye: .50, radiance: .24,
+                slim: .20, jaw: .16, cheek: .18, nose: .12, symmetry: .10,
+                blush: .28, lip: .30, eyes: .24, warmth: .16, exposure: .10, contrast: .14,
+                illum: .34, studio: .26, highlight: .24, cinematic: .16 },
+    perfect:  { master: 1.00, smooth: .74, blemish: .92, pigment: .86, darkspot: .90, scar: .56,
+                texture: .50, bright: .26, balance: .38, undereye: .58, radiance: .20,
+                slim: .14, jaw: .12, cheek: .14, nose: .10, symmetry: .06,
+                blush: .10, lip: .10, eyes: .12, warmth: .08, exposure: .03, contrast: .08,
+                illum: .18, studio: .14, highlight: .12, cinematic: .08 }
   };
 
   /* ── ten green lenses, light to deep ────────────────────────────────────
@@ -177,7 +183,7 @@
     'uniform sampler2D tex;uniform sampler2D mask;',
     'uniform vec2 box;uniform vec2 rad;uniform vec2 texel;',
     'uniform float master;',
-    'uniform float uSm,uBl,uSp,uUe,uLn,uTx,uTn,uRd;',
+    'uniform float uSm,uBl,uPm,uDs,uSc,uTx,uBr,uCb,uUe,uRd;',
     'uniform float uSl,uJw,uCk,uNs,uSy;',
     'uniform float uBh,uLp,uEy,uWm,uEx,uCt;',
     'uniform float uIl,uSt,uHi,uCi;',
@@ -185,7 +191,7 @@
     '',
     /* the two eyes: centre, radii · lid: the open lid's y, the low lid's y,
        confidence, unused                                                     */
-    'uniform vec4 eyeL;uniform vec4 lidL;uniform vec4 eyeR;uniform vec4 lidR;',
+    'uniform vec4 eyeL;uniform vec4 lidL;uniform vec4 eyeR;uniform vec4 lidR;uniform vec4 mouth;',
     'uniform vec3 lc0;uniform vec3 lc1;uniform vec3 lc2;',
     'uniform float lensAmt;uniform float lensOn;uniform vec2 lensTune;',
     /* the face's own width, band by band, read off the landmarks */
@@ -241,7 +247,10 @@
     '',
     'void main(){',
     '  vec2 uv=v;',
-    '  float m=mAt(uv);',
+    /* the mask is rendered small and read back: sampled once it shows its
+       blocks, so it is sampled five times and averaged here */
+    '  vec2 mt=texel*3.0;',
+    '  float m=(mAt(uv)+mAt(uv+vec2(mt.x,0.0))+mAt(uv-vec2(mt.x,0.0))+mAt(uv+vec2(0.0,mt.y))+mAt(uv-vec2(0.0,mt.y)))*0.2;',
     '  vec2 q=(uv-box)/rad;',
     '  float inside=smoothstep(1.15,0.55,length(q));',
     '  float w=mix(0.0,1.0,inside)*smoothstep(0.05,0.45,m);',
@@ -283,45 +292,94 @@
     '  vec3 blur=acc/ws;',
     '  vec3 hp=base-blur;',
     '',
-    '  /* a wider, unweighted mean: this is what a blemish is measured against */',
-    '  vec3 wacc=base;',
+    '  /* the broad skin tone, again similarity-weighted: an unweighted mean',
+    '     drags lip and lash colour outward and smears the feature it touches */',
+    '  vec3 wacc=vec3(0.0); float wws=0.0;',
+    '  float lb0=0.0;',
     '  for(int j=0;j<8;j++){',
     '    float a2=float(j)*0.7853982+0.39;',
-    '    vec2 o2=vec2(cos(a2),sin(a2))*texel*(j<4?6.0:13.0);',
-    '    wacc+=texture2D(tex,wuv+o2).rgb;',
+    '    vec2 o2=vec2(cos(a2),sin(a2))*texel*(j<4?5.0:12.0);',
+    '    vec3 c3=texture2D(tex,wuv+o2).rgb;',
+    /* one-sided: a mark cannot vote for its own tone. Only neighbours that
+       are lighter than this pixel count, so the estimate is the clear skin
+       around a spot, not an average that half-includes it.               */
+    '    vec3 df3=c3-base;',
+    '    float wt3=exp(-dot(df3,df3)*90.0);',
+    '    wacc+=c3*wt3; wws+=wt3;',
     '  }',
-    '  vec3 wide=wacc/9.0;',
+    '  vec3 wide=wws>0.05?wacc/wws:base;',
     '',
-    '  float k=uSm*(0.55+0.45*m);',
-    '  vec3 col=mix(base,blur,clamp(k,0.0,0.9)*w);',
-    '  col=mix(col,wide,clamp(uSm*w*0.40,0.0,0.55));',
-    '',
-    '  /* keep pores: the high-pass comes back at her texture amount */',
-    '  col+=hp*(uTx*0.75)*w*(1.0-uSm*0.35);',
-    '',
-    '  /* blemishes: what sits darker than the wide mean is lifted toward it */',
-    '  float dark=max(0.0,dot(wide-base,vec3(0.333)));',
-    '  col+=dark*(uBl*1.20)*w;',
-    '',
-    '  /* pigment and blotches: the colour is pulled toward its own neighbourhood */',
-    '  float chlen=length(base-wide);',
-    '  float blotch=smoothstep(0.035,0.20,chlen);',
-    '  col=mix(col,wide,clamp(uSp*w*blotch*0.55,0.0,0.60));',
-    '',
-    '  /* under-eye: the band below each eye is lifted, never flattened */',
-    '  float ey=exp(-pow((abs(q.x)-0.40)/0.22,2.0)-pow((q.y-0.02)/0.20,2.0));',
-    '  col+=uUe*ey*w*(0.22*(1.0-dot(col,vec3(0.333))));',
-    '',
-    '  /* fine lines: a second, tighter smoothing on the forehead and corners */',
-    '  float band=exp(-pow((q.y-0.62)/0.34,2.0))+0.6*exp(-pow((abs(q.x)-0.52)/0.22,2.0)-pow((q.y-0.22)/0.18,2.0));',
-    '  col=mix(col,blur,clamp(uLn*band*w*0.55,0.0,0.55));',
-    '',
-    '  /* tone balance: pull the skin toward one calm mid-tone */',
-    '  float l=dot(col,vec3(0.299,0.587,0.114));',
-    '  col=mix(col,vec3(l)*vec3(1.03,1.0,0.97)+(col-vec3(l))*0.55,uTn*w*0.5);',
-    '',
-    '  /* radiance */',
-    '  col+=uRd*w*mix(vec3(0.03,0.026,0.02),vec3(0.06,0.05,0.035),l)*2.0;',
+    /* ── skin: two-scale frequency separation, then local correction ────
+       blur  the edge-aware fine base (similarity-weighted 9 taps)
+       wide  the broad skin tone (9 taps, 6–13 texels)
+       base-wide = the mid band: blemishes, pigment, unevenness
+       base-blur = the fine band: pores and fine lines — this is kept */
+    '  float lw=dot(base,vec3(0.299,0.587,0.114));',
+    '  float lB=dot(wide,vec3(0.299,0.587,0.114));',
+    '  vec3  mid=base-wide;',
+    '  vec3  chw=wide-vec3(lB);',
+    '  vec3  dch=(base-vec3(lw))-chw;',
+    '  float dk=lB-lw;',
+    '  float red=(dch.r-dch.g)*1.7+dk*0.50;',
+    '  float fine=length(base-blur);',
+    '  float spot=smoothstep(0.010,0.055,max(dk*1.5,red*0.70));',
+    '  float dsp =smoothstep(0.018,0.080,max(dk*1.4,red*0.60));',
+    '  float pig =smoothstep(0.012,0.085,length(dch)*1.25);',
+    '  float scar=smoothstep(0.030,0.110,fine);',
+    /* what is really skin: dark enough, not specular, and not a feature.
+       fine is high on every real edge — lash, lid, lip, nostril, brow — and
+       low on a blemish, which is exactly the distinction that matters.   */
+    '  float mdev=length(mid);',
+    '  float feat=smoothstep(0.150,0.320,mdev);',
+    '  float darkv=smoothstep(0.045,0.100,lw);',
+    '  float litv=1.0-smoothstep(0.90,0.98,lw);',
+    '  vec2 dm=(uv-mouth.xy)/max(mouth.zw,vec2(1e-4));',
+    '  float lips=1.0-smoothstep(1.00,1.50,length(dm));',
+    '  vec2 eLm=(uv-eyeL.xy)/max(eyeL.zw*2.4,vec2(1e-4));',
+    '  vec2 eRm=(uv-eyeR.xy)/max(eyeR.zw*2.4,vec2(1e-4));',
+    '  float eyes=1.0-smoothstep(0.85,1.30,max(length(eLm),length(eRm)));',
+    '  float skw=w*darkv*litv*(1.0-0.95*lips)*(1.0-0.90*eyes)*(1.0-0.85*feat);',
+
+    /* 1 · smoothening: edge-aware, then the broad tone, then pores back */
+    '  vec3 col=mix(base,blur,clamp(uSm*(0.60+0.40*m)*skw,0.0,0.92));',
+    '  col=mix(col,wide,clamp(uSm*0.34*skw,0.0,0.55));',
+    '  col+=(base-blur)*(uTx*0.85)*skw*(1.0-uSm*0.30);',
+
+    /* 2 · blemish, acne marks and dark spots: the mid band is pulled back
+       to the skin around it, so the mark goes and the pore stays       */
+    '  float pull=clamp((uBl*spot+uDs*dsp)*skw,0.0,0.95);',
+    '  vec3 midc=clamp(mid,vec3(-0.11),vec3(0.11));',
+    '  col-=midc*pull;',
+
+    /* 3 · pigmentation: the chroma is evened, the face's own light kept */
+    '  col-=clamp(dch,vec3(-0.10),vec3(0.10))*clamp(uPm*pig*skw,0.0,0.92);',
+
+    /* 4 · scars: sharp local edges are softened, gentle texture kept */
+    '  col=mix(col,blur,clamp(uSc*scar*0.60*skw,0.0,0.60));',
+
+    /* 5 · brightening, with the highlights protected */
+    '  float lb=dot(col,vec3(0.299,0.587,0.114));',
+    '  float guard=1.0-smoothstep(0.58,0.95,lb);',
+    '  float lift=uBr*skw*guard*(0.30+0.70*(1.0-lb));',
+    '  col=mix(col,col*vec3(1.10,1.075,1.045)+vec3(0.012,0.010,0.008),clamp(lift,0.0,0.62));',
+
+    /* 6 · complexion balance: one calm chroma across the whole face */
+    '  float lc=dot(col,vec3(0.299,0.587,0.114));',
+    '  col=vec3(lc)+mix(col-vec3(lc),chw,clamp(uCb*0.45*skw,0.0,0.62));',
+
+    /* 7 · under-eye: the eyes' own landmarks, only where it is darker */
+    '  vec2 uL=(uv-eyeL.xy)/max(eyeL.zw,vec2(1e-4));',
+    '  vec2 uR=(uv-eyeR.xy)/max(eyeR.zw,vec2(1e-4));',
+    '  float ueL=exp(-pow(uL.x*1.30,2.0)-pow((uL.y-0.70)*1.45,2.0))*smoothstep(0.05,0.55,uL.y);',
+    '  float ueR=exp(-pow(uR.x*1.30,2.0)-pow((uR.y-0.70)*1.45,2.0))*smoothstep(0.05,0.55,uR.y);',
+    '  float udark=max(0.0,lB-dot(col,vec3(0.299,0.587,0.114)));',
+    '  col+=(wide-col)*clamp(uUe*(ueL+ueR)*skw*1.30,0.0,0.62)*smoothstep(0.002,0.030,udark)*(1.0-feat);',
+
+    /* 8 · radiance: the skin's own light, lifted a little */
+    '  float glow=smoothstep(0.42,0.94,dot(wide,vec3(0.299,0.587,0.114)));',
+    '  col+=vec3(0.055,0.048,0.036)*uRd*skw*(0.55+0.85*glow);',
+    '  col=base+clamp(col-base,vec3(-0.14),vec3(0.14));',
+
     '',
     '  /* symmetry: the face is blended with its own mirror, inside only */',
     '  if(uSy>0.001){',
@@ -349,12 +407,12 @@
     '  /* face-aware illumination, then studio highlight/shadow balance */',
     '  float d=length(q);',
     '  float lamp=1.0-smoothstep(0.0,1.35,d);',
-    '  col+=vec3(0.05,0.045,0.035)*uIl*lamp*m;',
-    '  col=mix(col,col+(1.0-col)*0.18,clamp(uSt*m,0.0,0.6));',
+    '  col+=vec3(0.05,0.045,0.035)*uIl*lamp*skw;',
+    '  col=mix(col,col+(1.0-col)*0.18,clamp(uSt*skw,0.0,0.6));',
     '  float hi=smoothstep(0.62,0.95,dot(col,vec3(0.333)));',
     '  float lo=1.0-smoothstep(0.10,0.38,dot(col,vec3(0.333)));',
-    '  col+=vec3(0.05)*uHi*hi*m;',
-    '  col+=vec3(0.035,0.03,0.025)*uHi*lo*m;',
+    '  col+=vec3(0.05)*uHi*hi*skw;',
+    '  col+=vec3(0.035,0.03,0.025)*uHi*lo*skw;',
     '',
     '  /* cinematic: a gentle S and a cool shadow / warm light split */',
     '  vec3 s=col*col*(3.0-2.0*col);',
@@ -500,6 +558,12 @@
       return { c: [cx, cy], r: [Math.max(0.004, rx * 1.04), Math.max(0.004, ry * 1.04)], up: yUp, lo: yLo };
     }
     var eL = eye(EYE_IDX.L), eR = eye(EYE_IDX.R);
+    /* the mouth, so nothing that is skin goes near the lips */
+    var m61x = P[61 * 2], m61y = P[61 * 2 + 1], m291x = P[291 * 2], m291y = P[291 * 2 + 1];
+    var m13y = P[13 * 2 + 1], m14y = P[14 * 2 + 1];
+    var mx = (m61x + m291x) / 2, my = (m13y + m14y) / 2;
+    var mrx = Math.max(0.012, Math.hypot(m61x - m291x, m61y - m291y) / 2);
+    var mry = Math.max(0.008, Math.abs(m14y - m13y) / 2 * 1.55);
     /* the face's own width, band by band */
     var yTop = 1, yBot = 0, i;
     for (i = 0; i < OVAL.length; i++) {
@@ -510,6 +574,7 @@
     var eyeY = (P[EYE_IDX.L.up[2] * 2 + 1] + P[EYE_IDX.R.up[2] * 2 + 1]) / 2;
     var chinY = P[152 * 2 + 1];
     var prof = FACE && FACE.prof ? FACE.prof : new Uint8Array(256);
+    var pcx = new Float32Array(64), phw = new Float32Array(64), pwt = new Float32Array(64), pok = new Uint8Array(64);
     for (var b = 0; b < 64; b++) {
       var yb = yTop + (b + 0.5) / 64 * Math.max(1e-4, yBot - yTop);
       var xl = 1, xr = 0, hit = 0;
@@ -533,12 +598,37 @@
         wt = (tt <= 0 ? 0 : Math.min(1, (tt - 0.08) / 0.42)) * (1 - 0.30 * Math.max(0, Math.min(1, (tt - 0.86) / 0.14)));
         wt *= (1 - 0.55 * Math.max(0, Math.min(1, Math.abs(yb - eyeY) / Math.max(1e-4, (chinY - eyeY) * 0.22)) * 0));
       }
-      prof[b * 4] = Math.round(cx * 255);
-      prof[b * 4 + 1] = Math.round(half * 255);
-      prof[b * 4 + 2] = Math.round(Math.max(0, Math.min(1, wt)) * 255);
-      prof[b * 4 + 3] = 255;
+      pcx[b] = cx; phw[b] = half; pwt[b] = Math.max(0, Math.min(1, wt)); pok[b] = hit ? 1 : 0;
     }
-    FACE = { conf: conf, eyeL: eL, eyeR: eR, prof: prof, yTop: yTop, yBot: yBot, h: h, w: w };
+    /* a band that found no silhouette borrows its neighbour's, and then the
+       whole profile is smoothed along the face: a jump between two bands is
+       a vertical seam down the cheek, and no smoothing in the shader can
+       repair it once it is in the texture. */
+    for (var q = 0; q < 64; q++) if (!pok[q]) {
+      var lo = -1, hi = -1, k;
+      for (k = q; k >= 0; k--) if (pok[k]) { lo = k; break; }
+      for (k = q; k < 64; k++) if (pok[k]) { hi = k; break; }
+      if (lo >= 0 && hi >= 0) { var t2 = (q - lo) / Math.max(1, hi - lo); pcx[q] = pcx[lo] + (pcx[hi] - pcx[lo]) * t2; phw[q] = phw[lo] + (phw[hi] - phw[lo]) * t2; pwt[q] = 0; }
+    }
+    for (var pass = 0; pass < 2; pass++) {
+      var ax = pcx.slice(), ah = phw.slice(), aw = pwt.slice();
+      for (var b2 = 0; b2 < 64; b2++) {
+        var sxx = 0, shh = 0, sww = 0, ww = 0;
+        for (var d = -4; d <= 4; d++) {
+          var j = b2 + d; if (j < 0 || j > 63) continue;
+          var kw = 5 - Math.abs(d); sxx += ax[j] * kw; shh += ah[j] * kw; sww += aw[j] * kw; ww += kw;
+        }
+        pcx[b2] = sxx / ww; phw[b2] = shh / ww; pwt[b2] = sww / ww;
+      }
+    }
+    for (var b3 = 0; b3 < 64; b3++) {
+      prof[b3 * 4] = Math.round(pcx[b3] * 255);
+      prof[b3 * 4 + 1] = Math.round(phw[b3] * 255);
+      prof[b3 * 4 + 2] = Math.round(Math.max(0, Math.min(1, pwt[b3])) * 255);
+      prof[b3 * 4 + 3] = 255;
+    }
+    FACE = { conf: conf, eyeL: eL, eyeR: eR, mouth: { c: [mx, my], r: [mrx, mry] },
+             prof: prof, yTop: yTop, yBot: yBot, h: h, w: w };
     return FACE;
   }
 
@@ -694,6 +784,8 @@
     if (!eL) { eL = { c: [0.5, 0.5], r: [0.001, 0.001], up: 0, lo: 0 }; }
     if (!eR) { eR = { c: [0.5, 0.5], r: [0.001, 0.001], up: 0, lo: 0 }; }
     gl.uniform4f(U('eyeL'), eL.c[0], eL.c[1], eL.r[0], eL.r[1]);
+    var mo = F && F.mouth;
+    gl.uniform4f(U('mouth'), mo ? mo.c[0] : 0.5, mo ? mo.c[1] : 0.72, mo ? mo.r[0] : 0.09, mo ? mo.r[1] : 0.05);
     gl.uniform4f(U('lidL'), eL.up, eL.lo, cf, 0);
     gl.uniform4f(U('eyeR'), eR.c[0], eR.c[1], eR.r[0], eR.r[1]);
     gl.uniform4f(U('lidR'), eR.up, eR.lo, cf, 0);
@@ -706,10 +798,11 @@
     gl.uniform2f(U('lensTune'), 0.55, LDL.warm);
 
     uni(gl, G.px,
-      ['uSm','uBl','uSp','uUe','uLn','uTx','uTn','uRd','uSl','uJw','uCk','uNs','uSy',
+      ['uSm','uBl','uPm','uDs','uSc','uTx','uBr','uCb','uUe','uRd','uSl','uJw','uCk','uNs','uSy',
        'uBh','uLp','uEy','uWm','uEx','uCt','uIl','uSt','uHi','uCi'],
-      [eff('smooth'), eff('blemish'), eff('spots'), eff('undereye'), eff('lines'), eff('texture'),
-       eff('tone'), eff('radiance'), eff('slim'), eff('jaw'), eff('cheek'), eff('nose'), eff('symmetry'),
+      [eff('smooth'), eff('blemish'), eff('pigment'), eff('darkspot'), eff('scar'), eff('texture'),
+       eff('bright'), eff('balance'), eff('undereye'), eff('radiance'),
+       eff('slim'), eff('jaw'), eff('cheek'), eff('nose'), eff('symmetry'),
        eff('blush'), eff('lip'), eff('eyes'), eff('warmth'), eff('exposure'), eff('contrast'),
        eff('illum'), eff('studio'), eff('highlight'), eff('cinematic')]);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -1003,8 +1096,8 @@
   function paintPresets() {
     var box = sheet.querySelector('#bty-presets');
     if (!box) return;
-    var names = [['natural', 'Natural'], ['glam', 'Soft glam'], ['radiant', 'Radiant'], ['studio', 'Studio'],
-                 ['mine', 'Mine']];
+    var names = [['natural', 'Natural'], ['radiant', 'Radiant'], ['glamour', 'Glamour'],
+                 ['perfect', 'Studio Perfect'], ['mine', 'Mine']];
     box.innerHTML = names.map(function (n) {
       var on = (n[0] === S.preset) || (n[0] === 'mine' && S.preset === 'mine' && S.saved);
       return '<button class="bty-p' + (on ? ' on' : '') + '" data-preset="' + n[0] + '">' + n[1] + '</button>';
