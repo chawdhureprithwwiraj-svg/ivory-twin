@@ -20773,7 +20773,7 @@ window.IVCALL = (function () {
         c.on('user-left', function () { elseFill('Ivory has stepped out of the room. The seconds stop with her — nothing is lost.'); });
         return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null).then(function () {
           var tracks = [AgoraRTC.createMicrophoneAudioTrack()];
-          if (kind === 'video') tracks.push(AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' }));
+          if (kind === 'video') tracks.push(AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' }));
           return Promise.all(tracks);
         }).then(function (tr) {
           R.mic = tr[0]; R.cam = tr[1] || null;
@@ -22009,7 +22009,7 @@ window.IVCAST = (function () {
           .then(function () {
             if (S.role === 'watch') return null;
             return Promise.all([AgoraRTC.createMicrophoneAudioTrack(),
-                                AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' })]).then(function (tr) {
+                                AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' })]).then(function (tr) {
               S.mic = tr[0]; S.cam = tr[1];
               if (S.cam) {
                 S.cam.play('ivx-video');
@@ -40942,7 +40942,7 @@ var audioOnly = S.role === 'seat' && !S.camOn;
 var warm = beautyOn() ? loadBeauty().catch(function () {}) : Promise.resolve(null);
 return warm.then(function () {
 return Promise.all([AgoraRTC.createMicrophoneAudioTrack(),
-audioOnly ? Promise.resolve(null) : AgoraRTC.createCameraVideoTrack({ encoderConfig: '480p_1' })]).then(function (tr) {
+audioOnly ? Promise.resolve(null) : AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' })]).then(function (tr) {
 S.mic = tr[0]; S.cam = tr[1];
 S.vTrack = S.cam;
 var pubs = S.mic ? [S.mic] : [];
