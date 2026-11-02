@@ -1021,7 +1021,13 @@
     var m = sheet && sheet.querySelector('#bty-master');
     if (m && +m.value !== Math.round(S.master * 100)) m.value = Math.round(S.master * 100);
     var q = sheet && sheet.querySelector('#bty-q');
-    if (q) q.textContent = 'Processed on this device · ' + Math.round((G && G.frameMs) || 0) + ' ms a frame · no server, no model download';
+    if (q) {
+      var ms = Math.round((G && G.frameMs) || 0);
+      /* the lens wears a model, so the old "no download" line would be a lie */
+      var tail = S.lensOn ? 'the eye model (3.7 MB) is fetched once, then kept'
+                          : 'no server, no model download';
+      q.textContent = 'Processed on this device · ' + (ms > 0 ? ms + ' ms a frame · ' : '') + tail;
+    }
   }
 
   function paintRow(k) {
@@ -1063,8 +1069,9 @@
   function lensPanel() {
     var cur = lensDef();
     var state = TR.state === 'ready'
-      ? 'Eyes found · ' + Math.round(TR.ms) + ' ms a face'
+      ? 'Eyes found' + rate
       : (TR.state === 'loading' ? 'Waking the eye tracker…' : (TR.state === 'off' ? 'The tracker did not load — no lens to wear' : 'The tracker wakes the moment you choose a lens'));
+    var rate = TR.state === 'ready' && TR.ms > 0 ? ' · ' + Math.round(TR.ms) + ' ms a face' : '';
     return '<div class="bty-lrow">' +
         '<button class="bty-sw' + (S.lensOn ? ' on' : '') + '" data-lon role="switch" aria-checked="' + (S.lensOn ? 'true' : 'false') + '" aria-label="Green lenses on or off"><i></i></button>' +
         '<span class="bty-lab">Green lenses<s>' + (S.lensOn ? 'worn · ' + cur.name : 'off · your own eye colour') + '</s></span>' +
