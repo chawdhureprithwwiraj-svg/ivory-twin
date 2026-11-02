@@ -21952,12 +21952,9 @@ window.IVCAST = (function () {
       end.dataset.armed = '1';
       end.classList.add('end');
       end.innerHTML = ICO.end + '<span class="lbl">TAP AGAIN</span>';
+      /* the arm no longer expires: the four-second reset was putting her back
+         to "End" while the room kept running. A second tap always ends it. */
       toast('Tap End once more to close the room for everyone.');
-      setTimeout(function () {
-        if (!end || !end.dataset.armed) return;
-        delete end.dataset.armed;
-        end.innerHTML = ICO.end + '<span class="lbl">End</span>';
-      }, 4200);
     });
     var leave = $('ivx-leave'); if (leave) leave.addEventListener('click', function () { close(true); });
     var x = $('ivx-x'); if (x) x.addEventListener('click', function () { close(true); });
@@ -37260,7 +37257,10 @@ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 bottom: calc(132px + env(safe-area-inset-bottom, 0px));
 height: min(30vh, 300px); display: flex; align-items: flex-end; pointer-events: none; }
 .lv-talk { width: 100%; height: 100%; overflow-y: auto; overscroll-behavior: contain;
-padding: 8px 14px 4px; pointer-events: auto; scrollbar-width: none; }
+  padding: 8px 14px 4px; pointer-events: auto; scrollbar-width: none; }
+.lv-talk-in { min-height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.lv-talk { display: block !important; }
+.lv-talk-in > * { flex: 0 0 auto; }
 .lv-talk::-webkit-scrollbar { display: none; }
 .lv-talk-empty { margin: 0; padding: 10px 2px; font-size: 12px; color: rgba(255,240,214,.55); }
 .lv-m { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 9px; animation: lvIn .28s ease both; }
@@ -40635,7 +40635,7 @@ return '' +
 '<div class="lv-pillrow"><button class="lv-gpill" id="lv-guest" hidden></button>' +
 '<button class="lv-gpill lv-bty" id="lv-beauty" hidden></button></div>' +
 '<div class="lv-tiles" id="lv-tiles"></div>' +
-'<div class="lv-talkwrap"><div class="lv-talk" id="lv-talk" role="log" aria-live="polite"></div></div>' +
+'<div class="lv-talkwrap"><div class="lv-talk" id="lv-talk" role="log" aria-live="polite"><div class="lv-talk-in" id="lv-talk-in"></div></div></div>' +
 '<form class="lv-say" id="lvr-say" autocomplete="off">' +
 '<button type="button" class="lv-gift" id="lv-giftbtn" aria-label="Send a gift" hidden>' + ICO.gift + '</button>' +
 '<input id="lv-input" type="text" maxlength="240" placeholder="Write to me…" aria-label="Write to the room">' +
@@ -41225,6 +41225,8 @@ drawTalk(rows);
 function drawTalk(rows) {
 var box = $('lv-talk');
 if (!box) return;
+var inn = box.querySelector('.lv-talk-in');
+if (!inn) { inn = document.createElement('div'); inn.className = 'lv-talk-in'; box.appendChild(inn); }
 var near = box.scrollTop + box.clientHeight > box.scrollHeight - 60;
 var out = '';
 (rows || []).forEach(function (m) {
@@ -41246,7 +41248,7 @@ out += '<div class="lv-m">' +
 (note ? '<em>\u201C' + esc(note) + '\u201D</em>' : '') + '</span></div>';
 }
 });
-box.innerHTML = out || '<p class="lv-talk-empty">Say something. She is listening.</p>';
+inn.innerHTML = out || '<p class="lv-talk-empty">Say something. She is listening.</p>';
 if (near) box.scrollTop = box.scrollHeight;
 }
 function loadGuests() {
@@ -41767,15 +41769,20 @@ allowed: s.allowed, startedAt: new Date(s.startedAt) });
 pane.querySelector('#lvd-end').addEventListener('click', function () {
 var b = pane.querySelector('#lvd-end');
 if (b.dataset.armed === '1') {
-IV.call('/rest/v1/rpc/end_live', { session_id_in: s.id }).catch(function () {});
+var sid = s.id;
 D.session = null;
-if (isOpen()) showBye('You ended the room', 'Everyone has been let out.');
 clearInterval(D.clockT);
+try { close(true); } catch (e) {}
 desk(pane);
+try { if (window.ivoryToast) window.ivoryToast('The room has ended. Everyone has been let out.'); } catch (e) {}
+if (IV && IV.call) {
+IV.call('/rest/v1/rpc/end_live', { session_id_in: sid }).catch(function () {
+try { w.dispatchEvent(new CustomEvent('iv-live-closed')); } catch (e) {}
+});
+}
 return;
 }
 b.dataset.armed = '1'; b.textContent = 'TAP AGAIN';
-setTimeout(function () { if (b.isConnected) { b.dataset.armed = ''; b.textContent = 'END'; } }, 4000);
 });
 }
 function giftsBlock() {
@@ -41824,5 +41831,7 @@ money: money, clockOf: clockOf
 setInterval(function () { if (D.session && document.getElementById('lvd-gifts')) paintDeskGifts(); }, 12000);
 window.IVLIVE.watch = function (opts) { open(Object.assign({ role: 'watch' }, opts || {})); };
 })();</script>
+<!-- pass 92 · the house after her walk-through -->
+<script id="iv-house92" src="iv-house92.js" defer></script>
 </body>
 </html>
