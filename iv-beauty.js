@@ -762,7 +762,7 @@
     gl.uniform2f(gl.getUniformLocation(G.px, 'box'), G.box.x, G.box.y);
     gl.uniform2f(gl.getUniformLocation(G.px, 'rad'), G.box.rx, G.box.ry);
     gl.uniform2f(gl.getUniformLocation(G.px, 'texel'), 1 / w, 1 / h);
-    gl.uniform1f(gl.getUniformLocation(G.px, 'master'), S.on ? S.master : 0);
+    gl.uniform1f(gl.getUniformLocation(G.px, 'master'), S.on ? camStrength() : 0);
     gl.uniform1f(gl.getUniformLocation(G.px, 'before'), S.before ? 1 : 0);
     /* ── the face: one geometry per frame, uploaded as four little uniforms
        and one 64-band width strip ── */
@@ -846,6 +846,86 @@
   /* ── the live engine: camera → GL → canvas → custom Agora track ───────── */
   var LIVE = null;
 
+  /* ── the quiet path ────────────────────────────────────────────────────
+     Some handsets refuse a WebGL context inside a live room (a 3 GB phone
+     with the camera already busy is the usual one). That used to mean "this
+     device cannot run the studio" and nothing else. It now means a simpler
+     pass, drawn on a 2D canvas: light, softness, warmth and saturation,
+     which is most of what the studio does on the skin. It is cheap enough
+     for the smallest phone and it publishes the same kind of track.       */
+  /* the strength the camera actually gets: her slider, on a curve that
+     keeps a gentle setting visible on a phone screen — at 37 it lands at
+     72, at 100 it is still 100, and the mix of her effects is unchanged */
+  function camStrength() {
+    var m = (typeof S.master === 'number' ? S.master : 0.55);
+    if (m <= 0) return 0;
+    return Math.min(1, 0.55 + 0.45 * m);
+  }
+
+  function attach2d(ms, onReady) {
+    var vid = document.createElement('video');
+    vid.muted = true; vid.autoplay = true; vid.playsInline = true;
+    vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', '');
+    vid.style.cssText = 'position:fixed;left:-2px;top:-2px;width:2px;height:2px;opacity:0;pointer-events:none;';
+    vid.srcObject = new MediaStream([ms]);
+    document.body.appendChild(vid);
+    var cv = document.createElement('canvas');
+    cv.width = 720; cv.height = 1280;
+    var ctx = cv.getContext('2d', { alpha: false });
+    if (!ctx) { try { vid.remove(); } catch (e) {} return null; }
+    var raf = 0, stream = null, track = null, playing = false;
+
+    function num(k, dft) {
+      var v = S.fx && S.fx[k];
+      if (S.off && S.off[k]) return 0;
+      return typeof v === 'number' ? v : dft;
+    }
+    function draw() {
+      raf = requestAnimationFrame(draw);
+      if (!playing || !vid.videoWidth) return;
+      var w = vid.videoWidth, h = vid.videoHeight;
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+      var m = camStrength();
+      var light = num('light', 0) * m, soft = num('soft', 0) * m,
+          warm = num('warm', 0) * m, glow = num('glow', 0) * m,
+          sat = num('sat', 0) * m, lev = num('lev', 0) * m;
+      var parts = [];
+      parts.push('brightness(' + (1 + (light * 0.16 + lev * 0.10) + (S.before ? 0 : 0)).toFixed(3) + ')');
+      parts.push('contrast(' + (1 + (lev * 0.10) - (soft * 0.05)).toFixed(3) + ')');
+      parts.push('saturate(' + (1 + sat * 0.22 + warm * 0.05).toFixed(3) + ')');
+      if (warm > 0.01) parts.push('sepia(' + (warm * 0.13).toFixed(3) + ')');
+      if (soft > 0.01 || glow > 0.01) parts.push('blur(' + ((soft * 0.55 + glow * 0.35) * (cv.width / 900)).toFixed(2) + 'px)');
+      ctx.filter = S.before ? 'none' : parts.join(' ');
+      ctx.drawImage(vid, 0, 0, cv.width, cv.height);
+      ctx.filter = 'none';
+    }
+    vid.addEventListener('loadeddata', function () {
+      if (playing) return;
+      playing = true;
+      stream = cv.captureStream ? cv.captureStream(24) : null;
+      if (!stream) return;
+      try { track = AgoraRTC.createCustomVideoTrack({ mediaStreamTrack: stream.getVideoTracks()[0] }); }
+      catch (e) { track = null; }
+      if (onReady) onReady(track, cv);
+    });
+    vid.play().catch(function () {});
+    draw();
+    LIVE = {
+      vid: vid, canvas: cv, soft: true,
+      stream: function () { return stream; },
+      track: function () { return track; },
+      destroy: function () {
+        cancelAnimationFrame(raf);
+        playing = false;
+        try { if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+        try { if (ms) ms.stop(); } catch (e) {}
+        try { vid.pause(); vid.srcObject = null; vid.remove(); } catch (e) {}
+        LIVE = null;
+      }
+    };
+    return LIVE;
+  }
+
   function attach(camTrack, onReady) {
     if (LIVE) detach();
     var ms = camTrack && camTrack.getMediaStreamTrack ? camTrack.getMediaStreamTrack() : null;
@@ -860,7 +940,7 @@
     cv.width = 960; cv.height = 540;
 
     try { G = glBoot(cv); } catch (e) { G = null; }
-    if (!G) { try { vid.remove(); } catch (e) {} return null; }
+    if (!G) { try { vid.remove(); } catch (e) {} return attach2d(ms, onReady); }
 
     var stream = null, track = null, raf = 0, playing = false, lastT = 0, ft = [];
 
