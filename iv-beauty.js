@@ -918,7 +918,7 @@
         cancelAnimationFrame(raf);
         playing = false;
         try { if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
-        try { if (ms) ms.stop(); } catch (e) {}
+        /* Never stop ms: it is the room's original camera, restored on Beauty off. */
         try { vid.pause(); vid.srcObject = null; vid.remove(); } catch (e) {}
         LIVE = null;
       }
