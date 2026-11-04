@@ -1,0 +1,103 @@
+/* Pass 98 · shared content, in the existing ivory/gold house palette. */
+.iv-post-card{position:relative;display:block;width:100%;min-width:0;margin:0 0 16px;overflow:hidden;border:1px solid rgba(176,127,48,.24);border-radius:22px;background:linear-gradient(155deg,#fffefd,#fff9ee);box-shadow:0 10px 28px rgba(83,37,31,.075);color:#4a1524;text-align:left;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;-webkit-tap-highlight-color:transparent}
+.iv-post-card:hover{transform:translateY(-2px);border-color:rgba(176,127,48,.43);box-shadow:0 15px 34px rgba(83,37,31,.11)}
+.iv-post-card:focus-visible,.iv-poll-option:focus-visible,.iv-admin-preview:focus-visible,.iv-primary:focus-visible,.iv-secondary:focus-visible{outline:3px solid rgba(185,137,48,.42);outline-offset:3px}
+.iv-post-art{position:relative;min-height:172px;aspect-ratio:16/10;overflow:hidden;background:radial-gradient(circle at 22% 12%,#fff 0,transparent 42%),linear-gradient(140deg,#f7e8df,#f3e6c9 55%,#eed5dd);isolation:isolate}
+.iv-post-art:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 55%,rgba(88,28,37,.08))}
+.iv-post-art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease}
+.iv-post-art>img.ready{opacity:1}
+.iv-art-mark{position:absolute;inset:0;display:grid;place-items:center;font:700 48px/1 Georgia,serif;color:rgba(91,31,46,.17)}
+.iv-art-mark.behind{color:rgba(255,255,255,.36)}
+.iv-card-pills{position:absolute;z-index:2;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
+.iv-type-pill,.iv-state-pill{display:inline-flex;align-items:center;min-height:25px;padding:5px 9px;border:1px solid rgba(255,255,255,.66);border-radius:999px;background:rgba(255,252,245,.91);box-shadow:0 3px 12px rgba(73,30,35,.08);color:#6a2437;font-size:10px;font-weight:800;letter-spacing:.09em;line-height:1.15;backdrop-filter:blur(8px)}
+.iv-state-pill{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#4f6d3c}
+.iv-state-pill.locked{color:#80591c}
+.iv-duration{position:absolute;z-index:2;right:12px;bottom:11px;padding:5px 8px;border-radius:8px;background:rgba(255,252,245,.92);color:#5b2132;font-size:11px;font-weight:750}
+.iv-post-copy{padding:16px 17px 14px}
+.iv-post-copy h3{margin:0;color:#51182a;font:700 20px/1.25 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.iv-post-copy>p{display:-webkit-box;margin:8px 0 0;overflow:hidden;color:#80646a;font-size:13px;line-height:1.48;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.iv-post-meta{display:flex;align-items:center;gap:7px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(176,127,48,.16);color:#927a7c;font-size:11px;line-height:1.3}
+.iv-post-meta b{display:flex;align-items:center;gap:4px;margin-left:auto;color:#752b43;font-size:12px}
+.iv-post-meta i{font-style:normal;font-size:15px}
+.iv-post-card.is-locked .iv-post-art>img{filter:blur(9px);transform:scale(1.06)}
+.iv-post-card.compact .iv-post-art{min-height:145px;aspect-ratio:4/3}
+.iv-post-card.compact .iv-post-copy{padding:14px}
+.iv-post-card.compact .iv-post-copy h3{font-size:17px}
+.iv-post-card.compact .iv-post-meta{flex-wrap:wrap}
+.iv-feed-loading,.iv-feed-empty{grid-column:1/-1;padding:30px 20px;border:1px solid rgba(176,127,48,.2);border-radius:20px;background:rgba(255,252,245,.82);color:#886d70;text-align:center;font-size:13px;line-height:1.55}
+.iv-feed-empty b{display:block;margin-bottom:7px;color:#5b2032;font:700 20px/1.3 Georgia,serif}
+.iv-feed-empty p{margin:0 0 12px}
+.iv-feed-empty button,.iv-media-missing button{padding:10px 15px;border:1px solid #c69b4b;border-radius:999px;background:#fffaf0;color:#68243a;font-weight:750;cursor:pointer}
+.iv-feed-stale{color:#9b5a45!important}
+#lib-feed .lib-tail{margin-top:20px;padding:24px;text-align:center;color:#8a7173}
+#lib-feed .lib-tail b{font:700 20px/1.3 Georgia,serif;color:#5c2133}
+#lib-feed .lib-tail p{margin:7px 0 0;font-size:12px;line-height:1.5}
+/* Polls */
+.iv-poll-card{cursor:default;padding:17px}
+.iv-poll{position:relative;width:100%;color:#581d2e}
+.iv-poll>.iv-type-pill{margin-bottom:12px;border-color:rgba(176,127,48,.22);background:#fff7e7}
+.iv-poll-label{margin:0 0 5px;color:#9b8180;font-size:11px;font-weight:750;letter-spacing:.04em}
+.iv-poll-question{margin:0;color:#51182a;font:700 20px/1.32 Georgia,serif;overflow-wrap:anywhere}
+.iv-poll-state{margin:7px 0 13px;color:#937a7d;font-size:12px;line-height:1.45}
+.iv-poll-options{display:grid;gap:9px}
+.iv-poll-option{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:11px 13px;overflow:hidden;border:1px solid rgba(137,85,70,.18);border-radius:13px;background:#fffdf9;color:#5b2133;text-align:left;cursor:pointer;isolation:isolate}
+.iv-poll-option:hover{border-color:rgba(176,127,48,.42)}
+.iv-poll-option:disabled{cursor:default;opacity:1}
+.iv-poll-option.mine{border-color:#b9873f;box-shadow:inset 0 0 0 1px rgba(185,135,63,.18)}
+.iv-poll-fill{position:absolute;z-index:-1;inset:0 auto 0 0;width:var(--pct);background:linear-gradient(90deg,rgba(239,204,132,.34),rgba(244,218,165,.19));transition:width .35s ease}
+.iv-poll-option.lead .iv-poll-fill{background:linear-gradient(90deg,rgba(229,186,97,.43),rgba(244,218,165,.22))}
+.iv-poll-name{min-width:0;font-size:13px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.iv-poll-number{flex:none;color:#7e5a60;font-size:12px;font-weight:750}
+.iv-poll-more,.iv-poll-tally{margin:12px 0 0;color:#7d4d59;font-size:12px}
+.iv-poll-more{padding:0;border:0;background:none;text-decoration:underline;cursor:pointer}
+.iv-poll-empty{color:#947a7c;font-size:13px}
+.iv-voters{margin:-3px 4px 7px;color:#9a7f80;font-size:11px;font-style:italic}
+.iv-house-counts{margin:15px 0 0;padding:12px;border:1px solid rgba(89,121,64,.24);border-radius:12px;background:rgba(231,241,218,.46);color:#4f673d;font-size:12px;line-height:1.45}
+/* The post sheet reuses the house navigation; only its reading surface is new. */
+.iv-post-wrap{z-index:125}
+.iv-post-sheet{height:min(92dvh,940px);background:#fffdf8}
+.iv-post-body{padding:0 22px 32px!important}
+.iv-post-detail{max-width:760px;margin:0 auto;padding:12px 0 24px}
+.iv-detail-kicker{margin-bottom:8px;color:#a0783c;font-size:11px;font-weight:800;letter-spacing:.11em}
+.iv-post-detail>h1,.iv-locked-detail h1{margin:0 0 12px;color:#501629;font:700 29px/1.2 Georgia,serif;overflow-wrap:anywhere}
+.iv-detail-summary{margin:0 0 17px;color:#80656b;font-size:15px;line-height:1.6}
+.iv-detail-media{margin:17px 0;overflow:hidden;border:1px solid rgba(176,127,48,.2);border-radius:18px;background:#fbf4e8;color:#8b7173;text-align:center}
+.iv-detail-media>p{margin:0;padding:28px 16px;font-size:13px}
+.iv-full-media{display:block;width:100%;max-height:72dvh;border:0;background:#fffaf1;object-fit:contain}
+video.iv-full-media{min-height:210px}
+.iv-audio{display:block;width:100%;padding:22px 14px}
+.iv-embed{position:relative;width:100%;aspect-ratio:16/9;background:#f6ecdd}
+.iv-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.iv-detail-body{color:#57333b;font:16px/1.78 Georgia,'Times New Roman',serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.iv-detail-meta{margin:22px 0 0;padding-top:14px;border-top:1px solid rgba(176,127,48,.18);color:#947c7d;font-size:12px}
+.iv-media-missing{padding:22px 16px}
+.iv-media-missing b{color:#65273a}
+.iv-media-missing p{font-size:13px;line-height:1.5}
+.iv-locked-detail{max-width:560px;margin:0 auto;padding:24px 0;text-align:center}
+.iv-locked-detail>span{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 18px;border:1px solid #d5ad60;border-radius:50%;background:linear-gradient(145deg,#fff9df,#edcf8c);color:#794125;font-size:25px}
+.iv-locked-detail>p{color:#80666b;line-height:1.55}
+.iv-locked-detail blockquote{margin:20px 0;padding:18px;border:1px solid rgba(176,127,48,.19);border-radius:16px;background:#fff9ed;color:#6f4852;font:italic 16px/1.6 Georgia,serif}
+.iv-lock-note{font-size:13px}
+.iv-primary,.iv-secondary{display:block;width:100%;margin-top:12px;padding:14px 17px;border-radius:14px;font-size:12px;font-weight:850;letter-spacing:.05em;text-align:center;text-decoration:none;cursor:pointer}
+.iv-primary{border:1px solid #b68539;background:linear-gradient(180deg,#f5dfa5,#ddb264);color:#4f2630}
+.iv-secondary{border:1px solid rgba(121,57,70,.22);background:#fffaf2;color:#702a40}
+.iv-external{margin:18px}
+/* The desk sees the actual APK row, real votes and a no-increment preview. */
+.iv-admin-contract{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.iv-admin-contract span{padding:4px 7px;border:1px solid rgba(176,127,48,.2);border-radius:999px;background:#fff9ee;color:#825e50;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.iv-admin-body{margin:7px 0;color:#80666b;font-size:12px;line-height:1.5;white-space:pre-wrap}
+.iv-admin-poll{display:grid;gap:5px;margin:8px 0}
+.iv-admin-poll>div{display:flex;justify-content:space-between;gap:12px;padding:7px 9px;border-radius:8px;background:rgba(246,234,210,.5);color:#76515a;font-size:11px}
+.iv-admin-poll b{flex:none;color:#5f2939}
+.iv-admin-preview{margin-top:8px;padding:8px 10px;border:1px solid rgba(157,106,46,.32);border-radius:9px;background:#fff8e9;color:#713248;font-size:10px;font-weight:850;letter-spacing:.04em;cursor:pointer}
+@media (max-width:560px){.iv-post-card.compact .iv-post-art{min-height:120px}.iv-post-card.compact .iv-post-copy h3{font-size:15px}.iv-post-card.compact .iv-post-meta{font-size:10px}.iv-card-pills{top:9px;left:9px;right:9px}.iv-type-pill,.iv-state-pill{padding:4px 7px;font-size:9px}.iv-post-body{padding:0 16px 28px!important}.iv-post-detail>h1,.iv-locked-detail h1{font-size:25px}}
+@media (max-width:370px){.iv-post-card.compact .iv-state-pill{display:none}.iv-post-card.compact .iv-post-copy{padding:12px}.iv-post-card.compact .iv-post-meta b{width:100%;margin-left:0}}
+/* Opened, entitled posts carry the same confirmed-gifter contract as the APK. */
+.iv-post-gifts{margin-top:22px;padding-top:17px;border-top:1px solid rgba(176,127,48,.2)}
+.iv-gift-loading{margin:0;color:#8a6c64;font-size:12.5px;line-height:1.5;font-style:italic}
+.iv-gift-send{display:block;margin:12px auto 0;padding:10px 18px;border:1px solid rgba(181,133,49,.65);border-radius:999px;
+  background:linear-gradient(180deg,#fff8e6,#f1dfb7);color:#652b3d;font:800 12.8px/1.2 Georgia,serif;cursor:pointer}
+.iv-gift-send:hover{background:linear-gradient(180deg,#fff3d3,#e9ce8d)}
+.iv-gift-send:focus-visible,.iv-gift-retry:focus-visible{outline:3px solid rgba(185,137,48,.42);outline-offset:3px}
+.iv-gift-retry{display:block;margin:8px auto 0;padding:5px 5px;border:0;background:none;color:#8a5a36;font:12px/1.4 Georgia,serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.iv-post-card,.iv-post-art>img,.iv-poll-fill{transition:none}.iv-post-card:hover{transform:none}}
