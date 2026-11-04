@@ -1,0 +1,42 @@
+{
+  "appearance/tfjs/models/detector/model.json": {
+    "bytes": 75722,
+    "sha256": "c131145fade749f714d39811f282e973760a69cb9e1a9c22f91e132bd8dcd396",
+    "source": "https://tfhub.dev/mediapipe/tfjs-model/face_detection/short/1/model.json?tfjs-format=file"
+  },
+  "appearance/tfjs/models/detector/group1-shard1of1.bin": {
+    "bytes": 201268,
+    "sha256": "e9b69ee1c1f8cd33c58120bcd75bf8c56bfba20c880f447e9d293ec102059d4b",
+    "source": "https://tfhub.dev/mediapipe/tfjs-model/face_detection/short/1/group1-shard1of1.bin?tfjs-format=file"
+  },
+  "appearance/tfjs/models/mesh/model.json": {
+    "bytes": 100158,
+    "sha256": "074a5d7143977d5e08a049c46a743e5b924aad79e7e69c7079bc2e083def62e6",
+    "source": "https://tfhub.dev/mediapipe/tfjs-model/face_landmarks_detection/face_mesh/1/model.json?tfjs-format=file"
+  },
+  "appearance/tfjs/models/mesh/group1-shard1of1.bin": {
+    "bytes": 1477958,
+    "sha256": "3826da640b0a3021161605369ee6af293f75d518040355b960ec71a3390c1c0b",
+    "source": "https://tfhub.dev/mediapipe/tfjs-model/face_landmarks_detection/face_mesh/1/group1-shard1of1.bin?tfjs-format=file"
+  },
+  "appearance/tfjs/wasm/tfjs-backend-wasm.wasm": {
+    "bytes": 311123,
+    "sha256": "70a5d516060464e5269f01c74bac1772d6b8ab6cb612acf16b5cdaf61f78d892",
+    "source": "@tensorflow/tfjs-backend-wasm@4.22.0/dist/tfjs-backend-wasm.wasm"
+  },
+  "appearance/tfjs/wasm/tfjs-backend-wasm-simd.wasm": {
+    "bytes": 424594,
+    "sha256": "77ebb28a6d34f371dbbf2086b7f2de8994acd8ea5a3cf1fa24d2c26c840cac7b",
+    "source": "@tensorflow/tfjs-backend-wasm@4.22.0/dist/tfjs-backend-wasm-simd.wasm"
+  },
+  "appearance/tfjs/wasm/tfjs-backend-wasm-threaded-simd.wasm": {
+    "bytes": 435643,
+    "sha256": "c052228d4bef185c27bbe59a9e029570c78bbb9f08b3cb46b597851650373de2",
+    "source": "@tensorflow/tfjs-backend-wasm@4.22.0/dist/tfjs-backend-wasm-threaded-simd.wasm"
+  },
+  "appearance/tfjs/LICENSE-2.0.txt": {
+    "bytes": 11358,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "source": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+  }
+}
