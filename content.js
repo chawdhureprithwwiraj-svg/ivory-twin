@@ -5,7 +5,7 @@ window.IVCONTENT = (function () {
   'use strict';
   var IV = window.IVSESS;
   var S = {
-    posts: [], polls: {}, mine: {}, voters: {}, adminPosts: {}, fullPosts: {}, previewUrls: {},
+    posts: [], polls: {}, mine: {}, voters: {}, adminPosts: {}, fullPosts: {}, previewUrls: {}, previewRetry: {},
     filter: 'all', seq: 0, renderSeq: 0, loading: null, last: 0, err: null,
     openId: null, openSeq: 0, giftReq: 0, voting: {}, viewHour: -1, viewCache: {}
   };
@@ -223,8 +223,7 @@ window.IVCONTENT = (function () {
     if (!S.posts.length) { box.innerHTML = S.loading ? '<div class="iv-feed-loading">Opening the shared shelf…</div>' : emptyMarkup(); return; }
     var rows = filtered();
     box.innerHTML = (rows.length ? rows.map(function (p) { return card(p, false); }).join('') : emptyMarkup()) +
-      '<div class="lib-tail"><b>' + rows.length + (rows.length === 1 ? ' piece' : ' pieces') + ' on this shelf</b><p>The same posts, polls and counters as the Ivory app.</p>' +
-      (S.err ? '<p class="iv-feed-stale">The last refresh did not answer; the last good shelf is still here.</p>' : '') + '</div>';
+      (S.err ? '<p class="iv-feed-stale">The last refresh did not answer; the last good shelf is still here.</p>' : '');
   }
   function renderAll() {
     S.renderSeq++;
@@ -250,7 +249,10 @@ window.IVCONTENT = (function () {
     Array.prototype.forEach.call(document.querySelectorAll('img[data-iv-thumb="' + Number(id) + '"]'), function (img) {
       img.hidden = false; img.src = url;
       img.onload = function () { img.classList.add('ready'); };
-      img.onerror = function () { img.hidden = true; };
+      img.onerror = function () {
+        img.hidden = true; img.classList.remove('ready');
+        delete S.previewUrls[id]; S.previewRetry[id] = true;
+      };
       var mark = img.parentNode && img.parentNode.querySelector('.iv-art-mark');
       if (mark) mark.classList.add('behind');
     });
@@ -271,15 +273,15 @@ window.IVCONTENT = (function () {
       if (p.is_unlocked !== true) return;
       if (ref.source === 'b2') { b2ids.push(Number(p.id)); return; }
       if (ref.source === 'r2' && window.IVSTORE) {
-        jobs.push(IVSTORE.open({ rail: 'r2', key: raw, postId: Number(p.id), field: 'thumb' }).then(function (url) {
-          if (url) { S.previewUrls[p.id] = url; setThumb(p.id, url); }
+        jobs.push(IVSTORE.open({ rail: 'r2', key: raw, postId: Number(p.id), field: 'thumb', fresh: !!S.previewRetry[p.id] }).then(function (url) {
+          if (url) { S.previewUrls[p.id] = url; S.previewRetry[p.id] = false; setThumb(p.id, url); }
         }).catch(function () {}));
       }
     });
     if (b2ids.length && window.IVSTORE) {
       jobs.push(IVSTORE.fn('b2-media', { op: 'sign_previews', post_ids: b2ids.slice(0, 50) }).then(function (d) {
         (d.items || []).forEach(function (item) {
-          if (item && safeUrl(item.url)) { S.previewUrls[item.id] = item.url; setThumb(item.id, item.url); }
+          if (item && safeUrl(item.url)) { S.previewUrls[item.id] = item.url; S.previewRetry[item.id] = false; setThumb(item.id, item.url); }
         });
       }).catch(function () {}));
     }
@@ -430,7 +432,7 @@ window.IVCONTENT = (function () {
     }
     return attempt();
   }
-  function resolveMedia(p, field) {
+  function resolveMedia(p, field, fresh) {
     field = field || 'media';
     var source = field === 'thumb' ? p.thumb_source : p.media_source;
     var ref = field === 'thumb' ? p.thumb_ref : (p.media_ref || p.media_url);
@@ -456,7 +458,7 @@ window.IVCONTENT = (function () {
     if (safeUrl(ref)) return Promise.resolve({ kind: 'url', url: ref });
     if (source === 'supabase') return signSupabase(ref).then(function (url) { return { kind: 'url', url: url }; });
     if ((source === 'b2' || source === 'r2') && window.IVSTORE) {
-      return IVSTORE.open({ rail: source, key: ref, postId: Number(p.id), field: field })
+      return IVSTORE.open({ rail: source, key: ref, postId: Number(p.id), field: field, fresh: !!fresh })
         .then(function (url) { return { kind: 'url', url: safeUrl(url) }; })
         .catch(function () { return { kind: 'none', url: null }; });
     }
@@ -472,16 +474,22 @@ window.IVCONTENT = (function () {
     if (p.type === 'image' || p.type === 'blog' || p.type === 'poll') return '<img class="iv-full-media" src="' + url + '" alt="' + title + '" decoding="async">';
     return '<a class="iv-primary iv-external" href="' + url + '" target="_blank" rel="noopener noreferrer">OPEN THE MEDIA</a>';
   }
-  function fillMedia(p, seq) {
+  function fillMedia(p, seq, fresh) {
     var box = $('iv-detail-media');
     if (!box || p.media_source === 'none' || (!p.media_ref && !p.media_url)) {
       if (box) box.remove();
       return Promise.resolve();
     }
-    return resolveMedia(p).then(function (media) {
+    return resolveMedia(p, 'media', !!fresh).then(function (media) {
       if (seq !== S.openSeq || Number(S.openId) !== Number(p.id)) return;
       box = $('iv-detail-media');
-      if (box) box.innerHTML = mediaMarkup(p, media);
+      if (box) {
+        box.innerHTML = mediaMarkup(p, media);
+        var element = box.querySelector('img,video,audio');
+        if (element) element.addEventListener('error', function () {
+          if (seq === S.openSeq && Number(S.openId) === Number(p.id)) box.innerHTML = mediaMarkup(p, null);
+        }, { once: true });
+      }
     }).catch(function () {
       if (seq === S.openSeq && box) box.innerHTML = mediaMarkup(p, null);
     });
@@ -636,7 +644,7 @@ window.IVCONTENT = (function () {
     }
     if (t.closest('[data-iv-content-retry]')) { e.preventDefault(); e.stopPropagation(); refresh(true); return; }
     if (t.closest('[data-iv-retry-media]')) {
-      e.preventDefault(); e.stopPropagation(); var rp = S.fullPosts[S.openId] || S.adminPosts[S.openId] || postById(S.openId); if (rp) { var box = $('iv-detail-media'); if (box) box.innerHTML = '<p>Opening the media…</p>'; fillMedia(rp, S.openSeq); } return;
+      e.preventDefault(); e.stopPropagation(); var rp = S.fullPosts[S.openId] || S.adminPosts[S.openId] || postById(S.openId); if (rp) { var box = $('iv-detail-media'); if (box) box.innerHTML = '<p>Opening the media…</p>'; fillMedia(rp, S.openSeq, true); } return;
     }
     var chip = t.closest('#explore-screen .chip[data-f]');
     if (chip) { S.filter = chip.getAttribute('data-f') || 'all'; setTimeout(renderLibrary, 0); return; }
@@ -657,7 +665,7 @@ window.IVCONTENT = (function () {
   });
   window.addEventListener('focus', function () { if (Date.now() - S.last > 45000) refresh(true); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && Date.now() - S.last > 45000) refresh(true); });
-  if (IV && IV.on) IV.on(function () { S.previewUrls = {}; refresh(true); });
+  if (IV && IV.on) IV.on(function () { S.previewUrls = {}; S.previewRetry = {}; refresh(true); });
   setInterval(function () {
     if (document.hidden) return;
     var deskStories = $('st');
