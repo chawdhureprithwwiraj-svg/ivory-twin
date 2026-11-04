@@ -29,9 +29,7 @@
 .iv-feed-empty p{margin:0 0 12px}
 .iv-feed-empty button,.iv-media-missing button{padding:10px 15px;border:1px solid #c69b4b;border-radius:999px;background:#fffaf0;color:#68243a;font-weight:750;cursor:pointer}
 .iv-feed-stale{color:#9b5a45!important}
-#lib-feed .lib-tail{margin-top:20px;padding:24px;text-align:center;color:#8a7173}
-#lib-feed .lib-tail b{font:700 20px/1.3 Georgia,serif;color:#5c2133}
-#lib-feed .lib-tail p{margin:7px 0 0;font-size:12px;line-height:1.5}
+#lib-feed>.iv-feed-stale{margin:20px 4px 0;text-align:center;font-size:12px;line-height:1.5}
 /* Polls */
 .iv-poll-card{cursor:default;padding:17px}
 .iv-poll{position:relative;width:100%;color:#581d2e}

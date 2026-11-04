@@ -107,8 +107,11 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       var base = w.openSheet;
       var fn = function (id) {
         var t = Date.now();
-        if (id === lastId && t - last < 260) return;
-        last = id; last = t; lastId = id;
+        var sheet = d.getElementById('sheet-' + id);
+        /* Suppress duplicate opens only while that sheet is already visible.
+           A closed sheet is a new intention, including rapid post switching. */
+        if (id === lastId && t - last < 260 && sheet && sheet.classList.contains('show')) return;
+        last = t; lastId = id;
         return base.apply(this, arguments);
       };
       fn.__p92 = 1;

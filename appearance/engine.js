@@ -95,7 +95,11 @@ export class AppearanceEngine{
       if(m.phase!=='init'&&this.running)this.workerFailure((m.phase||'detect')+': '+(m.message||'Detection failed')+(m.stack?' | '+m.stack:''));}
   }
   workerFailure(message){this.stats.errors++;if(!this.running)return;this.fatal(new Error(String(message||'Appearance tracking failed')));}
-  fatal(error){if(this.fatalSent||this.closed)return;this.fatalSent=true;try{if(this.options.onFatal)this.options.onFatal(error);}catch(e){}this.stop();}
+  fatal(error){if(this.fatalSent||this.closed)return;this.fatalSent=true;let restored;
+    try{if(this.options.onFatal)restored=this.options.onFatal(error);}catch(e){}
+    /* The room adapter restores/publishes the raw track before stopping the
+       processed source. Standalone engines retain the immediate-stop path. */
+    if(restored&&typeof restored.then==='function')restored.then(()=>this.stop(),()=>{});else this.stop();}
   scheduleSource(){if(!this.running)return;
     if(this.video.requestVideoFrameCallback){const cb=now=>{if(!this.running)return;this.submit(now);this.vfcId=this.video.requestVideoFrameCallback(cb);};
       this.vfcId=this.video.requestVideoFrameCallback(cb);} }
@@ -159,8 +163,11 @@ export class AppearanceEngine{
     if(this.config.processDownscale<4||this.detectionSize>320){this.config.processDownscale=4;this.config.warpCellPx=16;this.detectionSize=320;
       if(this.renderer){this.renderer.config.processDownscale=4;this.renderer.config.warpCellPx=16;}
       this.stats.qualityChanges++;this.lowWindows=0;this.qualityChanged('low processing load');return;}
-    if(fps<22){this.fatal(new Error('Appearance processing cannot sustain a smooth stream; raw video is required'));}
-    else this.lowWindows=0;
+    /* A slow device is a quality constraint, not a processing failure. Keep
+       the camera and Beauty alive at a bounded rate instead of crashing out. */
+    if(this.targetFps>20){this.targetFps=20;this.stats.qualityChanges++;this.lowWindows=0;this.qualityChanged('20 fps');return;}
+    if(this.targetFps>15){this.targetFps=15;this.stats.qualityChanges++;this.lowWindows=0;this.qualityChanged('15 fps');return;}
+    this.lowWindows=0;
   }
   qualityChanged(label){try{if(this.options.onQuality)this.options.onQuality(label,this.diagnostics());}catch(e){}}
   setParams(params){this.baseParams=params||{__identity:true};
