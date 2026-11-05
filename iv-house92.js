@@ -108,8 +108,9 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       var fn = function (id) {
         var t = Date.now();
         var sheet = d.getElementById('sheet-' + id);
-        /* Suppress duplicate opens only while that sheet is already visible.
-           A closed sheet is a new intention, including rapid post switching. */
+        /* Two handlers may ask for the same visible sheet in one tick. A sheet
+           which has since been closed is a new intention, never a duplicate:
+           content sheets close their old post before opening the next one. */
         if (id === lastId && t - last < 260 && sheet && sheet.classList.contains('show')) return;
         last = t; lastId = id;
         return base.apply(this, arguments);
@@ -735,6 +736,17 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
      She asked for the lens part to go for now. The engine stays beside the
      page, but the switch is forced off and the tab is out of sight, so no
      coloured iris can appear in a broadcast.                              */
+  var lensSeen = false;
+  function lensesOff() {
+    var B = w.IVBEAUTY;
+    if (!B) return;
+    if (B.state) { B.state.lensOn = false; B.state.lens = B.state.lens || 'emerald'; }
+    if (!lensSeen) {
+      lensSeen = true;
+      on(d, 'iv-beauty-open', function () { try { lensesOff(); } catch (e) {} });
+    }
+    $$('[data-tab="lens"]').forEach(function (t) { if (t.style.display !== 'none') t.style.display = 'none'; });
+  }
 
   /* ── 13 · the room: her words low, and the picture square ──────────────── */
   function roomManners() {
@@ -742,6 +754,10 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       if (box.style.display !== 'flex') box.style.display = 'flex';
       if (box.style.flexDirection !== 'column') box.style.flexDirection = 'column';
       if (box.style.justifyContent !== 'flex-end') box.style.justifyContent = 'flex-end';
+    });
+    /* the beauty key is a sparkle, not a billboard */
+    $$('#lv-beauty, .lv-beauty, [data-beauty]').forEach(function (b) {
+      if (!b.classList.contains('lv-beauty-pill')) b.classList.add('lv-beauty-pill');
     });
     /* the self preview is mirrored by the camera, never rotated by CSS */
     $$('#iv-cast video, #lv-cast video, .lv-stage video').forEach(function (v) {
@@ -758,6 +774,18 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     var R = w.IVREG;
     var card = d.querySelector('#profile-screen .me-card');
     if (!R || !card) return;
+    /* Pass 87 now owns frame-only and canonical server regalia. This old
+       fallback must never put a second frame inside the face. */
+    if (w.IVBADGE && w.IVBADGE.dressFromPage) {
+      Array.prototype.forEach.call(card.querySelectorAll('.p92-ava-frame, #pf-regalia92'), function (n) {
+        if (n.parentNode) n.parentNode.removeChild(n);
+      });
+      if (card.getAttribute('data-p92dress') !== 'badge87') {
+        card.setAttribute('data-p92dress', 'badge87');
+        try { w.IVBADGE.dressFromPage(); } catch (e) {}
+      }
+      return;
+    }
     /* If the page's own dresser has drawn a real plaque, hers stands and mine
        steps aside. It is asked by what it *drew*, not by an id: the page keeps
        one div called #pf-regalia and wipes it every time it cannot find a
@@ -829,6 +857,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     try { ladderEverywhere(); } catch (e) {}
     try { readEverything(); } catch (e) {}
     try { roomManners(); } catch (e) {}
+    try { lensesOff(); } catch (e) {}
     try { ribbonsReady(); } catch (e) {}
     try { lane(); } catch (e) {}
     try { wheelFind(); } catch (e) {}
@@ -954,7 +983,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   function storySheet() {
     makeSheet('sheet-story', 'The Story Door',
       '<div class="p94-story-intro" id="p94-story-form">' +
-        '<span class="p94-quill" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M49 6C30 10 15 26 12 47c11-8 24-13 36-14-11 4-21 10-29 19L9 60l4-15C17 24 31 11 49 6z" fill="url(#p94quill)"/><path d="M14 51L44 18" stroke="#8A5A12" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="p94quill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF3C4"/><stop offset=".45" stop-color="#E4B94F"/><stop offset="1" stop-color="#A56A13"/></linearGradient></defs></svg></span>' +
+        '<span class="p94-quill" aria-hidden="true"><img class="iv-feather" src="media/art/feather.webp" alt="" draggable="false"></span>' +
         '<h3>The door is open.</h3><p>Yours, or one you carry. Free, always.</p>' +
         '<label class="p94-label" for="p94-story-body">Your story</label>' +
         '<textarea id="p94-story-body" maxlength="7000" rows="7" placeholder="Leave the story at the door…"></textarea>' +
@@ -966,7 +995,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
         '<button class="p94-goldkey" id="p94-story-send" type="button">LEAVE IT AT THE DOOR</button>' +
       '</div>' +
       '<div class="p94-story-done" id="p94-story-done" hidden>' +
-        '<span class="p94-quill large" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M49 6C30 10 15 26 12 47c11-8 24-13 36-14-11 4-21 10-29 19L9 60l4-15C17 24 31 11 49 6z" fill="#D9A62E"/><path d="M14 51L44 18" stroke="#8A5A12" stroke-width="2"/></svg></span>' +
+        '<span class="p94-quill large" aria-hidden="true"><img class="iv-feather" src="media/art/feather.webp" alt="" draggable="false"></span>' +
         '<h3>It is through the door.</h3><p>I read everything.</p>' +
         '<button class="p94-goldkey" type="button" data-close>CLOSE</button>' +
       '</div>', 'p94-story-wrap');
@@ -1585,7 +1614,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     }
     if (key === 'noon') {
       if (it.done && !it.is_open) bellNote('Noon rings at ' + hourLabel(it.hour) + '. Your reading is remembered.');
-      else goRoom('home');
+      else goRoom('explore');
       return;
     }
     if (key === 'dusk') {

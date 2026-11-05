@@ -535,8 +535,27 @@ window.IVCONTENT = (function () {
     fillMedia(p, seq);
   }
   function openPost(id) {
+    id = Number(id);
+    if (!isFinite(id) || id <= 0) return;
     var p = postById(id);
-    if (!p) return;
+    /* A ticker can outlive the fifty-card preview shelf. Fetch its exact row
+       instead of making OPEN IT a no-op for every older moment. */
+    if (!p) {
+      showSheet('From Ivory');
+      S.openId = id; var missingSeq = ++S.openSeq;
+      $('iv-post-body').innerHTML = '<div class="iv-feed-loading">Finding this exact moment…</div>';
+      return get('/rest/v1/post_previews?select=*&id=eq.' + id + '&limit=1').then(function (rows) {
+        if (missingSeq !== S.openSeq) return;
+        var found = Array.isArray(rows) && rows[0];
+        if (!found) throw new Error('This moment is no longer on the shelf.');
+        S.posts.push(found);
+        openPost(id);
+      }).catch(function (e) {
+        if (missingSeq !== S.openSeq) return;
+        $('iv-post-body').innerHTML = '<div class="iv-feed-empty"><b>This moment did not open.</b><p>' +
+          esc((e && e.message) || 'Try once more.') + '</p><button type="button" data-iv-post-open="' + id + '">Try again</button></div>';
+      });
+    }
     if (locked(p)) {
       if (num(p.price_inr) > 0) { buy(p); return; }
       showSheet('A members-only post'); S.openId = Number(id); S.openSeq++;
@@ -545,6 +564,7 @@ window.IVCONTENT = (function () {
     if (p.type === 'poll') {
       showSheet('The poll'); S.openId = Number(id); var pollSeq = ++S.openSeq;
       $('iv-post-body').innerHTML = detailMarkup(p, false);
+      loadOnePoll(id).catch(function () {});
       if (house()) call('/rest/v1/rpc/poll_voters', { post_id_in: Number(id) }).then(function (rows) {
         if (pollSeq !== S.openSeq) return;
         var voters = {};
@@ -577,6 +597,31 @@ window.IVCONTENT = (function () {
       if (seq !== S.openSeq) return;
       $('iv-post-body').innerHTML = '<div class="iv-feed-empty"><b>This post did not open.</b><p>' + esc((e && e.message) || 'Try once more.') + '</p><button type="button" data-iv-post-open="' + Number(id) + '">Try again</button></div>';
     });
+  }
+
+  /* Older ticker payloads did not always carry a usable post ref. The exact
+     title is a fallback only; the newest matching canonical preview wins. */
+  function openTitle(title) {
+    title = String(title || '').trim();
+    if (!title) return Promise.resolve(false);
+    showSheet('From Ivory');
+    var seq = ++S.openSeq;
+    $('iv-post-body').innerHTML = '<div class="iv-feed-loading">Finding this exact moment…</div>';
+    return get('/rest/v1/post_previews?select=*&title=eq.' + encodeURIComponent(title) + '&order=created_at.desc&limit=1')
+      .then(function (rows) {
+        if (seq !== S.openSeq) return false;
+        var found = Array.isArray(rows) && rows[0];
+        if (!found) throw new Error('This moment is no longer on the shelf.');
+        S.openId = Number(found.id);
+        if (!postById(found.id)) S.posts.push(found);
+        openPost(found.id);
+        return true;
+      }).catch(function (e) {
+        if (seq !== S.openSeq) return false;
+        $('iv-post-body').innerHTML = '<div class="iv-feed-empty"><b>This moment did not open.</b><p>' +
+          esc((e && e.message) || 'Try once more.') + '</p></div>';
+        return false;
+      });
   }
 
   /* The desk uses the same rows and real media, but never the member view bloom
@@ -688,7 +733,7 @@ window.IVCONTENT = (function () {
   }
 
   return {
-    refresh: refresh, open: openPost, openAdmin: openAdmin, close: closePost,
+    refresh: refresh, open: openPost, openTitle: openTitle, openAdmin: openAdmin, close: closePost,
     hydrateAdmin: hydrateAdmin, state: S, viewBloom: viewBloom, noise: noise,
     pollMaths: pollMaths, resolveMedia: resolveMedia, prepare: prepare
   };
