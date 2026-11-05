@@ -80,7 +80,21 @@ export class AppearanceRoomController{
     const {AppearanceEngine}=await import('./engine.js');if(gen!==this.generation||this.destroyed)return;
     const video=document.createElement('video');video.muted=true;video.defaultMuted=true;video.playsInline=true;video.autoplay=true;video.setAttribute('playsinline','');video.setAttribute('aria-hidden','true');
     video.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-4px;top:-4px;z-index:-1;clip-path:inset(50%);-webkit-clip-path:inset(50%)';video.tabIndex=-1;this.hooks.root.appendChild(video);this.video=video;
-    video.srcObject=new MediaStream([rawMST]);await video.play();if(gen!==this.generation||this.destroyed)return;
+    video.srcObject=new MediaStream([rawMST]);
+    /* WebKit can reject a newly attached MediaStream with a transient
+       AbortError even while the camera track remains live. Retry only that
+       interruption, inside this generation; every persistent/other failure
+       still follows the safe raw-camera recovery below. */
+    let played=false,playError=null;
+    for(let attempt=0;attempt<3&&!played;attempt++){
+      try{await video.play();played=true;playError=null;}catch(error){
+        playError=error;if(gen!==this.generation||this.destroyed)return;
+        if(!error||error.name!=='AbortError'||attempt===2)throw error;
+        await new Promise(resolve=>setTimeout(resolve,80*(attempt+1)));
+      }
+    }
+    if(!played)throw playError||new Error('The camera preview did not open');
+    if(gen!==this.generation||this.destroyed)return;
     const engine=new AppearanceEngine(video,{params:makeParams(this.state,false,this.phase),onFatal:error=>this.onFatal(error),onQuality:()=>{if(this.active)this.status.textContent='On · adjusted for a steady picture';}});this.engine=engine;await engine.start();
     if(gen!==this.generation||this.destroyed||this.raw!==this.hooks.getRawTrack()){await engine.stop();return;}
     await this.publish(engine.track);if(gen!==this.generation||this.destroyed)return;this.active=true;this.paint();

@@ -407,6 +407,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     var ava = d.getElementById('pf-ava');
     if (!ava || ava.__p92ava) return;
     ava.__p92ava = 1;
+    ava.removeAttribute('aria-hidden');
     ava.setAttribute('role', 'button');
     ava.setAttribute('tabindex', '0');
     ava.setAttribute('aria-label', 'Change your picture');
@@ -415,7 +416,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     badge.className = 'p92-face-edit';
     badge.setAttribute('aria-label', 'Change your picture');
     badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.2h3.1L8.6 6h6.8l1.5 2.2H20a1.6 1.6 0 011.6 1.6v8a1.6 1.6 0 01-1.6 1.6H4a1.6 1.6 0 01-1.6-1.6v-8A1.6 1.6 0 014 8.2z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="13.6" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>';
-    var top = ava.closest('.me-top') || ava.parentNode;
+    var top = ava.closest('.pf-reg-stage') || ava.closest('.me-top') || ava.parentNode;
     top.classList.add('p92-face-wrap');
     top.appendChild(badge);
     function ask(e) {
@@ -1125,8 +1126,9 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     $('.gh-copy', body).textContent = points + ' of ' + need + (lit ? ' — today’s heart is lit.' : ' to light today’s heart.') + ' Your ' + streak + '-day glow is ' + (lit ? 'growing.' : 'waiting for it.');
     var greet = $('.gh-greet', body), action = null;
     (HS.actions || []).forEach(function (a) { if (a.key === 'greet') action = a; });
-    greet.disabled = !!lit || heartBusy;
-    greet.innerHTML = '<span class="ghh">' + miniHeart(true) + '</span><span>' + (lit ? 'Today’s heart is lit' : 'Greet your heart') + '</span>' + (!lit && action ? '<b>+' + num(action, 'points', 20) + '</b>' : '');
+    var greeted = !!(action && (action.done === true || Number(action.done) > 0));
+    greet.disabled = greeted || heartBusy;
+    greet.innerHTML = '<span class="ghh">' + miniHeart(true) + '</span><span>' + (greeted ? 'Heart greeted today' : 'Greet your heart') + '</span>' + (!greeted && action ? '<b>+' + num(action, 'points', 20) + '</b>' : '');
     var list = $('.gg-list', body); list.innerHTML = '';
     (HS.actions || []).forEach(function (a) {
       var row = d.createElement('div'); row.className = 'gg' + (a.done ? ' done' : '');
@@ -1499,11 +1501,35 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     on(d.getElementById('p94-push'), 'click', togglePush);
   }
   var BS = null, bellsBusy = false, bellsDirty = true, pushState = null;
-  var bellSoundOn = true;
+  var bellSoundOn = true, bellAudio = null;
   try { bellSoundOn = localStorage.getItem('ivory.bell.sound') !== '0'; } catch (e) {}
-  function bellSound() {
+  var BELL_NOTES = {
+    jewel:[523.25,659.25,783.99,987.77,1], opal:[587.33,739.99,880,1108.73,1],
+    sunset:[466.16,587.33,698.46,880,1.2], ocean:[523.25,587.33,783.99,880,1.15],
+    aurora:[659.25,830.61,987.77,1244.51,1.3], orchid:[698.46,880,1046.5,1318.51,1],
+    citrus:[783.99,987.77,1174.66,1479.98,.8], lagoon:[440,554.37,659.25,830.61,1.25],
+    ember:[392,493.88,587.33,739.99,1.4], twilight:[523.25,622.25,783.99,932.33,1.3],
+    meadow:[587.33,659.25,880,987.77,1], lotus:[349.23,440,523.25,698.46,1.35],
+    crystal:[1046.5,1318.51,1567.98,1975.53,1.5], celestial:[1046.5,1567.98,1318.51,2093,1.8]
+  };
+  function bellSound(index) {
     if (!bellSoundOn) return;
-    try { if (w.Sound && Sound.play) Sound.play('heartlit'); } catch (e) {}
+    try {
+      var AC = w.AudioContext || w.webkitAudioContext; if (!AC) return;
+      if (!bellAudio) bellAudio = new AC({ latencyHint: 'interactive' });
+      var c = bellAudio; if (c.state === 'suspended' && c.resume) c.resume().catch(function () {});
+      var tone = BELL_NOTES[BS && BS.wear] || BELL_NOTES.jewel, now = c.currentTime + .015;
+      var indexes = index === 'full' ? [0,1,2,3] : [Math.max(0, Math.min(3, Number(index) || 0))];
+      indexes.forEach(function (at, chord) {
+        var hz = tone[at]; [0.5,1,1.19,1.5,2].forEach(function (ratio, k) {
+          var o = c.createOscillator(), g = c.createGain(), t = now + chord * .055;
+          o.type = 'sine'; o.frequency.value = hz * ratio; o.detune.value = k < 2 ? 0 : (k % 2 ? 3 : -2);
+          var peak = .105 / (1 + k * .8), end = t + (1.35 + k * .12) * tone[4];
+          g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+.006); g.gain.exponentialRampToValueAtTime(.0001,end);
+          o.connect(g); g.connect(c.destination); o.start(t); o.stop(end+.03);
+        });
+      });
+    } catch (e) {}
   }
   function bellNote(s) { var n = d.getElementById('p94-bell-note'); if (n) n.textContent = s || ''; }
   function renderBellHeart() {
@@ -1557,10 +1583,8 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
         var b = d.createElement('button'); b.type = 'button'; b.className = 'pl p94-action'; b.setAttribute('data-pledge', n); b.textContent = n + ' days'; ph.appendChild(b);
       });
     }
-    if (BS.pledge_result) {
-      var pr = BS.pledge_result, kept = pr.result === 'kept';
-      bellNote(kept ? 'Pledge kept — ' + num(pr, 'got') + ' Full Days. It is counted.' : 'The pledge ended at ' + num(pr, 'got') + ' of ' + num(pr, 'len') + ' days. Nothing was lost.');
-    }
+    if (!BS.new_sets || !BS.new_sets.length) bellSetsShown = '';
+    if (!BS.pledge_result) bellResultShown = false;
     var worn = null;
     (BS.sets || []).forEach(function (s) { if (s.key === BS.wear) worn = s; });
     var setButton = d.getElementById('p94-set-button');
@@ -1581,10 +1605,70 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     bellsDirty = false;
     if ($('#sheet-bellsets.show')) renderSets();
   }
-  function markBellsSeen() {
-    if (!BS || bellsBusy || !(BS.full_unseen || (BS.new_sets && BS.new_sets.length) || BS.pledge_result)) return;
-    bellsBusy = true;
-    setTimeout(function () { rpc('bells_mark_seen').catch(function () {}).then(function () { bellsBusy = false; }); }, 800);
+  var bellShown = {}, bellFullShown = false, bellSetsShown = '', bellResultShown = false, bellPlaying = false, bellPlaySeq = 0, bellCeremonyDone = null;
+  function bellsVisible() { return !!($('#sheet-bells.show') || $('#sheet-bell-ceremony.show')) && !d.hidden; }
+  function waitBell(ms, seq) { return new Promise(function (resolve) { setTimeout(function () { resolve(seq === bellPlaySeq && bellsVisible()); }, ms); }); }
+  function bellCeremony(kind, data) {
+    var title = kind === 'full' ? 'A Full Day, kept.' : kind === 'set' ? 'A new bell set is yours.' : (data.result === 'kept' ? 'Pledge kept.' : 'The pledge has ended.');
+    var copy = kind === 'full' ? 'Full Day ' + num(BS, 'full_days') + ' is now in your stars. Every bell answered.' : kind === 'set' ? String(data.name || data.key) + ' has opened. Wear it now, or keep it for later.' : data.result === 'kept' ? num(data, 'got') + ' Full Days in a row. Your promise is counted.' : 'It reached ' + num(data, 'got') + ' of ' + num(data, 'len') + ' days. Nothing was lost.';
+    /* A ceremony is a sequence, not a static sheet. makeSheet reuses an old
+       node, so retire the last stage or Full Day would also stand in for the
+       new set and the pledge with the wrong copy and controls. */
+    var prior = d.getElementById('sheet-bell-ceremony'); if (prior) prior.remove();
+    makeSheet('sheet-bell-ceremony', 'The Bells', '<div class="p94-confirm p94-bell-ceremony"><span class="p94-ceremony-star">✦</span><h3>' + esc(title) + '</h3><p>' + esc(copy) + '</p><div class="p94-confirm-keys">' + (kind === 'set' ? '<button class="p94-textkey" type="button" data-bell-ceremony="later">NOT NOW</button><button class="p94-goldkey" type="button" data-bell-ceremony="wear">WEAR THIS SET</button>' : '<button class="p94-goldkey" type="button" data-bell-ceremony="close">KEEP IT CLOSE</button>') + '</div></div>', 'p94-confirm-wrap');
+    openSheet('bell-ceremony');
+    return new Promise(function (resolve) { bellCeremonyDone = { kind: kind, data: data, resolve: resolve }; });
+  }
+  function finishBellCeremony(action) {
+    var active = bellCeremonyDone; if (!active) return; bellCeremonyDone = null;
+    var finish = function () { closeById('sheet-bell-ceremony'); openSheet('bells'); active.resolve(true); };
+    if (action === 'wear' && active.kind === 'set') {
+      rpc('bell_set_wear', { k: active.data.key }).then(function (b) { renderBells(b); finish(); }).catch(function (e) { bellNote(message(e)); finish(); });
+    } else finish();
+  }
+  function playBellUnseen() {
+    if (bellPlaying || !BS || !bellsVisible()) return Promise.resolve();
+    bellPlaying = true; var seq = ++bellPlaySeq, fresh = [], unseen = [];
+    (BS.bells || []).forEach(function (b) { if (b.rung && !b.unseen) bellShown[b.key] = true; if (b.rung && b.unseen) unseen.push(b); });
+    if (unseen.some(function (b) { return bellShown[b.key]; }) && num(BS, 'rung_n') <= Object.keys(bellShown).length) { bellShown = {}; bellFullShown = false; }
+    fresh = unseen.filter(function (b) { return !bellShown[b.key]; });
+    if (BS.full && !BS.full_unseen) bellFullShown = true;
+    var chain = Promise.resolve(true);
+    fresh.forEach(function (b, index) {
+      chain = chain.then(function (ok) { if (!ok) return false; return waitBell(650, seq); }).then(function (ok) {
+        if (!ok) return false;
+        var actual = (BS.bells || []).indexOf(b), el = $('#p94-bells .bl-bell:nth-child(' + (actual + 1) + ')');
+        if (el) { el.classList.remove('p94-just-rung'); void el.offsetWidth; el.classList.add('p94-just-rung'); }
+        bellSound(actual); bellShown[b.key] = true;
+        return waitBell(1300, seq);
+      });
+    });
+    return chain.then(function (ok) {
+      if (!ok) return false;
+      if (!BS.full_unseen || bellFullShown) return true;
+      return waitBell(900, seq).then(function (ok) {
+        if (!ok) return false; bellFullShown = true; bellSound('full');
+        var arch = $('#sheet-bells .bl-arch'); if (arch) arch.classList.add('p94-full-ceremony');
+        return waitBell(2500, seq);
+      }).then(function (ok) { if (!ok) return false; return bellCeremony('full', {}); });
+    }).then(function (ok) {
+      if (!ok) return false;
+      var sets = BS.new_sets || [], key = sets.join(',');
+      if (!sets.length || key === bellSetsShown) return true;
+      bellSetsShown = key;
+      return waitBell(500, seq).then(function (ok) {
+        if (!ok) return false; var chosen = null; (BS.sets || []).forEach(function (x) { if (x.key === sets[sets.length - 1]) chosen = x; });
+        return bellCeremony('set', chosen || { key: sets[sets.length - 1], name: sets[sets.length - 1] });
+      });
+    }).then(function (ok) {
+      if (!ok) return false; var pr = BS.pledge_result;
+      if (!pr || bellResultShown) return true; bellResultShown = true;
+      return waitBell(500, seq).then(function (ok) { return ok ? bellCeremony('pledge', pr) : false; });
+    }).then(function (ok) {
+      if (!ok || !bellsVisible()) return null;
+      if (fresh.length || BS.full_unseen || (BS.new_sets && BS.new_sets.length) || BS.pledge_result) return rpc('bells_mark_seen').catch(function () {});
+      return null;
+    }).then(function () { bellPlaying = false; }, function () { bellPlaying = false; });
   }
   function loadBells() {
     if (bellsBusy || !signed()) return Promise.resolve();
@@ -1592,7 +1676,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     var work = rpc('bells_state').then(function (m) { renderBells(m); }).catch(function (e) { bellNote(message(e)); });
     rpc('bell_push_state').then(function (r) { pushState = map(r); paintPush(); }).catch(function () {});
     if (!HS) loadHeart(); else renderBellHeart();
-    return work.then(function () { bellsBusy = false; markBellsSeen(); });
+    return work.then(function () { bellsBusy = false; playBellUnseen(); });
   }
   function ringBell(key, e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -1600,7 +1684,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     var it = null;
     (BS.bells || []).forEach(function (b) { if (b.key === key) it = b; });
     if (!it) return;
-    bellSound();
+    bellSound((BS.bells || []).indexOf(it));
     if (it.rung) { bellNote(String(it.label || key) + ' has already rung today.'); return; }
     if (key === 'dawn') {
       var greeted = HS && (HS.actions || []).some(function (a) { return a.key === 'greet' && !!a.done; });
@@ -1628,6 +1712,11 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       rpc('bell_open_line').then(function (b) { renderBells(b); }).catch(function (e) { bellNote(message(e)); }).then(function () { bellsBusy = false; });
     }
   }
+  on(d, 'click', function (e) {
+    var t = e.target && e.target.closest ? e.target : null;
+    if (t && t.closest('#sheet-bell-ceremony [data-close]') && bellCeremonyDone) finishBellCeremony('close');
+  }, true);
+
   function goRoom(room) {
     if (w.ivShell && ivShell.shutAll) ivShell.shutAll();
     if (w.ivoryShow) ivoryShow(room);
@@ -1742,6 +1831,8 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;
     if (t.closest('#home-explore')) { e.preventDefault(); goRoom('explore'); return; }
+    var setOpen = t.closest('#p94-set-button'); if (setOpen) { e.preventDefault(); e.stopImmediatePropagation(); openSets(); return; }
+    var ceremony = t.closest('[data-bell-ceremony]'); if (ceremony) { e.preventDefault(); e.stopImmediatePropagation(); finishBellCeremony(ceremony.getAttribute('data-bell-ceremony')); return; }
     var greet = t.closest('.gh-greet'); if (greet && $('#sheet-heart')) { greetHeart(e); return; }
     var orb = t.closest('.bl-orb[data-bell]'); if (orb) { ringBell(orb.getAttribute('data-bell'), e); return; }
     var pledge = t.closest('[data-pledge]'); if (pledge) { e.preventDefault(); askPledge(Number(pledge.getAttribute('data-pledge'))); return; }
