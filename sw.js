@@ -18,14 +18,16 @@ self.addEventListener('activate', function (e) {
 
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
-  var tab = (e.notification.data && e.notification.data.tab) || 'feed';
-  var url = './#' + tab;
+  var data = e.notification.data || {};
+  var tab = data.tab || 'feed';
+  var target = /^ivory-call:\d+$/i.test(String(data.url || '')) ? data.url : '';
+  var url = './#' + (target || tab);
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
       for (var i = 0; i < list.length; i++) {
         var c = list[i];
         if ('focus' in c) {
-          try { c.postMessage({ ivory: 'tab', tab: tab }); } catch (err) {}
+          try { c.postMessage({ ivory: 'tab', tab: tab, url: target }); } catch (err) {}
           return c.focus();
         }
       }
