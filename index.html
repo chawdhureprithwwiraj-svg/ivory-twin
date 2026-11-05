@@ -12758,18 +12758,55 @@ color:#7A5A2C}
 @media (prefers-reduced-motion:reduce){
 .ivdisc-aura,.ivdisc-coin svg,.ivdisc-glow i,.ivdisc-k i,.pulse-halo i{animation:none!important}
 }
-#iv-disc-seat{position:fixed;right:12px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:9000;display:block;width:auto;max-width:calc(100vw - 24px);pointer-events:none}
+#iv-disc-seat{position:relative;inset:auto;display:block;width:100%;max-width:none;margin:0 0 16px;pointer-events:auto;z-index:1}
 #iv-disc-seat:empty{display:none}
-.ivdisc{pointer-events:auto;flex-direction:row;gap:9px;width:auto;max-width:100%;margin:0;padding:6px 12px 6px 6px;border:1px solid rgba(177,128,42,.48);border-radius:999px;overflow:visible;background:linear-gradient(135deg,rgba(255,253,241,.97),rgba(241,215,155,.96));box-shadow:0 10px 30px rgba(82,46,27,.22),inset 0 1px 0 #fff;transform:translateY(8px) scale(.97);text-align:left}
-.ivdisc.on{transform:none}.ivdisc.is-leaving{transform:translateY(6px) scale(.96)}
-.ivdisc-aura{inset:-30%;background:radial-gradient(circle at 22% 50%,rgba(255,221,139,.35),transparent 58%);animation:none}
-.ivdisc-seal{width:60px;height:60px;filter:drop-shadow(0 5px 8px rgba(75,42,12,.3))}
-.ivdisc-coin{animation:ivdiscTurn 16s linear infinite;transform-origin:50% 50%}
+.ivdisc{pointer-events:auto;flex-direction:row;align-items:center;gap:13px;width:100%;max-width:100%;margin:0;padding:12px 17px 12px 12px;border:1px solid rgba(151,101,28,.38);border-radius:24px;overflow:hidden;background:
+radial-gradient(100% 180% at 4% 0,rgba(255,255,255,.96),rgba(255,255,255,0) 48%),
+linear-gradient(115deg,#FFF8DF 0%,#F9DF9D 46%,#EDBD63 100%);box-shadow:0 14px 32px -20px rgba(105,62,15,.55),inset 0 1px 0 #FFFDF6,inset 0 -1px 0 rgba(142,88,15,.15);transform:translateY(-7px) scale(.985);text-align:left;color:#522E18}
+.ivdisc.on{transform:none}.ivdisc.is-leaving{transform:translateY(-6px) scale(.98)}
+.ivdisc::after{content:"";position:absolute;inset:-60% -30%;pointer-events:none;background:linear-gradient(106deg,transparent 42%,rgba(255,255,255,.52) 49%,transparent 57%);transform:translateX(-42%);animation:ivdiscSheen103 5.8s ease-in-out infinite}
+@keyframes ivdiscSheen103{0%,55%{transform:translateX(-42%)}88%,100%{transform:translateX(42%)}}
+.ivdisc-aura{inset:-40%;background:radial-gradient(circle at 14% 50%,rgba(255,255,255,.65),transparent 40%);animation:none}
+.ivdisc-seal{width:72px;height:72px;filter:drop-shadow(0 6px 9px rgba(75,42,12,.28));z-index:1}
+.ivdisc-coin{animation:ivdiscTurn 20s linear infinite;transform-origin:50% 50%}
 @keyframes ivdiscTurn{to{transform:rotate(360deg)}}
-.ivdisc-glow{display:none}.ivdisc-k{font-size:8px;letter-spacing:.2em;gap:4px;transform:translateX(.1em)}.ivdisc-k i{width:4px;height:4px}
-.ivdisc-tx{padding-right:2px}.ivdisc-tx b{font-size:13px;color:#5B2635;text-shadow:none;white-space:nowrap}.ivdisc-tx s{margin-top:3px;font-size:9.5px;font-style:normal;color:#7B5A40;white-space:nowrap}
-@media(max-width:370px){.ivdisc-tx s{max-width:142px;overflow:hidden;text-overflow:ellipsis}.ivdisc-seal{width:54px;height:54px}}
-@media(prefers-reduced-motion:reduce){.ivdisc-coin{animation:none!important}.ivdisc{transition:none}}
+.ivdisc-glow{display:none}
+.ivdisc-k{font-size:8.5px;letter-spacing:.2em;gap:4px;transform:translateX(.1em)}
+.ivdisc-k i{width:4px;height:4px}
+.ivdisc-tx{padding-right:2px;flex:1 1 auto;min-width:0;z-index:1}
+.ivdisc-tx b{font-size:17px;color:#572E19;text-shadow:0 1px 0 rgba(255,255,255,.6);white-space:normal}
+.ivdisc-tx s{margin-top:4px;font-size:11px;line-height:1.35;font-style:normal;color:#76502D;white-space:normal}
+.ivdisc-go{position:relative;z-index:1;display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:rgba(255,253,244,.68);box-shadow:inset 0 0 0 1px rgba(132,80,20,.18);font:20px/1 Georgia,serif;color:#754217}
+#iv-live-ribbon[hidden]{display:none!important}
+#iv-live-ribbon{position:fixed;left:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:39;display:block;width:100%;height:30px;margin:0;padding:0;border:0;border-top:1px solid rgba(255,255,255,.7);border-bottom:1px solid rgba(110,46,83,.2);border-radius:0;overflow:hidden;cursor:pointer;color:#FFFDF8;background:linear-gradient(100deg,#FF8A68,#F45E9B 24%,#A678E8 50%,#48C9C5 76%,#FF9466);background-size:280% 100%;box-shadow:0 -5px 20px -14px rgba(76,35,68,.65),inset 0 1px 0 rgba(255,255,255,.3);animation:ivLiveColour103 12s linear infinite;-webkit-tap-highlight-color:transparent}
+@keyframes ivLiveColour103{to{background-position:280% 0}}
+.iv-livescroll-clip{display:block;width:100%;height:100%;overflow:hidden}
+.iv-livescroll-track{display:flex;align-items:center;width:max-content;height:100%;will-change:transform;animation:ivLiveScroll103 17s linear infinite}
+.iv-livescroll-group{display:flex;flex:none;align-items:center;height:100%}
+.iv-livescroll-group>span{display:inline-flex;align-items:center;gap:10px;flex:none;padding:0 24px;white-space:nowrap;font:800 10px/1 Georgia,serif;letter-spacing:.17em;text-shadow:0 1px 2px rgba(74,28,64,.4)}
+.iv-livescroll-group i{width:6px;height:6px;border-radius:50%;background:#FFF8D8;box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 10px rgba(255,255,255,.75);animation:ivLiveDot103 1.3s ease-in-out infinite}
+.iv-livescroll-group b{font-size:10px;color:#FFF5C7}
+@keyframes ivLiveScroll103{to{transform:translate3d(-50%,0,0)}}
+@keyframes ivLiveDot103{50%{opacity:.5;transform:scale(.72)}}
+#iv-live-ribbon:active{filter:saturate(1.08) brightness(1.04)}
+.lv-plan-gate{padding:4px 2px 20px;text-align:center}
+.lv-plan-gate-disc{display:grid;place-items:center;width:64px;height:64px;margin:4px auto 16px;border-radius:50%;background:linear-gradient(145deg,#FFF9E8,#EDBC62);box-shadow:0 12px 26px -16px rgba(111,62,13,.6),inset 0 1px 0 #FFF;font:700 25px/1 Georgia,serif;color:#7B3D2D}
+.lv-plan-gate h3{margin:0 0 10px;font:600 23px/1.2 Georgia,serif;color:#4D2A1B}
+.lv-plan-gate p{margin:0 auto 18px;max-width:420px;font:14px/1.65 Georgia,serif;color:#77573D}
+.lv-plan-gate .lv-plan-eligible{padding:13px 15px;border:1px solid rgba(169,117,47,.24);border-radius:16px;background:#FFF7E6;color:#68401F}
+.lv-plan-gate .dk-btn{width:100%;margin-top:10px;min-height:48px}
+.lv-plan-gate .lv-plan-later{border:0;background:transparent;box-shadow:none;color:#77573D;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:370px){
+.ivdisc{gap:10px;padding-right:12px;border-radius:21px}.ivdisc-seal{width:62px;height:62px}
+.ivdisc-tx b{font-size:15px}.ivdisc-tx s{font-size:10px}.ivdisc-go{flex-basis:30px;width:30px;height:30px}
+.iv-livescroll-group>span{padding:0 18px;font-size:9px}
+}
+@media(min-width:1100px){#iv-live-ribbon{bottom:52px}}
+@media(prefers-reduced-motion:reduce){
+.ivdisc,.ivdisc-coin,.ivdisc::after,#iv-live-ribbon,.iv-livescroll-track,.iv-livescroll-group i{animation:none!important}
+.ivdisc{transition:none}.iv-livescroll-track{transform:none!important;will-change:auto}
+}
+.lv-plan-gate [hidden]{display:none!important}
 </style>
 <script id="iv-early-js">/* her one word, or the bench door: the old opening never shows */(function(){try{if(window.IVORY_FILMS_ON===false||window.IVORY_OPENING_ON===false)return;if(/[?&](flat|nofilm)=1/.test(location.search))return;document.documentElement.className+=" iv-curtain";setTimeout(function(){if(!document.getElementById("iv-open")){document.documentElement.classList.remove("iv-curtain");}},2600);}catch(e){}})();</script><link id="iv-content98-css" rel="stylesheet" href="content.css">
 </head>
@@ -20697,8 +20734,8 @@ window.IVCALL = (function () {
     scr.innerHTML = roomMarkup(kind);
     var clockEl = scr.querySelector('#ivr-clock-text');
     var R = { id: callId, kind: kind, client: null, mic: null, cam: null, prior: 0,
-              from: null, tick: null, over: false, left: false, selfLarge: false,
-              remoteVideo: null, swapBusy: false, vTrack: null, appearance: null, appearanceLoad: null,
+              from: null, tick: null, over: false, left: false, endBusy: false, selfLarge: false,
+              remoteVideo: null, remoteName: '', swapBusy: false, vTrack: null, appearance: null, appearanceLoad: null,
               admin: !!(window.ivIsAdmin && window.ivIsAdmin()) };
     S.room = R;
 
@@ -20717,11 +20754,22 @@ window.IVCALL = (function () {
     }
 
     /* the stamp the database keeps, so both screens agree to the second */
-    IV.get('/rest/v1/call_requests?select=id,kind,minutes,status,started_at,requested_for,window_end&id=eq.' + callId)
+    IV.get('/rest/v1/call_requests?select=id,kind,minutes,status,member_id,started_at,requested_for,window_end&id=eq.' + callId)
       .then(function (rows) {
         var r = (rows && rows[0]) || {};
         if (r.started_at) R.from = new Date(r.started_at);
         R.minutes = num(r.minutes, 30);
+        /* On her phone the remote person is the member, never a second Ivory.
+           Hydrate the canonical profile name without delaying admission. */
+        if (R.admin && r.member_id) {
+          IV.get('/rest/v1/profiles?select=id,display_name&id=eq.' + encodeURIComponent(r.member_id))
+            .then(function (people) {
+              var person = (people && people[0]) || {};
+              if (S.room !== R) return;
+              R.remoteName = String(person.display_name || '').trim();
+              paintRemoteName();
+            }).catch(function () {});
+        }
         return IV.call('/rest/v1/rpc/call_enter', { call_id_in: callId });
       })
       .then(function (secs) {
@@ -20744,10 +20792,10 @@ window.IVCALL = (function () {
             voiceTogether();
             elseFill('');
             var veil = scr.querySelector('.ivr-veil'); if (veil) veil.classList.add('off');
-            var nm = scr.querySelector('#ivr-remote-name'); if (nm) nm.textContent = 'Ivory';
+            paintRemoteName();
           });
         });
-        c.on('user-left', function () { elseFill('Ivory has stepped out of the room. The seconds stop with her — nothing is lost.'); });
+        c.on('user-left', function () { elseFill(remoteLabel() + ' has stepped away. The session is still open — come back when they do.'); });
         return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null).then(function () {
           var tracks = [AgoraRTC.createMicrophoneAudioTrack()];
           if (kind === 'video') tracks.push(AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' }));
@@ -20786,11 +20834,15 @@ window.IVCALL = (function () {
 
     /* TOGETHER, HERE — the app's words for two people sharing a room, and the
        two medallions that carry them without a single pixel of video. */
+    function remoteLabel() { return R.admin ? (R.remoteName || 'The member') : 'Ivory'; }
+    function paintRemoteName() {
+      var nm = scr.querySelector('#ivr-remote-name'); if (nm) nm.textContent = remoteLabel();
+      var wait = scr.querySelector('.ivr-wait-b'); if (wait) wait.textContent = 'Waiting for ' + remoteLabel();
+    }
     function voiceTogether() {
       var v = scr.querySelector('#ivr-voice'); if (!v || v.classList.contains('together')) return;
       v.classList.add('together');
-      var nm = scr.querySelector('#ivr-remote-name');
-      if (nm) nm.textContent = 'Ivory';
+      paintRemoteName();
       var sm = scr.querySelector('#ivr-voice-note');
       if (sm) sm.textContent = 'Together, here.';
     }
@@ -20798,7 +20850,7 @@ window.IVCALL = (function () {
     function elseFill(msg) {
       var veil = scr.querySelector('.ivr-veil'); if (!veil) return;
       veil.classList.remove('off');
-      var p = veil.querySelector('p'); if (p) p.textContent = msg || 'Waiting for Ivory…';
+      var p = veil.querySelector('p'); if (p) p.textContent = msg || ('Waiting for ' + remoteLabel() + '…');
     }
     function showSelf() {
       var box = scr.querySelector('#ivr-self'), track = R.vTrack || R.cam;
@@ -20843,30 +20895,25 @@ window.IVCALL = (function () {
     /* controls */
     scr.querySelector('#ivr-leave').addEventListener('click', function () { leaveRoom(false); });
 
-    /* END is final, so it is armed rather than confirmed: the first tap turns
-       the key into its own question, the second closes the room. No browser
-       dialog ever appears — the house does not speak in those. */
+    /* END is a house decision, not an ambiguous second tap on the dock. The
+       first key opens a way back; only the explicit permanent key may ask the
+       server to finish the session. leaveRoom keeps the camera alive on error. */
     var endB = scr.querySelector('#ivr-end');
-    if (endB) {
-      var armT = null;
-      endB.addEventListener('click', function () {
-        if (endB.dataset.armed !== '1') {
-          endB.dataset.armed = '1';
-          var lbl = endB.parentNode.querySelector('.ivr-lbl');
-          if (lbl) lbl.textContent = 'End it?';
-          endB.classList.add('armed');
-          armT = setTimeout(function () {
-            endB.dataset.armed = '0';
-            endB.classList.remove('armed');
-            if (lbl) lbl.textContent = 'End';
-          }, 4000);
-          return;
-        }
-        clearTimeout(armT);
-        endB.dataset.armed = '0';
-        leaveRoom(true);
+    if (endB) endB.addEventListener('click', function () {
+      if (R.endBusy) return;
+      var box = scr.querySelector('#ivr-endgate'); if (!box) return;
+      box.innerHTML = '<div class="ivr-mts-card"><div class="ivr-mts-grab"></div>' +
+        '<p class="ivr-mts-kick">The session is still open</p>' +
+        '<p class="ivr-mts-lede">Return to the conversation, or end this session permanently for both of you. Stepping away remains available on the Leave key.</p>' +
+        '<p class="ivr-mts-err" id="ivr-end-err"></p>' +
+        '<button class="ivr-mts-send ivr-end-final" id="ivr-end-final" type="button">END THIS SESSION PERMANENTLY</button>' +
+        '<button class="ivr-mts-shut" id="ivr-end-return" type="button">RETURN TO THE SESSION</button></div>';
+      box.classList.add('on');
+      scr.querySelector('#ivr-end-return').addEventListener('click', function () {
+        if (!R.endBusy) { box.classList.remove('on'); box.innerHTML = ''; }
       });
-    }
+      scr.querySelector('#ivr-end-final').addEventListener('click', function () { leaveRoom(true); });
+    });
 
     /* THE LOUDSPEAKER AND THE EAR — an audio session is held to the ear or
        across a room, and the app lets them choose. The engine takes the route
@@ -20982,9 +21029,11 @@ window.IVCALL = (function () {
     function toggleSwap() {
       var hint = scr.querySelector('#ivr-hint');
       if (hint) { clearTimeout(hintT); hint.classList.add('off'); }
-      /* it is a view, not a permission: whichever phone is holding it may put
-         the other person in the room and itself in the window, and back again */
-      if (!R.cam || !R.remoteVideo || R.swapBusy || !swapBox) return;
+      /* It is a view, not a permission. Beauty may make the published track
+         different from the raw camera, so either track is sufficient. */
+      if (R.swapBusy || !swapBox) return;
+      if (!(R.vTrack || R.cam)) { toast('Your camera is still opening. Try the swap again in a moment.', true); return; }
+      if (!R.remoteVideo) { toast('The other video is not here yet. Nothing has been switched.', true); return; }
       R.selfLarge = !R.selfLarge;
       R.swapBusy = true;
       swapBox.classList.toggle('swap', R.selfLarge);
@@ -21009,11 +21058,20 @@ window.IVCALL = (function () {
        ═══════════════════════════════════════════════════════════════════ */
     var MT = { row: null, shownFor: '', timer: null, poll: null };
 
+    function consumeCurrentOffer() {
+      var when = MT.row && MT.row.extension_offered_at; if (!when) return;
+      try { sessionStorage.setItem('ivory.call.offer.consumed.' + callId, String(when)); } catch (e) {}
+    }
+    function offerConsumed(when) {
+      try { return sessionStorage.getItem('ivory.call.offer.consumed.' + callId) === String(when); }
+      catch (e) { return false; }
+    }
     function readCall() {
       return IV.get('/rest/v1/call_requests?select=id,kind,minutes,price_inr,status,' +
                     'extension_price,extension_minutes,extension_offered_at,extension_paid' +
                     '&id=eq.' + callId).then(function (rows) {
         MT.row = (rows && rows[0]) || null;
+        if (R.left) consumeCurrentOffer();
         return MT.row;
       }).catch(function () { return null; });
     }
@@ -21029,9 +21087,17 @@ window.IVCALL = (function () {
       var r = MT.row || {};
       var price = Number(r.extension_price || 0);
       var when = String(r.extension_offered_at || '');
-      if (!when || r.extension_paid) return null;
+      var status = String(r.status || '').toLowerCase();
+      if (!when || r.extension_paid || R.left || offerConsumed(when) || R.over && status === 'ended') return null;
+      if (status === 'ended' || status === 'finished' || status === 'cancelled' || status === 'declined') return null;
       if (price < 0) return null;
-      return { price: price, minutes: Number(r.extension_minutes || 30), when: when };
+      var stamp = Date.parse(when); if (!isFinite(stamp)) return null;
+      /* Native CallOffer.isLive: every row write used to replay the old card.
+         Only this fresh stamp may raise it; entering/leaving does not renew it. */
+      var age = Math.trunc((Date.now() - stamp) / 1000);
+      if (age < -120 || age >= 30) return null;
+      return { price: price, minutes: Number(r.extension_minutes || 30), when: when,
+               left: Math.max(1, 30 - Math.max(0, age)) };
     }
 
     /* THE MEMBER'S CARD — it holds thirty seconds, then bows out. Nothing is
@@ -21039,8 +21105,8 @@ window.IVCALL = (function () {
     function showOffer(force) {
       var o = offerLive();
       var box = scr.querySelector('#ivr-offer');
-      if (!box) return;
-      if (!o || R.admin) { box.classList.remove('on'); lane(false); return; }
+      if (!box || S.room !== R || R.left) return;
+      if (!o || R.admin) { clearInterval(MT.timer); MT.timer = null; box.classList.remove('on'); box.innerHTML = ''; lane(false); return; }
       if (!force && MT.shownFor === o.when) return;
       MT.shownFor = o.when;
       var free = o.price <= 0;
@@ -21063,7 +21129,8 @@ window.IVCALL = (function () {
       box.classList.add('on');
       lane(true);            /* an offer owns the bottom; the ribbons ride above it */
 
-      var left = 30;
+      var left = o.left;
+      var initialLeft = scr.querySelector('#ivr-offer-left'); if (initialLeft) initialLeft.textContent = left + 's';
       clearInterval(MT.timer);
       MT.timer = setInterval(function () {
         left -= 1;
@@ -21078,6 +21145,7 @@ window.IVCALL = (function () {
       if (yes) yes.addEventListener('click', function () {
         clearInterval(MT.timer);
         if (free) { box.classList.remove('on'); lane(false); toast('It is added. Stay as long as you like.'); return; }
+        box.classList.remove('on'); lane(false);
         if (!window.IVPAY) { toast('The pay door did not load. Try once more.', true); return; }
         window.IVPAY.open({
           eyebrow: 'A little more time?',
@@ -21178,11 +21246,19 @@ window.IVCALL = (function () {
     MT.poll = setInterval(function () {
       readCall().then(function () { showOffer(false); });
     }, 5000);
+    R.cleanup = function () {
+      consumeCurrentOffer();
+      clearInterval(MT.timer); clearInterval(MT.poll); clearTimeout(hintT);
+      MT.timer = null; MT.poll = null;
+      var offer = scr.querySelector('#ivr-offer'); if (offer) { offer.classList.remove('on'); offer.innerHTML = ''; }
+      lane(false);
+    };
 
   }
 
 
   function roomMarkup(kind) {
+    var remote = isOwner() ? 'The member' : 'Ivory';
     return '<div class="ivr-top">' +
         '<div class="ivr-who"><b>The session</b><s>' + (kind === 'video' ? 'Face to face · together, here' : 'Voice only · together, here') + '</s></div>' +
         '<div class="ivr-clock"><span class="dot"></span><span id="ivr-clock-text">0:00</span></div>' +
@@ -21201,8 +21277,8 @@ window.IVCALL = (function () {
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>' +
               '</button>' +
               '<div class="ivr-veil"><div class="ivr-wait"><span class="ivr-wait-coin">I</span>' +
-              '<p class="ivr-wait-b">Waiting for Ivory</p>' +
-              '<p class="ivr-wait-s">She will appear here. Nothing is recorded, and nothing is kept after you leave.</p></div></div></div>'
+              '<p class="ivr-wait-b">Waiting for ' + remote + '</p>' +
+              '<p class="ivr-wait-s">' + remote + ' will appear here. Nothing is recorded, and nothing is kept after you leave.</p></div></div></div>'
           : '<div class="ivr-voice" id="ivr-voice">' +
             '<div class="ivr-ring"><i></i><i></i><i></i>' +
               '<div class="ivr-pair">' +
@@ -21210,7 +21286,7 @@ window.IVCALL = (function () {
                 '<div class="ivr-coin second" id="ivr-coin-you">' + memberInitial() + '</div>' +
               '</div>' +
             '</div>' +
-            '<p class="ivr-nm" id="ivr-remote-name">Ivory</p>' +
+            '<p class="ivr-nm" id="ivr-remote-name">' + remote + '</p>' +
             '<p class="ivr-sm" id="ivr-voice-note">One moment — the room is opening.</p>' +
             '<div class="ivr-veil ivr-veil-flow" id="ivr-flow"><p>Waiting for Ivory…</p></div></div>') +
       '</div>' +
@@ -21230,6 +21306,7 @@ window.IVCALL = (function () {
       '</div>' +
       '<div class="ivr-offer" id="ivr-offer" role="dialog" aria-label="More time with Ivory"></div>' +
       '<div class="ivr-mts" id="ivr-mts" role="dialog" aria-label="Offer more time"></div>' +
+      '<div class="ivr-mts ivr-endgate" id="ivr-endgate" role="dialog" aria-modal="true" aria-label="Return or end the session"></div>' +
       '<div class="ivr-bye" id="ivr-bye"><div><div class="face"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="24" cy="26" r="2.6" fill="currentColor" stroke="none"/><circle cx="40" cy="26" r="2.6" fill="currentColor" stroke="none"/><path d="M22 38c3.2 4.2 6.8 6.2 10 6.2S38.8 42.2 42 38"/></svg></div>' +
       '<h2>Thank you for this.</h2><p>The minutes you used are taken from what was yours, and the rest waits for you.</p></div></div>';
   }
@@ -21246,32 +21323,57 @@ window.IVCALL = (function () {
   }
 
   function leaveRoom(ending) {
-    var R = S.room; if (!R) return; R.left = true;
-    if (R.appearance) { try { R.appearance.destroy(false); } catch (e) {} R.appearance = null; }
+    var R = S.room; if (!R || R.left || R.endBusy) return Promise.resolve(false);
     var scr = $('iv-call-screen');
     var seconds = 0;
     if (R.from) seconds = Math.max(0, Math.floor((Date.now() - R.from.getTime()) / 1000)) + R.prior;
-    if (R.tick) { clearInterval(R.tick); R.tick = null; }
-    if (R.client) {
-      try { R.mic && R.mic.close(); R.cam && R.cam.close(); } catch (e) {}
-      try { R.client.unpublish().catch(function () {}).then(function () { return R.client.leave(); }).catch(function () {}); } catch (e) {}
-    }
-    /* leaving is not ending: the seconds are banked, the session stays open.
-       The meters on the profile are read *after* the ledger has answered —
-       never beside it, or they paint the minutes as they were before. */
-    var leave = IV.call('/rest/v1/rpc/call_exit', { call_id_in: R.id, seconds_in: seconds }).catch(function () {});
-    var finish = ending ? IV.call('/rest/v1/rpc/call_finish', { call_id_in: R.id }).catch(function () {}) : null;
-    (finish || leave).then(function () {
+
+    function shutdown() {
+      R.left = true; R.endBusy = false;
+      if (R.cleanup) { try { R.cleanup(); } catch (e) {} R.cleanup = null; }
+      if (R.appearance) { try { R.appearance.destroy(false); } catch (e) {} R.appearance = null; }
+      if (R.tick) { clearInterval(R.tick); R.tick = null; }
+      if (R.client) {
+        try { R.mic && R.mic.close(); R.cam && R.cam.close(); } catch (e) {}
+        try { R.client.unpublish().catch(function () {}).then(function () { return R.client.leave(); }).catch(function () {}); } catch (e) {}
+      }
       if (window.ivPaintProfile) window.ivPaintProfile();
-    });
-    var bye = scr.querySelector('#ivr-bye');
-    if (bye && ending) {
-      bye.classList.add('on');
-      setTimeout(function () { closeRoom(); }, 10000);   /* the farewell holds ten seconds */
-    } else {
-      closeRoom();
+      var bye = scr && scr.querySelector('#ivr-bye');
+      if (bye && ending) {
+        bye.classList.add('on');
+        setTimeout(function () { if (S.room === R) closeRoom(); }, 10000);
+      } else closeRoom();
+      toast(ending ? 'The session is closed.' : 'You stepped out. Your minutes are banked — the session is still open.');
+      return true;
     }
-    toast(ending ? 'The session is closed.' : 'You stepped out. Your minutes are banked — the session is still open.');
+
+    /* Leaving is not ending: preserve the immediate, free step-out and its
+       best-effort seconds bookkeeping. Permanent End is different: no track,
+       screen or success message is closed until call_finish has succeeded. */
+    var leave = IV.call('/rest/v1/rpc/call_exit', { call_id_in: R.id, seconds_in: seconds }).catch(function () {});
+    if (!ending) {
+      leave.then(function () { if (window.ivPaintProfile) window.ivPaintProfile(); });
+      return Promise.resolve(shutdown());
+    }
+    R.endBusy = true;
+    var finalKey = scr && scr.querySelector('#ivr-end-final');
+    var returnKey = scr && scr.querySelector('#ivr-end-return');
+    var err = scr && scr.querySelector('#ivr-end-err');
+    if (finalKey) { finalKey.disabled = true; finalKey.textContent = 'ENDING THE SESSION…'; }
+    if (returnKey) returnKey.disabled = true;
+    if (err) { err.textContent = ''; err.classList.remove('on'); }
+    return leave.then(function () {
+      return IV.call('/rest/v1/rpc/call_finish', { call_id_in: R.id });
+    }).then(shutdown).catch(function (x) {
+      R.endBusy = false;
+      if (finalKey) { finalKey.disabled = false; finalKey.textContent = 'TRY PERMANENT END AGAIN'; }
+      if (returnKey) returnKey.disabled = false;
+      if (err) {
+        err.textContent = ((x && x.message) ? x.message + ' ' : '') + 'The session is still open. Your camera and conversation were not closed.';
+        err.classList.add('on');
+      }
+      return false;
+    });
   }
 
   function closeRoom() {
@@ -30153,7 +30255,7 @@ box.id = 'door-act';
 box.className = 'dk-card';
 box.style.marginTop = '14px';
 box.innerHTML =
-'<p class="dk-label">' + esc(cfg.label) + '</p>' +
+'<label class="dk-label" for="door-who">' + esc(cfg.label) + '</label>' +
 '<input class="dk-input" id="door-who" placeholder="her name, or her email" autocomplete="off">' +
 '<div id="door-people" class="fb-people"></div>' +
 (cfg.kindPicker ? '<label class="dk-label" for="door-kind">Audio or video</label>' +
@@ -30367,357 +30469,349 @@ t = setTimeout(function () { try { kick(); } catch (e) {} }, 120);
 </script>
 <script id="iv-shouts-js">
 (function () {
-  var KEY = 'iv.shouts.v1';
-  var RANK = { member: 4, tier: 3, forever: 2, all: 1 };
-
-  function now() { return Date.now(); }
-  function day(t) { var d = new Date(t); return isNaN(d) ? null : d; }
-  function read() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) {
-        var v = JSON.parse(raw);
-        if (v && Array.isArray(v.shouts)) return v;
-      }
-    } catch (e) {}
-    return { shouts: [] };
-  }
-  function write(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
-  function id() { return 'sh' + now().toString(36) + Math.floor(Math.random() * 900 + 100); }
-
-  function all() { return read().shouts.slice(); }
-
-  function add(s) {
-    var v = read();
-    var rec = {
-      id: id(),
-      word: String(s.word || '').trim().slice(0, 40),
-      tint: s.tint || 'gold',
-      frame: s.frame || null,
-      target: s.target || 'all',
-      ref: s.ref == null ? null : String(s.ref),
-      exclude: Array.isArray(s.exclude) ? s.exclude.slice(0, 24) : [],
-      until: s.until || null,
-      note: s.note || '',
-      active: true,
-      at: new Date().toISOString()
-    };
-    v.shouts.unshift(rec);
-    write(v);
-    return rec;
-  }
-  function patch(sid, p) {
-    var v = read();
-    v.shouts.forEach(function (s) { if (s.id === sid) for (var k in p) s[k] = p[k]; });
-    write(v);
-  }
-  function retire(sid) { patch(sid, { active: false, retired_at: new Date().toISOString() }); }
-  function remove(sid) { var v = read(); v.shouts = v.shouts.filter(function (s) { return s.id !== sid; }); write(v); }
-
-  function excluded(s, m) {
-    if (!s.exclude || !s.exclude.length) return false;
-    for (var i = 0; i < s.exclude.length; i++) {
-      var x = String(s.exclude[i]);
-      if (x === 'm:' + m.id) return true;
-      if (m.tier > 0 && x === 'tier:' + m.tier) return true;
-      if (m.tier <= 0 && x === 'forever') return true;
-    }
-    return false;
-  }
-  function live(s) {
-    if (!s.active) return false;
-    if (s.until) {
-      var d = day(s.until);
-      if (d && d.getTime() + 86399999 < now()) return false;
-    }
-    return true;
-  }
-  function reaches(s, m) {
-    if (!live(s) || excluded(s, m)) return false;
-    if (s.target === 'all') return true;
-    if (s.target === 'forever') return m.tier <= 0;
-    if (s.target === 'tier') return m.tier > 0 && String(m.tier) === String(s.ref);
-    if (s.target === 'member') return String(m.id) === String(s.ref);
-    return false;
-  }
-
-  function resolve(member) {
-    var m = {
-      id: (member && member.id) || '',
-      name: (member && (member.display_name || member.name)) || 'her',
-      tier: Number(member && (member.tier_level || member.tier || 0)) || 0
-    };
-    var hits = all().filter(function (s) { return reaches(s, m); });
-    hits.sort(function (a, b) {
-      var d = (RANK[b.target] || 0) - (RANK[a.target] || 0);
-      if (d) return d;
-      return String(b.at || '').localeCompare(String(a.at || ''));
-    });
-    if (!hits.length) return null;
-    var s = hits[0];
-    return { word: s.word, tint: s.tint, frame: s.frame, shout: s, why: sentence(s) };
-  }
-
-  function planName(s, plans) {
-    var p = (plans || []).filter(function (x) { return String(x.level) === String(s.ref); })[0];
-    return p ? p.name : 'plan ' + s.ref;
-  }
-  function nameOf(ref, people) {
-    var p = (people || []).filter(function (x) { return String(x.id) === String(ref); })[0];
-    return p ? (p.display_name || p.email) : 'one member';
-  }
-  function sentence(s, plans, people) {
-    var who;
-    if (s.target === 'all') who = 'Everyone';
-    else if (s.target === 'forever') who = 'Every forever member';
-    else if (s.target === 'tier') who = 'Everyone on ' + planName(s, plans);
-    else who = nameOf(s.ref, people);
-    var ex = (s.exclude || []).map(function (x) {
-      if (x === 'forever') return 'the forever members';
-      if (x.indexOf('tier:') === 0) return planName({ ref: x.slice(5) }, plans);
-      return nameOf(x.slice(2), people);
-    });
-    if (ex.length) who += ', but not ' + ex.join(' or ');
-    var tail = '';
-    if (s.until) {
-      var d = day(s.until);
-      if (d) tail = ' · until ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-    }
-    return who + ' wears “' + (s.word || 'no words') + '”' + tail;
-  }
-
-  function render(host, api) {
-    var K = api.esc, R = api.portrait, F = api.faces, T = api.tints, PL = api.plans || [], PE = api.people || [];
-    var S = api.tabs || {};
-
-    host.innerHTML =
-      '<p class="fb-hint">A shout is one badge said out loud. Choose who wears it — one woman, a plan, the ' +
-        'evergreen, or the whole house — and you may take any of them back out again. Two shouts can stand ' +
-        'at once: half the house in gold, half in burgundy.</p>' +
-      '<div class="fb-shout-hands" id="sh-hands">' + handHtml() + '</div>' +
-      '<div class="fb-shout-preview" id="sh-preview"></div>' +
-      '<div class="fb-shout-list" id="sh-list"></div>';
-
-    var pick = { target: 'all', ref: null, tint: 'gold', until: '', exclude: [], member: null, never: [] };
-
-    function handHtml() {
-      return '' +
-        '<label class="dk-label" for="sh-word">What the badge says</label>' +
-        '<input class="dk-input" id="sh-word" maxlength="40" placeholder="Tonight, for Asha · Birthday · Ten years held">' +
-        '<label class="dk-label">Who wears it</label>' +
-        '<div class="dk-chips" id="sh-target">' +
-          '<button class="dk-chip on" data-t="all" data-cue="shout/who/all">Everyone</button>' +
-          '<button class="dk-chip" data-t="forever" data-cue="shout/who/forever">The forever members</button>' +
-          '<button class="dk-chip" data-t="tier" data-cue="shout/who/tier">One plan</button>' +
-          '<button class="dk-chip" data-t="member" data-cue="shout/who/member">One member</button>' +
-        '</div>' +
-        '<div id="sh-planwrap" hidden><label class="dk-label" for="sh-plan">Which plan</label>' +
-          '<select class="dk-input" id="sh-plan">' + PL.map(function (p) {
-            return '<option value="' + p.level + '">' + K(p.name) + ' · level ' + p.level + '</option>';
-          }).join('') + (PL.length ? '' : '<option value="">no plans yet</option>') + '</select></div>' +
-        '<div id="sh-who-wrap" hidden><label class="dk-label" for="sh-who">Which member</label>' +
-          '<input class="dk-input" id="sh-who" placeholder="her name, or her email" autocomplete="off">' +
-          '<div id="sh-people" class="fb-people"></div></div>' +
-        '<label class="dk-label">The metal</label>' +
-        '<div class="dk-chips" id="sh-tint">' + T.map(function (t) {
-          return '<button class="dk-chip' + (t.id === 'gold' ? ' on' : '') + '" data-tint="' + t.id + '" data-cue="shout/metal/' + t.id + '">' + K(t.name) + '</button>';
-        }).join('') + '</div>' +
-        '<label class="dk-label">Never these</label>' +
-        '<div class="dk-chips" id="sh-exclude">' +
-          '<button class="dk-chip" data-x="forever" data-cue="shout/never/forever">The forever members</button>' +
-          PL.map(function (p) { return '<button class="dk-chip" data-x="tier:' + p.level + '" data-cue="shout/never/tier' + p.level + '">' + K(p.name) + '</button>'; }).join('') +
-        '</div>' +
-        '<div id="sh-never">' +
-          '<input class="dk-input" id="sh-never-who" placeholder="or take one woman out by name" autocomplete="off">' +
-          '<div id="sh-never-people" class="fb-people"></div>' +
-          '<div class="dk-chips" id="sh-never-chips"></div>' +
-        '</div>' +
-        '<label class="dk-label" for="sh-until">Until (leave empty for ever)</label>' +
-        '<input class="dk-input" id="sh-until" type="date">' +
-        '<div class="fb-savebar"><button class="dk-btn gold" id="sh-raise" data-cue="shout/raise">RAISE THE SHOUT</button>' +
-        '<span class="fb-hint">It reaches every screen the moment you raise it.</span></div>';
-    }
-
-    function paintPreview() {
-      var box = host.querySelector('#sh-preview');
-      if (!box) return;
-      var word = (host.querySelector('#sh-word') || {}).value || '';
-      var who = pick.target === 'member' && pick.member ? pick.member.display_name
-        : pick.target === 'forever' ? 'the evergreen'
-        : pick.target === 'tier' ? 'everyone on that plan'
-        : 'the whole house';
-      if (pick.exclude.length) who += ' · not ' + pick.exclude.length;
-      box.innerHTML = '<div class="fb-previewart">' + R(api.pickFrame(), pick.tint, word, 190, pick.member) + '</div>' +
-        '<div class="fb-previewline"><b>' + K(who) + '</b>' +
-        '<s>' + K(api.tintOf(pick.tint).name) + ' · a shout</s>' +
-        '<em>' + (word ? '“' + K(word) + '”' : 'no words yet') + '</em></div>';
-    }
-
-    var lastQ = null;
-    function search() {
-      var input = host.querySelector('#sh-who');
-      if (!input) return;
-      var q = input.value.trim();
-      clearTimeout(lastQ);
-      if (q.length < 2) { var pp = host.querySelector('#sh-people'); if (pp) pp.innerHTML = ''; return; }
-      lastQ = setTimeout(function () {
-        if (!api.search) return;
-        api.search(q).then(function (rows) {
-          var box = host.querySelector('#sh-people');
-          if (!box) return;
-          box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
-            return '<button class="fb-person" data-id="' + K(m.id) + '" data-name="' + K(m.display_name || m.email) +
-              '"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
-          }).join('') || '<p class="fb-hint">Nobody by that name.</p>';
-          Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
-            b.addEventListener('click', function () {
-              pick.member = { id: b.dataset.id, display_name: b.dataset.name };
-              pick.ref = b.dataset.id;
-              Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (x) { x.classList.toggle('on', x === b); });
-              paintPreview();
-            });
-          });
-        }).catch(function () {});
-      }, 240);
-    }
-
-    function paintNever() {
-      var box = host.querySelector('#sh-never-chips');
-      if (!box) return;
-      box.innerHTML = pick.never.map(function (n) {
-        return '<button class="dk-chip on" data-x="m:' + K(n.id) + '">' + K(n.name) + ' \u00d7</button>';
-      }).join('');
-    }
-
-    var lastN = null;
-    function searchNever() {
-      var input = host.querySelector('#sh-never-who');
-      if (!input) return;
-      var q = input.value.trim();
-      clearTimeout(lastN);
-      if (q.length < 2) { var pp = host.querySelector('#sh-never-people'); if (pp) pp.innerHTML = ''; return; }
-      lastN = setTimeout(function () {
-        if (!api.search) return;
-        api.search(q).then(function (rows) {
-          var box = host.querySelector('#sh-never-people');
-          if (!box) return;
-          box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
-            return '<button class="fb-person" data-nid="' + K(m.id) + '" data-nname="' + K(m.display_name || m.email) +
-              '"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
-          }).join('') || '<p class="fb-hint">Nobody by that name.</p>';
-          Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
-            b.addEventListener('click', function () {
-              var id = b.dataset.nid, name = b.dataset.nname;
-              pick.never.push({ id: id, name: name });
-              if (pick.exclude.indexOf('m:' + id) < 0) pick.exclude.push('m:' + id);
-              box.innerHTML = '';
-              input.value = '';
-              paintNever();
-              paintPreview();
-            });
-          });
-        }).catch(function () {});
-      }, 240);
-    }
-
-    host.addEventListener('click', function (e) {
-      var t = e.target.closest ? e.target.closest('[data-t],[data-tint],[data-x],#sh-raise,[data-retire],[data-live]') : null;
-      if (!t) return;
-      if (t.hasAttribute('data-t')) {
-        pick.target = t.dataset.t;
-        Array.prototype.forEach.call(host.querySelectorAll('#sh-target .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
-        hosts();
-      } else if (t.hasAttribute('data-tint')) {
-        pick.tint = t.dataset.tint;
-        Array.prototype.forEach.call(host.querySelectorAll('#sh-tint .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
-        paintPreview();
-      } else if (t.hasAttribute('data-x')) {
-        var x = t.dataset.x, i = pick.exclude.indexOf(x);
-        if (i < 0) pick.exclude.push(x); else pick.exclude.splice(i, 1);
-        t.classList.toggle('on', i < 0);
-        if (x.indexOf('m:') === 0) {
-          var mid = x.slice(2);
-          pick.never = pick.never.filter(function (n) { return n.id !== mid; });
-          paintNever();
-          paintPreview();
-        }
-      } else if (t.id === 'sh-raise') {
-        raise();
-      } else if (t.hasAttribute('data-retire')) {
-        retire(t.dataset.retire); draw();
-      } else if (t.hasAttribute('data-live')) {
-        patch(t.dataset.live, { active: t.dataset.on !== '1' });
-        draw();
-      }
-    });
-    host.addEventListener('input', function (e) {
-      if (e.target.id === 'sh-word') paintPreview();
-      if (e.target.id === 'sh-until') pick.until = e.target.value;
-      if (e.target.id === 'sh-who') search();
-      if (e.target.id === 'sh-never-who') searchNever();
-    });
-    host.addEventListener('change', function (e) {
-      if (e.target.id === 'sh-plan') pick.ref = e.target.value;
-    });
-
-    function hosts() {
-      var pw = host.querySelector('#sh-planwrap'), ww = host.querySelector('#sh-who-wrap');
-      if (pw) pw.hidden = pick.target !== 'tier';
-      if (ww) ww.hidden = pick.target !== 'member';
-      paintPreview();
-    }
-
-    function raise() {
-      var wordEl = host.querySelector('#sh-word');
-      var word = wordEl ? wordEl.value.trim() : '';
-      if (!word) { api.toast('A shout needs its words.', true); if (wordEl) wordEl.focus(); return; }
-      if (pick.target === 'tier' && !pick.ref) { api.toast('Choose the plan it belongs to.', true); return; }
-      if (pick.target === 'member' && !pick.ref) { api.toast('Choose the member it belongs to.', true); return; }
-      add({ word: word, tint: pick.tint, target: pick.target, ref: pick.ref, exclude: pick.exclude, until: pick.until || null });
-      if (wordEl) wordEl.value = '';
-      pick.exclude = [];
-      pick.never = [];
-      Array.prototype.forEach.call(host.querySelectorAll('#sh-exclude .dk-chip'), function (x) { x.classList.remove('on'); });
-      paintNever();
-      paintPreview();
-      draw();
-      api.toast('Raised. It is worn everywhere from this breath.');
-    }
-
-    function draw() {
-      var box = host.querySelector('#sh-list');
-      if (!box) return;
-      var list = all();
-      if (!list.length) {
-        box.innerHTML = '<p class="dk-empty">No shout has been raised yet. Every badge in the house wears whatever its own gift says.</p>';
-        return;
-      }
-      box.innerHTML = '<p class="fb-hint" style="margin-top:18px">Raised, newest first — a name beats a plan, a plan beats the evergreen, the evergreen beats the house.</p>' +
-        list.map(function (s) {
-          var dead = !live(s);
-          return '<div class="fb-shout' + (dead ? ' is-off' : '') + '" data-id="' + s.id + '">' +
-            '<span class="fb-shoutart">' + R(s.frame || api.pickFrame(), s.tint, s.word, 104) + '</span>' +
-            '<div class="fb-shoutbody"><b>' + K(s.word || 'no words') + '</b>' +
-              '<s>' + K(sentence(s, PL, PE)) + '</s>' +
-              '<i>' + (s.target === 'member' ? 'one woman' : s.target === 'tier' ? 'a plan' : s.target === 'forever' ? 'the evergreen' : 'the whole house') + '</i>' +
-              '<div class="fb-shoutacts">' +
-                '<button class="dk-chip' + (s.active ? ' on' : '') + '" data-cue="shout/live" data-live="' + s.id + '" data-on="' + (s.active ? '1' : '0') + '">' + (s.active ? 'On' : 'Off') + '</button>' +
-                '<button class="dk-chip" data-cue="shout/retire" data-retire="' + s.id + '">Retire</button>' +
-              '</div></div>' +
-          '</div>';
-        }).join('');
-    }
-
-    hosts();
-    paintPreview();
-    draw();
-  }
-
-  window.IVSHOUTS = {
-    KEY: KEY, all: all, add: add, patch: patch, retire: retire, remove: remove,
-    resolve: resolve, reaches: reaches, live: live, sentence: sentence, render: render,
-    read: read, write: write
-  };
+var KEY = 'iv.shouts.v1';
+var RANK = { member: 4, tier: 3, forever: 2, all: 1 };
+function now() { return Date.now(); }
+function day(t) { var d = new Date(t); return isNaN(d) ? null : d; }
+function read() {
+try {
+var raw = localStorage.getItem(KEY);
+if (raw) {
+var v = JSON.parse(raw);
+if (v && Array.isArray(v.shouts)) return v;
+}
+} catch (e) {}
+return { shouts: [] };
+}
+function write(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+function id() { return 'sh' + now().toString(36) + Math.floor(Math.random() * 900 + 100); }
+function all() { return read().shouts.slice(); }
+function add(s) {
+var v = read();
+var rec = {
+id: id(),
+word: String(s.word || '').trim().slice(0, 40),
+tint: s.tint || 'gold',
+frame: s.frame || null,
+target: s.target || 'all',
+ref: s.ref == null ? null : String(s.ref),
+exclude: Array.isArray(s.exclude) ? s.exclude.slice(0, 24) : [],
+until: s.until || null,
+note: s.note || '',
+active: true,
+at: new Date().toISOString()
+};
+v.shouts.unshift(rec);
+write(v);
+return rec;
+}
+function patch(sid, p) {
+var v = read();
+v.shouts.forEach(function (s) { if (s.id === sid) for (var k in p) s[k] = p[k]; });
+write(v);
+}
+function retire(sid) { patch(sid, { active: false, retired_at: new Date().toISOString() }); }
+function remove(sid) { var v = read(); v.shouts = v.shouts.filter(function (s) { return s.id !== sid; }); write(v); }
+function excluded(s, m) {
+if (!s.exclude || !s.exclude.length) return false;
+for (var i = 0; i < s.exclude.length; i++) {
+var x = String(s.exclude[i]);
+if (x === 'm:' + m.id) return true;
+if (m.tier > 0 && x === 'tier:' + m.tier) return true;
+if (m.tier <= 0 && x === 'forever') return true;
+}
+return false;
+}
+function live(s) {
+if (!s.active) return false;
+if (s.until) {
+var d = day(s.until);
+if (d && d.getTime() + 86399999 < now()) return false;
+}
+return true;
+}
+function reaches(s, m) {
+if (!live(s) || excluded(s, m)) return false;
+if (s.target === 'all') return true;
+if (s.target === 'forever') return m.tier <= 0;
+if (s.target === 'tier') return m.tier > 0 && String(m.tier) === String(s.ref);
+if (s.target === 'member') return String(m.id) === String(s.ref);
+return false;
+}
+function resolve(member) {
+var m = {
+id: (member && member.id) || '',
+name: (member && (member.display_name || member.name)) || 'her',
+tier: Number(member && (member.tier_level || member.tier || 0)) || 0
+};
+var hits = all().filter(function (s) { return reaches(s, m); });
+hits.sort(function (a, b) {
+var d = (RANK[b.target] || 0) - (RANK[a.target] || 0);
+if (d) return d;
+return String(b.at || '').localeCompare(String(a.at || ''));
+});
+if (!hits.length) return null;
+var s = hits[0];
+return { word: s.word, tint: s.tint, frame: s.frame, shout: s, why: sentence(s) };
+}
+function planName(s, plans) {
+var p = (plans || []).filter(function (x) { return String(x.level) === String(s.ref); })[0];
+return p ? p.name : 'plan ' + s.ref;
+}
+function nameOf(ref, people) {
+var p = (people || []).filter(function (x) { return String(x.id) === String(ref); })[0];
+return p ? (p.display_name || p.email) : 'one member';
+}
+function sentence(s, plans, people) {
+var who;
+if (s.target === 'all') who = 'Everyone';
+else if (s.target === 'forever') who = 'Every forever member';
+else if (s.target === 'tier') who = 'Everyone on ' + planName(s, plans);
+else who = nameOf(s.ref, people);
+var ex = (s.exclude || []).map(function (x) {
+if (x === 'forever') return 'the forever members';
+if (x.indexOf('tier:') === 0) return planName({ ref: x.slice(5) }, plans);
+return nameOf(x.slice(2), people);
+});
+if (ex.length) who += ', but not ' + ex.join(' or ');
+var tail = '';
+if (s.until) {
+var d = day(s.until);
+if (d) tail = ' · until ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+return who + ' wears “' + (s.word || 'no words') + '”' + tail;
+}
+function render(host, api) {
+var K = api.esc, R = api.portrait, F = api.faces, T = api.tints, PL = api.plans || [], PE = api.people || [];
+var S = api.tabs || {};
+host.innerHTML =
+'<p class="fb-hint">A shout is one badge said out loud. Choose who wears it — one woman, a plan, the ' +
+'evergreen, or the whole house — and you may take any of them back out again. Two shouts can stand ' +
+'at once: half the house in gold, half in burgundy.</p>' +
+'<div class="fb-shout-hands" id="sh-hands">' + handHtml() + '</div>' +
+'<div class="fb-shout-preview" id="sh-preview"></div>' +
+'<div class="fb-shout-list" id="sh-list"></div>';
+var pick = { target: 'all', ref: null, tint: 'gold', until: '', exclude: [], member: null, never: [] };
+function handHtml() {
+return '' +
+'<label class="dk-label" for="sh-word">What the badge says</label>' +
+'<input class="dk-input" id="sh-word" maxlength="40" placeholder="Tonight, for Asha · Birthday · Ten years held">' +
+'<label class="dk-label">Who wears it</label>' +
+'<div class="dk-chips" id="sh-target">' +
+'<button class="dk-chip on" data-t="all" data-cue="shout/who/all">Everyone</button>' +
+'<button class="dk-chip" data-t="forever" data-cue="shout/who/forever">The forever members</button>' +
+'<button class="dk-chip" data-t="tier" data-cue="shout/who/tier">One plan</button>' +
+'<button class="dk-chip" data-t="member" data-cue="shout/who/member">One member</button>' +
+'</div>' +
+'<div id="sh-planwrap" hidden><label class="dk-label" for="sh-plan">Which plan</label>' +
+'<select class="dk-input" id="sh-plan">' + PL.map(function (p) {
+return '<option value="' + p.level + '">' + K(p.name) + ' · level ' + p.level + '</option>';
+}).join('') + (PL.length ? '' : '<option value="">no plans yet</option>') + '</select></div>' +
+'<div id="sh-who-wrap" hidden><label class="dk-label" for="sh-who">Which member</label>' +
+'<input class="dk-input" id="sh-who" placeholder="her name, or her email" autocomplete="off">' +
+'<div id="sh-people" class="fb-people"></div></div>' +
+'<label class="dk-label">The metal</label>' +
+'<div class="dk-chips" id="sh-tint">' + T.map(function (t) {
+return '<button class="dk-chip' + (t.id === 'gold' ? ' on' : '') + '" data-tint="' + t.id + '" data-cue="shout/metal/' + t.id + '">' + K(t.name) + '</button>';
+}).join('') + '</div>' +
+'<label class="dk-label">Never these</label>' +
+'<div class="dk-chips" id="sh-exclude">' +
+'<button class="dk-chip" data-x="forever" data-cue="shout/never/forever">The forever members</button>' +
+PL.map(function (p) { return '<button class="dk-chip" data-x="tier:' + p.level + '" data-cue="shout/never/tier' + p.level + '">' + K(p.name) + '</button>'; }).join('') +
+'</div>' +
+'<div id="sh-never">' +
+'<input class="dk-input" id="sh-never-who" placeholder="or take one woman out by name" autocomplete="off">' +
+'<div id="sh-never-people" class="fb-people"></div>' +
+'<div class="dk-chips" id="sh-never-chips"></div>' +
+'</div>' +
+'<label class="dk-label" for="sh-until">Until (leave empty for ever)</label>' +
+'<input class="dk-input" id="sh-until" type="date">' +
+'<div class="fb-savebar"><button class="dk-btn gold" id="sh-raise" data-cue="shout/raise">RAISE THE SHOUT</button>' +
+'<span class="fb-hint">It reaches every screen the moment you raise it.</span></div>';
+}
+function paintPreview() {
+var box = host.querySelector('#sh-preview');
+if (!box) return;
+var word = (host.querySelector('#sh-word') || {}).value || '';
+var plan = pick.target === 'tier' ? PL.filter(function (p) { return String(p.level) === String(pick.ref); })[0] : null;
+var who = pick.target === 'member' ? (pick.member ? pick.member.display_name : 'choose one member')
+: pick.target === 'forever' ? 'the evergreen'
+: pick.target === 'tier' ? (plan ? 'everyone on ' + plan.name : 'choose a plan')
+: 'the whole house';
+if (pick.exclude.length) who += ' · not ' + pick.exclude.length;
+box.innerHTML = '<div class="fb-previewart">' + R(api.pickFrame(), pick.tint, word, 190, pick.member) + '</div>' +
+'<div class="fb-previewline"><b>' + K(who) + '</b>' +
+'<s>' + K(api.tintOf(pick.tint).name) + ' · a shout</s>' +
+'<em>' + (word ? '“' + K(word) + '”' : 'no words yet') + '</em></div>';
+}
+var lastQ = null, querySeq = 0, neverSeq = 0;
+function search() {
+var input = host.querySelector('#sh-who');
+if (!input) return;
+var q = input.value.trim();
+clearTimeout(lastQ);
+var seq = ++querySeq, pp = host.querySelector('#sh-people'); if (pp) pp.innerHTML = '';
+if (q.length < 2) return;
+lastQ = setTimeout(function () {
+if (!api.search || pick.target !== 'member') return;
+api.search(q).then(function (rows) {
+var box = host.querySelector('#sh-people'), current = host.querySelector('#sh-who');
+if (!box || seq !== querySeq || pick.target !== 'member' || !current || current.value.trim() !== q) return;
+box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
+return '<button class="fb-person" data-id="' + K(m.id) + '" data-name="' + K(m.display_name || m.email) +
+'"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
+}).join('') || '<p class="fb-hint">Nobody by that name.</p>';
+Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
+b.addEventListener('click', function () {
+pick.member = { id: b.dataset.id, display_name: b.dataset.name };
+pick.ref = b.dataset.id;
+querySeq++; input.value = b.dataset.name; box.innerHTML = '';
+paintPreview();
+});
+});
+}).catch(function () {});
+}, 240);
+}
+function paintNever() {
+var box = host.querySelector('#sh-never-chips');
+if (!box) return;
+box.innerHTML = pick.never.map(function (n) {
+return '<button class="dk-chip on" data-x="m:' + K(n.id) + '">' + K(n.name) + ' \u00d7</button>';
+}).join('');
+}
+var lastN = null;
+function searchNever() {
+var input = host.querySelector('#sh-never-who');
+if (!input) return;
+var q = input.value.trim();
+clearTimeout(lastN);
+var seq = ++neverSeq, pp = host.querySelector('#sh-never-people'); if (pp) pp.innerHTML = '';
+if (q.length < 2) return;
+lastN = setTimeout(function () {
+if (!api.search) return;
+api.search(q).then(function (rows) {
+var box = host.querySelector('#sh-never-people'), current = host.querySelector('#sh-never-who');
+if (!box || seq !== neverSeq || !current || current.value.trim() !== q) return;
+box.innerHTML = (rows || []).slice(0, 5).map(function (m) {
+return '<button class="fb-person" data-nid="' + K(m.id) + '" data-nname="' + K(m.display_name || m.email) +
+'"><b>' + K(m.display_name || 'A member') + '</b><s>' + K(m.email || '') + '</s></button>';
+}).join('') || '<p class="fb-hint">Nobody by that name.</p>';
+Array.prototype.forEach.call(box.querySelectorAll('.fb-person'), function (b) {
+b.addEventListener('click', function () {
+var id = b.dataset.nid, name = b.dataset.nname;
+pick.never.push({ id: id, name: name });
+if (pick.exclude.indexOf('m:' + id) < 0) pick.exclude.push('m:' + id);
+box.innerHTML = '';
+input.value = '';
+paintNever();
+paintPreview();
+});
+});
+}).catch(function () {});
+}, 240);
+}
+host.addEventListener('click', function (e) {
+var t = e.target.closest ? e.target.closest('[data-t],[data-tint],[data-x],#sh-raise,[data-retire],[data-live]') : null;
+if (!t) return;
+if (t.hasAttribute('data-t')) {
+if (pick.target !== t.dataset.t) { pick.ref = null; pick.member = null; querySeq++; }
+pick.target = t.dataset.t;
+Array.prototype.forEach.call(host.querySelectorAll('#sh-target .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
+hosts();
+} else if (t.hasAttribute('data-tint')) {
+pick.tint = t.dataset.tint;
+Array.prototype.forEach.call(host.querySelectorAll('#sh-tint .dk-chip'), function (x) { x.classList.toggle('on', x === t); });
+paintPreview();
+} else if (t.hasAttribute('data-x')) {
+var x = t.dataset.x, i = pick.exclude.indexOf(x);
+if (i < 0) pick.exclude.push(x); else pick.exclude.splice(i, 1);
+t.classList.toggle('on', i < 0);
+if (x.indexOf('m:') === 0) {
+var mid = x.slice(2);
+pick.never = pick.never.filter(function (n) { return n.id !== mid; });
+paintNever();
+paintPreview();
+}
+} else if (t.id === 'sh-raise') {
+raise();
+} else if (t.hasAttribute('data-retire')) {
+retire(t.dataset.retire); draw();
+} else if (t.hasAttribute('data-live')) {
+patch(t.dataset.live, { active: t.dataset.on !== '1' });
+draw();
+}
+});
+host.addEventListener('input', function (e) {
+if (e.target.id === 'sh-word') paintPreview();
+if (e.target.id === 'sh-until') pick.until = e.target.value;
+if (e.target.id === 'sh-who') search();
+if (e.target.id === 'sh-never-who') searchNever();
+});
+host.addEventListener('change', function (e) {
+if (e.target.id === 'sh-plan') pick.ref = e.target.value;
+});
+function hosts() {
+var pw = host.querySelector('#sh-planwrap'), ww = host.querySelector('#sh-who-wrap');
+if (pw) pw.hidden = pick.target !== 'tier';
+if (ww) ww.hidden = pick.target !== 'member';
+if (pick.target === 'tier') {
+var select = host.querySelector('#sh-plan');
+if (select && (!pick.ref || !select.querySelector('option[value="' + pick.ref + '"]'))) pick.ref = select.value || null;
+} else if (pick.target !== 'member') {
+clearTimeout(lastQ); querySeq++;
+var input = host.querySelector('#sh-who'), people = host.querySelector('#sh-people');
+if (input) input.value = ''; if (people) people.innerHTML = '';
+}
+paintPreview();
+}
+function raise() {
+var wordEl = host.querySelector('#sh-word');
+var word = wordEl ? wordEl.value.trim() : '';
+if (!word) { api.toast('A shout needs its words.', true); if (wordEl) wordEl.focus(); return; }
+if (pick.target === 'tier' && !pick.ref) { api.toast('Choose the plan it belongs to.', true); return; }
+if (pick.target === 'member' && !pick.ref) { api.toast('Choose the member it belongs to.', true); return; }
+add({ word: word, tint: pick.tint, target: pick.target, ref: pick.ref, exclude: pick.exclude, until: pick.until || null });
+if (wordEl) wordEl.value = '';
+pick.exclude = [];
+pick.never = [];
+Array.prototype.forEach.call(host.querySelectorAll('#sh-exclude .dk-chip'), function (x) { x.classList.remove('on'); });
+paintNever();
+paintPreview();
+draw();
+api.toast('Raised. It is worn everywhere from this breath.');
+}
+function draw() {
+var box = host.querySelector('#sh-list');
+if (!box) return;
+var list = all();
+if (!list.length) {
+box.innerHTML = '<p class="dk-empty">No shout has been raised yet. Every badge in the house wears whatever its own gift says.</p>';
+return;
+}
+box.innerHTML = '<p class="fb-hint" style="margin-top:18px">Raised, newest first — a name beats a plan, a plan beats the evergreen, the evergreen beats the house.</p>' +
+list.map(function (s) {
+var dead = !live(s);
+return '<div class="fb-shout' + (dead ? ' is-off' : '') + '" data-id="' + s.id + '">' +
+'<span class="fb-shoutart">' + R(s.frame || api.pickFrame(), s.tint, s.word, 104) + '</span>' +
+'<div class="fb-shoutbody"><b>' + K(s.word || 'no words') + '</b>' +
+'<s>' + K(sentence(s, PL, PE)) + '</s>' +
+'<i>' + (s.target === 'member' ? 'one woman' : s.target === 'tier' ? 'a plan' : s.target === 'forever' ? 'the evergreen' : 'the whole house') + '</i>' +
+'<div class="fb-shoutacts">' +
+'<button class="dk-chip' + (s.active ? ' on' : '') + '" data-cue="shout/live" data-live="' + s.id + '" data-on="' + (s.active ? '1' : '0') + '">' + (s.active ? 'On' : 'Off') + '</button>' +
+'<button class="dk-chip" data-cue="shout/retire" data-retire="' + s.id + '">Retire</button>' +
+'</div></div>' +
+'</div>';
+}).join('');
+}
+hosts();
+paintPreview();
+draw();
+}
+window.IVSHOUTS = {
+KEY: KEY, all: all, add: add, patch: patch, retire: retire, remove: remove,
+resolve: resolve, reaches: reaches, live: live, sentence: sentence, render: render,
+read: read, write: write
+};
 })();
 </script>
 <script id="iv-smooth-js">
@@ -31699,14 +31793,7 @@ var source = wrapped._bank || wrapped;
 var path = String(source.path || source.ref || source.key || wrapped.key || '').trim();
 if (/^https:\/\//.test(path)) return Promise.resolve(path);
 if (!path) return Promise.reject(new Error('This bank row has no file key. Reopen the bank and try again.'));
-return K.get('/rest/v1/posts?select=id,title,media_source,media_ref&media_ref=eq.' +
-encodeURIComponent(path) + '&limit=1')
-.then(function (rows) {
-var post = rows && rows[0];
-return open({ rail: bankRail(source, post), key: path, postId: post ? post.id : null });
-}, function () {
-return open({ key: path, rail: bankRail(source, null) });
-});
+return open({ rail: bankRail(source, null), key: path });
 }
 function blobFrom(url) {
 return fetch(url).then(function (r) {
@@ -32753,7 +32840,7 @@ return n;
 function isFile(r) { return String(r.url || '').indexOf('b2://') === 0 || (r.tags || []).indexOf('file') >= 0; }
 function fileMeta(r) {
 var t = r.tags || [];
-return { mime: t[1] || '', bytes: Number(t[2] || 0), key: String(r.url || '').replace(/^b2:\/\//, '') };
+return { mime: t[1] || '', bytes: Number(t[2] || 0), rail: t[3] || String(r.url || '').split(':')[0] || 'b2', key: String(r.url || '').replace(/^[a-z0-9]+:\/\//i, '') };
 }
 function kindLabel(r) {
 if (isFile(r)) return 'Kept file';
@@ -32788,16 +32875,10 @@ return [];
 }
 function quota() {
 if (S.quota) return Promise.resolve(S.quota);
-return Promise.all([
-window.IVSTORE ? IVSTORE.policy() : Promise.resolve(null),
-K.get('/rest/v1/profiles?select=id&limit=2000').catch(function () { return []; })
-]).then(function (r) {
-var p = r[0] || (window.IVSTORE ? IVSTORE.DEFAULTS : null);
-var members = (r[1] || []).length;
-var q = window.IVSTORE ? IVSTORE.folioQuota(p, members)
-: { house: 500 * 1048576, per: 1048576, members: members, share: 1048576 };
-S.quota = q;
-return q;
+return (window.IVSTORE ? IVSTORE.policy() : Promise.resolve(null)).then(function (p) {
+var q = window.IVSTORE ? IVSTORE.folioQuota(p || IVSTORE.DEFAULTS, 0)
+: { house: 500 * 1048576, per: 1048576, members: 0, share: 1048576 };
+S.quota = q; return q;
 });
 }
 function fileBytesUsed() {
@@ -32839,18 +32920,7 @@ function paint() {
 var box = document.getElementById('fl-list');
 if (!box) return;
 var rows = S.rows.filter(passes);
-var files = S.rows.filter(isFile).length;
-var used = fileBytesUsed();
-var q = S.quota || { per: 1048576, house: 500 * 1048576, members: 0, share: 1048576 };
-var head =
-'<p class="fo-use">' + S.rows.length + ' of ' + CAPS.entries + ' pages \u00b7 ' +
-K.size(S.rows.reduce(function (n, r) { return n + contentBytes(r); }, 0)) + ' of words \u00b7 ' +
-files + (files === 1 ? ' file' : ' files') + ', ' + K.size(used) +
-' of ' + (q.per / 1048576).toFixed(2) + ' MB kept' +
-(q.members ? ' <s>(' + (q.house / 1048576).toFixed(0) + ' MB across ' + q.members + ' members)</s>' : '') +
-'</p>';
-box.innerHTML = head +
-(S.why ? '<div class="fl-fine" style="color:#8E0F27">' + esc(S.why) + '</div>' : '') +
+box.innerHTML = (S.why ? '<div class="fl-fine" style="color:#8E0F27">The folio did not open just now. Please try again.</div>' : '') +
 (rows.length ? '' : '<div class="fo-empty">' +
 (S.rows.length ? 'Nothing under that name.' :
 'Nothing kept yet. A note, a draft, a link, a thought after a call \u2014 or a file you would rather not lose.') +
@@ -32865,13 +32935,15 @@ var meta = fileMeta(r);
 var key = meta.key;
 slot.innerHTML = '<div class="fo-file-wait">Opening\u2026</div>';
 var job = window.IVSTORE
-? IVSTORE.open({ rail: 'b2', key: key })
+? (meta.rail === 'supabase'
+? Promise.resolve(IVSTORE.SB + '/storage/v1/object/public/media/' + key.split('/').map(encodeURIComponent).join('/'))
+: IVSTORE.open({ rail: meta.rail, key: key }))
 : Promise.resolve(null);
 job.then(function (url) {
 if (!url) {
 slot.innerHTML = '<div class="fo-file-wait">Kept, but this house cannot open it yet \u2014 ' +
 'the signing door has to learn the file\u2019s address.</div>' +
-'<div class="fo-file-name">' + esc(meta.key.split('/').pop()) + ' \u00b7 ' + K.size(meta.bytes) + '</div>';
+'<div class="fo-file-name">' + esc(meta.key.split('/').pop()) + '</div>';
 return;
 }
 if (/^image\//.test(meta.mime) || /\.(jpe?g|png|webp|gif)$/i.test(url)) {
@@ -32882,13 +32954,13 @@ slot.innerHTML = '<audio class="fo-file-audio" controls src="' + esc(url) + '"><
 slot.innerHTML = '<video class="fo-file-video" controls playsinline src="' + esc(url) + '"></video>';
 } else {
 slot.innerHTML = '<a class="fo-file-open" href="' + esc(url) + '" target="_blank" rel="noopener">' +
-esc(meta.key.split('/').pop()) + ' \u00b7 ' + K.size(meta.bytes) + '</a>';
+esc(meta.key.split('/').pop()) + '</a>';
 }
 }).catch(function (e) {
 if (!slot.isConnected) return;
 slot.innerHTML = '<div class="fo-file-wait">This file did not open. ' +
-esc((e && e.message) || 'The storage door refused it.') + '</div>' +
-'<div class="fo-file-name">' + esc(meta.key.split('/').pop()) + ' \u00b7 ' + K.size(meta.bytes) + '</div>';
+'Please try opening it again.</div>' +
+'<div class="fo-file-name">' + esc(meta.key.split('/').pop()) + '</div>';
 });
 }
 function sheet(build) {
@@ -32942,8 +33014,7 @@ var n = bytesOf(card.querySelector('#fo-title').value) +
 bytesOf(card.querySelector('#fo-body').value) +
 bytesOf(card.querySelector('#fo-url').value);
 var p = card.querySelector('#fo-count');
-p.textContent = K.size(n) + ' of ' + Math.round(CAPS.page / 1024) + ' KB for this page. ' +
-'Anything longer is refused by the database itself.';
+p.textContent = n > CAPS.page ? 'This page is too long to keep. Shorten it a little.' : 'This page is within the house limit.';
 p.className = 'fo-count' + (n > CAPS.page ? ' over' : '');
 return n;
 }
@@ -33044,17 +33115,16 @@ if (!f) return;
 quota().then(function (q) {
 var used = fileBytesUsed();
 if (used + f.size > q.per) {
-K.toast('That file would take your folio past ' + (q.per / 1048576).toFixed(2) +
-' MB. The house keeps ' + (q.house / 1048576).toFixed(0) + ' MB for everyone.', true);
+K.toast('That file is too large for your private folio. Keep a smaller file or let an older file go.', true);
 return;
 }
 K.toast('Carrying ' + f.name + '\u2026');
 IVSTORE.putFor(f, 'folio').then(function (got) {
-var tags = ['file', got.mime, String(got.bytes)];
+var tags = ['file', got.mime, String(got.bytes), got.rail || 'b2'];
 return fetch(IVSTORE.SB + '/rest/v1/' + TABLE, {
 method: 'POST',
 headers: Object.assign(IVSESS.headers(), { Prefer: 'return=representation' }),
-body: JSON.stringify({ kind: 'link', title: f.name, body: '', url: 'b2://' + got.key, tags: tags })
+body: JSON.stringify({ kind: 'link', title: f.name, body: '', url: (got.rail || 'b2') + '://' + got.key, tags: tags })
 }).then(function (r) {
 return r.text().then(function (t) {
 if (!r.ok) throw new Error(refusal(t, r.status));
@@ -33062,11 +33132,10 @@ return t;
 });
 });
 }).then(function () {
-K.toast('Kept. It is in your folio and on the ' +
-(IVSTORE.railOf('folio')).toUpperCase() + ' rail.');
+K.toast('Kept privately in your folio.');
 load(true).then(function () { paint(); });
 }).catch(function (e) {
-K.toast(e.message || 'The file could not be kept.', true);
+K.toast('The file could not be kept. Please try again.', true);
 });
 });
 });
@@ -33107,16 +33176,19 @@ if (keep) {
 var keepFileBtn = el('button', 'fl-keep fo-keepfile', '<span aria-hidden="true">&#10515;</span> Keep a file');
 keep.parentNode.insertBefore(keepFileBtn, keep.nextSibling);
 keepFileBtn.addEventListener('click', keepFile);
-var railSeat = el('div', 'fo-rail');
-railSeat.id = 'fo-rail';
-keepFileBtn.parentNode.insertBefore(railSeat, keepFileBtn.nextSibling);
-if (window.IVSTORE) IVSTORE.picker('folio', railSeat, { label: 'Where a kept file sleeps' });
 }
 }
 function open() {
+var wrap = document.getElementById('sheet-folio');
+if (!wrap) return;
 wire();
-Promise.all([load(), quota()]).then(function () { paint(); });
+load().then(function () { paint(); });
+var kept = wrap.querySelector('.fl-kept'); if (kept) kept.remove();
 }
+(function scrubMemberFace() {
+var raw = document.getElementById('sheet-folio');
+var kept = raw && raw.querySelector('.fl-kept'); if (kept) kept.remove();
+})();
 (function hook() {
 if (!window.openSheet) { /* the shell is not up yet; try again in a moment */
 setTimeout(hook, 120); return;
@@ -33237,14 +33309,17 @@ day: t.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
 ends: 1440 - since
 };
 }
-var discTimer = null, discLive = null;
-var liveReader = null;
+var discTimer = null, discLive = null, liveReader = null, liveRead = null;
+var liveStarted = false, liveSessionHook = false, liveVisibilityHook = false;
+var rtSocket = null, rtHeartbeat = null, rtReconnect = null, rtRef = 0, rtRetry = 0;
+var RT_TOPIC = 'realtime:public:live_sessions';
 function discMark(realCount, liveRow) {
 var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
 var count = isAdmin ? Number(realCount || 0) : roomCount(realCount, liveRow && liveRow.id,
 liveRow && (liveRow.started_at || liveRow.created_at));
+var locked = liveRow && liveRow.is_entitled === false;
 return '' +
-'<button class="ivdisc" id="iv-live-disc" type="button" aria-label="Ivory is Live — walk in" title="' + K.esc((liveRow && liveRow.title) || 'Ivory is Live') + '">' +
+'<button class="ivdisc" id="iv-live-disc" type="button" aria-label="' + (locked ? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in') + '" title="' + K.esc((liveRow && liveRow.title) || 'Ivory is Live') + '">' +
 '<span class="ivdisc-aura" aria-hidden="true"></span>' +
 '<span class="ivdisc-seal">' +
 '<span class="ivdisc-coin" aria-hidden="true">' +
@@ -33286,15 +33361,16 @@ return '' +
 '</span>' +
 '<span class="ivdisc-tx">' +
 '<b>Ivory is Live</b>' +
-'<s>' + fmt(count) + ' in the room' + (isAdmin ? ' \u00b7 yours to see alone' : '') +
-' \u00b7 walk in \u2192</s>' +
+'<s>' + fmt(count) + ' in the room' + (isAdmin ? ' · yours to see alone' : '') +
+' · ' + (locked ? 'see plans' : 'walk in') + ' →</s>' +
 '</span>' +
+'<span class="ivdisc-go" aria-hidden="true">→</span>' +
 '</button>';
 }
 function milled() {
 var svg = document.querySelector('#iv-live-disc #ivdMilled');
 if (!svg) return;
-var NS = 'http://www.w3.org/2000/svg', out = '';
+var out = '';
 for (var i = 0; i < 72; i++) {
 var a = (i * 5) * Math.PI / 180;
 var x1 = 60 + Math.cos(a) * 47.5, y1 = 60 + Math.sin(a) * 47.5;
@@ -33306,25 +33382,48 @@ svg.innerHTML = out;
 }
 function seat() {
 var host = $('iv-disc-seat');
-if (!host) {
-host = document.createElement('div');
-host.id = 'iv-disc-seat';
-(document.body || document.documentElement).appendChild(host);
+if (!host) { host = document.createElement('div'); host.id = 'iv-disc-seat'; }
+var home = document.querySelector('#home-screen .hp');
+if (home) {
+if (host.parentNode !== home || home.firstElementChild !== host) home.insertBefore(host, home.firstChild);
 } else if (host.parentNode !== document.body) {
-document.body.appendChild(host);
+(document.body || document.documentElement).appendChild(host);
 }
 return host;
 }
+function ribbonPhrase() {
+return '<span><i></i>IVORY IS LIVE <b>•</b> WALK IN <b>✦</b></span>';
+}
+function paintLiveRibbon(row) {
+var ribbon = $('iv-live-ribbon');
+if (!ribbon) {
+ribbon = document.createElement('button');
+ribbon.id = 'iv-live-ribbon'; ribbon.type = 'button'; ribbon.hidden = true;
+ribbon.innerHTML = '<span class="iv-livescroll-clip" aria-hidden="true"><span class="iv-livescroll-track">' +
+'<span class="iv-livescroll-group">' + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + '</span>' +
+'<span class="iv-livescroll-group">' + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + '</span>' +
+'</span></span>';
+ribbon.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
+(document.body || document.documentElement).appendChild(ribbon);
+}
+ribbon.hidden = !row;
+ribbon.setAttribute('aria-label', row && row.is_entitled === false
+? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in');
+document.body.classList.toggle('iv-live-on', !!row);
+return ribbon;
+}
 function paintDisc(rows) {
-var live = (rows || []).filter(function (r) { return r.status === 'live'; });
+var live = (Array.isArray(rows) ? rows : []).filter(function (r) { return r && r.status === 'live'; });
 var host = seat();
 if (!host) return;
-var old = $('iv-live-disc');
-var plaque = $('iv-live-plaque');
+var old = $('iv-live-disc'), plaque = $('iv-live-plaque');
 if (!live.length) {
-discLive = null;
-if (old) { old.classList.add('is-leaving'); setTimeout(function () { if (old.parentNode) old.remove(); }, 420); }
-if (plaque) plaque.style.display = 'none';      /* the plaque is a thing of the past */
+discLive = null; paintLiveRibbon(null);
+if (old) {
+old.classList.add('is-leaving');
+setTimeout(function () { if (old.parentNode && old.classList.contains('is-leaving')) old.remove(); }, 420);
+}
+if (plaque) plaque.style.display = 'none';
 var b = document.querySelector('#lv-h'), sub = $('lv-sub');
 if (b) b.innerHTML = 'The room <em>opens when she does.</em>';
 if (sub) sub.textContent = 'nothing is being recorded, ever';
@@ -33332,12 +33431,10 @@ var quiet = document.querySelector('.lv-quiet');
 if (quiet) quiet.textContent = 'When Ivory goes on air, her golden disc appears here.';
 return;
 }
-discLive = live[0];
+var row = live[0]; discLive = row; paintLiveRibbon(row);
 if (plaque) plaque.style.display = 'none';
-var row = live[0];
-var html = discMark(row.viewer_count, row);
 if (!old) {
-host.innerHTML = html;
+host.innerHTML = discMark(row.viewer_count, row);
 var el = $('iv-live-disc');
 if (el) {
 el.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
@@ -33346,34 +33443,116 @@ milled();
 }
 if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
 } else {
+old.classList.remove('is-leaving');
 var s = old.querySelector('.ivdisc-tx s');
 if (s) {
 var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
 var n = isAdmin ? Number(row.viewer_count || 0)
 : roomCount(row.viewer_count, row.id, row.started_at || row.created_at);
-s.firstChild.nodeValue = fmt(n) + ' in the room' + (isAdmin ? ' \u00b7 yours to see alone' : '') + ' \u00b7 walk in \u2192';
+s.textContent = fmt(n) + ' in the room' + (isAdmin ? ' · yours to see alone' : '') +
+' · ' + (row.is_entitled === false ? 'see plans' : 'walk in') + ' →';
 }
-var t = old.querySelector('.ivdisc-tx b');
-if (t) t.textContent = 'Ivory is Live';
+var t = old.querySelector('.ivdisc-tx b'); if (t) t.textContent = 'Ivory is Live';
+old.setAttribute('aria-label', row.is_entitled === false ? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in');
 if (row.title) old.title = row.title;
 }
 }
-function watchLive() {
-if (!window.IVSESS || !IVSESS.ident().id) { /* still show the house to a visitor */ }
-function read() {
-return (window.IVSESS ? IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,started_at,created_at&status=eq.live&limit=5')
-: Promise.reject(new Error('no session')))
-.then(function (rows) { paintDisc(rows || []); })
-.catch(function () { paintDisc([]); });
+function readLive() {
+if (liveRead) return liveRead;
+if (!window.IVSESS || !IVSESS.get) return Promise.resolve(null);
+liveRead = IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,is_entitled,started_at,created_at&status=eq.live&order=started_at.desc&limit=5')
+.then(function (rows) { paintDisc(rows || []); return rows || []; })
+.catch(function () { return null; })
+.then(function (rows) { liveRead = null; return rows; }, function (e) { liveRead = null; throw e; });
+return liveRead;
 }
-liveReader = read;
-read();
-clearInterval(discTimer);
-discTimer = setInterval(read, 20000);
-if (window.IVSESS) IVSESS.on(function (ev) { if (ev === 'in' || ev === 'out') read(); });
+function rtSend(event, payload, topic) {
+var ws = rtSocket;
+if (!ws || ws.readyState !== 1) return false;
+try { ws.send(JSON.stringify({ topic: topic || RT_TOPIC, event: event, payload: payload || {}, ref: String(++rtRef) })); return true; }
+catch (e) { return false; }
+}
+function rtToken() {
+if (window.IVSESS && IVSESS.token && IVSESS.token()) rtSend('access_token', { access_token: IVSESS.token() });
+}
+function rtJoin() {
+rtToken();
+rtSend('phx_join', { config: {
+broadcast: { ack: false, self: false }, presence: { key: '' },
+postgres_changes: [{ event: '*', schema: 'public', table: 'live_sessions' }]
+} });
+}
+function rtSchedule() {
+if (!liveStarted || rtReconnect) return;
+var delays = [250, 1000, 2500, 5000, 15000];
+var wait = delays[Math.min(rtRetry++, delays.length - 1)];
+rtReconnect = setTimeout(function () { rtReconnect = null; rtConnect(); }, wait);
+}
+function rtMessage(msg) {
+if (!msg) return;
+if (Object.prototype.toString.call(msg) === '[object Array]') {
+msg = { join_ref: msg[0], ref: msg[1], topic: msg[2], event: msg[3], payload: msg[4] };
+}
+if (msg.topic === RT_TOPIC && msg.event === 'postgres_changes') { readLive(); return; }
+if (msg.topic === RT_TOPIC && msg.event === 'phx_reply') {
+if (msg.payload && msg.payload.status === 'ok') { rtRetry = 0; rtToken(); readLive(); }
+else if (rtSocket) { try { rtSocket.close(); } catch (e) {} }
+return;
+}
+if (msg.topic === RT_TOPIC && (msg.event === 'phx_error' || msg.event === 'phx_close') && rtSocket) {
+try { rtSocket.close(); } catch (e) {}
+}
+}
+function rtConnect() {
+if (!liveStarted || !window.WebSocket || !window.IVSESS || !IVSESS.sb) return;
+if (rtSocket && (rtSocket.readyState === 0 || rtSocket.readyState === 1)) return;
+clearTimeout(rtReconnect); rtReconnect = null;
+var ws;
+try {
+ws = new WebSocket(IVSESS.sb.replace(/^http/i, 'ws') + '/realtime/v1/websocket?apikey=' +
+encodeURIComponent(IVSESS.key || '') + '&vsn=1.0.0');
+} catch (e) { rtSchedule(); return; }
+rtSocket = ws;
+ws.onopen = function () {
+if (rtSocket !== ws) return;
+rtRetry = 0; rtJoin();
+clearInterval(rtHeartbeat);
+rtHeartbeat = setInterval(function () { rtSend('heartbeat', {}, 'phoenix'); }, 25000);
+};
+ws.onmessage = function (ev) {
+if (rtSocket !== ws) return;
+try { rtMessage(JSON.parse(ev.data)); } catch (e) {}
+};
+ws.onerror = function () { if (rtSocket === ws) readLive(); };
+ws.onclose = function () {
+if (rtSocket !== ws) return;
+rtSocket = null; clearInterval(rtHeartbeat); rtHeartbeat = null; rtSchedule();
+};
+}
+function watchLive() {
+liveReader = readLive;
+readLive();
+if (!liveStarted) {
+liveStarted = true;
+discTimer = setInterval(readLive, 20000);
+rtConnect();
+}
+if (window.IVSESS && !liveSessionHook) {
+liveSessionHook = true;
+IVSESS.on(function (ev) {
+if (ev === 'in' || ev === 'out' || ev === 'renewed' || ev === 'lapsed') { rtToken(); readLive(); }
+});
+}
+if (!liveVisibilityHook) {
+liveVisibilityHook = true;
+document.addEventListener('visibilitychange', function () {
+if (document.visibilityState === 'visible') { readLive(); rtConnect(); }
+});
+window.addEventListener('online', function () { readLive(); rtConnect(); });
+}
 }
 window.ivPaintDisc = function () { return paintDisc(discLive ? [discLive] : []); };
-window.ivRefreshLiveDisc = function () { return liveReader ? liveReader() : Promise.resolve(); };
+window.ivRefreshLiveDisc = function () { return liveReader ? liveReader() : Promise.resolve(null); };
 var pieces = 0;
 function seedPosts() {
 Array.prototype.forEach.call(document.querySelectorAll('.pcard'), function (card, i) {
@@ -33560,7 +33739,7 @@ if (document.visibilityState === 'visible') { countVisit(); paintPulse(); }
 });
 watchLive();
 window.addEventListener('iv-live-started', function () { if (liveReader) liveReader(); });
-window.addEventListener('iv-live-ended', function () { if (liveReader) setTimeout(liveReader, 30); });
+window.addEventListener('iv-live-ended', function () { paintDisc([]); if (liveReader) setTimeout(liveReader, 30); });
 seedPosts();
 seatPulse();
 paintPulse();
@@ -33582,13 +33761,13 @@ wrapped.__pulse = 1;
 window.ivoryShow = wrapped;
 }
 }
-setInterval(function () { if (!discLive && !$('iv-live-disc')) watchLive(); }, 120000);
 }
 if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(boot, 0);
 else document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 0); });
 return {
 views: views, roomCount: roomCount, pulse: pulse, fmt: fmt,
-paintDisc: paintDisc, seedPosts: seedPosts, seatPulse: seatPulse,
+paintDisc: paintDisc, readLive: readLive, seedPosts: seedPosts, seatPulse: seatPulse,
+realtime: function () { return { state: rtSocket ? rtSocket.readyState : -1, reconnecting: !!rtReconnect, heartbeat: !!rtHeartbeat }; },
 pieces: function () { return pieces; },
 welcome: welcome
 };
@@ -37331,6 +37510,18 @@ pointer-events: none; z-index: 0; opacity: .96; }
 @media (prefers-reduced-motion: reduce) {
 .bg-art, .bg-tagx { transition: none; }
 }
+#profile-screen .me-card .pf-reg-stack{position:relative;display:flex;flex:0 0 152px;width:152px;flex-direction:column;align-items:center;align-self:flex-start;line-height:1}
+#profile-screen .me-card .pf-reg-stage{position:relative;display:block;flex:0 0 152px;width:152px;height:152px}
+#profile-screen .me-card .pf-reg-stage .pf-ava-frame{position:absolute;inset:0;left:0!important;top:0!important;width:100%!important;height:100%!important;margin:0;transform:none!important;animation:none;z-index:2!important;pointer-events:none;opacity:1}
+#profile-screen .me-card .pf-reg-stage .pf-ava-frame .iv-frame{width:100%!important;height:100%!important}
+#profile-screen .me-card .pf-reg-stage .iv-frame-light,#profile-screen .me-card .pf-reg-stage .iv-frame-sweep,#profile-screen .me-card .pf-reg-stage .p92-sheen{display:none}
+#profile-screen .me-card .pf-reg-stage #pf-ava{position:absolute!important;left:var(--ap-left)!important;top:var(--ap-top)!important;width:var(--ap-size)!important;height:var(--ap-size)!important;flex:none!important;transform:translate(-50%,-50%);z-index:1!important;margin:0;border-radius:50%;overflow:hidden;box-shadow:0 0 20px rgba(183,133,49,.22),inset 0 0 0 1px rgba(255,255,255,.6)}
+#profile-screen .me-card .pf-reg-stage .p92-face-edit{left:auto!important;right:5px;top:auto!important;bottom:8px;z-index:4;width:30px;height:30px}
+#profile-screen .me-card .pf-reg-stack .pf-regalia{margin:5px 0 0;gap:5px;width:100%}
+#profile-screen .me-card .pf-reg-stack .pf-reg-plaque{line-height:0}
+#profile-screen .me-card .pf-reg-stack .iv-badge{max-width:100%}
+@media(max-width:400px){#profile-screen .me-card .pf-reg-stack{flex-basis:142px;width:142px}#profile-screen .me-card .pf-reg-stage{flex-basis:142px;width:142px;height:142px}}
+@media(prefers-reduced-motion:reduce){#profile-screen .me-card .pf-reg-stage .pf-ava-frame{animation:none}}
 </style>
 <style id="iv-live88-css">
 .lv { position: fixed; inset: 0; z-index: 9200; display: none;
@@ -40029,7 +40220,7 @@ var ok = false;
 if (g.kind === 'member') ok = !!id && String(g.ref) === id;
 else if (g.kind === 'creator' || g.kind === 'admin') ok = her;
 else if (g.kind === 'tier') ok = String(Number(g.ref)) === String(lvl) && lvl > 0;
-else if (g.kind === 'forever') ok = lvl === 0;
+else if (g.kind === 'forever') ok = !her && !m.membershipUnknown && lvl === 0;
 else if (g.kind === 'everyone') ok = true;
 if (ok) hits.push({ b: b, g: g, rank: RANK[g.kind] || 0 });
 });
@@ -40048,12 +40239,18 @@ try { bank = (R && R.readBank()) || {}; } catch (e) {}
 var scope = lvl > 0 ? ('tier:' + lvl) : 'forever';
 var plan = (bank.plans && (bank.plans[scope] || bank.plans.forever)) || { frame: 'ivory', tint: 'gold' };
 var hand = m.id && bank.grants && bank.grants[m.id] ? bank.grants[m.id] : null;
-var sr = regalia.key === regaliaKey(m) ? regalia.value : null;
+var sr = !m.membershipUnknown && regalia.key === regaliaKey(m) ? regalia.value : null;
 var frame = (sr && sr.frame) || (her && hero.frame) || (hand && hand.frame) || (m.frame) || plan.frame || 'ivory';
 var primary = out[0] || null, honours = out.slice(1, 4);
 if (sr && sr.by_hand && String(sr.word || '').trim() && !heroOn) {
-if (primary) honours = [primary].concat(honours).slice(0, 3);
-primary = { key: '__regalia_hand', word: sr.word, tint: sr.tint || 'gold', cap: 0, size: 'm' };
+var handWord = String(sr.word).trim(), handFold = handWord.toLowerCase();
+if (primary && String(primary.word || '').trim().toLowerCase() !== handFold) honours = [primary].concat(honours);
+primary = { key: '__regalia_hand', word: handWord, tint: sr.tint || 'gold', cap: 0, size: 'm' };
+honours = honours.filter(function (b) { return String(b.word || '').trim().toLowerCase() !== handFold; }).slice(0, 3);
+}
+var planWord = String(m.tierName || m.tier_name || '').trim();
+if (!primary && !her && planWord) {
+primary = { key: '__membership_plan', word: planWord, tint: plan.tint || 'gold', cap: 0, size: 'm', planFallback: true };
 }
 return {
 primary: primary,
@@ -40114,36 +40311,39 @@ if (!m) m = B.last || me();
 B.last = m;
 var card = document.querySelector('#profile-screen .me-card');
 if (!card) return;
+var oldStack = card.querySelector('.pf-reg-stack');
+if (oldStack) {
+var oldTop = oldStack.closest('.me-top') || oldStack.parentNode;
+var oldAva = oldStack.querySelector('#pf-ava'), oldEdit = oldStack.querySelector('.p92-face-edit');
+if (oldAva) oldStack.parentNode.insertBefore(oldAva, oldStack);
+if (oldEdit) oldTop.appendChild(oldEdit);
+oldStack.parentNode.removeChild(oldStack);
+}
 Array.prototype.forEach.call(card.querySelectorAll('#pf-regalia, #pf-regalia92, .pf-ava-frame, .p92-ava-frame'), function (n) {
 if (n.parentNode) n.parentNode.removeChild(n);
 });
-var ava = card.querySelector('#pf-ava');
+var ava = card.querySelector('#pf-ava'), top = ava && ava.closest('.me-top');
 card.classList.remove('pf-has-badge');
-var w = wear(m);
-pullRegalia(m);
-if (ava && R && w.frame) {
-var box = document.createElement('span');
-box.className = 'pf-ava-frame';
-box.setAttribute('aria-hidden', 'true');
-box.setAttribute('data-frame', w.frame);
-box.innerHTML = R.frame(w.frame, 118);
-ava.parentNode.insertBefore(box, ava);
+var w = wear(m), stack = null;
+if (!m.membershipUnknown) pullRegalia(m);
+if (ava && top && R && w.frame) {
+var meta = R.meta(w.frame) || { ap: [.5,.5,.28] }, ap = meta.ap || [.5,.5,.28];
+stack = document.createElement('span'); stack.className = 'pf-reg-stack'; stack.setAttribute('data-frame', w.frame);
+var stage = document.createElement('span'); stage.className = 'pf-reg-stage';
+var box = document.createElement('span'); box.className = 'pf-ava-frame'; box.setAttribute('aria-hidden', 'true'); box.setAttribute('data-frame', w.frame);
+box.innerHTML = R.frame(w.frame, 152);
+top.insertBefore(stack, ava); stack.appendChild(stage); stage.appendChild(box); stage.appendChild(ava);
+ava.style.setProperty('--ap-left', (ap[0] * 100) + '%'); ava.style.setProperty('--ap-top', (ap[1] * 100) + '%');
+ava.style.setProperty('--ap-size', (ap[2] * 200) + '%');
+var edit = top.querySelector('.p92-face-edit'); if (edit) stage.appendChild(edit);
 }
 if (!w.primary) return;
 card.classList.add('pf-has-badge');
-var host = document.createElement('div');
-host.id = 'pf-regalia';
-host.className = 'pf-regalia';
-host.innerHTML =
-'<div class="pf-reg-plaque">' + plaque(w.primary, widthOf(w.primary.size), 'pf-plaque') + '</div>' +
-(w.honours.length
-? '<div class="pf-reg-honours">' + w.honours.map(function (b) {
-return '<span class="pf-reg-honour">' + plaque(b, 128) + '</span>';
-}).join('') + '</div>'
-: '');
-var rule = card.querySelector('.me-rule');
-if (rule) card.insertBefore(host, rule);
-else (card.querySelector('.me-top') || card).appendChild(host);
+var host = document.createElement('div'); host.id = 'pf-regalia'; host.className = 'pf-regalia';
+host.innerHTML = '<div class="pf-reg-plaque">' + plaque(w.primary, widthOf(w.primary.size), 'pf-plaque') + '</div>' +
+(w.honours.length ? '<div class="pf-reg-honours">' + w.honours.map(function (b) { return '<span class="pf-reg-honour">' + plaque(b, 128) + '</span>'; }).join('') + '</div>' : '');
+if (stack) stack.appendChild(host);
+else { var rule = card.querySelector('.me-rule'); if (rule) card.insertBefore(host, rule); else (top || card).appendChild(host); }
 if (R && R.fitBadges) R.fitBadges(host);
 }
 function me() {
@@ -40795,7 +40995,7 @@ return -1;                                 /* unknown: ask the house once */
 }
 var askedLevel = false;
 function askLevel() {
-if (askedLevel) return Promise.resolve(0);
+if (askedLevel) return Promise.resolve(window.__ivLevel == null ? -1 : window.__ivLevel);
 askedLevel = true;
 var iv = IV();
 if (!iv || !iv.call) return Promise.resolve(0);
@@ -40803,18 +41003,25 @@ return iv.call('/rest/v1/rpc/my_membership', {}).then(function (m) {
 if (Array.isArray(m)) m = m[0];
 window.__ivLevel = m ? Number(m.tier_level || m.level || 0) : 0;
 return window.__ivLevel;
-}).catch(function () { return 0; });
+}).catch(function () { window.__ivLevel = -1; return -1; });
 }
 function dressFromPage() {
 var nm = document.getElementById('pf-name');
 var tl = document.getElementById('pf-tier-line');
 var lvl = levelFromLine(tl ? tl.textContent : '');
+var planName = String(tl && tl.textContent || '').split('·')[0].trim();
 if (lvl < 0) {
-if (window.__ivLevel == null) { askLevel().then(function () { dressFromPage(); }); return; }
-lvl = window.__ivLevel;
+if (window.__ivLevel == null && !askedLevel) { askLevel().then(function () { dressFromPage(); }); return; }
+if (window.__ivLevel != null && window.__ivLevel >= 0) lvl = window.__ivLevel;
+else {
+dress({ id: curId() || 'u-ivory', email: curMail(), name: (nm && nm.textContent) || 'Ivory',
+role: (window.ivIsAdmin && window.ivIsAdmin()) ? 'admin' : '', tierLevel: 0,
+tierName: planName, membershipUnknown: true, frame: 'ivory' });
+return;
+}
 }
 dress({ id: curId() || 'u-ivory', email: curMail(), name: (nm && nm.textContent) || 'Ivory',
-role: (window.ivIsAdmin && window.ivIsAdmin()) ? 'admin' : '', tierLevel: lvl });
+role: (window.ivIsAdmin && window.ivIsAdmin()) ? 'admin' : '', tierLevel: lvl, tierName: planName });
 }
 window.IVBADGE.dressFromPage = dressFromPage;
 function bootstrap() {
@@ -43331,7 +43538,7 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 .iv-house-status[hidden],.ln-join[hidden],.ln-skip[hidden],.ln-saturday[hidden],.ln-stamps[hidden],.ln-copy[hidden]{display:none!important}
 .iv-copy-fallback{position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0}
 .bz-count.bad{color:#8E263D;font-weight:800}
-.ln-consent{cursor:pointer}
+.ln-consent{cursor:pointer;display:flex;align-items:center;gap:10px;min-height:44px}
 .ln-consent input{width:20px;height:20px;min-width:20px;margin:0;accent-color:#8A5A12}
 .ln-consent .ln-box{display:none!important}
 .ln-state{font-size:10px;text-transform:uppercase;letter-spacing:.08em}
@@ -43371,850 +43578,15 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 .g102-loading{min-height:280px;display:grid;place-content:center;justify-items:center;gap:16px;color:#80644F}.g102-spinner{width:38px;height:38px;border:2px solid rgba(151,107,48,.18);border-top-color:#B6852E;border-radius:50%;animation:g102spin .9s linear infinite}@keyframes g102spin{to{transform:rotate(360deg)}}
 .g102-confirm{position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding:24px;background:rgba(250,241,219,.76);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.g102-confirm[hidden]{display:none}.g102-confirm>div{width:min(430px,100%);padding:25px;border:1px solid rgba(151,107,48,.25);border-radius:22px;background:#FFFCF3;box-shadow:0 20px 50px rgba(83,49,42,.15);text-align:center}.g102-confirm h3{margin:0 0 10px;font-size:23px}.g102-confirm p{line-height:1.5;color:#7B5D54}
 .card .clock[hidden]{display:none!important}.keybar i>span,.coinbar i>span{font:700 9px/1 Arial,sans-serif}.keybar i,.coinbar i{display:inline-flex;align-items:center;justify-content:center}
-#sheet-ladder .cal-nav{display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(208,171,91,.28);border-radius:50%;background:rgba(255,250,235,.08);color:inherit;font:400 24px/1 Georgia,serif;cursor:pointer}
+#sheet-ladder .cal-nav{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border:1px solid rgba(208,171,91,.28);border-radius:50%;background:rgba(255,250,235,.08);color:inherit;font:400 24px/1 Georgia,serif;cursor:pointer}
 #sheet-ladder .g102-cal-error{padding:20px;text-align:center;line-height:1.5}#sheet-ladder .ld-cal-head b{flex:1;text-align:center}
 .g102-resolving>:not(#g102-ladder-status){display:none!important}
 @media(max-width:600px){.g102{padding:0}.g102-room{width:100%;height:100dvh;border:0;border-radius:0}.g102-head{padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px}.g102-body{padding:20px 16px calc(24px + env(safe-area-inset-bottom,0px))}.g102-rehearsal{max-width:92px}.g102-days{gap:7px}.g102-day{min-height:58px}.g102-facts{gap:7px}}
 @media(prefers-reduced-motion:reduce){.g102-spinner{animation:none;border-color:#B6852E}}
 .g102-retry-answer{display:flex;margin:16px auto 0}.g102-rehearsal-tools{padding:10px;border-top:1px solid rgba(151,107,48,.15);border-bottom:1px solid rgba(151,107,48,.15)}
 </style>
-<script id="iv-pass102-js">
-window.IVHOUSE102 = (function () {
-'use strict';
-var d = document, w = window;
-var S = { line: null, lineFree: null, lineLoaded: false, lineBusy: false, lineError: '', share: false };
-function $(s, r) { return (r || d).querySelector(s); }
-function $$(s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); }
-function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function msg(e) { return String(e && (e.message || e.error_description || e.error) || e || 'The house could not answer.').replace(/^Exception:\s*/, ''); }
-function signed() { try { return !!(w.IVSESS && IVSESS.ident().id); } catch (e) { return false; } }
-function rpc(name, params) {
-if (!signed()) return Promise.reject(new Error('Sign in to continue.'));
-return IVSESS.call('/rest/v1/rpc/' + name, params || {});
-}
-function toast(t, bad) { if (w.ivoryToast) w.ivoryToast(t, !!bad); }
-function go(room) {
-if (w.ivShell && ivShell.shutAll) ivShell.shutAll();
-if (w.ivoryShow) ivoryShow(room);
-}
-function map(v) { return Array.isArray(v) ? (v[0] || {}) : (v && typeof v === 'object' ? v : {}); }
-function words(text) { var t = String(text || '').trim(); return t ? t.split(/\s+/).length : 0; }
-function status(el, text, bad) {
-if (!el) return;
-el.textContent = text || '';
-el.classList.toggle('bad', !!bad);
-el.hidden = !text;
-}
-function featherInto(el, cls) {
-if (!el) return;
-el.classList.add('iv-feather-frame');
-el.innerHTML = '<img class="iv-feather ' + esc(cls || '') + '" src="media/art/feather.webp" alt="" draggable="false">';
-}
-function dressFeathers() {
-$$('.featherimg').forEach(function (img) {
-img.classList.add('iv-feather');
-if (img.getAttribute('src').indexOf('data:') === 0 && img.dataset.art) img.src = img.dataset.art;
-img.setAttribute('draggable', 'false');
-});
-var folio = $('#sheet-folio .fl-hico');
-if (folio && !folio.querySelector('.iv-feather')) featherInto(folio, 'folio');
-var privateLine = $('#sheet-folio .fl-private');
-if (privateLine) privateLine.textContent = 'Private to your account';
-}
-function membershipTap(e) {
-var t = e.target && e.target.closest ? e.target.closest('.dr-prem-btn,.ln-skip-btn,.ln-join-btn') : null;
-if (!t) return;
-e.preventDefault(); e.stopImmediatePropagation();
-go('premium');
-}
-function shareText() {
-var base = ($('#iv-text') || {}).textContent || 'Ivory ~ private stories, live sessions and one-on-one time with me.';
-var url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : 'https://ivory-twin.pages.dev/';
-return { text: base.trim(), url: url, combined: base.trim() + '\n' + url };
-}
-function shareStatus(text, bad) { status($('#iv-share-status'), text, bad); }
-function legacyCopy(text) {
-var area = d.createElement('textarea');
-area.value = text; area.setAttribute('readonly', ''); area.className = 'iv-copy-fallback';
-d.body.appendChild(area); area.select(); area.setSelectionRange(0, area.value.length);
-var ok = false;
-try { ok = d.execCommand('copy') === true; } catch (e) {}
-area.remove(); return ok;
-}
-function copyShare() {
-var value = shareText().combined;
-var work = navigator.clipboard && navigator.clipboard.writeText
-? navigator.clipboard.writeText(value).then(function () { return true; }).catch(function () { return legacyCopy(value); })
-: Promise.resolve(legacyCopy(value));
-return work.then(function (ok) {
-shareStatus(ok ? 'Copied, including the Ivory link.' : 'Copy did not work. Select the words and link, then copy them yourself.', !ok);
-return ok;
-});
-}
-function nativeShare() {
-var value = shareText();
-if (!navigator.share) {
-return copyShare().then(function (ok) { if (ok) shareStatus('This browser has no share sheet. The words and link are copied instead.'); return ok; });
-}
-return navigator.share({ title: 'Ivory', text: value.text, url: value.url }).then(function () {
-shareStatus('Shared.'); return true;
-}).catch(function (e) {
-if (e && e.name === 'AbortError') return false;
-shareStatus('The share sheet did not open. Copy is still available.', true);
-return false;
-});
-}
-function wireShare() {
-var root = $('#sheet-ivory'); if (!root || root.__house102) return; root.__house102 = true;
-var buttons = $$('.iv-share .iv-sc', root);
-if (buttons[0]) buttons[0].addEventListener('click', function (e) { e.preventDefault(); copyShare(); });
-if (buttons[1]) buttons[1].addEventListener('click', function (e) { e.preventDefault(); nativeShare(); });
-var targets = $$('.iv-targets .iv-t', root);
-if (targets[0]) targets[0].addEventListener('click', function (e) { e.preventDefault(); nativeShare(); });
-var open = $('.iv-get', root);
-if (open) open.addEventListener('click', function (e) { e.preventDefault(); go('home'); });
-var note = d.createElement('p'); note.id = 'iv-share-status'; note.className = 'iv-house-status'; note.hidden = true;
-note.setAttribute('role', 'status');
-var share = $('.iv-share', root); if (share) share.insertAdjacentElement('afterend', note);
-}
-function businessCount() {
-var text = $('#bz-text'), count = $('#bz-count'); if (!text || !count) return;
-count.textContent = words(text.value).toLocaleString() + ' / 3,000 words';
-count.classList.toggle('bad', words(text.value) > 3000 || text.value.length > 100000);
-}
-function wireBusiness() {
-var root = $('#sheet-biz'); if (!root || root.__house102) return; root.__house102 = true;
-var text = $('#bz-text', root), send = $('.bz-send', root), fine = $('.bz-fine', root);
-if (!text || !send) return;
-text.maxLength = 100000;
-text.addEventListener('input', businessCount); businessCount();
-var note = d.createElement('p'); note.id = 'bz-status'; note.className = 'iv-house-status'; note.hidden = true; note.setAttribute('role', 'status');
-send.insertAdjacentElement('afterend', note);
-send.addEventListener('click', function (e) {
-e.preventDefault(); if (send.disabled) return;
-var clean = text.value.trim();
-if (!clean || words(clean) > 3000 || clean.length > 100000) {
-status(note, 'Please keep your note within 3,000 words and 100,000 characters.', true); text.focus(); return;
-}
-if (!signed()) { status(note, 'Sign in to send a private business note.', true); return; }
-send.disabled = true; status(note, 'Sending your private note…');
-IVSESS.call('/functions/v1/business-enquiry', { message: clean }).then(function (r) {
-if (!r || r.ok !== true) throw new Error('The note could not be sent just now. Please try again.');
-text.value = ''; businessCount();
-status(note, 'Sent. Your note is in Ivory’s private business inbox.');
-if (fine) fine.textContent = 'Your note was sent to Ivory’s private inbox and business email.';
-}).catch(function (x) {
-status(note, msg(x) || 'The note could not be sent just now. Please try again.', true);
-}).then(function () { send.disabled = false; });
-});
-}
-function lineStatus(text, bad) { status($('#ln-status'), text, bad); }
-function lineCount() {
-var text = $('#ln-text'), count = $('#ln-count'); if (!text || !count) return;
-count.textContent = text.value.length + '/' + text.maxLength;
-}
-function draftSave() {
-clearTimeout(S.draftTimer);
-S.draftTimer = setTimeout(function () {
-try { localStorage.setItem('ivory_line_draft_v1', ($('#ln-text') || {}).value || ''); } catch (e) {}
-}, 450);
-}
-function draftClear() {
-try { localStorage.removeItem('ivory_line_draft_v1'); } catch (e) {}
-}
-function whyLine(s) {
-var why = s.why_not;
-if (why === 'open') return 'One letter is already open. Ivory will read it before another is sealed.';
-if (why === 'used') return 'This membership’s letter allowance has been used for this window.';
-if (why === 'resting') return 'The Line is resting until ' + (s.return_days || 7) + ' days have passed. Your draft stays here.';
-if (why === 'join') return 'This letter needs a paid membership. See the memberships below; your draft stays here.';
-return 'The house is not accepting this letter just now. Your draft stays here.';
-}
-function renderLetters(s) {
-var box = $('#ln-letters'); if (!box) return;
-var rows = Array.isArray(s.letters) ? s.letters : [];
-box.innerHTML = rows.length ? rows.map(function (r) {
-var answered = r.status === 'answered' && (r.reply_text || r.reply_audio_url);
-return '<article class="ln-letter"><div class="ln-lt-top"><span>' + esc(r.created_at ? new Date(r.created_at).toLocaleString() : '') + '</span>' +
-'<span class="ln-state">' + esc(r.status || 'waiting') + '</span></div><p class="ln-lt-body">' + esc(r.body || '') + '</p>' +
-(answered ? '<div class="ln-reply"><p class="ln-rp-lab">Ivory wrote back.</p>' +
-(r.reply_text ? '<p class="ln-rp-a">' + esc(r.reply_text) + '</p>' : '') +
-(r.reply_audio_url ? '<p class="ln-rp-a">A voice reply is waiting in the app.</p>' : '') + '</div>' : '') + '</article>';
-}).join('') : '<p class="ln-fine">No sealed letters yet. Your first one will appear here.</p>';
-}
-function renderLine() {
-var s = S.line || {}, seal = $('.ln-seal'), text = $('#ln-text');
-if (!seal || !text) return;
-var paidCan = s.paid === true && s.can_send === true;
-var env = $('.ln-env', seal);
-seal.innerHTML = (env ? env.outerHTML : '') + (paidCan ? ' Seal and send' : ' Seal into the Line');
-text.maxLength = Math.max(3, Number(s.max_chars) || 750); lineCount();
-var consent = $('.ln-consent > span:last-child');
-if (consent) consent.textContent = paidCan
-? 'Ivory may share this letter and her reply as the Letter of the Day, without my name.'
-: 'Ivory may share this letter and her reply as a Saturday Evening Letter, without my name.';
-var fine = $('.ln-fine');
-if (fine) fine.textContent = paidCan
-? 'Your letter goes to Ivory now. It clears this phone only after the house accepts it.'
-: 'Kept on this phone until you seal it. A letter sealed before you join still stands in the queue — membership simply carries yours to the front.';
-var join = $('.ln-join'), skip = $('.ln-skip'), saturday = $('.ln-saturday');
-if (join) join.hidden = !!s.paid;
-if (skip) skip.hidden = !!s.paid;
-if (saturday) saturday.hidden = !!s.paid;
-var stamps = $('.ln-stamps'), stampCopy = stamps && stamps.nextElementSibling;
-var pos = S.lineFree && S.lineFree.position;
-if (stamps) {
-if (!s.paid && pos != null) {
-stamps.hidden = false;
-stamps.innerHTML = '<div class="ln-stamp sealed"><b>#' + esc(pos) + '</b><em>Your place in the Line</em></div>';
-if (stampCopy && stampCopy.classList.contains('ln-copy')) stampCopy.textContent = 'Your sealed letter is in the canonical Forever queue.';
-} else {
-stamps.hidden = true;
-if (stampCopy && stampCopy.classList.contains('ln-copy')) stampCopy.hidden = true;
-}
-}
-renderLetters(s);
-seal.disabled = S.lineBusy || s.open === false;
-if (s.open === false) lineStatus('The Private Line is not open right now. Your draft is still kept on this phone.', true);
-else if (s.paid && !s.can_send) lineStatus(whyLine(s), true);
-else if (S.lineError) lineStatus(S.lineError, true);
-else lineStatus('');
-}
-function loadLine(force) {
-if (!signed()) { lineStatus('Sign in to seal a letter. Your draft stays on this phone.', true); return Promise.resolve(null); }
-if (S.lineLoaded && !force) { renderLine(); return Promise.resolve(S.line); }
-S.lineBusy = true; lineStatus('Reading your Line…');
-return rpc('line_state').then(function (r) {
-S.line = map(r); S.lineLoaded = true; S.lineError = '';
-return rpc('line_free_state').then(function (f) { S.lineFree = map(f); }).catch(function () { S.lineFree = null; });
-}).then(function () { renderLine(); return S.line; }).catch(function (e) {
-S.lineError = msg(e); S.lineLoaded = false;
-lineStatus(S.lineError + ' Your letter is still here.', true);
-return null;
-}).then(function (v) {
-S.lineBusy = false;
-if (S.lineLoaded) renderLine();
-else { var seal = $('.ln-seal'); if (seal) seal.disabled = false; }
-return v;
-});
-}
-function sealLine(e) {
-if (e) { e.preventDefault(); e.stopImmediatePropagation(); }
-if (S.lineBusy) return;
-var text = $('#ln-text'), body = text ? text.value.trim() : '';
-if (body.length < 3) { lineStatus('Write at least a few words first.', true); if (text) text.focus(); return; }
-if (!S.lineLoaded) { loadLine().then(function (s) { if (s) sealLine(); }); return; }
-var s = S.line || {};
-if (s.open === false) { lineStatus('The Private Line is not open right now. Your draft is still here.', true); return; }
-if (s.paid && !s.can_send) { lineStatus(whyLine(s), true); return; }
-var paidCan = s.paid === true && s.can_send === true;
-var name = paidCan ? 'line_send' : 'line_queue_join';
-S.lineBusy = true;
-var seal = $('.ln-seal'); if (seal) seal.disabled = true;
-lineStatus(paidCan ? 'Sealing and sending…' : 'Sealing into the Line…');
-rpc(name, { body_in: body, share_in: S.share }).then(function (r) {
-r = map(r);
-if (r.ok !== true) {
-lineStatus(String(r.message || 'That did not go through. Your letter is still here.'), true);
-if (!s.paid) { var join = $('.ln-join'); if (join) join.hidden = false; }
-return null;
-}
-draftClear(); if (text) { text.value = ''; lineCount(); }
-var accepted = String(r.message || (paidCan ? 'Sealed and sent.' : 'Sealed into the Line.'));
-lineStatus(accepted);
-S.lineLoaded = false;
-return loadLine(true).then(function () { lineStatus(accepted); });
-}).catch(function (x) {
-lineStatus(msg(x) + ' Your letter is still here.', true);
-if (!s.paid) { var join = $('.ln-join'); if (join) join.hidden = false; }
-}).then(function () { S.lineBusy = false; if (seal) seal.disabled = false; });
-}
-function wireLine() {
-var root = $('#sheet-line'); if (!root || root.__house102) return; root.__house102 = true;
-var text = $('#ln-text', root), seal = $('.ln-seal', root), consent = $('.ln-consent', root);
-if (text) {
-try { if (!text.value) text.value = localStorage.getItem('ivory_line_draft_v1') || ''; } catch (e) {}
-text.addEventListener('input', function () { lineCount(); draftSave(); }); lineCount();
-}
-if (consent) {
-var label = consent.textContent.trim();
-consent.innerHTML = '<input id="ln-share" type="checkbox"><span class="ln-box" aria-hidden="true"></span><span>' + esc(label) + '</span>';
-var check = $('#ln-share', consent); S.share = false;
-if (check) check.addEventListener('change', function () { S.share = check.checked; consent.classList.toggle('checked', check.checked); });
-}
-if (seal) {
-seal.addEventListener('click', sealLine);
-var note = d.createElement('p'); note.id = 'ln-status'; note.className = 'iv-house-status'; note.hidden = true; note.setAttribute('role', 'status');
-seal.insertAdjacentElement('afterend', note);
-}
-var old = $('.ln-letter', root);
-if (old) { var list = d.createElement('div'); list.id = 'ln-letters'; old.parentNode.replaceChild(list, old); }
-}
-function wrapSheets() {
-if (!w.openSheet || w.openSheet.__house102) return;
-var base = w.openSheet;
-function wrapped(id) {
-var r = base.apply(this, arguments);
-if (id === 'line') setTimeout(function () { loadLine(false); }, 30);
-if (id === 'ivory') shareStatus('');
-return r;
-}
-['__p92', '__p94', '__folio'].forEach(function (k) { if (base[k]) wrapped[k] = base[k]; });
-wrapped.__house102 = true; w.openSheet = wrapped;
-}
-function boot() {
-dressFeathers(); wireShare(); wireBusiness(); wireLine(); wrapSheets();
-d.addEventListener('click', membershipTap, true);
-}
-if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
-return { boot: boot, go: go, copyShare: copyShare, share: nativeShare, loadLine: loadLine, sealLine: sealLine, businessWords: words };
-})();
-
-window.IVGOLD102 = (function () {
-'use strict';
-var d = document, w = window;
-var S = { mode: '', seq: 0, open: false, busy: false, protect: false, rehearsal: false,
-question: null, deadline: 0, timer: 0, vault: null, quiz: null, pending: null,
-calY: 0, calM: 0, calBusy: false, ladder: null };
-var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-function $(s, r) { return (r || d).querySelector(s); }
-function $$(s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); }
-function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function num(v, fallback) { var n = Number(v); return isFinite(n) ? n : (fallback || 0); }
-function map(v) { return Array.isArray(v) ? (v[0] || {}) : (v && typeof v === 'object' ? v : {}); }
-function msg(e) { return String(e && (e.message || e.error_description || e.error) || e || 'The house could not answer.').replace(/^Exception:\s*/, ''); }
-function signed() { try { return !!(w.IVSESS && IVSESS.ident().id); } catch (e) { return false; } }
-function rpc(name, params) {
-if (!signed()) return Promise.reject(new Error('Sign in to continue.'));
-return IVSESS.call('/rest/v1/rpc/' + name, params || {});
-}
-function toast(t, bad) { if (w.ivoryToast) w.ivoryToast(t, !!bad); }
-function valid(seq) { return S.open && seq === S.seq; }
-function when(v) { if (!v) return ''; var x = new Date(v); return isNaN(x.getTime()) ? '' : x.toLocaleString(); }
-function money(v) { return '₹' + num(v, 0).toLocaleString('en-IN'); }
-function shell() {
-var root = d.getElementById('gold102');
-if (root) return root;
-root = d.createElement('div'); root.id = 'gold102'; root.className = 'g102'; root.hidden = true;
-root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-hidden', 'true');
-root.innerHTML = '<div class="g102-veil"></div><section class="g102-room" aria-label="Golden activity">' +
-'<header class="g102-head"><button type="button" class="g102-x" data-g102="close" aria-label="Close">×</button>' +
-'<div class="g102-heading"><p id="g102-kick"></p><h2 id="g102-title"></h2></div><span class="g102-rehearsal" id="g102-rehearsal" hidden>Admin rehearsal</span></header>' +
-'<div class="g102-body" id="g102-body"></div><p class="g102-status" id="g102-status" role="status" hidden></p>' +
-'<div class="g102-confirm" id="g102-confirm" hidden><div><h3 id="g102-confirm-title"></h3><p id="g102-confirm-copy"></p>' +
-'<div class="g102-row"><button type="button" class="g102-quiet" data-g102="stay">Stay</button><button type="button" class="g102-primary" data-g102="leave">Leave</button></div></div></div>' +
-'</section></div>';
-d.body.appendChild(root);
-root.addEventListener('click', action);
-return root;
-}
-function heading(kick, title) {
-$('#g102-kick').textContent = kick; $('#g102-title').textContent = title;
-$('#g102-rehearsal').hidden = !S.rehearsal;
-}
-function body(html) { $('#g102-body').innerHTML = html; }
-function status(text, bad) { var el = $('#g102-status'); el.textContent = text || ''; el.hidden = !text; el.classList.toggle('bad', !!bad); }
-function loading(text) { body('<div class="g102-loading"><span class="g102-spinner" aria-hidden="true"></span><p>' + esc(text || 'Reading the house…') + '</p></div>'); status(''); }
-function errorView(text, retry) {
-body('<div class="g102-error"><span class="g102-coin" aria-hidden="true">I</span><h3>The door did not open.</h3><p>' + esc(text) + '</p>' +
-'<div class="g102-row"><button type="button" class="g102-primary" data-g102="' + esc(retry || 'retry') + '">Try again</button>' +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div></div>'); status('');
-}
-function openMode(mode) {
-shell(); closeTimer();
-S.seq++; S.mode = mode; S.open = true; S.busy = false; S.protect = false; S.rehearsal = false;
-S.question = null; S.pending = null; S.deadline = 0;
-var root = $('#gold102'); root.hidden = false; root.setAttribute('aria-hidden', 'false'); root.classList.add('on');
-d.body.classList.add('g102-open'); $('#g102-confirm').hidden = true;
-heading(mode === 'vault' ? 'One key a day' : 'Ten questions · every answer from the house', mode === 'vault' ? 'The Ten-Day Vault' : 'The Golden Knock-off');
-loading();
-if (mode === 'vault') vaultHome(S.seq); else quizHome(S.seq);
-}
-function closeTimer() { if (S.timer) { clearInterval(S.timer); S.timer = 0; } }
-function finishClose() {
-closeTimer(); S.open = false; S.seq++; S.protect = false; S.question = null; S.pending = null; S.busy = false;
-var root = $('#gold102'); if (root) { root.classList.remove('on'); root.setAttribute('aria-hidden', 'true'); root.hidden = true; }
-d.body.classList.remove('g102-open');
-refreshCards();
-}
-function askClose() {
-if (!S.open) return;
-if (!S.protect) { finishClose(); return; }
-var quiz = S.mode === 'quiz';
-$('#g102-confirm-title').textContent = quiz ? 'Leave The Golden Knock-off?' : 'Leave today’s key?';
-$('#g102-confirm-copy').textContent = S.rehearsal ? 'This is an admin rehearsal. Leaving costs nothing.' :
-(quiz ? 'The server keeps this quiz and its clock. Gold already earned stays earned; its expiry keeps running.' :
-'The clock keeps running. If time runs out, today’s answer counts as missed, but your vault goes on. You can return from the Home card.');
-$('#g102-confirm').hidden = false;
-}
-function rehearsalVaultButtons(resetOnly) {
-if (!S.rehearsal) return '';
-return '<div class="g102-row g102-rehearsal-tools">' + (!resetOnly ? '<button type="button" class="g102-primary" data-g102="vault-next">Next rehearsal day</button>' : '') +
-'<button type="button" class="g102-quiet" data-g102="vault-reset">Reset the rehearsal</button></div>';
-}
-function rehearsalVault(action) {
-if (!S.rehearsal || S.busy) return;
-var seq = S.seq; S.busy = true; loading(action === 'next' ? 'Turning the rehearsal day…' : 'Resetting the rehearsal…');
-rpc(action === 'next' ? 'vault_rehearsal_next_day' : 'vault_rehearsal_reset').then(function () {
-if (!valid(seq)) return; S.busy = false; vaultHome(seq);
-}).catch(function (e) { if (valid(seq)) { S.busy = false; errorView(msg(e), 'retry'); } });
-}
-function daysHTML(answered, current, total, phase) {
-var out = '<div class="g102-days" aria-label="Vault days">';
-for (var i = 1; i <= (total || 10); i++) {
-var got = i <= answered, open = !got && i === current && (phase === 'ready' || phase === 'open');
-var cls = got ? 'got' : (open ? 'open' : 'locked');
-out += '<button type="button" class="g102-day ' + cls + '" data-day="' + i + '" aria-label="Day ' + i + (got ? ', sealed' : (open ? ', open' : ', locked; explain')) + '">' +
-'<span>' + i + '</span><small>' + (got ? 'sealed' : (open ? 'open' : 'locked')) + '</small></button>';
-}
-return out + '</div>';
-}
-function vaultHome(seq) {
-rpc('vault_home_state').then(function (r) {
-if (!valid(seq)) return;
-var s = map(r); S.vault = s; S.rehearsal = s.rehearsal === true;
-heading('One key a day', 'The Ten-Day Vault'); paintVaultCard(s);
-var state = String(s.state || 'signed_out'), days = num(s.days, 10), answered = num(s.answered, 0), day = num(s.day_no, 1);
-if (state === 'open' && s.in_progress === true) { vaultKey(false, seq); return; }
-if (state === 'ceremony') { vaultResult(s.run_id, seq); return; }
-var circles = daysHTML(answered, day, days, state);
-if (state === 'ready') {
-body('<div class="g102-intro"><p class="g102-eyebrow">A fresh vault</p><h3>Ten days. One question at a time.</h3>' +
-'<p>Every answer stays sealed until the last key turns. The house owns the day, the clock and the result.</p>' + circles +
-'<button type="button" class="g102-primary" data-g102="begin-vault">Begin Day One</button></div>');
-} else if (state === 'open') {
-body('<div class="g102-intro"><p class="g102-eyebrow">Day ' + day + ' of ' + days + '</p><h3>Today’s key is waiting.</h3>' +
-'<p>One question. Your answer is sealed when the house accepts it.</p>' + circles +
-'<button type="button" class="g102-primary" data-g102="open-key">Turn today’s key</button></div>');
-} else if (state === 'sealed') {
-body('<div class="g102-intro"><p class="g102-eyebrow">Day ' + answered + ' is sealed</p><h3>Well turned.</h3>' +
-'<p>' + (s.next_opens_at ? 'The next key opens ' + esc(when(s.next_opens_at)) + '.' : 'The next key will appear on the Home card.') + '</p>' + circles +
-'<p class="g102-fine">Sealed days explain themselves; future days can be touched to see why they are locked.</p>' +
-rehearsalVaultButtons(false) +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div>');
-} else {
-var text = state === 'resting' ? 'Your vault has opened. A new one begins when the wait is over.' :
-state === 'locked' ? 'The Ten-Day Vault is closed while this membership is running. The Home card will say when it opens again.' :
-state === 'closed' ? 'The Ten-Day Vault is not open right now.' : 'Sign in to open your Ten-Day Vault.';
-body('<div class="g102-intro"><h3>' + esc(text) + '</h3>' +
-(s.next_start_at ? '<p>Next vault: ' + esc(when(s.next_start_at)) + '</p>' : '') +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div>');
-}
-status(S.rehearsal ? 'Admin rehearsal: the server keeps this activity separate from member progress and rewards.' : '');
-}).catch(function (e) { if (valid(seq)) errorView(msg(e), 'retry'); });
-}
-function vaultKey(start, seq) {
-seq = seq || S.seq; S.busy = true; loading(start ? 'Opening Day One…' : 'Opening today’s key…');
-rpc(start ? 'vault_start' : 'vault_open_key').then(function (r) {
-if (!valid(seq)) return; S.busy = false;
-var q = map(r); S.rehearsal = q.rehearsal === true || S.rehearsal; showQuestion('vault', q);
-}).catch(function (e) { if (valid(seq)) { S.busy = false; errorView(msg(e), 'retry'); } });
-}
-function vaultResult(runId, seq) {
-seq = seq || S.seq; loading('Opening the vault…');
-rpc('vault_result', { run_id_in: num(runId, 0) || null }).then(function (r) {
-if (!valid(seq)) return;
-var x = map(r); S.rehearsal = x.rehearsal === true || S.rehearsal; S.protect = false; S.vaultResult = x;
-heading('The last key has turned', 'The Vault, opened');
-body(summaryHTML(x, 'The Ten-Day Vault') + rehearsalVaultButtons(true) + '<div class="g102-row">' +
-'<button type="button" class="g102-quiet" data-g102="review-vault">See my answers</button>' +
-(num(x.total_inr, 0) > 0 && !S.rehearsal ? '<button type="button" class="g102-primary" data-g102="membership">Spend my gold</button>' : '') +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div>');
-status(S.rehearsal ? 'Admin rehearsal result — no member reward was created.' : '');
-rpc('vault_mark_seen', { run_id_in: num(x.run_id, 0) }).catch(function () {});
-}).catch(function (e) { if (valid(seq)) errorView(msg(e), 'retry'); });
-}
-function reviewVault() {
-var x = S.vaultResult || {}, rows = x.review || [];
-body('<div class="g102-review"><h3>Your sealed answers, now open</h3>' + (rows.length ? rows.map(function (r) {
-return '<article><b>Day ' + num(r.day, 0) + ' · ' + (r.correct ? 'Correct' : 'Not correct') + '</b><p>' + esc(r.question) + '</p>' +
-'<p>Your answer: ' + esc((r.options || [])[num(r.chosen, -1)] || 'No answer') + '<br>Correct answer: ' + esc((r.options || [])[num(r.correct_idx, -1)] || '—') + '</p>' +
-(r.fact ? '<p>' + esc(r.fact) + '</p>' : '') + '</article>';
-}).join('') : '<p>The house returned no review rows.</p>') +
-'<button type="button" class="g102-quiet" data-g102="back-result">Back to the result</button></div>');
-}
-function summaryHTML(x, name) {
-return '<div class="g102-summary"><span class="g102-coin">I</span><p class="g102-eyebrow">' + esc(name) + '</p>' +
-'<h3>' + num(x.score, 0) + ' of ' + num(x.questions || x.days, 0) + ' correct</h3>' +
-'<div class="g102-gold"><b>' + money(x.total_inr) + '</b><span>' + (S.rehearsal ? 'rehearsal gold only' : 'golden credit') + '</span></div>' +
-(x.expires_at ? '<p>' + (S.rehearsal ? 'Rehearsal expiry: ' : 'Use it by ') + esc(when(x.expires_at)) + '</p>' : '') + '</div>';
-}
-function quizHome(seq) {
-rpc('quiz_home_state').then(function (r) {
-if (!valid(seq)) return;
-var s = map(r); S.quiz = s; S.rehearsal = s.rehearsal === true; paintQuizCard(s);
-heading('Ten questions · every answer from the house', 'The Golden Knock-off');
-var phase = String(s.state || 'signed_out');
-if (phase === 'playing') { quizResume(seq); return; }
-if (phase === 'ready') {
-body('<div class="g102-intro"><p class="g102-eyebrow">The rapid-fire round</p><h3>Ten questions. Thirty seconds each.</h3>' +
-'<p>The topic, order, timer, scoring and gold all come from the house. A correct answer is revealed only after you answer.</p>' +
-'<div class="g102-facts"><span><b>' + num(s.total, 10) + '</b>questions</span><span><b>' + num(s.question_seconds, 30) + '</b>seconds each</span><span><b>' + money(s.max_per_answer) + '</b>up to each answer</span></div>' +
-'<button type="button" class="g102-primary" data-g102="begin-quiz">Unseal the topic</button></div>');
-} else {
-var text = phase === 'gold' ? 'Your golden credit is waiting to be spent.' :
-phase === 'cooling' || phase === 'dust' ? 'This round has finished. The Home card will say when the next opens.' :
-phase === 'paid' ? 'Your golden credit has been used.' :
-phase === 'closed' ? 'The Golden Knock-off is not open right now.' : 'The Golden Knock-off is not open for you right now.';
-body('<div class="g102-intro"><h3>' + esc(text) + '</h3>' +
-(num(s.credit_inr, 0) ? '<div class="g102-gold"><b>' + money(s.credit_inr) + '</b><span>golden credit</span></div>' : '') +
-(s.next_open_at ? '<p>Next opening: ' + esc(when(s.next_open_at)) + '</p>' : '') +
-'<div class="g102-row">' + (num(s.credit_inr, 0) > 0 ? '<button type="button" class="g102-primary" data-g102="membership">See memberships</button>' : '') +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div></div>');
-}
-status(S.rehearsal ? 'Admin rehearsal: canonical answers, no member-visible reward.' : '');
-}).catch(function (e) { if (valid(seq)) errorView(msg(e), 'retry'); });
-}
-function quizResume(seq) {
-loading('Resuming the open round…');
-rpc('quiz_resume').then(function (r) {
-if (!valid(seq)) return;
-if (!r) { quizHome(seq); return; }
-var x = map(r); S.rehearsal = x.rehearsal === true || S.rehearsal; showQuestion('quiz', map(x.next));
-}).catch(function (e) { if (valid(seq)) errorView(msg(e), 'retry'); });
-}
-function quizStart() {
-var seq = S.seq; S.busy = true; loading('Unsealing the topic…');
-rpc('quiz_start').then(function (r) {
-if (!valid(seq)) return; S.busy = false;
-var x = map(r); S.rehearsal = x.rehearsal === true || S.rehearsal;
-if (x.topic_title) heading(x.topic_title, 'The Golden Knock-off');
-showQuestion('quiz', map(x.next));
-}).catch(function (e) { if (valid(seq)) { S.busy = false; errorView(msg(e), 'begin-quiz'); } });
-}
-function showQuestion(mode, q) {
-closeTimer();
-if (!q || !num(q.question_id, 0)) { errorView('The house returned no question. Try opening it again.', 'retry'); return; }
-S.mode = mode; S.question = q; S.protect = true; S.busy = false; S.pending = null;
-S.deadline = Date.now() + Math.max(0, num(q.seconds_left, 0)) * 1000;
-var options = Array.isArray(q.options) ? q.options : [];
-var position = mode === 'vault' ? 'Day ' + num(q.day_no, 1) + ' of ' + num(q.days, 10) : 'Question ' + num(q.position, 1) + ' of ' + num(q.total, 10);
-body('<div class="g102-question"><div class="g102-qtop"><p class="g102-eyebrow">' + esc(position) + '</p>' +
-'<span class="g102-clock" id="g102-clock">—</span></div><h3>' + esc(q.question) + '</h3><div class="g102-options">' +
-options.map(function (text, i) { return '<button type="button" class="g102-option" data-choice="' + i + '"><span>' + String.fromCharCode(65 + i) + '</span><p>' + esc(text) + '</p></button>'; }).join('') +
-'</div><p class="g102-fine">Your choice is final once the house accepts it.</p></div>');
-status(S.rehearsal ? 'Admin rehearsal · no member progress or reward' : '');
-tick(); S.timer = setInterval(tick, 250);
-}
-function tick() {
-if (!S.question || !S.open) { closeTimer(); return; }
-var left = Math.max(0, Math.ceil((S.deadline - Date.now()) / 1000));
-var clock = $('#g102-clock'); if (clock) { clock.textContent = left + 's'; clock.classList.toggle('urgent', left <= 5); }
-if (left <= 0 && !S.busy) { closeTimer(); submitAnswer(-1); }
-}
-function submitAnswer(choice) {
-if (S.busy || !S.question) return;
-var q = S.question, mode = S.mode, seq = S.seq;
-S.busy = true; S.lastChoice = choice;
-$$('.g102-option').forEach(function (b) { b.disabled = true; b.classList.toggle('chosen', num(b.dataset.choice, -2) === choice); });
-status(choice < 0 ? 'Time is up. Sealing the missed answer…' : 'Sealing your answer…');
-var name = mode === 'vault' ? 'vault_answer' : 'quiz_answer';
-var params = mode === 'vault'
-? { run_id_in: num(q.run_id, 0), question_id_in: num(q.question_id, 0), choice_in: choice }
-: { attempt_id_in: num(q.attempt_id, 0), question_id_in: num(q.question_id, 0), choice_in: choice };
-rpc(name, params).then(function (r) {
-if (!valid(seq)) return; S.busy = false; closeTimer();
-var a = map(r);
-if (mode === 'vault') {
-S.question = null; S.protect = false;
-if (a.finished === true) { vaultResult(q.run_id, seq); }
-else { loading('The key has turned.'); vaultHome(seq); }
-} else {
-if (a.late === true || a.correct == null) { showQuizSummary(a.summary || a); return; }
-if (a.finished === true && !a.summary) { quizHome(seq); return; }
-S.pending = a;
-if (a.finished === true && a.summary && a.correct == null) { showQuizSummary(a.summary); return; }
-showQuizFeedback(a);
-}
-}).catch(function (e) {
-if (!valid(seq)) return; S.busy = false;
-var expired = Date.now() >= S.deadline;
-$$('.g102-option').forEach(function (b) { b.disabled = expired; });
-var oldRetry = $('.g102-retry-answer'); if (oldRetry) oldRetry.remove();
-if (expired) {
-closeTimer();
-var retry = d.createElement('button'); retry.type = 'button'; retry.className = 'g102-primary g102-retry-answer';
-retry.dataset.g102 = 'retry-answer'; retry.textContent = 'Retry the same submission';
-var qbox = $('.g102-question'); if (qbox) qbox.appendChild(retry);
-}
-status(msg(e) + ' Your answer has not been sealed.' + (expired ? ' Retry sends the original timeout/choice; the clock is not extended.' : ''), true);
-});
-}
-function showQuizFeedback(a) {
-S.protect = true;
-var correctIdx = num(a.correct_idx, -1), q = S.question || {}, options = q.options || [];
-body('<div class="g102-feedback"><p class="g102-eyebrow">' + (a.correct ? 'Correct' : (S.lastChoice < 0 ? 'Time ran out' : 'Not this one')) + '</p>' +
-'<h3>' + (a.correct ? '+' + money(a.amount_inr) + ' in this round' : 'The answer is now open') + '</h3>' +
-(correctIdx >= 0 ? '<p>Correct answer: <b>' + esc(options[correctIdx] || String.fromCharCode(65 + correctIdx)) + '</b></p>' : '') +
-(a.fact ? '<p>' + esc(a.fact) + '</p>' : '') +
-'<div class="g102-gold"><b>' + money(a.running_inr) + '</b><span>running gold, from the house</span></div>' +
-'<button type="button" class="g102-primary" data-g102="next-quiz">' + (a.finished ? 'See the result' : 'Next question') + '</button></div>');
-status(S.rehearsal ? 'Admin rehearsal · displayed gold is not a member reward' : '');
-}
-function nextQuiz() {
-var a = S.pending; if (!a) return;
-if (a.finished === true && a.summary) { showQuizSummary(a.summary); return; }
-if (a.next) { showQuestion('quiz', a.next); return; }
-errorView('The house returned no next question.', 'retry');
-}
-function showQuizSummary(summary) {
-var x = map(summary); S.rehearsal = x.rehearsal === true || S.rehearsal; S.protect = false; S.question = null; S.pending = null;
-heading('The round is complete', 'The Golden Knock-off');
-body(summaryHTML(x, 'The Golden Knock-off') + '<div class="g102-row">' +
-(num(x.total_inr, 0) > 0 && !S.rehearsal ? '<button type="button" class="g102-primary" data-g102="membership">Spend my gold</button>' : '') +
-'<button type="button" class="g102-quiet" data-g102="leave">Close</button></div>');
-status(S.rehearsal ? 'Admin rehearsal result — no member reward was created.' : '');
-}
-function dayTap(day) {
-var s = S.vault || {}, answered = num(s.answered, 0), current = num(s.day_no, 1), phase = String(s.state || '');
-if (day <= answered) { status('Day ' + day + ' is sealed. Its answer stays hidden until the vault opens.'); return; }
-if (day === current && (phase === 'ready' || phase === 'open')) {
-if (phase === 'ready') vaultKey(true, S.seq); else vaultKey(false, S.seq); return;
-}
-status('Day ' + day + ' is still locked. Day ' + current + ' must turn first' + (s.next_opens_at ? '; the next opening is ' + when(s.next_opens_at) : '') + '.');
-}
-function action(e) {
-var choice = e.target.closest('[data-choice]');
-if (choice && $('#gold102').contains(choice)) { e.preventDefault(); submitAnswer(num(choice.dataset.choice, -1)); return; }
-var day = e.target.closest('[data-day]');
-if (day && $('#gold102').contains(day)) { e.preventDefault(); dayTap(num(day.dataset.day, 0)); return; }
-var b = e.target.closest('[data-g102]'); if (!b) return;
-var what = b.dataset.g102; e.preventDefault();
-if (what === 'close') askClose();
-else if (what === 'stay') $('#g102-confirm').hidden = true;
-else if (what === 'leave') finishClose();
-else if (what === 'retry') { if (S.mode === 'vault') vaultHome(S.seq); else quizHome(S.seq); }
-else if (what === 'begin-vault') vaultKey(true, S.seq);
-else if (what === 'open-key') vaultKey(false, S.seq);
-else if (what === 'vault-next') rehearsalVault('next');
-else if (what === 'vault-reset') rehearsalVault('reset');
-else if (what === 'begin-quiz') quizStart();
-else if (what === 'next-quiz') nextQuiz();
-else if (what === 'review-vault') reviewVault();
-else if (what === 'back-result') vaultResult((S.vaultResult || {}).run_id, S.seq);
-else if (what === 'retry-answer') { S.busy = false; submitAnswer(S.lastChoice); }
-else if (what === 'membership') { finishClose(); if (w.IVHOUSE102) IVHOUSE102.go('premium'); else if (w.ivoryShow) ivoryShow('premium'); }
-}
-function paintVaultCard(s) {
-var card = $('.card.c-rose'); if (!card) return;
-var state = String(s.state || ''), day = num(s.day_no, 1), answered = num(s.answered, 0), days = num(s.days, 10);
-var lede = $('.lede', card), kick = $('.vaultfoot .kicker', card), note = $('.vaultfoot .note', card), clock = $('.vaultfoot .clock', card);
-if (lede) lede.textContent = state === 'ready' ? 'A fresh ten-day vault is ready.' : state === 'open' ? 'Day ' + day + ' is waiting. One question, one key.' : state === 'sealed' ? 'Day ' + answered + ' is sealed. Well turned.' : state === 'ceremony' ? 'The last key has turned. Open your vault.' : state === 'resting' ? 'Your vault is resting until the next run.' : 'Open to read your Ten-Day Vault.';
-if (kick) kick.textContent = state === 'sealed' ? 'Next key' : state === 'ceremony' ? 'The vault is open' : 'Ten daily keys';
-if (note) note.textContent = s.next_opens_at && state === 'sealed' ? 'Next key: ' + when(s.next_opens_at) : 'Your answers stay sealed until the final day.';
-if (clock) clock.hidden = true;
-var bar = $('.keybar', card);
-if (bar) bar.innerHTML = Array.apply(null, Array(days)).map(function (_, i) { var n = i + 1; return '<i class="' + (n <= answered ? 'got' : '') + '" title="Day ' + n + (n <= answered ? ' sealed' : '') + '"><span>' + n + '</span></i>'; }).join('');
-}
-function paintQuizCard(s) {
-var card = $('.card.c-gold'); if (!card) return;
-var state = String(s.state || ''), lede = $('.lede', card), kick = $('.kicker', card), note = $('.note', card), clock = $('.clock', card);
-if (lede) { lede.classList.remove('crossed'); lede.textContent = state === 'ready' ? 'A fresh Golden Knock-off is ready.' : state === 'playing' ? 'Your round is open. Resume from the next question.' : state === 'gold' ? money(s.credit_inr) + ' in golden credit is waiting.' : state === 'dust' ? 'This round’s unspent gold has faded.' : 'Open to read your Golden Knock-off.'; }
-if (kick) kick.textContent = state === 'playing' ? 'Round in progress' : state === 'ready' ? 'The topic is sealed' : 'The Golden Knock-off';
-if (note) note.textContent = s.next_open_at ? 'Next opening: ' + when(s.next_open_at) : state === 'gold' && s.expires_at ? 'Use the gold by ' + when(s.expires_at) + '.' : 'The house owns every question, clock, answer and reward.';
-if (clock) clock.hidden = true;
-var bar = $('.coinbar', card);
-if (bar) bar.innerHTML = Array.apply(null, Array(num(s.seal_total, 10))).map(function (_, i) { return '<i class="' + (i < num(s.seals, 0) ? 'on' : '') + '"><span>' + (i + 1) + '</span></i>'; }).join('');
-}
-function refreshCards() {
-if (!signed()) return Promise.resolve();
-return Promise.all([
-rpc('vault_home_state').then(function (r) { paintVaultCard(map(r)); }).catch(function () {}),
-rpc('quiz_home_state').then(function (r) { paintQuizCard(map(r)); }).catch(function () {})
-]);
-}
-function ladderStatus(text, bad) {
-var bodyEl = $('#sheet-ladder .ladder-body'); if (!bodyEl) return;
-var el = $('#g102-ladder-status');
-if (!el) { el = d.createElement('p'); el.id = 'g102-ladder-status'; el.className = 'iv-house-status'; bodyEl.insertBefore(el, bodyEl.firstChild); }
-el.hidden = !text; el.classList.toggle('bad', !!bad); el.innerHTML = text || '';
-}
-function loadLadder() {
-var bodyEl = $('#sheet-ladder .ladder-body'); if (!bodyEl || !signed()) { if (!signed()) toast('Sign in to read your Ladder.', true); return; }
-bodyEl.classList.add('g102-resolving'); ladderStatus('Reading your Ladder…');
-rpc('ladder_state').then(function (r) {
-var s = map(r); S.ladder = s; renderLadder(s); bodyEl.classList.remove('g102-resolving');
-ladderStatus(''); loadCalendar(false);
-}).catch(function (e) {
-ladderStatus(esc(msg(e)) + '<br><button type="button" class="g102-quiet" data-ladder-retry>Try again</button>', true);
-});
-}
-function renderLadder(s) {
-var root = $('#sheet-ladder'); if (!root) return;
-var rung = map(s.rung), next = map(s.next), rungs = Array.isArray(s.rungs) ? s.rungs : [];
-var eyebrow = $('.ld-card .ld-eyebrow', root), rank = $('.ld-rank', root), points = $('.ld-points', root), nextLine = $('.ld-next', root);
-if (eyebrow) eyebrow.textContent = 'Rung ' + num(rung.n, 1) + ' of ' + (rungs.length || 12);
-if (rank) rank.textContent = rung.name || 'Pearl';
-if (points) points.textContent = num(s.points, 0) + ' climb points';
-if (nextLine) nextLine.textContent = next.name ? Math.max(0, num(next.min, 0) - num(s.points, 0)) + ' more to reach ' + next.name : 'The Ivory Crown is yours.';
-var base = num(rung.min, 0), target = num(next.min, base), fraction = next.name && target > base ? Math.max(0, Math.min(1, (num(s.points, 0) - base) / (target - base))) : 1;
-var bar = $('.ld-card .ld-bar i', root); if (bar) bar.style.width = (fraction * 100).toFixed(1) + '%';
-var foot = $('.lh-foot b', root); if (foot) foot.textContent = (rung.name || 'Pearl') + ' · ' + num(s.points, 0);
-var list = $('.ld-list', root);
-if (list) list.innerHTML = '<div class="ld-rail" aria-hidden="true"></div>' + rungs.slice().sort(function (a, b) { return num(b.min, 0) - num(a.min, 0); }).map(function (r) {
-var you = num(r.n, 0) === num(rung.n, -1);
-return '<div class="ld-r' + (you ? ' you' : '') + '"><span>' + esc(r.name) + '</span><b>' + (you ? 'you' : num(r.min, 0)) + '</b></div>';
-}).join('');
-var star = $('.ld-star .bx b', root); if (star) star.textContent = num(s.stars, 0);
-var glow = map(s.glow), peal = map(s.peal), streaks = $$('.ld-streak', root);
-[[glow, 'Heart glow'], [peal, 'Bell peal']].forEach(function (pair, i) {
-var el = streaks[i]; if (!el) return;
-var top = $('.ls-top i', el); if (top) top.textContent = num(pair[0].now, 0) + ' now · best ' + num(pair[0].best, 0);
-var pills = $('.ls-pills', el), days = Array.isArray(s.milestone_days) ? s.milestone_days : [];
-if (pills) pills.innerHTML = days.map(function (n) { return '<span class="' + (num(pair[0].now, 0) >= num(n, 0) ? 'w' : '') + '">' + num(n, 0) + '</span>'; }).join('');
-var nextDay = days.filter(function (n) { return num(n, 0) > num(pair[0].now, 0); })[0];
-var note = $('.ls-note', el); if (note) note.textContent = nextDay ? (num(nextDay, 0) - num(pair[0].now, 0)) + ' more days to your ' + nextDay + '-day mark.' : 'Every returned milestone is earned.';
-});
-var marks = Array.isArray(s.marks) ? s.marks : [], markBox = $('.ld-marks', root);
-if (markBox) markBox.innerHTML = marks.map(function (m) {
-var rarity = ['c','u','r','e','l'][Math.max(0, ['common','uncommon','rare','epic','legendary'].indexOf(String(m.rarity || 'common')))] || 'c';
-return '<div class="mk ' + rarity + (m.earned ? ' lit' : '') + '" data-earned="' + (m.earned ? '1' : '0') + '" title="' + esc(m.blurb || '') + '"><span>✦</span><i>' + esc(m.name) + '</i><b>' + num(m.have, 0) + '/' + num(m.target, 1) + '</b></div>';
-}).join('') || '<p class="ld-copy">No Marks have been returned.</p>';
-var sub = $('.ld-sub', root); if (sub) sub.textContent = num(s.marks_earned, 0) + ' / ' + num(s.marks_total, marks.length);
-$$('.mk2-lab,.mk2-grid,.mk2-filters,.ld-card.gift', root).forEach(function (el) { el.hidden = true; });
-}
-function ensureCalendar() {
-var head = $('#sheet-ladder .ld-cal-head'); if (!head) return;
-var nav = $$('.cal-nav', head);
-nav.forEach(function (el, i) {
-if (el.tagName === 'BUTTON') return;
-var b = d.createElement('button'); b.type = 'button'; b.className = 'cal-nav'; b.dataset.calMove = i ? '1' : '-1';
-b.setAttribute('aria-label', i ? 'Next month' : 'Previous month'); b.textContent = i ? '›' : '‹';
-el.parentNode.replaceChild(b, el);
-});
-if (!S.calY) { var now = new Date(); S.calY = now.getFullYear(); S.calM = now.getMonth() + 1; }
-}
-function loadCalendar(move) {
-ensureCalendar(); if (S.calBusy) return;
-if (move) { S.calM += move; while (S.calM < 1) { S.calM += 12; S.calY--; } while (S.calM > 12) { S.calM -= 12; S.calY++; } }
-S.calBusy = true;
-var y = S.calY, m = S.calM, cal = $('#sheet-ladder .ld-cal');
-if (cal) cal.setAttribute('aria-busy', 'true');
-rpc('ladder_calendar', { y: y, m: m }).then(function (r) {
-var x = map(r); renderCalendar(x);
-}).catch(function (e) {
-var card = $('#sheet-ladder .ld-cal'); if (card) card.innerHTML = '<p class="g102-cal-error">' + esc(msg(e)) + '</p><button type="button" class="g102-quiet" data-cal-retry>Retry this month</button>';
-}).then(function () { S.calBusy = false; var c = $('#sheet-ladder .ld-cal'); if (c) c.setAttribute('aria-busy', 'false'); });
-}
-function renderCalendar(x) {
-var root = $('#sheet-ladder'); if (!root) return;
-var y = num(x.year, S.calY), m = num(x.month, S.calM); S.calY = y; S.calM = m;
-var title = $('.ld-cal-head b', root); if (title) title.textContent = (MONTHS[m - 1] || '') + ' ' + y;
-var cal = $('.ld-cal', root); if (!cal) return;
-var byDay = {}; (Array.isArray(x.days) ? x.days : []).forEach(function (r) { byDay[num(r.day, 0)] = r; });
-var count = new Date(y, m, 0).getDate(), blanks = Math.max(0, num(x.first_weekday, 1) - 1), todayKey = String(x.today || '').split('T')[0];
-var html = '';
-for (var b = 0; b < blanks; b++) html += '<span class="c off" aria-hidden="true"></span>';
-for (var day = 1; day <= count; day++) {
-var row = byDay[day] || {}, key = y + '-' + String(m).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-var cls = 'c' + (row.lit ? ' lit' : '') + (row.full ? ' star' : '') + (todayKey && key === todayKey ? ' today' : '');
-html += '<span class="' + cls + '" data-date="' + key + '"' + (key === todayKey ? ' aria-current="date"' : '') + '>' + day + '</span>';
-}
-cal.innerHTML = html;
-}
-function ladderTap(e) {
-var retry = e.target.closest('[data-ladder-retry]'); if (retry) { e.preventDefault(); loadLadder(); return; }
-var calRetry = e.target.closest('[data-cal-retry]'); if (calRetry) { e.preventDefault(); loadCalendar(false); return; }
-var move = e.target.closest('[data-cal-move]'); if (move) { e.preventDefault(); loadCalendar(num(move.dataset.calMove, 0)); return; }
-var filter = e.target.closest('#sheet-ladder .ld-filters .lf'); if (filter) {
-e.preventDefault(); var card = filter.closest('.ld-card'), buttons = $$('.lf', card);
-buttons.forEach(function (b) { b.classList.toggle('on', b === filter); });
-var which = filter.textContent.trim().toLowerCase();
-$$('.ld-marks .mk', card).forEach(function (m) { m.hidden = which === 'earned' ? m.dataset.earned !== '1' : which === 'to earn' ? m.dataset.earned === '1' : false; });
-}
-}
-function wrapLadder() {
-if (!w.openSheet || w.openSheet.__gold102) return;
-var base = w.openSheet;
-function wrapped(id) { var r = base.apply(this, arguments); if (id === 'ladder') setTimeout(loadLadder, 30); return r; }
-['__p92','__p94','__folio','__house102'].forEach(function (k) { if (base[k]) wrapped[k] = base[k]; });
-wrapped.__gold102 = true; w.openSheet = wrapped;
-}
-function cardTap(e) {
-var t = e.target && e.target.closest ? e.target : null; if (!t) return;
-var quiz = t.closest('[data-open="knock"]'), vault = t.closest('.card.c-rose');
-if (!quiz && !vault) return;
-e.preventDefault(); e.stopImmediatePropagation(); openMode(quiz ? 'quiz' : 'vault');
-}
-function cardKey(e) {
-if (e.key !== 'Enter' && e.key !== ' ') return;
-if (e.target.closest && e.target.closest('.card.c-rose,[data-open="knock"]')) cardTap(e);
-}
-function boot() {
-shell(); wrapLadder(); ensureCalendar();
-d.addEventListener('click', cardTap, true); d.addEventListener('keydown', cardKey, true); d.addEventListener('click', ladderTap, true);
-paintVaultCard({ state: '' }); paintQuizCard({ state: '' });
-setTimeout(refreshCards, 900);
-if (w.IVSESS && IVSESS.on) IVSESS.on(function () { setTimeout(refreshCards, 500); });
-}
-if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
-return { openVault: function () { openMode('vault'); }, openQuiz: function () { openMode('quiz'); }, close: finishClose,
-refreshCards: refreshCards, loadLadder: loadLadder, loadCalendar: loadCalendar,
-state: function () { return { mode: S.mode, open: S.open, rehearsal: S.rehearsal, vault: S.vault, quiz: S.quiz, calY: S.calY, calM: S.calM }; } };
-})();
-
-window.IVLIVE102 = (function () {
-'use strict';
-var w = window, seq = 0, busy = false;
-function toast(text, bad) { if (w.ivoryToast) w.ivoryToast(text, !!bad); }
-function signed() { try { return !!(w.IVSESS && IVSESS.ident().id); } catch (e) { return false; } }
-function discBusy(on) {
-var disc = document.getElementById('iv-live-disc');
-if (disc) { disc.setAttribute('aria-busy', on ? 'true' : 'false'); disc.disabled = !!on; }
-}
-function watchRow(row) {
-if (!row || row.status !== 'live') return false;
-if (!w.IVLIVE || !IVLIVE.watch) { toast('The full-screen room is still loading. Try again.', true); return false; }
-IVLIVE.watch({
-id: row.id,
-title: row.title || 'Ivory is Live',
-sub: row.subtitle || '',
-price: Number(row.price_inr || 0),
-seatPrice: Number(row.guest_price_inr || 0),
-allowed: Array.isArray(row.allowed_tiers) ? row.allowed_tiers : [],
-minTier: Number(row.min_tier || 0),
-tierName: row.tier_name || '',
-hostVideo: row.host_video_enabled !== false,
-startedAt: row.started_at || row.created_at || null
-});
-return true;
-}
-function openCurrent() {
-var mine = ++seq;
-if (!signed()) {
-toast('Sign in to walk into Ivory’s live room.', true);
-if (w.IVOPENING && IVOPENING.open) IVOPENING.open();
-return Promise.resolve(false);
-}
-if (!w.IVSESS || !IVSESS.get) { toast('The session circuit is unavailable.', true); return Promise.resolve(false); }
-if (busy) return Promise.resolve(false);
-busy = true; discBusy(true);
-return IVSESS.get('/rest/v1/live_public?select=id,title,subtitle,status,price_inr,guest_price_inr,allowed_tiers,min_tier,tier_name,host_video_enabled,started_at,created_at&status=eq.live&order=started_at.desc&limit=1')
-.then(function (rows) {
-if (mine !== seq) return false;
-var row = rows && rows[0];
-if (!row) {
-toast('Ivory is not live right now.');
-if (w.ivoryShow) ivoryShow('live');
-return false;
-}
-return watchRow(row);
-}).catch(function (e) {
-if (mine === seq) toast((e && e.message) || 'The live room could not be read. Try again.', true);
-return false;
-}).then(function (result) {
-if (mine === seq) { busy = false; discBusy(false); }
-return result;
-});
-}
-function boot() {
-var old = w.ivLive || {};
-w.ivLive = { open: openCurrent, refresh: old.refresh };
-w.addEventListener('iv-live-ended', function () { seq++; busy = false; discBusy(false); });
-}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
-return { open: openCurrent, watchRow: watchRow, busy: function () { return busy; } };
-})();
-</script>
+<script id="iv-pass102-js" src="iv-pass102.js"></script>
+<link id="iv-pass103-css" rel="stylesheet" href="pass103.css">
+<script id="iv-early103" src="early103.js" defer></script>
 </body>
 </html>

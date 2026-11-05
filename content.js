@@ -7,7 +7,8 @@ window.IVCONTENT = (function () {
   var S = {
     posts: [], polls: {}, mine: {}, voters: {}, adminPosts: {}, fullPosts: {}, previewUrls: {}, previewRetry: {},
     filter: 'all', seq: 0, renderSeq: 0, loading: null, last: 0, err: null,
-    openId: null, openSeq: 0, giftReq: 0, voting: {}, viewHour: -1, viewCache: {}
+    openId: null, openSeq: 0, giftReq: 0, voting: {}, viewHour: -1, viewCache: {},
+    firstRows: [], firstSeq: 0, firstLoading: null
   };
   var LABEL = { video: 'VIDEO', audio: 'AUDIO', blog: 'STORY', image: 'PHOTO', poll: 'POLL' };
   var ACTION = { video: 'Watch', audio: 'Listen', blog: 'Read', image: 'View', poll: 'Vote' };
@@ -209,6 +210,49 @@ window.IVCONTENT = (function () {
     return '<div class="iv-feed-empty"><b>The shelf did not answer.</b><p>' + esc(S.err || 'Check your connection and try once more.') + '</p>' +
       '<button type="button" data-iv-content-retry>Try again</button></div>';
   }
+  var FIRST_ICONS = {
+    blog: '<path d="M30 9l9 9-19 19-11 2 2-11z"/><path d="M26 13l9 9M12 39l6-6"/>',
+    poll: '<path d="M10 38V26M24 38V14M38 38V20"/>',
+    image: '<rect x="7" y="9" width="34" height="30" rx="5"/><circle cx="18" cy="19" r="3"/><path d="M9 35l10-10 8 8 5-5 8 8"/>',
+    audio: '<path d="M9 27v-6M17 34V14M25 30V18M33 38V10M41 28v-8"/>',
+    video: '<circle cx="24" cy="24" r="17"/><path d="M20 16l13 8-13 8z"/>'
+  };
+  function firstIcon(type) {
+    return '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (FIRST_ICONS[type] || FIRST_ICONS.blog) + '</svg>';
+  }
+  function firstTile(p, index) {
+    var type = LABEL[p.type] ? p.type : 'blog', lock = locked(p);
+    return '<button type="button" class="ftile iv-first-tile iv-first-' + type + (lock ? ' is-locked' : '') + '" data-iv-post-open="' + Number(p.id) + '" aria-label="' + esc((ACTION[type] || 'Open') + ': ' + cleanTitle(p.title)) + '">' +
+      '<span class="fart"><span class="iv-art-mark iv-first-fallback" aria-hidden="true"><span class="iv-first-cover-medal">' + firstIcon(type) + '</span><small>IVORY · ' + esc(LABEL[type] || 'POST') + '</small></span>' +
+      '<img data-iv-thumb="' + Number(p.id) + '" alt="" loading="lazy" decoding="async" hidden>' +
+      '<span class="fnum">' + (index + 1) + '</span>' + (lock ? '<span class="iv-first-lock">LOCKED</span>' : '') + '</span>' +
+      '<b>' + esc(cleanTitle(p.title)) + '</b><span class="ftype">' + esc(LABEL[type] || 'POST') + '</span></button>';
+  }
+  function renderFirstlist() {
+    var section = document.querySelector('#home-screen .hp-first'); if (!section) return;
+    var rail = section.querySelector('.hp-rail'); if (!rail) return;
+    var rows = S.firstRows || [];
+    section.hidden = !rows.length;
+    rail.innerHTML = rows.slice(0, 25).map(firstTile).join('');
+  }
+  function mergeFirstRows(rows) {
+    rows.forEach(function (p) { if (!postById(p.id)) S.posts.push(p); });
+  }
+  function refreshFirstlist(force) {
+    if (!IV || !IV.get) return Promise.resolve([]);
+    if (S.firstLoading && !force) return S.firstLoading;
+    var seq = ++S.firstSeq;
+    S.firstLoading = get('/rest/v1/post_previews?select=*&pin_rank=gt.0&order=pin_rank.asc&limit=25').then(function (rows) {
+      if (seq !== S.firstSeq) return S.firstRows;
+      S.firstRows = Array.isArray(rows) ? rows : [];
+      mergeFirstRows(S.firstRows); S.firstLoading = null; renderAll(); return S.firstRows;
+    }).catch(function () {
+      if (seq === S.firstSeq) { S.firstLoading = null; renderFirstlist(); }
+      return S.firstRows;
+    });
+    return S.firstLoading;
+  }
+
   function renderHome() {
     var box = document.querySelector('#home-screen .hp-recent .pcards');
     if (!box) return;
@@ -227,7 +271,7 @@ window.IVCONTENT = (function () {
   }
   function renderAll() {
     S.renderSeq++;
-    renderHome(); renderLibrary(); renderOpenPoll();
+    renderFirstlist(); renderHome(); renderLibrary(); renderOpenPoll();
     hydrateThumbs();
   }
   function renderOpenPoll() {
@@ -248,13 +292,12 @@ window.IVCONTENT = (function () {
     if (!safeUrl(url)) return;
     Array.prototype.forEach.call(document.querySelectorAll('img[data-iv-thumb="' + Number(id) + '"]'), function (img) {
       img.hidden = false; img.src = url;
-      img.onload = function () { img.classList.add('ready'); };
+      img.onload = function () { img.classList.add('ready'); var readyMark = img.parentNode && img.parentNode.querySelector('.iv-art-mark'); if (readyMark) readyMark.classList.add('behind'); };
       img.onerror = function () {
         img.hidden = true; img.classList.remove('ready');
+        var failedMark = img.parentNode && img.parentNode.querySelector('.iv-art-mark'); if (failedMark) failedMark.classList.remove('behind');
         delete S.previewUrls[id]; S.previewRetry[id] = true;
       };
-      var mark = img.parentNode && img.parentNode.querySelector('.iv-art-mark');
-      if (mark) mark.classList.add('behind');
     });
   }
   function hydrateThumbs() {
@@ -290,6 +333,7 @@ window.IVCONTENT = (function () {
 
   function refresh(force) {
     if (!IV || !IV.get) return Promise.resolve([]);
+    refreshFirstlist(!!force);
     if (S.loading && !force) return S.loading;
     var seq = ++S.seq;
     S.err = null;
@@ -585,6 +629,16 @@ window.IVCONTENT = (function () {
       if (!full) throw new Error('This post is not available to your membership yet.');
       S.fullPosts[full.id] = full;
       $('iv-post-body').innerHTML = detailMarkup(full, false);
+      /* Mirror the APK's quiet accounting only after a successful full-open.
+         Neither rendering nor either reward RPC blocks the story itself. */
+      if (uid() && !house()) {
+        call('/rest/v1/rpc/early_note_read', { post_id_in: id }).catch(function () {});
+        call('/rest/v1/rpc/heart_read_post', { post_id_in: id }).then(function (lit) {
+          if (lit === true) toast('Today’s Golden Heart is lit.');
+          if (window.IVP94 && IVP94.heart) IVP94.heart();
+          if (lit === true && window.IVP94 && IVP94.bells) setTimeout(function () { IVP94.bells(); }, 700);
+        }).catch(function () {});
+      }
       fillGifts(full, seq);
       fillMedia(full, seq).then(function () {
         /* The APK awaits its signing attempts, then counts only if still open. */
@@ -657,7 +711,7 @@ window.IVCONTENT = (function () {
     if (home && !home.getAttribute('data-iv-shared')) { home.setAttribute('data-iv-shared', '1'); home.innerHTML = '<div class="iv-feed-loading">Opening the shared shelf…</div>'; }
     var lib = $('lib-feed');
     if (lib && !lib.getAttribute('data-iv-shared')) { lib.setAttribute('data-iv-shared', '1'); lib.innerHTML = '<div class="iv-feed-loading">Opening the shared shelf…</div>'; }
-    ensureSheet();
+    ensureSheet(); renderFirstlist();
   }
   function visibleContent() {
     var screen = document.body.dataset.screen || '';

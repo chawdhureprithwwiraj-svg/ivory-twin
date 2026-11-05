@@ -99,3 +99,36 @@ video.iv-full-media{min-height:210px}
 .iv-gift-send:focus-visible,.iv-gift-retry:focus-visible{outline:3px solid rgba(185,137,48,.42);outline-offset:3px}
 .iv-gift-retry{display:block;margin:8px auto 0;padding:5px 5px;border:0;background:none;color:#8a5a36;font:12px/1.4 Georgia,serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.iv-post-card,.iv-post-art>img,.iv-poll-fill{transition:none}.iv-post-card:hover{transform:none}}
+
+/* Pass 103 · canonical Firstlist: real ordered moments, never demo tiles. */
+.hp-first[hidden]{display:none!important}
+.hp-first .hp-rail{height:232px;align-items:stretch;gap:12px;padding:3px 2px 8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:thin}
+.hp-first .iv-first-tile{appearance:none;-webkit-appearance:none;position:relative;flex:0 0 182px;width:182px;height:232px;min-height:232px;margin:0;padding:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;scroll-snap-align:start;border:1.3px solid rgba(185,135,50,.58);border-radius:18px;background:linear-gradient(150deg,#fffdf8,#fff6e8);box-shadow:0 8px 22px rgba(87,42,48,.10);color:#642f3e;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.hp-first .iv-first-tile:hover{transform:translateY(-3px);border-color:#bd8d36;box-shadow:0 13px 28px rgba(87,42,48,.16)}
+.hp-first .iv-first-tile:active{transform:translateY(-1px) scale(.99)}
+.hp-first .iv-first-tile:focus-visible{outline:3px solid rgba(181,134,63,.38);outline-offset:3px}
+.hp-first .iv-first-tile .fart{position:relative;display:block;flex:0 0 128px;width:100%;height:128px;margin:0;overflow:hidden;border-radius:16px 16px 0 0;background:linear-gradient(135deg,#f8e6c8,#fff8e9 55%,#efd5ad)}
+.hp-first .iv-first-tile .fart:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.30),transparent 42%,rgba(154,94,45,.07));z-index:2}
+.hp-first .iv-first-fallback{position:absolute;inset:0;display:grid;place-items:center;color:#b47c27;background:radial-gradient(circle at 23% 16%,rgba(255,255,255,.85),transparent 36%),radial-gradient(circle at 84% 90%,rgba(188,124,47,.18),transparent 48%),linear-gradient(145deg,#fff4df,#f1d7ae);opacity:1;transition:opacity .2s}
+.hp-first .iv-first-fallback.behind{opacity:0}
+.hp-first .iv-first-fallback svg{width:42px;height:42px;filter:drop-shadow(0 3px 5px rgba(121,74,24,.13))}
+.hp-first .iv-first-audio .iv-first-fallback{color:#9b5470;background:radial-gradient(circle at 20% 15%,#fff9ef,transparent 40%),linear-gradient(145deg,#fce9df,#eac6c6)}
+.hp-first .iv-first-video .iv-first-fallback{color:#805575;background:radial-gradient(circle at 20% 15%,#fff9ef,transparent 40%),linear-gradient(145deg,#f4e5ef,#dec5d8)}
+.hp-first .iv-first-poll .iv-first-fallback{color:#a17b2f;background:radial-gradient(circle at 20% 15%,#fffdf4,transparent 40%),linear-gradient(145deg,#fff3cf,#ecd9a5)}
+.hp-first .iv-first-tile .fart>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity .25s}
+.hp-first .iv-first-tile .fart>img.ready{opacity:1}
+.hp-first .iv-first-tile .fnum{position:absolute;z-index:4;left:8px;top:8px;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#f4d27d,#bd862b);box-shadow:0 2px 8px rgba(83,45,22,.2);color:#572838;font:900 11px/1 system-ui}
+.hp-first .iv-first-lock{position:absolute;z-index:4;right:8px;top:10px;padding:4px 7px;border-radius:20px;background:rgba(255,251,242,.94);color:#744059;font:900 8px/1 system-ui;letter-spacing:.8px}
+.hp-first .iv-first-tile>b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;flex:0 0 auto;min-height:36px;margin:9px 11px 0;color:#642f3e;font:700 14px/1.25 Georgia,serif}
+.hp-first .iv-first-tile>.ftype{margin:auto 11px 10px;display:flex;align-items:center;gap:5px;color:#9a756c;font:800 9px/1 system-ui;letter-spacing:1px}
+.hp-first .iv-first-tile>.ftype:before{content:"✦";color:#bd8d36;font-size:10px;letter-spacing:0}
+@media(max-width:600px){.hp-first .hp-rail{margin-right:-18px;padding-right:18px}.hp-first .iv-first-tile{flex-basis:164px;width:164px}.hp-first .iv-first-tile .fart{flex-basis:116px;height:116px}}
+@media(prefers-reduced-motion:reduce){.hp-first .iv-first-tile,.hp-first .iv-first-tile .fart>img{transition:none}.hp-first .iv-first-tile:hover{transform:none}}
+
+/* Pass 103 · a Firstlist fallback is a finished cover, never a blank loader. */
+.hp-first .iv-first-fallback{isolation:isolate;text-align:center}
+.hp-first .iv-first-fallback::before{content:"";position:absolute;inset:12px;z-index:-1;border:1px solid rgba(255,255,255,.65);border-radius:13px;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.48),transparent 52%),repeating-radial-gradient(circle at 50% 42%,transparent 0 23px,rgba(164,112,43,.07) 24px 25px);box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+.hp-first .iv-first-cover-medal{display:grid;place-items:center;width:72px;height:72px;margin-top:-11px;border:1px solid rgba(255,255,255,.8);border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,244,215,.32));box-shadow:inset 0 1px 0 #fff,0 8px 20px rgba(116,72,39,.1)}
+.hp-first .iv-first-fallback small{position:absolute;left:0;right:0;bottom:19px;font:800 8px/1 system-ui,sans-serif;letter-spacing:.16em;color:currentColor;opacity:.78}
+.hp-first .iv-first-fallback.behind{opacity:0}
+.hp-first .iv-first-tile .fart>img.ready{opacity:1}
