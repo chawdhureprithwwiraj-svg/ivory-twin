@@ -7,16 +7,24 @@
 
   function fetchLibrary() {
     var all = [];
-    function page(offset) {
-      return H.get('/rest/v1/admin_posts?select=*&order=created_at.desc,id.desc&limit=200&offset=' + offset).then(function (rows) {
+    /* Unique-id keyset pages have no post ceiling and cannot drift when a new
+       post is published halfway through a long read. */
+    function page(cursor) {
+      var path = '/rest/v1/admin_posts?select=*&order=id.desc&limit=200';
+      if (cursor != null) path += '&id=lt.' + encodeURIComponent(String(cursor));
+      return H.get(path).then(function (rows) {
         rows = Array.isArray(rows) ? rows : [];
         all = all.concat(rows);
         if (rows.length < 200) return all;
-        if (offset >= 49800) throw new Error('The library exceeded the safe read boundary. Refresh and let the house check its pagination.');
-        return page(offset + 200);
+        var last = rows[rows.length - 1] || {};
+        var next = last.id;
+        if (next == null || String(next).trim() === '' || String(next) === String(cursor)) {
+          throw new Error('The Library returned an invalid pagination cursor. No posts were changed.');
+        }
+        return page(next);
       });
     }
-    return page(0);
+    return page(null);
   }
   function setFirst(id, on) { return H.api('/rest/v1/rpc/set_firstlist', { post_id_in: Number(id), pinned_in: !!on }); }
   function ordinal(n) { return n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : n + 'th'; }
