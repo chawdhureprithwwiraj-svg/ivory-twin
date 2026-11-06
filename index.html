@@ -19948,88 +19948,166 @@ window.IVSESS = (function () {
     var h=d.getHours(), ap=h<12?'am':'pm', hh=h%12||12, mm=d.getMinutes();
     return d.getDate()+' '+MO[d.getMonth()]+', '+hh+(mm?':'+String(mm).padStart(2,'0'):'')+' '+ap;
   }
-  function renderCalls(p){
-    p.innerHTML =
-      '<p class="dk-kick">The bookings</p>'+
-      '<h1 class="dk-h1">Who is <em>waiting.</em></h1>'+
-      '<p class="dk-lede">A member asks for audio or video, for a number of minutes. Nothing is confirmed until you accept it — exactly as in the app.</p>'+
-      '<div id="dk-calls-body"><div class="dk-empty">Reading the book…</div></div>';
-    call('/rest/v1/rpc/sweep_missed_calls',{})
-      .catch(function(){ return 0; })
-      .then(function(){ return call('/rest/v1/rpc/list_calls',{status_in:null}); })
-      .then(function(rows){ paintCalls(rows||[]); })
-      .catch(function(x){
-        $('dk-calls-body').innerHTML='<div class="dk-empty">The call book did not answer — '+esc(x.message)+'</div>';
-      });
+/* Pass 105 · native Admin Calls, injected into the desk's owning closure.
+   list_calls, sweep_missed_calls, respond_call, set_call_time and the existing
+   call room remain canonical. Website payment checks and time-window offers
+   remain available without changing the native card sequence. */
+  var calls105Seq = 0, calls105Note = '';
+  function callWhen105(value) {
+    var d = value instanceof Date ? value : new Date(value);
+    if (!d || isNaN(d.getTime())) return '';
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var h = d.getHours(), hour = h % 12 || 12;
+    return d.getDate() + ' ' + months[d.getMonth()] + ', ' + hour + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + (h < 12 ? 'am' : 'pm');
   }
-  function paintCalls(rows){
-    var box=$('dk-calls-body'); if(!box) return;
-    box.innerHTML='';
-    var SHELVES=[['requested','Waiting for you'],['accepted','Confirmed'],['active','In the room'],
-                 ['completed','Past'],['missed','Missed'],['declined','Declined']];
-    var drawn=0;
-    SHELVES.forEach(function(shelf){
-      var list=rows.filter(function(c){ return c.status===shelf[0]; });
-      if(!list.length) return;
-      drawn++;
-      var head=document.createElement('p'); head.className='dk-kick';
-      head.style.marginTop='18px'; head.textContent=shelf[1]; box.appendChild(head);
-      list.forEach(function(c){
-        var when=c.requested_for? new Date(c.requested_for):null;
-        var what=(c.kind==='video'?'Video':'Audio')+' · '+c.minutes+' minutes'+
-                 (c.price_inr? ' · ₹'+String(c.price_inr).replace(/\B(?=(\d{3})+(?!\d))/g,',') : ' · from the plan');
-        var whenTxt=c.requested_for? '' : '';
-        var row=el('<div class="dk-rowcard" data-call="'+c.id+'" data-status="'+c.status+'"><div class="dk-ava">'+
-          esc(((c.display_name||'A').slice(0,1)).toUpperCase())+'</div>'+
-          '<div class="dk-main"><b>'+esc(c.display_name||'A member')+'</b><s>'+esc(what)+'</s></div>'+
-          '<div class="dk-acts"></div></div>');
-        /* the line under the name: what was agreed, or what is still open */
-        var line=document.createElement('s');
-        line.className='dk-when';
-        line.textContent = c.requested_for
-          ? 'Agreed for '+whenText(new Date(c.requested_for))
-          : (c.status==='accepted' ? 'Waiting for them to choose their time' : 'No time agreed yet');
-        row.querySelector('.dk-main').appendChild(line);
-        if(c.status==='missed'){
-          var miss=document.createElement('s'); miss.className='dk-when';
-          miss.textContent = c.price_inr>0 ? 'Missed — this one was paid for.'
-            : (c.charged ? 'Missed — minutes were used.' : 'Missed — forgiven, no minutes used.');
-          row.querySelector('.dk-main').appendChild(miss);
-        }
-        var acts=row.querySelector('.dk-acts');
-        if(c.status==='accepted'||c.status==='active'){
-          var ch=el('<button class="dk-btn quiet mini">Change time</button>');
-          ch.addEventListener('click',function(){
-            if(window.IVCALL&&IVCALL.openHost) IVCALL.openHost(c.id,function(){ render('calls'); });
-          });
-          acts.appendChild(ch);
-        }
-        if(c.status==='requested'){
-          var yes=el('<button class="dk-btn gold mini">Accept</button>');
-          yes.addEventListener('click',function(){
-            yes.disabled=true;
-            call('/rest/v1/rpc/respond_call',{call_id_in:c.id,accept_in:true})
-              .then(function(){ dkToast('Accepted. She waits in Confirmed.'); render('calls'); })
-              .catch(function(x){ yes.disabled=false; dkToast(x.message,true); });
-          });
-          var no=el('<button class="dk-btn quiet mini">Decline</button>');
-          no.addEventListener('click',function(){
-            no.disabled=true;
-            call('/rest/v1/rpc/respond_call',{call_id_in:c.id,accept_in:false})
-              .then(function(){ dkToast('Declined, quietly.'); render('calls'); })
-              .catch(function(x){ no.disabled=false; dkToast(x.message,true); });
-          });
-          acts.appendChild(yes); acts.appendChild(no);
-        } else if(c.status==='accepted'||c.status==='active'){
-          var j=el('<button class="dk-btn mini">'+(c.status==='active'?'Rejoin':'Join')+'</button>');
-          j.addEventListener('click',function(){ joinCall(c); });
-          acts.appendChild(j);
-        }
-        box.appendChild(row);
+  function callPill105(c) {
+    var st = String(c.status || ''), text = 'DECLINED', tone = 'plum';
+    if (st === 'requested') { text = 'ASKED'; tone = 'amber'; }
+    else if (st === 'accepted') { text = 'CONFIRMED'; tone = 'gold'; }
+    else if (st === 'active') {
+      var at = c.requested_for ? new Date(c.requested_for) : null;
+      var stale = at && !isNaN(at.getTime()) && Date.now() - at.getTime() > 6 * 3600000;
+      var really = at && !isNaN(at.getTime()) && !stale;
+      text = really ? 'IN THE ROOM' : 'LEFT OPEN'; tone = really ? 'gold' : 'amber';
+    } else if (st === 'completed') { text = 'DONE'; tone = 'success'; }
+    else if (st === 'missed') { text = 'MISSED'; tone = 'danger'; }
+    return '<span class="c105-call-pill ' + tone + '">' + text + '</span>';
+  }
+  function callAccept105(c, button) {
+    if (button.disabled) return;
+    button.setAttribute('data-label', 'ACCEPT');
+    if (window.IVFLOW && typeof IVFLOW.accept === 'function') {
+      /* The website's existing payment ledger check is deliberately retained.
+         It may ask for a second confirmation before an unpaid priced session. */
+      button.disabled = true; button.textContent = 'ACCEPTING…';
+      Promise.resolve(IVFLOW.load()).then(function () {
+        if (!button.isConnected) return;
+        button.disabled = false; button.innerHTML = (window.IVHOUSE104 ? IVHOUSE104.icon('check') : '') + '<span>ACCEPT</span>';
+        IVFLOW.accept(c, button);
+      }).catch(function (x) {
+        if (!button.isConnected) return;
+        button.disabled = false; button.textContent = 'ACCEPT';
+        dkToast((x && x.message) || 'That did not go through.', true);
       });
+      return;
+    }
+    button.disabled = true; button.textContent = 'ACCEPTING…';
+    call('/rest/v1/rpc/respond_call', { call_id_in: c.id, accept_in: true }).then(function () {
+      dkToast('Accepted. ' + (c.display_name || 'They') + ' will now choose their time inside Ivory.');
+      render('calls');
+    }).catch(function (x) {
+      if (button.isConnected) { button.disabled = false; button.textContent = 'ACCEPT'; }
+      dkToast((x && x.message) || 'That did not go through.', true);
     });
-    if(!drawn) box.innerHTML='<div class="dk-empty">Nothing in the book yet. When a member asks for a session, it arrives here.</div>';
   }
+  function callDecline105(c) {
+    var H = window.IVHOUSE104;
+    function decline() {
+      return call('/rest/v1/rpc/respond_call', { call_id_in: c.id, accept_in: false }).then(function () {
+        dkToast('Declined, and they have been told kindly.'); render('calls'); return true;
+      });
+    }
+    if (H && H.confirm) {
+      H.confirm({ title: 'Decline this session?', lede: 'They will be asked to choose another time. Nothing is charged and no minutes are used.', action: 'DECLINE', cancel: 'KEEP IT', onConfirm: decline });
+    } else {
+      /* No alert() and no browser confirm(): without the house sheet, leave the
+         session untouched rather than turning one tap into a destructive act. */
+      dkToast('The confirmation sheet is unavailable. This session was not declined.', true);
+    }
+  }
+  function callCard105(c) {
+    var pending = c.status === 'requested';
+    var joinable = c.status === 'accepted' || c.status === 'active';
+    var video = c.kind === 'video', H = window.IVHOUSE104;
+    var icon = H && H.icon ? H.icon(video ? 'video' : 'phone') : (video ? 'VIDEO' : 'AUDIO');
+    var email = c.member_email || c.email || '';
+    var price = Number(c.price_inr || 0);
+    var what = (video ? 'Video' : 'Audio') + ' - ' + Number(c.minutes || 0) + ' minutes - ' + (price > 0 ? '₹' + String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' wish' : 'included');
+    var line = c.requested_for ? 'Agreed for ' + callWhen105(c.requested_for) : (c.status === 'accepted' ? 'Waiting for them to choose their time' : 'No time agreed yet');
+    var row = el('<article class="dk-rowcard c105-call' + (pending ? ' pending' : '') + '" data-call="' + Number(c.id) + '" data-status="' + esc(c.status || '') + '">' +
+      '<div class="c105-call-head"><span class="dk-call-kind c105-call-kind" data-kind="' + (video ? 'video' : 'audio') + '" role="img" aria-label="' + (video ? 'Video session' : 'Audio session') + '">' + icon + '</span>' +
+      '<div class="dk-main c105-call-person"><b>' + esc(c.display_name || 'A member') + '</b>' + (email ? '<span>' + esc(email) + '</span>' : '') + '</div>' + callPill105(c) + '</div>' +
+      '<div class="c105-call-body"><p class="c105-call-what">' + esc(what) + '</p>' +
+      (c.note && String(c.note).trim() ? '<p class="c105-call-note">' + esc(c.note) + '</p>' : '') +
+      '<p class="c105-call-when' + (c.requested_for ? ' agreed' : '') + '">' + esc(line) + '</p>' +
+      (c.status === 'missed' ? '<p class="c105-call-missed">' + (price > 0 ? 'Missed - this one was paid for.' : (c.charged ? 'Missed - minutes were used.' : 'Missed - forgiven, no minutes used.')) + '</p>' : '') + '</div>' +
+      '<div class="dk-acts c105-call-actions" data-mine="1"></div>' +
+      (pending || joinable ? '<details class="c105-call-extra"><summary>WEBSITE SCHEDULING</summary><button type="button" class="n105-text-button" data-call-window>OFFER A TIME WINDOW</button></details>' : '') + '</article>');
+    var actions = row.querySelector('.c105-call-actions');
+    if (pending) {
+      var no = el('<button type="button" class="n105-outline">DECLINE</button>');
+      var yes = el('<button type="button" class="n105-primary" data-label="ACCEPT">' + (H && H.icon ? H.icon('check') : '') + '<span>ACCEPT</span></button>');
+      no.addEventListener('click', function () { callDecline105(c); });
+      yes.addEventListener('click', function () { callAccept105(c, yes); });
+      actions.appendChild(no); actions.appendChild(yes);
+    }
+    if (joinable) {
+      var change = el('<button type="button" class="n105-outline">CHANGE TIME</button>');
+      var join = el('<button type="button" class="n105-primary">' + icon + '<span>' + (c.status === 'active' ? 'REJOIN' : 'JOIN') + '</span></button>');
+      change.addEventListener('click', function () {
+        if (window.IVCALL && IVCALL.openHost) IVCALL.openHost(c.id, function () { render('calls'); });
+        else dkToast('The time sheet is unavailable.', true);
+      });
+      join.addEventListener('click', function () { joinCall(c); });
+      actions.appendChild(change); actions.appendChild(join);
+    }
+    var windowButton = row.querySelector('[data-call-window]');
+    if (windowButton) windowButton.addEventListener('click', function () {
+      if (window.IVCALL && IVCALL.suggest) IVCALL.suggest(c.id, function () { render('calls'); });
+      else dkToast('The time-window sheet is unavailable.', true);
+    });
+    return row;
+  }
+  function renderCalls(p) {
+    var seq = ++calls105Seq; calls105Note = '';
+    p.innerHTML = '<div class="c105-calls" data-calls105><div data-calls105-note></div>' +
+      '<div id="dk-calls-body"><div class="p104-loading">Reading the book…</div></div>' +
+      '<section class="c105-calls-web" data-calls105-extra><p class="dk-kick">WEBSITE EXTRAS</p><p>Ask a member for a direct 30-minute session. Native booking requests stay above.</p></section></div>';
+    call('/rest/v1/rpc/sweep_missed_calls', {}).catch(function () { return 0; }).then(function (swept) {
+      if (seq !== calls105Seq) return null;
+      var count = Number(swept || 0);
+      if (count > 0) {
+        calls105Note = count + ' session' + (count === 1 ? '' : 's') + ' closed as missed.';
+        var note = p.querySelector('[data-calls105-note]');
+        if (note) note.innerHTML = '<p class="c105-call-sweep">' + esc(calls105Note) + '</p>';
+      }
+      return call('/rest/v1/rpc/list_calls', { status_in: null });
+    }).then(function (rows) {
+      if (seq !== calls105Seq || rows == null) return;
+      paintCalls(rows || []);
+      if (window.IVFLOW && IVFLOW.load) IVFLOW.load().then(IVFLOW.paint);
+    }).catch(function (x) {
+      if (seq !== calls105Seq) return;
+      var box = $('dk-calls-body'); if (!box) return;
+      box.innerHTML = '<div class="p104-error-card"><b>The call book did not answer.</b><p>' + esc((x && x.message) || 'The house refused.') + '</p><button type="button" class="n105-outline" data-calls-retry>TRY AGAIN</button></div>';
+      var retry = box.querySelector('[data-calls-retry]'); if (retry) retry.addEventListener('click', function () { render('calls'); });
+    });
+  }
+  function paintCalls(rows) {
+    var box = $('dk-calls-body'); if (!box) return;
+    box.innerHTML = '';
+    rows = Array.isArray(rows) ? rows.slice() : [];
+    var waiting = rows.filter(function (c) { return c.status === 'requested'; }).sort(function (a, b) { return Number(a.id) - Number(b.id); });
+    var confirmed = rows.filter(function (c) { return c.status === 'accepted' || c.status === 'active'; }).sort(function (a, b) {
+      var x = a.requested_for ? new Date(a.requested_for).getTime() : null, y = b.requested_for ? new Date(b.requested_for).getTime() : null;
+      if (x == null && y == null) return Number(b.id) - Number(a.id);
+      if (x == null) return 1; if (y == null) return -1; return x - y;
+    });
+    var past = rows.filter(function (c) { return c.status === 'completed' || c.status === 'missed' || c.status === 'declined'; }).sort(function (a, b) {
+      var x = a.requested_for ? new Date(a.requested_for).getTime() : 0, y = b.requested_for ? new Date(b.requested_for).getTime() : 0;
+      return y - x;
+    });
+    if (!rows.length) {
+      box.innerHTML = '<div class="c105-calls-empty">' + (window.IVHOUSE104 ? IVHOUSE104.icon('phone') : '') + '<h2>No sessions yet</h2><p>When a member asks for a call it lands here first. Nothing is confirmed until you accept it.</p></div>';
+      return;
+    }
+    [['Waiting for you', waiting], ['Confirmed', confirmed], ['Finished', past]].forEach(function (group) {
+      if (!group[1].length) return;
+      var head = el('<p class="dk-label c105-call-group">' + group[0] + '</p>'); box.appendChild(head);
+      group[1].forEach(function (c) { box.appendChild(callCard105(c)); });
+    });
+  }
+
 
   function joinCall(c){
     /* one room, one engine — the same one the member's JOIN opens */
@@ -23242,44 +23320,43 @@ return b + ' B';
 })();
 window.IVROOMS = window.IVROOMS || {};
 window.IVROOMS.broadcast = function (pane) {
-var K = window.IVKIT;
+var K = window.IVKIT, NH = window.IVHOUSE104;
+var ic = NH ? NH.icon : function () { return ''; };
 var KINDS = ['system', 'story', 'image', 'audio', 'video', 'poll', 'live', 'wish', 'payment'];
 var S = { audience: 'all', who: [], kind: 'system', personId: null, personName: '',
 file: null, fileUrl: null, sending: false, tiers: [] };
 pane.innerHTML =
-'<p class="dk-kick">The word</p>' +
-'<h1 class="dk-h1">Send an <em>announcement.</em></h1>' +
+'<div class="bc105-room">' +
+'<h1 class="dk-h1">Send an announcement</h1>' +
 '<p class="dk-lede">It lands in the Sanctuary Inbox instantly, lights up the bell and arrives on their phone within ' +
 'the minute. Attach a picture, a voice note, a video or a link and it travels with the message.</p>' +
-'<div class="dk-card">' +
-'<label class="dk-label" for="bc-title">Title</label>' +
-'<input class="dk-input" id="bc-title" maxlength="120" autocomplete="off" placeholder="What is this about?">' +
-'<label class="dk-label" for="bc-body">Message</label>' +
-'<textarea class="dk-input" id="bc-body" rows="4" maxlength="1200" placeholder="Say it as you would say it."></textarea>' +
-'<label class="dk-label">Who sees it</label>' +
+'<div class="bc105-plain">' +
+'<label class="n105-field" for="bc-title"><span>Title</span><input class="dk-input" id="bc-title" maxlength="120" autocomplete="off" placeholder="What is this about?"></label>' +
+'<label class="n105-field" for="bc-body"><span>Message</span><textarea class="dk-input" id="bc-body" rows="4" maxlength="1200" placeholder="Say it as you would say it."></textarea></label>' +
+'<p class="dk-label">WHO SEES IT</p>' +
 '<div class="dk-chips" id="bc-aud">' +
-'<button class="dk-chip on" data-aud="all">Everyone</button>' +
-'<button class="dk-chip" data-aud="user">One member</button>' +
+'<button class="dk-chip on" data-aud="all">' + ic('groups') + '<span>Everyone</span></button>' +
+'<button class="dk-chip" data-aud="user">' + ic('person') + '<span>One member</span></button>' +
 '</div>' +
-'<label class="dk-label">Or pick exact tiers</label>' +
+'<p class="dk-label">OR PICK EXACT TIERS</p>' +
 '<div class="dk-chips" id="bc-tiers"><span class="bc-mute">Reading the house’s tiers…</span></div>' +
 '<div id="bc-person"></div>' +
 '</div>' +
-'<div class="dk-card">' +
-'<label class="dk-label">Attach something (optional)</label>' +
+'<p class="dk-label">ATTACH SOMETHING (OPTIONAL)</p>' +
+'<div class="dk-card bc105-attach-card">' +
 '<div id="bc-file"></div>' +
-'<div id="bc-rail"></div>' +
 '<div class="dk-chips bc-attach">' +
-'<button class="dk-chip" data-att="image">Photo</button>' +
-'<button class="dk-chip" data-att="audio">Voice note</button>' +
-'<button class="dk-chip" data-att="video">Video</button>' +
-'<button class="dk-chip" data-att="file">Any file</button>' +
+'<button class="dk-chip" data-att="image">' + ic('image') + '<span>Photo</span></button>' +
+'<button class="dk-chip" data-att="audio">' + ic('mic') + '<span>Voice note</span></button>' +
+'<button class="dk-chip" data-att="video">' + ic('video') + '<span>Video</span></button>' +
+'<button class="dk-chip" data-att="file">' + ic('attach') + '<span>Any file</span></button>' +
 '</div>' +
+'<div id="bc-rail" class="n105-web-control"></div>' +
 '<input type="file" id="bc-pick" hidden>' +
-'<input class="dk-input" id="bc-link" inputmode="url" autocomplete="off" placeholder="or paste a link" style="margin-bottom:0">' +
+'<label class="n105-field" for="bc-link"><span>or paste a link</span><input class="dk-input" id="bc-link" inputmode="url" autocomplete="off" placeholder="or paste a link"></label>' +
 '</div>' +
-'<div class="dk-card">' +
-'<label class="dk-label">Style</label>' +
+'<div class="bc105-plain">' +
+'<p class="dk-label">STYLE</p>' +
 '<div class="dk-chips" id="bc-kind">' +
 KINDS.map(function (k) {
 return '<button class="dk-chip' + (k === 'system' ? ' on' : '') + '" data-kind="' + k + '">' + k + '</button>';
@@ -23288,8 +23365,8 @@ return '<button class="dk-chip' + (k === 'system' ? ' on' : '') + '" data-kind="
 '<p class="bc-hint" id="bc-hint"></p>' +
 '</div>' +
 '<p class="bc-err" id="bc-err" hidden></p>' +
-'<button class="dk-btn" id="bc-send">SEND NOW</button>' +
-'<p class="bc-status" id="bc-status"></p>';
+'<button class="dk-btn bc105-send" id="bc-send">' + ic('send') + '<span>SEND NOW</span></button>' +
+'<p class="bc-status" id="bc-status"></p></div>';
 var $ = function (id) { return pane.querySelector('#' + id); };
 function paintRail() {
 var host = $('bc-rail');
@@ -23316,18 +23393,18 @@ h.textContent = S.file
 }
 K.get('/rest/v1/subscription_tiers?select=id,name,level,is_active&order=level.asc')
 .then(function (rows) {
-S.tiers = (rows || []).filter(function (t) { return t.is_active !== false; });
+S.tiers = (rows || []).filter(function (t) { return t.is_active !== false && Number(t.level) > 0; });
 var box = $('bc-tiers');
 if (!box) return;
-box.innerHTML = '<button class="dk-chip" data-tier="0">Forever Members</button>' +
+box.innerHTML = '<button class="dk-chip" data-tier="0">' + ic('groups') + '<span>Forever Members</span></button>' +
 S.tiers.map(function (t) {
-return '<button class="dk-chip" data-tier="' + Number(t.level) + '">' + K.esc(t.name) + '</button>';
+return '<button class="dk-chip" data-tier="' + Number(t.level) + '">' + ic('crown') + '<span>' + K.esc(t.name) + '</span></button>';
 }).join('');
 wireTiers();
 })
 .catch(function () {
 var box = $('bc-tiers');
-if (box) box.innerHTML = '<button class="dk-chip" data-tier="0">Forever Members</button>';
+if (box) box.innerHTML = '<button class="dk-chip" data-tier="0">' + ic('groups') + '<span>Forever Members</span></button>';
 wireTiers();
 });
 function wireTiers() {
@@ -23594,7 +23671,7 @@ audience_in: S.audience,
 kind_in: S.kind,
 tier_level_in: 0,
 user_id_in: S.audience === 'user' ? S.personId : null,
-tiers_in: S.audience === 'tiers' ? S.tiers.slice().sort(function (a, b) { return a - b; }) : null,
+tiers_in: S.audience === 'tiers' ? S.who.slice().sort(function (a, b) { return a - b; }) : null,
 post_id_in: null,
 action_tab_in: 'feed',
 action_url_in: url
@@ -30265,9 +30342,12 @@ box.innerHTML =
 '<input class="dk-input" id="door-note" maxlength="120" placeholder="' + esc(cfg.notePlace) + '">' +
 '<div class="fb-savebar"><button class="dk-btn gold" id="door-send">' + esc(cfg.cta) + '</button>' +
 '<span class="fb-hint">' + esc(cfg.hint) + '</span></div>';
+if (anchor && cfg.create) anchor.appendChild(box);
+else {
 var empty = anchor || host.querySelector('.dk-empty, .rmx-none');
 if (empty && empty.parentNode) empty.parentNode.insertBefore(box, empty);
 else host.appendChild(box);
+}
 var who = null, t = null, queryNo = 0, busy = false, pendingNotice = null;
 var w = box.querySelector('#door-who');
 if (w) {
@@ -30359,7 +30439,7 @@ wrapped.__doored = 1;
 window.IVROOMS[key] = wrapped;
 }
 var CALLS = {
-anchor: '#dk-calls-body',
+anchor: '[data-calls105-extra]',
 label: 'Or ask her yourself',
 noteLabel: 'What it is for',
 notePlace: 'a few minutes, when you are free',
@@ -30446,7 +30526,7 @@ var pane = document.getElementById('dk-pane');
 if (!pane) return;
 var k = pane.querySelector('.dk-kick');
 var name = k ? k.textContent.trim().toLowerCase() : '';
-if (name === 'the bookings') { try { callsDoor(pane); } catch (e) {} }
+if (name === 'the bookings' || pane.querySelector('[data-calls105]')) { try { callsDoor(pane); } catch (e) {} }
 else if (name === 'the well') { try { wishesDoor(pane); } catch (e) {} }
 }
 var tick = 0;
@@ -32412,7 +32492,10 @@ img = new Image();
 img.src = url;
 img.alt = '';
 img.onload = function () {
-btn.querySelector('.st-thumb-in').replaceWith(img);
+if (!btn.isConnected) return;
+var slot = btn.querySelector('.st-thumb-in');
+if (!slot) return;
+slot.replaceWith(img);
 btn.classList.add('has-pic');
 btn.dataset.url = url;
 };
@@ -32756,7 +32839,10 @@ if (!url) return;
 var img = new Image();
 img.src = url; img.alt = '';
 img.onload = function () {
-tile.querySelector('.st-tile-in').replaceWith(img);
+if (!tile.isConnected) return;
+var slot = tile.querySelector('.st-tile-in');
+if (!slot) return;
+slot.replaceWith(img);
 tile.classList.add('has-pic');
 tile.dataset.url = url;
 };
@@ -38749,17 +38835,18 @@ acts.appendChild(j); acts.appendChild(s2); acts.appendChild(t2);
 function agree(c, btn) {
 var due = Number(c.price_inr || 0);
 var p = payOf(c.id);
+var label = btn.getAttribute('data-label') || 'Agree';
 if (due > 0 && !p.paid && !btn.__armed) {
 btn.__armed = true;
 btn.textContent = p.known
 ? 'Confirm ' + money(due) + ' received \u00b7 agree?'
 : 'No payment on record \u2014 agree anyway?';
 setTimeout(function () {
-if (btn.isConnected) { btn.__armed = false; btn.textContent = 'Agree'; }
+if (btn.isConnected) { btn.__armed = false; btn.textContent = label; }
 }, 5000);
 return;
 }
-btn.disabled = true; btn.textContent = 'Agreeing\u2026';
+btn.disabled = true; btn.textContent = label === 'ACCEPT' ? 'ACCEPTING\u2026' : 'Agreeing\u2026';
 var pre = Promise.resolve();
 if (due > 0) {
 if (p.known && p.id) {
@@ -38778,7 +38865,7 @@ say('Agreed. They are told, and the hour is fixed.');
 if (window.ivLive && window.ivLive.refresh) { try { window.ivLive.refresh(); } catch (e) {} }
 refresh();
 })
-.catch(function (x) { btn.disabled = false; btn.textContent = 'Agree'; say((x && x.message) || 'That did not go through.', true); });
+.catch(function (x) { btn.disabled = false; btn.textContent = label; say((x && x.message) || 'That did not go through.', true); });
 }
 function decline(c, btn) {
 btn.disabled = true; btn.textContent = 'Declining\u2026';
@@ -38844,7 +38931,7 @@ document.addEventListener('click', function (e) {
 var t = e.target && e.target.closest ? e.target.closest('.dk-tab[data-k="calls"]') : null;
 if (t) load().then(paint);
 }, true);
-window.IVFLOW = { refresh: refresh, load: load, paint: paint };
+window.IVFLOW = { refresh: refresh, load: load, paint: paint, accept: agree };
 })();
 </script>
 <script id="iv-shell-js">
@@ -39230,943 +39317,362 @@ new MutationObserver(later).observe(document.documentElement, { childList: true,
 window.ivControls = { sweep: sweep };
 })();
 </script>
-<script id="iv-desk85-js">
-(function () {
-'use strict';
-if (window.__ivDeskMap) return;
-window.__ivDeskMap = 1;
-var $ = function (id) { return document.getElementById(id); };
-var FAMS = [
-{ k: 'studio', name: 'The studio', short: 'Studio', note: 'what the house says', accent: '#EFCE86',
-rooms: ['create', 'live', 'broadcast', 'stories'] },
-{ k: 'house', name: 'The house', short: 'House', note: 'who is in it', accent: '#E7A79A',
-rooms: ['members', 'calls', 'wishes', 'reports', 'enquiries'] },
-{ k: 'purse', name: 'The purse', short: 'Purse', note: 'what comes in, and what goes back', accent: '#D9B65F',
-rooms: ['payments', 'tiers', 'gold', 'heart', 'rewards', 'codes'] },
-{ k: 'ladder', name: 'The ladder', short: 'Ladder', note: 'what is earned, never bought', accent: '#CB9C6C',
-rooms: ['bells', 'ladder', 'wheel', 'frames'] },
-{ k: 'keeper', name: 'The house itself', short: 'Keeper', note: 'how it is kept', accent: '#CFC3A6',
-rooms: ['door', 'line', 'translate', 'ticker', 'officers', 'vault', 'overview'] }
-];
-var BY_ROOM = {};
-FAMS.forEach(function (f) { f.rooms.forEach(function (r) { BY_ROOM[r] = f; }); });
-function famOf(k) { return BY_ROOM[k] || FAMS[0]; }
-var P = '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="';
-var G = {
-create:    '<path d="M4.4 19.6l1-4.2L16.2 4.6a2 2 0 012.8 0l.4.4a2 2 0 010 2.8L8.6 18.6z"/><path d="M14.4 6.4l3.2 3.2"/>',
-live:      '<circle cx="12" cy="12" r="2.6"/><path d="M7.6 7.6a6.2 6.2 0 000 8.8M16.4 7.6a6.2 6.2 0 010 8.8M5 5a9.9 9.9 0 000 14M19 5a9.9 9.9 0 010 14"/>',
-broadcast: '<path d="M4 10v4h3l4.4 3.4V6.6L7 10z"/><path d="M15.2 9.2a4 4 0 010 5.6M17.8 6.6a7.6 7.6 0 010 10.8"/>',
-stories:   '<path d="M5 4.6h9.4a2 2 0 012 2V19H7a2 2 0 01-2-2z"/><path d="M8.4 8.6h5.2M8.4 12h5.2M8.4 15.4h3"/>',
-members:   '<circle cx="9.4" cy="8.8" r="3.1"/><path d="M4 19.6c.5-3.4 2.6-5.2 5.4-5.2s4.9 1.8 5.4 5.2"/><path d="M15.6 6.4a3 3 0 010 5.8M17 14.8c2 .6 3.2 2.3 3.5 4.8"/>',
-calls:     '<path d="M6.2 4.6l2.4-.6 1.8 3.4-1.7 1.6a10 10 0 004.6 4.6l1.6-1.7 3.4 1.8-.6 2.4a2 2 0 01-2.2 1.5C9.6 16.6 5.4 12.4 4.7 6.8a2 2 0 011.5-2.2z"/>',
-wishes:    '<path d="M12 4.4l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 9.7l5-.7z"/>',
-reports:   '<path d="M12 4.2l8 14.2H4z"/><path d="M12 9.6v4.2M12 16.4v.6"/>',
-enquiries: '<rect x="3.8" y="5.4" width="16.4" height="13.2" rx="2"/><path d="M4.6 7.2L12 12.6l7.4-5.4"/>',
-payments:  '<rect x="3.4" y="6" width="17.2" height="12" rx="2.4"/><path d="M3.4 10.2h17.2"/><path d="M7 14.6h3.4"/>',
-tiers:     '<path d="M4.6 18.4h4V10h-4zM10 18.4h4V5.6h-4zM15.4 18.4h4v-6.2h-4z"/>',
-gold:      '<circle cx="12" cy="12" r="7.2"/><path d="M9.6 9.4h4.8M12 9.4v5.4M10 12.2h4"/>',
-heart:     '<path d="M12 19.4S4.6 15 4.6 9.8A3.9 3.9 0 0112 7.6a3.9 3.9 0 017.4 2.2c0 5.2-7.4 9.6-7.4 9.6z"/>',
-rewards:   '<rect x="4.2" y="10.4" width="15.6" height="9" rx="1.6"/><path d="M3.4 6.8h17.2v3.6H3.4zM12 6.8v12.6"/><path d="M12 6.8c-1.4-2.6-4.6-2.2-4.6-.6 0 1.2 1.8 1.8 4.6 1.8s4.6-.6 4.6-1.8c0-1.6-3.2-2-4.6.6z"/>',
-codes:     '<path d="M9.4 6.4L4.8 12l4.6 5.6M14.6 6.4L19.2 12l-4.6 5.6"/>',
-bells:     '<path d="M12 4.4c-3 0-4.8 2.2-4.8 5.4 0 3.4-1.2 4.4-1.8 5.2h13.2c-.6-.8-1.8-1.8-1.8-5.2 0-3.2-1.8-5.4-4.8-5.4z"/><path d="M10.2 18a1.9 1.9 0 003.6 0"/>',
-ladder:    '<path d="M8.4 4v16M15.6 4v16M8.4 8.6h7.2M8.4 12.6h7.2M8.4 16.6h7.2"/>',
-wheel:     '<circle cx="12" cy="12" r="7.6"/><path d="M12 4.4v15.2M4.4 12h15.2M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/>',
-frames:    '<rect x="4.2" y="4.2" width="15.6" height="15.6" rx="2.2"/><rect x="7.6" y="7.6" width="8.8" height="8.8" rx="1.2"/>',
-door:      '<path d="M6 19.4V6a1.6 1.6 0 011.6-1.6h8.8A1.6 1.6 0 0118 6v13.4"/><path d="M4.2 19.4h15.6"/><circle cx="14.8" cy="12.4" r="1"/>',
-line:      '<path d="M3.8 8.4h16.4M3.8 12h11.4M3.8 15.6h7.4"/>',
-translate: '<path d="M4.4 6.6h8M8.4 4.6v2M10.4 6.6c-.6 3.6-2.6 6-5.6 7.4M5.6 9.8c1 2.6 3 4.2 5.6 4.8"/><path d="M12.6 19.4l3.6-8.6 3.6 8.6M13.9 16.6h4.6"/>',
-ticker:    '<rect x="3.4" y="7.6" width="17.2" height="8.8" rx="1.8"/><path d="M6.6 10.6h3.4M6.6 13.4h6M14.4 10.6h3M14.4 13.4h3"/>',
-overview:  '<rect x="4" y="4" width="6.8" height="6.8" rx="1.4"/><rect x="13.2" y="4" width="6.8" height="6.8" rx="1.4"/><rect x="4" y="13.2" width="6.8" height="6.8" rx="1.4"/><rect x="13.2" y="13.2" width="6.8" height="6.8" rx="1.4"/>',
-officers:  '<circle cx="12" cy="12" r="7.4"/><path d="M12 7.8l1.3 2.9 3.1.4-2.3 2.2.6 3.1-2.7-1.5-2.7 1.5.6-3.1-2.3-2.2 3.1-.4z"/>',
-vault:     '<circle cx="12" cy="12" r="7.6"/><circle cx="12" cy="12" r="2.6"/><path d="M12 4.4v2M12 17.6v2M4.4 12h2M17.6 12h2M7 7l1.4 1.4M15.6 15.6L17 17M17 7l-1.4 1.4M8.4 15.6L7 17"/>'
-};
-function glyph(k) {
-return '<span class="dk-ico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" ' +
-'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
-(G[k] || '<circle cx="12" cy="12" r="6.4"/>') +
-'</svg></span>';
-}
-function plate(f, k, label) {
-var pane = $('dk-pane');
-if (!pane) return;
-var old = pane.querySelector('.dk-plate');
-var key = f.k + '|' + k;
-if (old && old.getAttribute('data-key') === key) return;
-if (old && old.parentNode) old.parentNode.removeChild(old);
-var node = document.createElement('div');
-node.className = 'dk-plate';
-node.setAttribute('data-key', key);
-node.style.setProperty('--fam', f.accent);
-node.innerHTML = '<span class="dk-pico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">' +
-(G[k] || '') + '</svg></span>' +
-'<span class="dk-pfam">' + f.name + ' · ' + label + '</span>';
-pane.insertBefore(node, pane.firstChild);
-}
-function chips() {
-var ribbon = $('dk-ribbon');
-if (!ribbon) return null;
-var box = document.querySelector('.dk-fams');
-if (!box) {
-box = document.createElement('div');
-box.className = 'dk-fams';
-box.setAttribute('role', 'tablist');
-box.setAttribute('aria-label', 'The five families of the desk');
-FAMS.forEach(function (f, i) {
-var b = document.createElement('button');
-b.type = 'button';
-b.className = 'dk-fam';
-b.setAttribute('data-fam', f.k);
-b.setAttribute('role', 'tab');
-b.setAttribute('aria-selected', 'false');
-b.style.setProperty('--fam', f.accent);
-b.innerHTML = '<i aria-hidden="true"></i><span>' + (f.short || f.name) + '</span>';
-b.title = f.name + ' — ' + f.note;
-b.setAttribute('aria-label', f.name + ' — ' + f.note);
-b.addEventListener('click', function () {
-var first = ribbon.querySelector('.dk-tab[data-fam="' + f.k + '"]');
-if (first) first.click();
-});
-box.appendChild(b);
-});
-ribbon.parentNode.insertBefore(box, ribbon);
-}
-return box;
-}
-var moved = false;
-function account() {
-if (moved) return;
-var who = $('dk-who');
-var dhead = document.querySelector('.dk-dhead');
-if (!who || !dhead || who.parentNode === dhead) return;
-moved = true;
-who.classList.add('dk-who-moved');
-dhead.appendChild(who);
-}
-function order() {
-var ribbon = $('dk-ribbon'), have = [];
-if (ribbon) Array.prototype.forEach.call(ribbon.querySelectorAll('.dk-tab'), function (t) {
-have.push(t.getAttribute('data-k'));
-});
-var want = [];
-FAMS.forEach(function (f) {
-f.rooms.forEach(function (k) {
-if (!have.length || have.indexOf(k) >= 0) want.push(k);
-});
-});
-have.forEach(function (k) { if (want.indexOf(k) < 0) want.push(k); });
-return want;
-}
-function drawer() {
-var list = $('dk-dlist');
-var ribbon = $('dk-ribbon');
-if (!list || !ribbon) return;
-var tabs = Array.prototype.slice.call(ribbon.querySelectorAll('.dk-tab'));
-var keyOf = {};
-tabs.forEach(function (t) { keyOf[(t.textContent || '').trim().toUpperCase()] = t.getAttribute('data-k'); });
-var items = Array.prototype.slice.call(list.querySelectorAll('.dk-ditem'));
-if (!items.length) return;
-var lab = function (b) {
-var spans = b.querySelectorAll('span'), out = '';
-for (var i = 0; i < spans.length; i++) {
-var c = ' ' + (spans[i].className || '') + ' ';
-if (c.indexOf(' dk-ico ') < 0) { out = spans[i].textContent; break; }
-}
-return (out || '').trim().toUpperCase();
-};
-var want = order(), seq = [];
-want.forEach(function (k) {
-for (var i = 0; i < items.length; i++) {
-if (!items[i]) continue;
-if (lab(items[i]) === k.toUpperCase()) { seq.push(items[i]); items[i] = null; break; }
-}
-});
-items.forEach(function (n) { if (n) seq.push(n); });
-if (!seq.length) return;
-var sig = seq.map(lab).join(',');
-if (list.getAttribute('data-sig') === sig && list.querySelector('.dk-famhead')) return;
-list.setAttribute('data-sig', sig);
-Array.prototype.forEach.call(list.querySelectorAll('.dk-famhead'), function (n) {
-if (n.parentNode) n.parentNode.removeChild(n);
-});
-var seen = {};
-seq.forEach(function (b, i) {
-var k = keyOf[lab(b)] || '';
-var f = famOf(k);
-var num = b.querySelector('i');
-if (num && num.textContent.trim() !== String(i + 1).padStart(2, '0')) {
-num.textContent = String(i + 1).padStart(2, '0');
-}
-list.appendChild(b);
-var bi = b.querySelector('.dk-ico');
-if (!bi || !bi.querySelector('svg')) {
-if (bi) bi.outerHTML = glyph(k); else b.insertAdjacentHTML('afterbegin', glyph(k));
-}
-b.style.setProperty('--fam', f.accent);
-if (!seen[f.k]) {
-seen[f.k] = 1;
-var head = document.createElement('p');
-head.className = 'dk-famhead';
-head.style.setProperty('--fam', f.accent);
-head.innerHTML = '<i aria-hidden="true"></i>' + f.name + '<s>' + f.note + '</s>';
-list.insertBefore(head, b);
-}
-});
-var dh = document.querySelector('.dk-dhead b');
-if (dh && /twenty-two/i.test(dh.textContent)) dh.textContent = 'Every room of the house';
-var menu = $('dk-menu');
-if (menu) menu.setAttribute('aria-label', 'Every room of the house');
-}
-var watchers = [];
-function paint() {
-watchers.forEach(function (o) { try { o.disconnect(); } catch (e) {} });
-try { paintIn(); } finally {
-watchers.forEach(function (o) {
-try { o.observe(o.__t, o.__o); } catch (e) {}
-});
-}
-}
-function paintIn() {
-var ribbon = $('dk-ribbon');
-var desk = $('desk-screen');
-if (!ribbon || !desk) return;
-if (!document.body.classList.contains('on-desk')) return;
-var tabs = Array.prototype.slice.call(ribbon.querySelectorAll('.dk-tab'));
-if (!tabs.length) return;
-tabs.forEach(function (t) {
-var k = t.getAttribute('data-k');
-var f = famOf(k);
-t.setAttribute('data-fam', f.k);
-t.style.setProperty('--fam', f.accent);
-var ti = t.querySelector('.dk-ico');
-if (!ti || !ti.querySelector('svg')) {
-if (ti) ti.outerHTML = glyph(k); else t.insertAdjacentHTML('afterbegin', glyph(k));
-}
-});
-var want = order();
-var byKey = {}, have = [];
-tabs.forEach(function (t) { byKey[t.getAttribute('data-k')] = t; have.push(t.getAttribute('data-k')); });
-if (have.join(',') !== want.join(',')) {
-want.forEach(function (k) { if (byKey[k]) ribbon.appendChild(byKey[k]); });
-}
-var on = ribbon.querySelector('.dk-tab.on') || tabs[0];
-var f = famOf(on.getAttribute('data-k'));
-ribbon.setAttribute('data-fam', f.k);
-tabs.forEach(function (t) {
-var onFam = t.getAttribute('data-fam') === f.k;
-if (onFam) t.setAttribute('data-on', '1'); else t.removeAttribute('data-on');
-});
-desk.setAttribute('data-fam', f.k);
-desk.style.setProperty('--fam', f.accent);
-var box = chips();
-if (box) Array.prototype.forEach.call(box.querySelectorAll('.dk-fam'), function (b) {
-var is = b.getAttribute('data-fam') === f.k;
-b.classList.toggle('on', is);
-b.setAttribute('aria-selected', is ? 'true' : 'false');
-});
-var label = (on.textContent || '').trim() || 'Desk';
-var pane = $('dk-pane');
-var kick = pane && pane.querySelector('.dk-kick');
-if (kick) {
-var norm = function (t) { return String(t || '').toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim(); };
-var k = norm(kick.textContent), l = norm(label);
-kick.classList.toggle('dk-kick-said', !!k && (k === l || ('the ' + l) === k || k === ('the ' + l) || l.indexOf(k) === 0));
-}
-plate(f, on.getAttribute('data-k'), label);
-tabs.forEach(function (t) { t.setAttribute('aria-selected', t === on ? 'true' : 'false'); });
-account();
-drawer();
-}
-var pending = null;
-function later() {
-if (pending) return;
-pending = setTimeout(function () { pending = null; paint(); }, 60);
-}
-function boot() {
-var desk = $('desk-screen');
-var watch = function (n) {
-if (!n) return;
-try {
-var o = new MutationObserver(later);
-o.__t = n; o.__o = { childList: true, subtree: true };
-o.observe(n, o.__o);
-watchers.push(o);
-} catch (e) {}
-};
-watch(desk);
-watch($('dk-ribbon'));
-watch($('dk-dlist'));
-try {
-var ob = new MutationObserver(later);
-ob.__t = document.body; ob.__o = { attributes: true, attributeFilter: ['class'] };
-ob.observe(document.body, ob.__o);
-watchers.push(ob);
-} catch (e) {}
-document.addEventListener('click', function (e) {
-if (e.target && e.target.closest && e.target.closest('#dk-ribbon .dk-tab, #dk-menu, #dk-dlist .dk-ditem')) later();
-}, true);
-later();
-setInterval(function () {
-if (document.body.classList.contains('on-desk')) later();
-}, 2500);
-}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
-window.ivDeskMap = { paint: paint, fams: FAMS, famOf: famOf };
-})();
-</script>
+<script id="iv-navigation105-js" src="navigation105.js"></script>
 <script id="iv-create86-js">
 (function () {
 'use strict';
-if (!window.IVROOMS || window.__ivCreate86) return;
-window.__ivCreate86 = 1;
-var R = window.IVR;
-if (!R) return;
-var KEY = 'iv.create.draft.v1';
-var LIVE = 0;
-var G = {
-blog: '<path d="M4.4 19.6l1-4.2L16.2 4.6a2 2 0 012.8 0l.4.4a2 2 0 010 2.8L8.6 18.6z"/><path d="M14.4 6.4l3.2 3.2"/>',
-poll: '<path d="M5 19V9M12 19V5M19 19v-6"/>',
-image: '<rect x="3.6" y="5.2" width="16.8" height="13.6" rx="2.2"/><circle cx="9" cy="10" r="1.6"/><path d="M4.6 17l4.6-4.6 3.4 3.4 2.4-2.4 4.4 4.4"/>',
-audio: '<path d="M12 4.4v10.2"/><path d="M12 4.4a3.4 3.4 0 013.4 3.4v4a3.4 3.4 0 01-6.8 0v-4A3.4 3.4 0 0112 4.4z"/><path d="M6.4 12.6a5.6 5.6 0 0011.2 0M12 18.4v2.2M9.6 20.6h4.8"/>',
-video: '<rect x="3.4" y="6.4" width="12.6" height="11.2" rx="2"/><path d="M16 10.6l4.4-2.4v7.6L16 13.4z"/>'
-};
-var KINDS = [
-{ k: 'blog', label: 'STORY', h: 'A new <em>story.</em>', rail: 'story',
-lede: 'Write it here exactly as you would say it. It is saved as one post, priced on the house\u2019s own rail, and the announcement writes itself the moment it is published.' },
-{ k: 'poll', label: 'POLL', h: 'A new <em>poll.</em>', rail: 'poll',
-lede: 'One question, and the ways it can be answered. Every member may vote once; the room counts them as they come and never guesses.' },
-{ k: 'image', label: 'PHOTO', h: 'A new <em>photograph.</em>', rail: 'image',
-lede: 'One picture, and the line that carries it. It is kept on the house\u2019s own rail, and nobody sees it before the seal is pressed.' },
-{ k: 'audio', label: 'AUDIO', h: 'A new <em>recording.</em>', rail: 'voice',
-lede: 'A voice, exactly as it was said. Choose the file and hear it back here before it leaves your hand.' },
-{ k: 'video', label: 'VIDEO', h: 'A new <em>film.</em>', rail: 'video',
-lede: 'A moving picture with its own poster frame. The house draws the frame from the film itself, so the shelf always shows a face.' }
+function boot() {
+if (window.IVCREATE105) return;
+if (!window.IVROOMS || !window.IVHOUSE104) {
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+return;
+}
+var H = window.IVHOUSE104, KEY = 'iv.create.draft.v1', LIVE = 0;
+var TYPES = [
+['blog', 'Story', 'story'], ['audio', 'Audio', 'audio'],
+['video', 'Video', 'video'], ['image', 'Image', 'image'], ['poll', 'Poll', 'poll']
 ];
-function kindOf(k) {
-for (var i = 0; i < KINDS.length; i++) if (KINDS[i].k === k) return KINDS[i];
-return KINDS[0];
-}
-var esc = R.esc;
-function size(bytes) {
-var b = Number(bytes) || 0;
-if (b < 1024) return b + ' B';
-if (b < 1048576) return (b / 1024).toFixed(b < 10240 ? 1 : 0) + ' KB';
-return (b / 1048576).toFixed(1) + ' MB';
-}
-function clock(secs) {
-var s = Math.max(0, Math.round(Number(secs) || 0));
-var m = Math.floor(s / 60);
-return m + ':' + String(s % 60).padStart(2, '0');
-}
-function when(ts) {
-try {
-var d = new Date(ts), now = new Date();
-var same = d.toDateString() === now.toDateString();
-return (same ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' \u00b7 ') +
-d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-} catch (e) { return ''; }
-}
-function glyph(k) {
-return '<span class="c2-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + (G[k] || G.blog) + '</svg></span>';
-}
 function draftRead() {
-try {
-var raw = localStorage.getItem(KEY);
-if (!raw) return null;
-var d = JSON.parse(raw);
-return (d && typeof d === 'object') ? d : null;
-} catch (e) { return null; }
+try { var d = JSON.parse(localStorage.getItem(KEY) || 'null'); return d && typeof d === 'object' ? d : null; }
+catch (e) { return null; }
 }
 function draftClear() { try { localStorage.removeItem(KEY); } catch (e) {} }
-function hasText(S) {
-return (S.title + S.sum + S.body + S.opts.join('') + S.price + S.credit).trim().length > 0;
+function railSource(got) { return got.rail === 'supabase' ? 'supabase' : (got.rail === 'r2' || got.rail === 'r2pub') ? 'r2' : 'b2'; }
+function refFromUpload(got) {
+if (!got) throw new Error('The storage rail returned no reference. No post has been created.');
+if (got.rail === 'r2pub') {
+if (!/^https:\/\//.test(String(got.url || ''))) throw new Error('Public R2 did not return its stable https address. No post has been created.');
+return got.url;
 }
-window.IVROOMS.create = function (pane) {
-var ME = ++LIVE, sealed = false;
-var S = {
-kind: 'blog', title: '', sum: '', body: '', opts: ['', ''],
-who: [], tiers: [], price: '', free: '0', door: false, credit: '',
-pub: true, media: null, busy: false, stage: '', poster: null
+if ((got.rail === 'b2' || got.rail === 'r2') && got.key) return got.rail + '://' + got.key;
+if (got.rail === 'supabase' && got.url) return got.url;
+throw new Error('The storage rail returned no usable reference. No post has been created.');
+}
+function fileKind(file, type) {
+if (type === 'audio') return 'voice';
+if (type === 'video') return 'video';
+if (type === 'image') return 'image';
+var mime = String(file && file.type || '');
+if (mime.indexOf('audio/') === 0) return 'voice';
+if (mime.indexOf('video/') === 0) return 'video';
+if (mime.indexOf('image/') === 0) return 'image';
+return 'attachment';
+}
+function upload(file, kind, rail, progress) {
+if (!window.IVSTORE) return Promise.reject(new Error('The storage circuit is unavailable. No post has been created.'));
+var routes = {}; routes[kind] = rail;
+return IVSTORE.put(file, kind, progress, { routes: routes });
+}
+function acceptFor(type) {
+if (type === 'image') return 'image/*';
+if (type === 'audio') return 'audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac';
+if (type === 'video') return 'video/*,.mp4,.mov,.m4v,.webm';
+return '';
+}
+function create(pane) {
+var ME = ++LIVE, S = {
+type: 'blog', title: '', summary: '', body: '', options: ['', ''], minutes: '',
+who: [0, 1, 2, 3, 4], tiers: [], price: '', freeFrom: null, credit: '', publishNow: true,
+mediaFile: null, coverFile: null, mediaRail: 'r2', coverRail: 'b2', link: '', busy: false
 };
-var d = draftRead();
-if (d) {
-S.kind = kindOf(d.kind).k;
-S.title = d.title || ''; S.sum = d.sum || ''; S.body = d.body || '';
-S.opts = (d.opts && d.opts.length >= 2) ? d.opts.slice(0, 6) : ['', ''];
-S.who = d.who || []; S.price = d.price == null ? '' : String(d.price);
-S.free = d.free == null ? '0' : String(d.free);
-S.door = !!d.door; S.credit = d.credit || '';
-S.pub = d.pub !== false;
-S.at = d.at || 0;
+var old = draftRead();
+if (old) {
+if (TYPES.some(function (t) { return t[0] === old.kind; })) S.type = old.kind;
+S.title = old.title || ''; S.summary = old.sum || ''; S.body = old.body || '';
+S.options = Array.isArray(old.opts) && old.opts.length >= 2 ? old.opts.slice() : ['', ''];
+if (Array.isArray(old.who)) S.who = old.who.map(Number);
+S.price = old.price == null ? '' : String(old.price);
+S.freeFrom = old.free == null || Number(old.free) === 0 ? null : Number(old.free);
+S.credit = old.credit || ''; S.publishNow = old.pub !== false;
+S.minutes = old.minutes || ''; S.link = old.link || '';
+S.mediaRail = ['b2', 'r2', 'r2pub'].indexOf(old.mrail) >= 0 ? old.mrail : (S.type === 'image' ? 'b2' : (S.type === 'audio' || S.type === 'video' ? null : 'r2'));
+S.coverRail = ['b2', 'r2', 'r2pub'].indexOf(old.crail) >= 0 ? old.crail : (S.type === 'image' ? S.mediaRail : 'b2');
+if (S.type === 'image') S.coverRail = S.mediaRail;
 }
-pane.innerHTML =
-'<div class="rm ivroom-create c2" id="c2">' +
-'<div class="c2-bar">' +
-'<button class="c2-back" id="c2-back" type="button">' +
-'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" ' +
-'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>' +
-'<span>The shelf</span></button>' +
-'<span class="c2-keep" id="c2-keep" aria-live="polite"></span>' +
-'<button class="c2-drop-draft" id="c2-drop-draft" type="button" hidden>Drop the draft</button>' +
-'</div>' +
-'<div class="c2-kinds" id="c2-kinds" role="group" aria-label="What you are making">' +
-KINDS.map(function (x) {
-return '<button class="c2-kind" type="button" data-k="' + x.k + '" aria-pressed="false">' +
-glyph(x.k) + '<span>' + x.label + '</span></button>';
-}).join('') +
-'</div>' +
-'<p class="dk-kick">The writing room</p>' +
-'<h1 class="dk-h1" id="c2-h" tabindex="-1"></h1>' +
-'<p class="dk-lede" id="c2-lede"></p>' +
-'<div class="c2-leaf" id="c2-leaf">' +
-'<div class="c2-gut" id="c2-gut">' +
-'<b id="c2-wc">0</b><i id="c2-wl" class="c2-wl">words</i><b id="c2-rt">\u2014</b><i class="c2-mn">min</i>' +
-'</div>' +
-'<div class="c2-page" id="c2-page"></div>' +
-'</div>' +
-'<div class="c2-row">' +
-'<p class="c2-lab" id="c2-who-lab">Who may read it</p>' +
-'<div class="c2-chips" id="c2-who" role="group" aria-labelledby="c2-who-lab">' +
-'<span class="c2-mute">reading the tiers\u2026</span></div>' +
-'</div>' +
-'<div class="c2-money">' +
-'<label class="c2-f"><i>Price</i><span class="c2-pre">\u20b9</span>' +
-'<input id="c2-price" inputmode="numeric" autocomplete="off" placeholder="0"></label>' +
-'<label class="c2-f"><i>Free from tier</i><select id="c2-free" class="c2-sel"><option value="0">no one</option></select></label>' +
-'<label class="c2-tick"><input type="checkbox" id="c2-door"><span>At the door \u2014 free to read, credited by name</span></label>' +
-'<input class="c2-in" id="c2-credit" autocomplete="off" placeholder="the credit line, if it is not yours" hidden>' +
-'</div>' +
-'<div class="c2-foot">' +
-'<div class="c2-seg" role="group" aria-label="When it goes out">' +
-'<button class="c2-sw on" type="button" id="c2-pubnow" aria-pressed="true">PUBLISH NOW</button>' +
-'<button class="c2-sw" type="button" id="c2-hold" aria-pressed="false">HOLD IT BACK</button>' +
-'</div>' +
-'<button class="c2-seal" type="button" id="c2-seal"><span>PRESS THE SEAL</span><i></i></button>' +
-'</div>' +
-'<p class="c2-state" id="c2-state" aria-live="polite"></p>' +
-'<div class="c2-recent">' +
-'<p class="c2-lab">The last three that left this desk</p>' +
-'<div id="c2-last">' + R.wait('Looking back\u2026') + '</div>' +
-'</div>' +
-'</div>';
-var $ = function (id) { return R.q(pane, id); };
-var page = $('c2-page'), state = $('c2-state'), leaf = $('c2-leaf');
-function say(t, bad) { if (bad) state.textContent = t; if (window.ivoryToast) window.ivoryToast(t, bad); }
+pane.innerHTML = '<div class="c105-create">' +
+'<section class="c105-composer" data-composer>' +
+'<h1 class="dk-h1">Publish to Ivory</h1>' +
+'<p class="dk-lede">Anything published here appears in the feed at once, and every member gets the announcement and the phone notification.</p>' +
+'<p class="dk-label">WHAT ARE YOU POSTING</p>' +
+'<div class="c105-types" data-types>' + TYPES.map(function (t) {
+return '<button type="button" class="n105-chip" data-action="type" data-value="' + t[0] + '">' + H.icon(t[2]) + '<span>' + t[1] + '</span></button>';
+}).join('') + '</div>' +
+'<label class="n105-field"><span>Title</span><input class="n105-input" data-field="title" aria-label="Title" maxlength="90" autocomplete="off" value="' + H.esc(S.title) + '"></label>' +
+'<label class="n105-field"><span data-summary-label>Short teaser</span><textarea class="n105-input" data-field="summary" aria-label="Short teaser" rows="2" maxlength="180">' + H.esc(S.summary) + '</textarea></label>' +
+'<div data-story></div><div data-poll></div><div data-media></div><div data-minutes></div>' +
+'<p class="dk-label">WHO CAN OPEN IT</p><div class="c105-chips" data-audience></div>' +
+'<p class="c105-hint">Pick any mix - Forever Members, one tier, several tiers, or nobody at all so everyone pays.</p>' +
+'<p class="dk-label">OR SELL IT ON ITS OWN</p>' +
+'<p class="c105-hint">Give it a price and everyone sees a lock - Forever Members and paying members alike - until they buy it or reach the tier you choose below. Leave it empty to use the tier rule above.</p>' +
+'<label class="n105-field"><span>Price in rupees (optional)</span><input class="n105-input" data-field="price" aria-label="Price in rupees, optional" inputmode="numeric" placeholder="e.g. 299" value="' + H.esc(S.price) + '"></label>' +
+'<label class="n105-field"><span>Story door credit (optional)</span><input class="n105-input" data-field="credit" aria-label="Story door credit, optional" maxlength="40" placeholder="Stamps &quot;FROM THE STORY DOOR - story by ...&quot;" value="' + H.esc(S.credit) + '"></label>' +
+'<div data-free-from></div>' +
+'<div class="c105-publish-card"><div><b>Publish immediately</b><p data-publish-sub></p></div><button type="button" class="n105-switch" data-action="publish-switch" role="switch"><span class="n105-sr">Publish immediately</span></button></div>' +
+'<button type="button" class="n105-primary c105-publish" data-action="publish">' + H.icon('sparkle') + '<span data-publish-label>PUBLISH NOW</span></button>' +
+'<p class="c105-status" data-create-status aria-live="polite"></p>' +
+'</section>' +
+'<section class="c105-device"><div><p class="dk-label">ON THIS DEVICE</p><p data-draft-state>Draft text is kept on this device as you write. Files are chosen again after a reload.</p></div><button type="button" class="n105-outline" data-action="drop-draft" hidden>DROP THE DRAFT</button></section>' +
+'<section class="c105-library" data-library-host></section></div>';
+var root = pane.querySelector('.c105-create'), composer = root.querySelector('[data-composer]');
+function q(sel) { return root.querySelector(sel); }
+function qa(sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
+function status(message, bad) {
+var n = q('[data-create-status]'); if (n) { n.textContent = message || ''; n.classList.toggle('bad', !!bad); }
+}
+function say(message, bad) { status(message, bad); if (message) H.toast(message, bad); }
+function hasDraft() {
+return !!(S.title + S.summary + S.body + S.options.join('') + S.price + S.credit + S.minutes + S.link).trim() || S.mediaFile || S.coverFile;
+}
 var saveT = null;
 function keep() {
-if (sealed || ME !== LIVE) return;
-var has = hasText(S) || !!S.media;
-var box = $('c2-keep');
-var drop = $('c2-drop-draft');
-if (drop) drop.hidden = !has;
-if (!has) { if (box) box.textContent = ''; draftClear(); return; }
+if (ME !== LIVE || S.busy) return;
+var drop = q('[data-action="drop-draft"]'); if (drop) drop.hidden = !hasDraft();
+if (!hasDraft()) { draftClear(); q('[data-draft-state]').textContent = 'Draft text is kept on this device as you write. Files are chosen again after a reload.'; return; }
 clearTimeout(saveT);
 saveT = setTimeout(function () {
-if (sealed || ME !== LIVE) return;
-var at = Date.now();
+if (ME !== LIVE || S.busy) return;
 try {
-localStorage.setItem(KEY, JSON.stringify({
-kind: S.kind, title: S.title, sum: S.sum, body: S.body, opts: S.opts,
-who: S.who, price: S.price, free: S.free, door: S.door, credit: S.credit, pub: S.pub, at: at
-}));
-} catch (e) {}
-if (box) box.textContent = 'Draft kept \u00b7 ' + when(at);
-}, 400);
-if (box && !box.textContent) box.textContent = 'Draft kept';
+localStorage.setItem(KEY, JSON.stringify({ kind: S.type, title: S.title, sum: S.summary, body: S.body,
+opts: S.options, who: S.who, price: S.price, free: S.freeFrom || 0, credit: S.credit,
+pub: S.publishNow, minutes: S.minutes, link: S.link, mrail: S.mediaRail, crail: S.coverRail, at: Date.now() }));
+q('[data-draft-state]').textContent = 'Draft kept on this device' + ((S.mediaFile || S.coverFile) ? ' · choose the files again after a reload.' : '.');
+} catch (e) { q('[data-draft-state]').textContent = 'This browser could not keep the draft. Publishing is still available.'; }
+}, 350);
 }
-function count() {
-var v = (S.title + ' ' + S.sum + ' ' + S.body).trim();
-var w = v ? v.split(/\s+/).length : 0;
-var wc = $('c2-wc'), rt = $('c2-rt'), wl = $('c2-wl');
-if (wc) wc.textContent = String(w);
-if (rt) rt.textContent = w ? String(Math.max(1, Math.round(w / 210))) : '\u2014';
-if (wl) wl.textContent = w === 1 ? 'word' : 'words';
-var textual = S.kind === 'blog' || S.kind === 'poll';
-if (leaf) leaf.setAttribute('data-textual', textual ? '1' : '0');
+function busy(value, label) {
+S.busy = !!value; composer.classList.toggle('is-busy', S.busy); composer.setAttribute('aria-busy', S.busy ? 'true' : 'false');
+qa('[data-composer] button,[data-composer] input,[data-composer] textarea,[data-composer] select').forEach(function (n) { n.disabled = S.busy; });
+if (label) status(label, false);
+paintPublish();
 }
-function paintPage(focus) {
-var k = S.kind;
-if (k === 'blog' || k === 'poll') {
-page.innerHTML =
-'<p class="c2-lab">' + (k === 'poll' ? 'The question' : 'Its title') + '</p>' +
-'<input class="c2-title" id="c2-title" maxlength="90" autocomplete="off" ' +
-'placeholder="' + (k === 'poll' ? 'what the house should decide' : 'a few words') + '">' +
-'<p class="c2-lab">' + (k === 'poll' ? 'A line under it' : 'One line under it') + '</p>' +
-'<input class="c2-sum" id="c2-sum" maxlength="180" autocomplete="off" placeholder="' +
-(k === 'poll' ? 'why it matters, in one breath' : 'the sentence that carries it') + '">' +
-(k === 'poll'
-? '<div class="c2-opts" id="c2-opts"></div>'
-: '<p class="c2-lab">The story itself</p>' +
-'<textarea class="c2-body" id="c2-body" rows="8" placeholder="Then the story itself\u2026"></textarea>');
-} else {
-page.innerHTML =
-'<p class="c2-lab">' + (k === 'image' ? 'Its title' : k === 'audio' ? 'What it is called' : 'Its title') + '</p>' +
-'<input class="c2-title" id="c2-title" maxlength="90" autocomplete="off" placeholder="a few words">' +
-'<div class="c2-well" id="c2-well"></div>' +
-'<p class="c2-lab">' + (k === 'image' ? 'One line under it' : 'A line under it') + '</p>' +
-'<input class="c2-sum" id="c2-sum" maxlength="180" autocomplete="off" placeholder="' +
-(k === 'image' ? 'the sentence that carries it' : 'what a listener should know') + '">';
+function paintPublish() {
+var sw = q('[data-action="publish-switch"]');
+sw.classList.toggle('on', S.publishNow); sw.setAttribute('aria-checked', S.publishNow ? 'true' : 'false');
+q('[data-publish-sub]').textContent = S.publishNow ? 'Goes live and notifies every member.' : 'Saved as a draft. Publish it later from the library.';
+q('[data-publish-label]').textContent = S.busy ? 'WORKING...' : (S.publishNow ? 'PUBLISH NOW' : 'SAVE AS DRAFT');
 }
-var t = $('c2-title'), sm = $('c2-sum'), bd = $('c2-body');
-if (t) { t.value = S.title; t.addEventListener('input', function () { S.title = t.value; keep(); count(); }); }
-if (sm) { sm.value = S.sum; sm.addEventListener('input', function () { S.sum = sm.value; keep(); count(); }); }
-if (bd) { bd.value = S.body; bd.addEventListener('input', function () { S.body = bd.value; keep(); count(); }); }
-if (k === 'poll') paintOpts();
-if (k !== 'blog' && k !== 'poll') paintWell();
-count();
-if (focus) {
-var h = $('c2-h');
-if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+function chip(label, icon, action, value, on, extra) {
+return '<button type="button" class="n105-chip' + (on ? ' on' : '') + '" data-action="' + action + '" data-value="' + H.esc(value) + '" aria-pressed="' + (on ? 'true' : 'false') + '" ' + (extra || '') + '>' + H.icon(icon) + '<span>' + H.esc(label) + '</span></button>';
 }
+function paintTypes() {
+qa('[data-action="type"]').forEach(function (b) {
+var on = b.getAttribute('data-value') === S.type; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+});
+q('[data-summary-label]').textContent = S.type === 'poll' ? 'The question, in one line' : 'Short teaser';
+q('[data-field="summary"]').setAttribute('aria-label', S.type === 'poll' ? 'The question, in one line' : 'Short teaser');
 }
-function paintOpts() {
-var box = $('c2-opts');
-if (!box) return;
-box.innerHTML =
-'<p class="c2-lab">The ways it can be answered \u2014 two at the least</p>' +
-S.opts.map(function (o, i) {
-return '<label class="c2-opt"><i>' + String(i + 1).padStart(2, '0') + '</i>' +
-'<input data-opt="' + i + '" maxlength="80" autocomplete="off" value="' + esc(o) + '" placeholder="' +
-(i === 0 ? 'the first way' : i === 1 ? 'the other way' : 'and another') + '">' +
-(S.opts.length > 2
-? '<button class="c2-del" type="button" data-del="' + i + '" aria-label="Take this way away">' +
-'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" ' +
-'stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg><span class="c2-deltx">REMOVE</span></button>'
-: '') + '</label>';
-}).join('') +
-(S.opts.length < 6 ? '<button class="c2-add" type="button" id="c2-addopt">+ ONE MORE WAY</button>' : '') +
-'<p class="c2-hint">A member sees them in this order, and may choose one.</p>';
-R.each(box, '[data-opt]').forEach(function (inp) {
-inp.addEventListener('input', function () {
-S.opts[Number(inp.getAttribute('data-opt'))] = inp.value; keep();
-});
-});
-R.each(box, '[data-del]').forEach(function (b) {
-b.addEventListener('click', function () {
-if (S.opts.length <= 2) return;
-S.opts.splice(Number(b.getAttribute('data-del')), 1);
-keep(); paintOpts();
-});
-});
-var add = $('c2-addopt');
-if (add) add.addEventListener('click', function () {
-if (S.opts.length >= 6) return;
-S.opts.push(''); keep(); paintOpts();
-var last = pane.querySelector('[data-opt="' + (S.opts.length - 1) + '"]');
-if (last) last.focus();
-});
-}
-function paintWell() {
-var well = $('c2-well');
-if (!well) return;
-var k = S.kind;
-var accept = k === 'image' ? 'image/*' : k === 'audio' ? 'audio/*' : 'video/*';
-if (S.media && S.media.kind !== k) { S.media = null; S.poster = null; }
-if (!S.media) {
-well.innerHTML =
-'<label class="c2-drop" id="c2-drop" tabindex="0">' +
-'<input type="file" id="c2-file" accept="' + accept + '" hidden>' +
-glyph(k) +
-'<b>' + (k === 'image' ? 'Choose a picture' : k === 'audio' ? 'Choose a recording' : 'Choose a film') + '</b>' +
-'<span>' + (k === 'image' ? 'JPG, PNG or WebP' : k === 'audio' ? 'MP3, M4A, WAV or OGG' : 'MP4 or WebM') +
-' \u00b7 up to 40 MB</span>' +
-'</label>' +
-'<p class="c2-hint">It is put on the house\u2019s own rail when you press the seal \u2014 not before.</p>';
-var file = $('c2-file'), drop = $('c2-drop');
-if (file) file.addEventListener('change', function () {
-if (file.files && file.files[0]) take(file.files[0]);
-});
-if (drop) {
-drop.addEventListener('keydown', function (e) {
-if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); drop.click(); }
-});
-['dragenter', 'dragover'].forEach(function (n) {
-drop.addEventListener(n, function (e) { e.preventDefault(); drop.classList.add('over'); });
-});
-['dragleave', 'drop'].forEach(function (n) {
-drop.addEventListener(n, function (e) { e.preventDefault(); drop.classList.remove('over'); });
-});
-drop.addEventListener('drop', function (e) {
-var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-if (f) take(f);
-});
-}
-return;
-}
-var m = S.media;
-var inner = '';
-if (k === 'image' && m.preview) {
-inner = '<img class="c2-shot" src="' + m.preview + '" alt="">';
-} else if (k === 'video') {
-if (S.poster) {
-inner = '<div class="c2-poster" id="c2-poster"><img src="' + S.poster + '" alt="">' +
-'<button class="c2-play" type="button" id="c2-watch" aria-label="Watch it here">' +
-'<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">' +
-'<path d="M8 5.5l11 6.5-11 6.5z"/></svg><span class="c2-watchtx">WATCH</span></button></div>';
-} else {
-inner = '<div class="c2-blank">' + glyph('video') + '<b>The film is held</b>' +
-'<span>The house will draw its own poster frame when the seal is pressed.</span></div>';
-}
-} else if (k === 'audio') {
-inner = '<div class="c2-wave" id="c2-wave" aria-hidden="true">' +
-Array.apply(null, Array(30)).map(function (_, i) {
-var h = 26 + Math.round(Math.abs(Math.sin(i * 1.7)) * 60);
-return '<i style="height:' + h + '%"></i>';
-}).join('') + '</div>' +
-'<div class="c2-player">' +
-'<button class="c2-playbtn" type="button" id="c2-play" aria-label="Hear it back">' +
-'<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">' +
-'<path class="c2-tri" d="M8 5.5l11 6.5-11 6.5z"/></svg><span class="c2-playword" id="c2-playword">PLAY</span></button>' +
-'<div class="c2-track"><span id="c2-fill"></span></div>' +
-'<b class="c2-time" id="c2-time">0:00</b>' +
-'</div>' +
-'<audio id="c2-audio" preload="metadata" src="' + m.preview + '"></audio>';
-}
-well.innerHTML =
-'<div class="c2-held">' +
-inner +
-'<div class="c2-meta">' +
-'<b>' + esc(m.name) + '</b>' +
-'<span id="c2-meta2">' + size(m.bytes) + (m.duration ? ' \u00b7 ' + clock(m.duration) : '') +
-' \u00b7 ' + esc(m.mime || '') + '</span>' +
-'</div>' +
-(k === 'video' ? '<video id="c2-video" class="c2-video" preload="metadata" controls hidden src="' + m.preview + '"></video>' : '') +
-'<div class="c2-swap">' +
-'<button class="c2-ghost" type="button" id="c2-change">CHANGE</button>' +
-'<button class="c2-ghost" type="button" id="c2-remove">REMOVE</button>' +
-'</div>' +
-'</div>';
-var ch = $('c2-change'), rm = $('c2-remove');
-if (ch) ch.addEventListener('click', function () {
-S.media = null; S.poster = null; paintWell();
-});
-if (rm) rm.addEventListener('click', function () {
-S.media = null; S.poster = null; paintWell(); keep();
-});
-var au = $('c2-audio'), pb = $('c2-play'), fill = $('c2-fill'), tm = $('c2-time'), wave = $('c2-wave');
-if (au && pb) {
-pb.addEventListener('click', function () {
-if (au.paused) { au.play().catch(function () {}); } else { au.pause(); }
-});
-var mark = function (playing) {
-pb.innerHTML = playing
-? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">' +
-'<rect x="7" y="5" width="3.6" height="14" rx="1.2"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.2"/></svg><span class="c2-playword" id="c2-playword">PAUSE</span>'
-: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">' +
-'<path d="M8 5.5l11 6.5-11 6.5z"/></svg><span class="c2-playword" id="c2-playword">PLAY</span>';
-pb.setAttribute('aria-label', playing ? 'Pause' : 'Hear it back');
-var pw = $('c2-playword'); if (pw) pw.textContent = playing ? 'PAUSE' : 'PLAY';
-};
-au.addEventListener('play', function () {
-pb.classList.add('on'); if (wave) wave.classList.add('playing'); mark(true);
-});
-au.addEventListener('pause', function () {
-pb.classList.remove('on'); if (wave) wave.classList.remove('playing'); mark(false);
-});
-au.addEventListener('ended', function () { mark(false); });
-au.addEventListener('timeupdate', function () {
-var d = au.duration || m.duration || 0;
-if (fill) fill.style.width = d ? Math.min(100, (au.currentTime / d) * 100) + '%' : '0%';
-if (tm) tm.textContent = clock(au.currentTime);
-});
-au.addEventListener('ended', function () {
-if (fill) fill.style.width = '0%';
-if (tm) tm.textContent = '0:00';
-});
-}
-var watch = $('c2-watch'), vid = $('c2-video'), poster = $('c2-poster');
-if (watch && vid) watch.addEventListener('click', function () {
-vid.hidden = false;
-if (poster) poster.hidden = true;
-try { vid.play().catch(function () {}); } catch (e) {}
-});
-}
-function take(file) {
-var k = S.kind;
-var want = k === 'image' ? /^image\// : k === 'audio' ? /^audio\// : /^video\//;
-if (!want.test(file.type || '')) {
-say('That is not a ' + (k === 'image' ? 'picture' : k === 'audio' ? 'recording' : 'film') + '. Choose another file.', true);
-return;
-}
-if (file.size > 40 * 1024 * 1024) { say('Forty megabytes is the roof for one file.', true); return; }
-var m = {
-kind: k, file: file, name: file.name || ('untitled'), bytes: file.size, mime: file.type || '',
-preview: URL.createObjectURL(file), duration: 0
-};
-S.media = m; S.poster = null;
-paintWell();
-if (k === 'audio' || k === 'video') {
-var el = document.createElement(k === 'audio' ? 'audio' : 'video');
-el.preload = 'metadata';
-el.src = m.preview;
-el.addEventListener('loadedmetadata', function () {
-m.duration = el.duration || 0;
-var meta = pane.querySelector('.c2-meta span');
-if (meta) meta.textContent = size(m.bytes) + ' \u00b7 ' + clock(m.duration) + ' \u00b7 ' + (m.mime || '');
-});
-if (k === 'video') posterFrom(el, m);
-}
-keep();
-}
-function posterFrom(video, m) {
-video.addEventListener('loadeddata', function () {
-try { video.currentTime = Math.min(1, (video.duration || 2) / 3); } catch (e) {}
-});
-video.addEventListener('seeked', function () {
-try {
-var c = document.createElement('canvas');
-var w = Math.min(900, video.videoWidth || 640);
-var h = Math.round(w * ((video.videoHeight || 360) / (video.videoWidth || 640)));
-c.width = w; c.height = h;
-c.getContext('2d').drawImage(video, 0, 0, w, h);
-S.poster = c.toDataURL('image/jpeg', 0.82);
-S.posterBlob = null;
-c.toBlob(function (b) { S.posterBlob = b; }, 'image/jpeg', 0.82);
-if (S.kind === 'video') paintWell();
-} catch (e) {}
-}, { once: true });
-}
-function paintTiers() {
-var box = $('c2-who'), sel = $('c2-free');
-if (!box || !sel) return;
-if (!S.tiers.length) {
-box.innerHTML = '<span class="c2-mute">the house holds no tiers yet \u2014 everyone who is in may read it</span>';
-sel.innerHTML = '<option value="0">no one</option>';
-return;
-}
-box.innerHTML = S.tiers.map(function (x) {
-var lv = Number(x.level);
-var on = S.who.indexOf(lv) >= 0;
-return '<button class="c2-chip' + (on ? ' on' : '') + '" type="button" data-tier="' + lv + '" ' +
-'aria-pressed="' + (on ? 'true' : 'false') + '">' + esc(x.name) + '</button>';
+function paintAudience() {
+var html = chip('Nobody - all pay', 'sparkle', 'audience', 'nobody', !S.who.length) +
+chip('Forever Members', 'groups', 'audience', '0', S.who.indexOf(0) >= 0);
+html += S.tiers.filter(function (t) { return Number(t.level) > 0; }).map(function (t) {
+var level = Number(t.level); return chip(t.name || ('Tier ' + level), 'crown', 'audience', String(level), S.who.indexOf(level) >= 0);
 }).join('');
-R.each(box, '[data-tier]').forEach(function (b) {
-b.addEventListener('click', function () {
-var lv = Number(b.getAttribute('data-tier'));
-var i = S.who.indexOf(lv);
-if (i >= 0) S.who.splice(i, 1); else S.who.push(lv);
-S.who.sort(function (a, b2) { return a - b2; });
-b.classList.toggle('on', i < 0);
-b.setAttribute('aria-pressed', i < 0 ? 'true' : 'false');
-keep();
-});
-});
-sel.innerHTML = '<option value="0">no one</option>' + S.tiers.map(function (x) {
-return '<option value="' + Number(x.level) + '">' + esc(x.name) + '</option>';
-}).join('');
-if (sel.querySelector('option[value="' + S.free + '"]')) sel.value = S.free;
+q('[data-audience]').innerHTML = html;
+paintFreeFrom();
 }
-function paintPub() {
-var a = $('c2-pubnow'), b = $('c2-hold');
-if (!a || !b) return;
-a.classList.toggle('on', S.pub); b.classList.toggle('on', !S.pub);
-a.setAttribute('aria-pressed', S.pub ? 'true' : 'false');
-b.setAttribute('aria-pressed', S.pub ? 'false' : 'true');
+function paintFreeFrom() {
+var box = q('[data-free-from]'), priced = Math.max(0, parseInt(S.price || '0', 10) || 0) > 0;
+if (!priced) { box.innerHTML = ''; return; }
+var html = '<p class="dk-label">WHO GETS IT WITHOUT PAYING</p><div class="c105-chips">' +
+chip('Nobody - all pay', 'sparkle', 'free-from', '', S.freeFrom == null);
+html += S.tiers.map(function (t) {
+var level = Number(t.level); return chip((t.name || ('Tier ' + level)) + ' and above', 'crown', 'free-from', String(level), S.freeFrom === level);
+}).join('') + '</div>';
+box.innerHTML = html;
 }
-function paintKind() {
-var meta = kindOf(S.kind);
-var h = $('c2-h'), lede = $('c2-lede');
-if (h) h.innerHTML = meta.h;
-if (lede) lede.textContent = meta.lede;
-R.each(pane, '.c2-kind').forEach(function (b) {
-var on = b.getAttribute('data-k') === S.kind;
-b.classList.toggle('on', on);
-b.setAttribute('aria-pressed', on ? 'true' : 'false');
-});
+function storage(scope, image) {
+var current = scope === 'media' ? S.mediaRail : S.coverRail;
+var selected = current || 'b2';
+var title = scope === 'cover' ? 'COVER STORAGE' : S.type === 'image' ? 'PHOTO & COVER STORAGE' : S.type === 'video' ? 'VIDEO STORAGE' : S.type === 'audio' ? 'VOICE STORAGE' : 'MEDIA STORAGE';
+var options = image ? [['b2', 'B2 - private (default)'], ['r2', 'R2 - private']] : [['r2', 'R2 - private'], ['b2', 'B2 - private']];
+if (image && S.publishNow) options.push(['r2pub', 'R2 - public to anyone with the link']);
+var helper = image ? (S.publishNow ? 'Both houses stay private by default. Public R2 images are public to anyone with the URL.' : 'Draft photos and covers stay private - B2 or R2, your pick. Public R2 joins when the post is published.') : 'Choose R2 or B2 for this upload. Both are private; frequent B2 downloads can exceed its free allowance.';
+return '<div class="c105-storage"><p>' + title + '</p><div class="c105-chips">' + options.map(function (o) {
+return '<button type="button" class="n105-chip small' + (selected === o[0] ? ' on' : '') + '" data-action="rail" data-scope="' + scope + '" data-value="' + o[0] + '" aria-pressed="' + (selected === o[0] ? 'true' : 'false') + '"><span>' + o[1] + '</span></button>';
+}).join('') + '</div><small>' + helper + '</small></div>';
 }
-function num(v) { return String(v).replace(/[^0-9]/g, ''); }
-function seal() {
+function fileCard(file, cover) {
+if (!file) return '';
+return '<div class="c105-file"><span class="c105-file-icon">' + H.icon(cover ? 'image' : fileKind(file, S.type) === 'voice' ? 'audio' : fileKind(file, S.type) === 'video' ? 'video' : 'attach') + '</span><span><b>' + H.esc(file.name) + '</b><small>' + H.bytes(file.size) + ' · uploads when you publish</small></span>' + (cover ? '' : '<button type="button" class="n105-icon" data-action="remove-media" aria-label="Remove the file">×</button>') + '</div>';
+}
+function detected() {
+if (!S.link.trim()) return '';
+var source = H.sourceForLink(S.link).source;
+return 'Detected: ' + String(source).replace(/_/g, ' ');
+}
+function paintMedia() {
+var box = q('[data-media]');
+if (S.type === 'poll') { box.innerHTML = ''; return; }
+box.innerHTML = '<p class="dk-label">THE MEDIA</p><div class="c105-media-card">' +
+storage('media', S.type === 'image') + fileCard(S.mediaFile, false) +
+'<button type="button" class="n105-outline c105-upload" data-action="choose-media">' + H.icon('upload') + '<span>' + (S.mediaFile ? 'REPLACE FILE' : 'UPLOAD A FILE') + '</span></button>' +
+'<input type="file" data-media-file hidden>' +
+(S.type === 'video' ? '<button type="button" class="n105-text-button" data-action="manage-vaults">' + H.icon('history') + '<span>MANAGE THE VAULTS</span></button>' : '') +
+'<p class="c105-hint">The vault room lists both houses side by side - R2 and B2 - with their counts and weights.</p>' +
+'<div class="c105-or"><i></i><span>or point at a link</span><i></i></div>' +
+'<label class="n105-field"><span>YouTube / Telegram / R2 / direct link</span><input class="n105-input" data-field="link" aria-label="YouTube, Telegram, R2 or direct link" inputmode="url" value="' + H.esc(S.link) + '"></label>' +
+'<p class="c105-detected" data-detected>' + H.esc(detected()) + '</p><hr>' + (S.type === 'image' ? '' : storage('cover', true)) +
+'<div class="c105-cover"><span>' + (S.coverFile ? H.esc(S.coverFile.name) + ' · ' + H.bytes(S.coverFile.size) : 'Cover image (optional)') + '</span><button type="button" class="n105-text-button" data-action="choose-cover">' + (S.coverFile ? 'CHANGE' : 'ADD') + '</button></div>' +
+'<input type="file" data-cover-file accept="image/*" hidden></div>';
+}
+function paintStory() {
+q('[data-story]').innerHTML = S.type === 'blog' ? '<label class="n105-field"><span>The story itself</span><textarea class="n105-input" data-field="body" aria-label="The story itself" rows="8">' + H.esc(S.body) + '</textarea></label>' : '';
+}
+function paintPoll() {
+var box = q('[data-poll]'); if (S.type !== 'poll') { box.innerHTML = ''; return; }
+while (S.options.length < 2) S.options.push('');
+box.innerHTML = '<p class="dk-label">THE OPTIONS</p><div class="c105-options">' + S.options.map(function (value, i) {
+return '<div class="c105-option"><label class="n105-field"><span>Option ' + (i + 1) + '</span><input class="n105-input" data-option="' + i + '" aria-label="Option ' + (i + 1) + '" value="' + H.esc(value) + '"></label>' +
+(S.options.length > 2 ? '<button type="button" class="n105-icon" data-action="remove-option" data-value="' + i + '" aria-label="Remove option ' + (i + 1) + '">−</button>' : '') + '</div>';
+}).join('') + '</div><button type="button" class="n105-text-button" data-action="add-option">+ ADD ANOTHER OPTION</button>';
+}
+function paintMinutes() {
+q('[data-minutes]').innerHTML = (S.type === 'audio' || S.type === 'video') ? '<label class="n105-field"><span>Length in minutes (optional)</span><input class="n105-input" data-field="minutes" aria-label="Length in minutes, optional" inputmode="numeric" value="' + H.esc(S.minutes) + '"></label>' : '';
+}
+function paintType() { paintTypes(); paintStory(); paintPoll(); paintMedia(); paintMinutes(); }
+function reset() {
+S.title = ''; S.summary = ''; S.body = ''; S.options = ['', '']; S.minutes = ''; S.who = [0, 1, 2, 3, 4];
+S.price = ''; S.freeFrom = null; S.credit = ''; S.publishNow = true; S.mediaFile = null; S.coverFile = null;
+S.mediaRail = S.type === 'image' ? 'b2' : (S.type === 'audio' || S.type === 'video' ? null : 'r2'); S.coverRail = 'b2'; S.link = '';
+q('[data-field="title"]').value = ''; q('[data-field="summary"]').value = ''; q('[data-field="price"]').value = ''; q('[data-field="credit"]').value = '';
+draftClear(); var drop = q('[data-action="drop-draft"]'); if (drop) drop.hidden = true;
+q('[data-draft-state]').textContent = 'Draft text is kept on this device as you write. Files are chosen again after a reload.';
+paintType(); paintAudience(); paintPublish();
+}
+function manageVaults() {
+if (!window.IVROOMS.vault) { say('The Vault room is not available here.', true); return; }
+var d = H.sheet({ title: 'THE VAULTS', lede: 'Both houses, their files and their controls. Close this sheet to return to the same draft.', className: 'p105-vault-sheet', html: '<div class="p104-loading">Opening the Vaults…</div>' });
+try { d.body.innerHTML = ''; window.IVROOMS.vault(d.body); }
+catch (e) { d.body.innerHTML = '<p class="p104-error-card">' + H.esc(e.message || 'The Vault did not open.') + '</p>'; }
+}
+function validate() {
+if (S.title.trim().length < 3) return 'Add a title';
+if (S.type === 'blog' && S.body.trim().length < 20) return 'Write at least a paragraph';
+var options = S.options.map(function (x) { return x.trim(); });
+if (S.type === 'poll' && options.filter(Boolean).length < 2) return 'A poll needs at least two options.';
+if (S.type === 'poll' && options.some(function (x) { return !x; })) return 'Fill every poll option, or remove the empty one.';
+if ((S.type === 'image' || S.type === 'audio' || S.type === 'video') && !S.mediaFile && !S.link.trim()) return 'Nothing attached. Choose a file or point at a link.';
+if ((S.type === 'audio' || S.type === 'video') && S.mediaFile && !S.mediaRail) return 'Choose R2 or B2 storage before uploading this file.';
+return '';
+}
+function publish() {
 if (S.busy) return;
-if (!R.signed()) { say('The seal needs the keeper\u2019s hand.', true); return; }
-var k = S.kind, opts = S.opts.map(function (o) { return String(o).trim(); }).filter(Boolean);
-if (S.title.trim().length < 3) { say('Give it a line across the top first.', true); focusId('c2-title'); return; }
-if (k === 'blog' && S.body.trim().length < 20) { say('A little more, or it is only a note.', true); focusId('c2-body'); return; }
-if (k === 'poll' && opts.length < 2) { say('A poll needs two ways at the least.', true); focusId('c2-opts'); return; }
-if (k === 'poll') {
-var dup = {};
-for (var i = 0; i < opts.length; i++) {
-var key = opts[i].toLowerCase();
-if (dup[key]) { say('Two ways are the same way \u2014 make them different.', true); focusId('c2-opts'); return; }
-dup[key] = 1;
+var problem = validate(); if (problem) { say(problem, true); return; }
+busy(true, 'Working...');
+var media = { source: 'none', ref: null, thumbSource: 'none', thumbRef: null }, chain = Promise.resolve();
+if (S.mediaFile) {
+var kind = fileKind(S.mediaFile, S.type), rail = S.mediaRail || 'r2';
+if (rail === 'r2pub' && !S.publishNow) rail = 'b2';
+chain = chain.then(function () { status('Preparing ' + rail.toUpperCase() + '...', false); return upload(S.mediaFile, kind, rail, function (p) { status('Uploading ' + Math.round((p || 0) * 100) + '% - keep open', false); }); }).then(function (got) {
+media.source = railSource(got); media.ref = refFromUpload(got);
+});
+} else if (S.link.trim() && S.type !== 'poll') {
+var parsed = H.sourceForLink(S.link); media.source = parsed.source; media.ref = parsed.ref;
 }
-}
-if ((k === 'image' || k === 'audio' || k === 'video') && !S.media) {
-say('The ' + (k === 'image' ? 'picture' : k === 'audio' ? 'recording' : 'film') + ' has not been chosen yet.', true);
-focusId('c2-drop'); return;
-}
-S.busy = true;
-$('c2-seal').setAttribute('aria-busy', 'true');
-leaf.classList.add('working');
-var stage = function (t) { S.stage = t; state.textContent = t; };
-var media = { source: 'none', ref: null, thumbSource: 'none', thumbRef: null, secs: null };
-var step = Promise.resolve();
-if (S.media && window.IVSTORE) {
-stage('Putting the ' + (k === 'image' ? 'picture' : k === 'audio' ? 'recording' : 'film') + ' down\u2026');
-step = window.IVSTORE.put(S.media.file, kindOf(k).rail, function (p) {
-stage('Putting it down\u2026 ' + Math.round((p || 0) * 100) + '%');
-}).then(function (got) {
-media.source = got.rail === 'supabase' ? 'supabase' : (got.rail === 'r2' || got.rail === 'r2pub') ? 'r2' : 'b2';
-media.ref = got.url || got.key;
-media.secs = S.media.duration ? Math.round(S.media.duration) : null;
-if (k === 'image') { media.thumbSource = media.source; media.thumbRef = media.ref; }
-if (k === 'video' && S.posterBlob) {
-stage('Drawing the poster\u2026');
-var pf = new File([S.posterBlob], 'poster.jpg', { type: 'image/jpeg' });
-return window.IVSTORE.put(pf, 'image', null).then(function (th) {
-media.thumbSource = th.rail === 'supabase' ? 'supabase' : (th.rail === 'r2' || th.rail === 'r2pub') ? 'r2' : 'b2';
-media.thumbRef = th.url || th.key;
-}).catch(function () {});
-}
+if (S.coverFile) {
+var coverRail = (S.type === 'image' ? S.mediaRail : S.coverRail) || 'b2';
+if (coverRail === 'r2pub' && !S.publishNow) coverRail = 'b2';
+chain = chain.then(function () { status('Preparing the cover...', false); return upload(S.coverFile, 'cover', coverRail); }).then(function (got) {
+media.thumbSource = railSource(got); media.thumbRef = refFromUpload(got);
 });
 }
-step.then(function () {
-stage('Sealing\u2026');
-var who = S.who.slice().sort(function (a, b) { return a - b; });
-return R.api('/rest/v1/rpc/publish_post', {
-type_in: k,
-title_in: S.title.trim(),
-summary_in: S.sum.trim() || null,
-body_in: (k === 'blog' || k === 'poll') ? (S.body.trim() || null) : null,
-media_source_in: media.source,
-media_ref_in: media.ref,
-thumb_source_in: media.thumbSource,
-thumb_ref_in: media.thumbRef,
-tier_required_in: who.length ? Math.min.apply(null, who) : 0,
-duration_secs_in: media.secs,
-poll_options_in: k === 'poll' ? opts : null,
-is_published_in: !!S.pub
-}).then(function (id) {
-var pid = Number(id);
-var jobs = [R.api('/rest/v1/posts?id=eq.' + pid, { allowed_tiers: who }, 'PATCH').catch(function () { return null; })];
-var credit = S.door ? S.credit.trim() : '';
-if (credit) jobs.push(R.api('/rest/v1/posts?id=eq.' + pid, { door_credit: credit }, 'PATCH').catch(function () { return null; }));
-var price = parseInt(num(S.price), 10) || 0;
-if (price > 0) jobs.push(R.api('/rest/v1/rpc/set_post_price', {
-post_id_in: pid, price_in: price, free_from_in: Number(S.free) || null
-}).catch(function () { return null; }));
-return Promise.all(jobs).then(function () { return pid; });
+var createdId = null;
+chain.then(function () {
+status('Publishing...', false);
+var sorted = S.who.slice().sort(function (a, b) { return a - b; });
+var timed = S.type === 'audio' || S.type === 'video';
+var minutes = timed && S.minutes.trim() !== '' ? Math.max(0, parseInt(S.minutes, 10) || 0) * 60 : null;
+var options = S.options.map(function (x) { return x.trim(); }).filter(Boolean);
+return H.api('/rest/v1/rpc/publish_post', {
+type_in: S.type, title_in: S.title.trim(), summary_in: S.summary, body_in: S.type === 'blog' ? S.body : null,
+media_source_in: media.source, media_ref_in: media.ref, thumb_source_in: media.thumbSource, thumb_ref_in: media.thumbRef,
+tier_required_in: sorted.length ? sorted[0] : 9, duration_secs_in: minutes,
+poll_options_in: S.type === 'poll' ? options : null, is_published_in: S.publishNow
 });
+}).then(function (answer) {
+createdId = Number(answer && answer.id != null ? answer.id : answer);
+if (!createdId) throw new Error('The post was created but the house did not return its number. Open the Library before trying again.');
+var jobs = [H.patch('/rest/v1/posts?id=eq.' + createdId, { allowed_tiers: S.who.slice().sort(function (a, b) { return a - b; }) })];
+if (S.credit.trim()) jobs.push(H.patch('/rest/v1/posts?id=eq.' + createdId, { door_credit: S.credit.trim() }));
+var price = Math.max(0, parseInt(S.price || '0', 10) || 0);
+if (price > 0) jobs.push(H.api('/rest/v1/rpc/set_post_price', { post_id_in: createdId, price_in: price, free_from_in: S.freeFrom }));
+return Promise.all(jobs);
 }).then(function () {
-S.busy = false;
-sealed = true;
-$('c2-seal').removeAttribute('aria-busy');
-leaf.classList.remove('working');
-leaf.classList.add('sealed');
-if (window.IVVOICE) window.IVVOICE.play('seal', 'big', $('c2-seal'));
-state.textContent = S.pub
-? 'Sealed and published \u2014 it is in the house and on its way to every inbox.'
-: 'Sealed and held \u2014 it waits in STORIES until you open it.';
-draftClear();
-var box = $('c2-keep'); if (box) box.textContent = '';
-S.title = ''; S.sum = ''; S.body = ''; S.opts = ['', '']; S.media = null; S.poster = null; S.price = ''; S.who = []; S.door = false; S.credit = '';
-var pr = $('c2-price'); if (pr) pr.value = '';
-var cr = $('c2-credit'); if (cr) { cr.value = ''; cr.hidden = true; }
-var dr = $('c2-door'); if (dr) dr.checked = false;
-paintTiers(); paintPage(false);
-setTimeout(function () { leaf.classList.remove('sealed'); }, 1600);
-recent(true);
-window.dispatchEvent(new CustomEvent('iv-content-changed'));
+var wasPublished = S.publishNow;
+busy(false); reset(); H.contentChanged();
+say(wasPublished ? 'Published. Every member has been notified.' : 'Saved as a draft. Nobody has been notified.', false);
 }).catch(function (e) {
-S.busy = false;
-$('c2-seal').removeAttribute('aria-busy');
-leaf.classList.remove('working');
-state.textContent = (e && (e.message || e.why)) || 'The house did not take the seal. Nothing was published.';
+busy(false);
+if (createdId) {
+reset(); H.contentChanged();
+say('Post ' + createdId + ' was created, but its audience, credit or price did not finish. Opening that same post; do not create a duplicate. ' + ((e && e.message) || ''), true);
+var library = q('[data-library-host][data-pass104-library]');
+if (library && library.__ivStudio) library.__ivStudio.open(createdId);
+} else say('Could not publish: ' + ((e && e.message) || 'The house refused.'), true);
 });
 }
-function focusId(id) { var el = R.q(pane, id); if (el) { try { el.focus(); } catch (e) {} } }
-var recentOnce = false;
-function recent(force) {
-var box = $('c2-last');
-if (!box) return;
-if (!R.signed()) { box.innerHTML = R.miss('Only the house reads its own shelf.'); return; }
-if (recentOnce && !force) return;
-recentOnce = true;
-R.get('/rest/v1/admin_posts?select=id,type,title,is_published,created_at,view_count&order=created_at.desc&limit=3')
-.then(function (rows) {
-if (!rows || !rows.length) {
-box.innerHTML = R.none('Nothing has left this desk yet.', 'The first thing you seal will stand here.');
-return;
-}
-box.innerHTML = rows.map(function (p) {
-var kk = kindOf(p.type);
-var label = ({ blog: 'STORY', poll: 'POLL', image: 'PHOTO', audio: 'AUDIO', video: 'VIDEO' })[p.type] || 'POST';
-return '<div class="c2-last">' + glyph(p.type || 'blog') +
-'<div><b>' + esc(p.title || 'Untitled') + '</b>' +
-'<span>' + label + ' \u00b7 ' + (p.is_published ? 'live' : 'held') + ' \u00b7 ' + R.ago(p.created_at) +
-' \u00b7 ' + R.n(p.view_count || 0) + ' true views</span></div></div>';
-}).join('');
-})
-.catch(function (e) { box.innerHTML = R.bad(e); });
-}
-R.each(pane, '.c2-kind').forEach(function (b) {
-b.addEventListener('click', function () {
-var k = b.getAttribute('data-k');
-if (k === S.kind) return;
-S.kind = k;
-if (S.media && S.media.kind !== k) { S.media = null; S.poster = null; }
-paintKind(); paintPage(false); keep();
-if (window.IVVOICE) window.IVVOICE.play('tab', 'soft', b);
-});
-});
-var back = $('c2-back');
-if (back) back.addEventListener('click', function () {
-var shelf = document.querySelector('#dk-ribbon .dk-tab[data-k="stories"]');
-if (shelf) { shelf.click(); return; }
-if (window.ivDesk && window.ivDesk.open) window.ivDesk.open();
-});
-var dd = $('c2-drop-draft');
-if (dd) dd.addEventListener('click', function () {
-draftClear();
-S.title = ''; S.sum = ''; S.body = ''; S.opts = ['', '']; S.media = null; S.poster = null;
-S.price = ''; S.who = []; S.door = false; S.credit = ''; S.free = '0';
-dd.hidden = true;
-var kb2 = $('c2-keep'); if (kb2) kb2.textContent = '';
-var pr2 = $('c2-price'); if (pr2) pr2.value = '';
-var cr2 = $('c2-credit'); if (cr2) { cr2.value = ''; cr2.hidden = true; }
-var dr2 = $('c2-door'); if (dr2) dr2.checked = false;
-paintTiers(); paintPub(); paintPage(false);
-state.textContent = 'The draft is gone. The sheet is clean.';
-});
-var pn = $('c2-pubnow'), hd = $('c2-hold');
-if (pn) pn.addEventListener('click', function () { S.pub = true; paintPub(); keep(); });
-if (hd) hd.addEventListener('click', function () { S.pub = false; paintPub(); keep(); });
-var pr = $('c2-price');
-if (pr) {
-pr.value = S.price;
-pr.addEventListener('input', function () {
-pr.value = num(pr.value).slice(0, 6);
-S.price = pr.value; keep();
-});
-}
-var fr = $('c2-free');
-if (fr) fr.addEventListener('change', function () { S.free = fr.value; keep(); });
-var dr = $('c2-door');
-if (dr) {
-dr.checked = S.door;
-var cr = $('c2-credit');
-if (cr) { cr.value = S.credit; cr.hidden = !S.door; }
-dr.addEventListener('change', function () {
-S.door = dr.checked;
-if (cr) { cr.hidden = !S.door; if (S.door) cr.focus(); }
+root.addEventListener('input', function (e) {
+var t = e.target;
+if (t.hasAttribute('data-field')) {
+var field = t.getAttribute('data-field'); S[field] = t.value;
+if (field === 'price') paintFreeFrom();
+if (field === 'link') { var d = q('[data-detected]'); if (d) d.textContent = detected(); }
 keep();
+}
+if (t.hasAttribute('data-option')) { S.options[Number(t.getAttribute('data-option'))] = t.value; keep(); }
 });
-if (cr) cr.addEventListener('input', function () { S.credit = cr.value; keep(); });
+root.addEventListener('change', function (e) {
+var t = e.target;
+if (t.hasAttribute('data-media-file') && t.files && t.files[0]) { S.mediaFile = t.files[0]; S.link = ''; paintMedia(); keep(); }
+if (t.hasAttribute('data-cover-file') && t.files && t.files[0]) { S.coverFile = t.files[0]; paintMedia(); keep(); }
+});
+root.addEventListener('click', function (e) {
+var b = e.target.closest('[data-action]'); if (!b || S.busy || b.closest('[data-library-host]')) return;
+var action = b.getAttribute('data-action'), value = b.getAttribute('data-value');
+if (action === 'type') {
+S.type = value; S.mediaFile = null; S.coverFile = null; S.link = ''; S.mediaRail = value === 'image' ? 'b2' : (value === 'audio' || value === 'video' ? null : 'r2'); S.coverRail = 'b2';
+paintType(); keep(); return;
 }
-var sealBtn = $('c2-seal');
-if (sealBtn) sealBtn.addEventListener('click', seal);
-if (d && d.at) {
-var kb = $('c2-keep');
-if (kb) kb.textContent = 'Draft from ' + when(d.at);
-var dd2 = $('c2-drop-draft'); if (dd2) dd2.hidden = false;
+if (action === 'audience') {
+if (value === 'nobody') S.who = [];
+else { var level = Number(value), at = S.who.indexOf(level); if (at >= 0) S.who.splice(at, 1); else S.who.push(level); }
+paintAudience(); keep(); return;
 }
-paintKind(); paintPub(); paintPage(true); recent(false);
-if (!R.signed()) paintTiers();
-else R.get('/rest/v1/subscription_tiers?select=id,name,level&order=level.asc')
-.then(function (rows) { S.tiers = rows || []; paintTiers(); })
-.catch(function () { S.tiers = []; paintTiers(); });
-};
-})();</script>
+if (action === 'free-from') { S.freeFrom = value === '' ? null : Number(value); paintFreeFrom(); keep(); return; }
+if (action === 'rail') {
+if (b.getAttribute('data-scope') === 'media') {
+S.mediaRail = value;
+if (S.type === 'image') S.coverRail = value;
+} else S.coverRail = value;
+paintMedia(); keep(); return;
+}
+if (action === 'choose-media') { var f = q('[data-media-file]'); f.accept = acceptFor(S.type); f.click(); return; }
+if (action === 'choose-cover') { q('[data-cover-file]').click(); return; }
+if (action === 'remove-media') { S.mediaFile = null; paintMedia(); keep(); return; }
+if (action === 'manage-vaults') { manageVaults(); return; }
+if (action === 'add-option') { S.options.push(''); paintPoll(); keep(); return; }
+if (action === 'remove-option') { S.options.splice(Number(value), 1); paintPoll(); keep(); return; }
+if (action === 'publish-switch') {
+S.publishNow = !S.publishNow;
+paintPublish(); paintMedia(); keep(); return;
+}
+if (action === 'publish') { publish(); return; }
+if (action === 'drop-draft') { draftClear(); reset(); status('The draft is gone. The sheet is clean.', false); }
+});
+paintType(); paintAudience(); paintPublish();
+if (old) { var drop = q('[data-action="drop-draft"]'); if (drop) drop.hidden = false; q('[data-draft-state]').textContent = 'Draft restored from this device. Choose any files again.'; }
+H.get('/rest/v1/subscription_tiers?select=id,name,level,price_inr,is_active&order=level.asc').then(function (rows) {
+if (!root.isConnected) return;
+S.tiers = (Array.isArray(rows) ? rows : []).filter(function (t) { return t.is_active === true; }); paintAudience();
+}).catch(function () { if (root.isConnected) paintAudience(); });
+if (window.IVSTUDIO104 && typeof IVSTUDIO104.mount === 'function') IVSTUDIO104.mount(q('[data-library-host]'));
+}
+window.IVROOMS.create = create;
+window.IVCREATE105 = { fileKind: fileKind, railSource: railSource, refFromUpload: refFromUpload, draftKey: KEY };
+}
+boot();
+})();
+</script>
 <script id="iv-badges87-js">
 (function () {
 'use strict';
@@ -42217,188 +41723,254 @@ S.endBusy = false; S.over = false;
 showBye('The room is still live', ((x && x.message) || 'The house did not confirm the ending.') + ' Try ending again, or step out without ending it.', true);
 });
 }
-var D = { session: null, tiers: [], chosen: {}, forever: true, nobody: false, ppv: 0, busy: false, clockT: null };
+var D = { session: null, sessions: [], gifts: [], giftSets: {}, noteFlags: {}, tiers: [], chosen: {}, forever: true, nobody: false, ppv: 0, busy: false, clockT: null, pollT: null, seq: 0, pane: null };
+function liveSession105(r) {
+return { id: Number(r.id), title: r.title || 'Live', sub: r.subtitle || '', guestPrice: Number(r.guest_price_inr || 0),
+price: Number(r.price_inr || 0), allowed: Array.isArray(r.allowed_tiers) ? r.allowed_tiers : [],
+minTier: Number(r.min_tier || 0), startedAt: r.started_at ? Date.parse(r.started_at) : Date.now(),
+viewer: Number(r.viewer_count || 0), guestRequestsOpen: r.guest_requests_open !== false,
+hostVideo: r.host_video_enabled !== false, pending: false };
+}
+function giftsBlock() {
+return '<section class="c105-live-gifts"><p class="lvd-l">Gifts</p><div id="lvd-gifts" class="lvd-gifts"><p class="lvd-hint">Reading the gift ledger…</p></div></section>';
+}
+function historyBlock() {
+return '<section class="c105-live-history" id="lvd-history-wrap" hidden><p class="lvd-l">Earlier broadcasts</p><div id="lvd-history"></div></section>';
+}
+function paintHistory() {
+var wrap = document.getElementById('lvd-history-wrap'), box = document.getElementById('lvd-history');
+if (!wrap || !box) return;
+var rows = (D.sessions || []).filter(function (s) { return s.status !== 'live'; });
+wrap.hidden = !rows.length; if (!rows.length) { box.innerHTML = ''; return; }
+var H = window.IVHOUSE104;
+box.innerHTML = rows.map(function (s) {
+return '<article class="c105-live-history-row"><span>' + (H ? H.icon('history') : '') + '</span><div><b>' + esc(s.title || 'Live') + '</b><p>' + (s.status === 'ended' ? 'Ended' : 'Scheduled') + '</p></div></article>';
+}).join('');
+}
+function loadGifts105() {
+if (!IV) return Promise.resolve(false);
+var pane = D.pane, seq = D.seq;
+var sends = IV.call('/rest/v1/rpc/list_gift_sends', { status_in: null }).catch(function () { return null; });
+var surfaces = IV.get('/rest/v1/gifts?select=name,surface').catch(function () { return null; });
+var flags = IV.call('/rest/v1/rpc/gift_note_flags', {}).catch(function () { return null; });
+return Promise.all([sends, surfaces, flags]).then(function (r) {
+if (pane !== D.pane || seq !== D.seq) return false;
+if (Array.isArray(r[0])) D.gifts = r[0];
+if (Array.isArray(r[1])) {
+D.giftSets = {}; r[1].forEach(function (g) { if (g && g.name) D.giftSets[g.name] = g.surface === 'post' ? 'post' : 'live'; });
+}
+if (Array.isArray(r[2])) {
+D.noteFlags = {}; r[2].forEach(function (g) { if (g && Number(g.id)) D.noteFlags[Number(g.id)] = g; });
+}
+paintDeskGifts(); return true;
+});
+}
+function paintDeskGifts() {
+var box = document.getElementById('lvd-gifts'); if (!box) return;
+var rows = (D.gifts || []).slice(0, 20), H = window.IVHOUSE104;
+if (!rows.length) { box.innerHTML = '<p class="lvd-hint">No gifts are waiting in the ledger.</p>'; return; }
+box.innerHTML = rows.map(function (g) {
+var id = Number(g.id), pending = g.status === 'pending', confirmed = g.status === 'confirmed';
+var surface = D.giftSets[g.name], flag = D.noteFlags[id], note = String(g.note || '').trim();
+return '<article class="c105-gift' + (pending ? ' pending' : '') + '" data-gift="' + id + '"><span class="c105-gift-emoji">' + esc(g.emoji || '🤍') + '</span>' +
+'<div class="c105-gift-main"><div class="c105-gift-title"><b>' + esc(g.name || 'A gift') + ' - ₹' + Number(g.amount_inr || 0) + '</b>' +
+(surface ? '<span class="c105-gift-surface ' + surface + '">' + (surface === 'post' ? 'ON A POST' : 'ON AIR') + '</span>' : '') + '</div>' +
+'<p class="c105-gift-ref">' + esc(g.sender || 'A member') + (g.utr == null ? ' - no reference yet' : ' - ' + esc(g.utr)) + '</p>' +
+(note ? '<p class="c105-gift-note">“' + esc(note) + '”</p>' : '') +
+(note && flag && flag.post_id != null ? '<button type="button" class="c105-gift-hide' + (flag.note_hidden ? ' hidden-note' : '') + '" data-gift-hide="' + id + '">' + (flag.note_hidden ? 'HIDDEN FROM THE POST - TAP TO SHOW' : 'HIDE THIS LINE FROM THE POST') + '</button>' : '') + '</div>' +
+(pending ? '<button type="button" class="c105-gift-confirm" data-gift-confirm="' + id + '">CONFIRM</button>' : '<span class="c105-gift-state ' + (confirmed ? 'ok' : '') + '" title="' + (confirmed ? 'Confirmed' : esc(g.status || 'Not confirmed')) + '">' + (H ? H.icon(confirmed ? 'check' : 'delete') : (confirmed ? '✓' : '×')) + '</span>') + '</article>';
+}).join('');
+Array.prototype.forEach.call(box.querySelectorAll('[data-gift-confirm]'), function (b) {
+b.addEventListener('click', function () {
+if (b.disabled) return; b.disabled = true; b.textContent = 'WORKING…';
+IV.call('/rest/v1/rpc/confirm_gift', { send_id_in: Number(b.getAttribute('data-gift-confirm')), accept_in: true }).then(function () {
+toast('Gift confirmed.'); return loadGifts105();
+}).catch(function (x) { if (b.isConnected) { b.disabled = false; b.textContent = 'CONFIRM'; } toast((x && x.message) || 'The gift was not confirmed.', true); });
+});
+});
+Array.prototype.forEach.call(box.querySelectorAll('[data-gift-hide]'), function (b) {
+b.addEventListener('click', function () {
+var id = Number(b.getAttribute('data-gift-hide')), flag = D.noteFlags[id] || {}, next = !flag.note_hidden;
+b.disabled = true;
+IV.call('/rest/v1/rpc/set_gift_note_hidden', { send_id_in: id, hidden_in: next }).then(function () {
+D.noteFlags[id] = Object.assign({}, flag, { note_hidden: next }); paintDeskGifts();
+}).catch(function (x) { b.disabled = false; toast((x && x.message) || 'That line was not changed.', true); });
+});
+});
+}
+function loadDesk105(pane, seq) {
+if (!IV) return;
+IV.get('/rest/v1/live_public?select=*&order=status.asc,started_at.desc&limit=30').then(function (rows) {
+if (seq !== D.seq || pane !== D.pane || !pane.isConnected) return;
+D.sessions = Array.isArray(rows) ? rows : [];
+var live = D.sessions.filter(function (s) { return s.status === 'live'; })[0];
+if (live) {
+var fresh = liveSession105(live);
+if (!D.session || Number(D.session.id) !== fresh.id || D.session.pending) {
+D.session = fresh; deskOnAir(pane);
+} else {
+D.session.viewer = fresh.viewer; D.session.guestRequestsOpen = fresh.guestRequestsOpen; D.session.hostVideo = fresh.hostVideo;
+}
+} else if (D.session && !D.session.pending) {
+D.session = null; deskPrep(pane);
+}
+paintHistory();
+}).catch(function () { if (seq === D.seq) paintHistory(); });
+loadGifts105();
+}
 function desk(pane) {
 if (!pane) return;
-if (D.session) return deskOnAir(pane);
-deskPrep(pane);
+D.pane = pane; var seq = ++D.seq;
+clearInterval(D.clockT); clearInterval(D.pollT); D.clockT = D.pollT = null;
+if (D.session) deskOnAir(pane); else deskPrep(pane);
+loadDesk105(pane, seq);
+}
+function openBeauty105() {
+if (!(window.ivIsAdmin && window.ivIsAdmin())) { toast('This private camera preview is for Ivory only.', true); return; }
+import('./appearance/preview.js').then(function (mod) { return mod.openLiveBeautyPreview(); }).catch(function (x) {
+toast((x && x.message) || 'The private camera preview could not open.', true);
+});
 }
 function deskPrep(pane) {
-clearInterval(D.clockT); D.clockT = null;
-pane.innerHTML =
-'<div class="lvd">' +
-'<div class="lvd-card">' +
-'<p class="lvd-kick"><span class="lvd-mark" aria-hidden="true">' + ICO.groups + '</span>A BROADCAST, NOT A CALL</p>' +
+D.pane = pane; clearInterval(D.clockT); clearInterval(D.pollT); D.clockT = D.pollT = null;
+pane.innerHTML = '<div class="lvd c105-live">' +
+'<div class="lvd-card c105-live-setup">' +
+'<p class="lvd-kick"><span class="lvd-mark" aria-hidden="true">' + ICO.live + '</span>A BROADCAST, NOT A CALL</p>' +
 '<p class="lvd-say">Everyone entitled may watch, nobody but you speaks, and they take part by writing to you on screen.</p>' +
-'<label class="lvd-l" for="lvd-title">Title</label>' +
-'<input class="lvd-in" id="lvd-title" maxlength="70" placeholder="Tonight, only for you" value="' + esc(D.title || '') + '">' +
-'<label class="lvd-l" for="lvd-sub">A line underneath (optional)</label>' +
-'<input class="lvd-in" id="lvd-sub" maxlength="90" placeholder="Stay as long as you like" value="' + esc(D.sub || '') + '">' +
-'<p class="lvd-l">Who may watch</p>' +
-'<div class="lvd-chips" id="lvd-chips"></div>' +
-'<p class="lvd-hint">Pick any mix · Forever Members, one tier, several tiers, or nobody at all. Pay per view adds a paid way in for everyone not picked.</p>' +
-'<label class="lvd-l" for="lvd-guest">Guest co-host fee per person</label>' +
-'<input class="lvd-in" id="lvd-guest" inputmode="numeric" value="' + (D.guest == null ? '0' : D.guest) + '">' +
+'<label class="lvd-l" for="lvd-title">Title</label><input class="lvd-in" id="lvd-title" maxlength="70" placeholder="Tonight, only for you" value="' + esc(D.title || '') + '">' +
+'<label class="lvd-l" for="lvd-sub">A line underneath (optional)</label><input class="lvd-in" id="lvd-sub" maxlength="90" placeholder="Stay as long as you like" value="' + esc(D.sub || '') + '">' +
+'<p class="lvd-l">Who may watch</p><div class="lvd-chips" id="lvd-chips"></div>' +
+'<p class="lvd-hint">Pick any mix - Forever Members, one tier, several tiers, or nobody at all. Pay per view adds a paid way in for everyone not picked.</p>' +
+'<div id="lvd-price-wrap"></div>' +
+'<label class="lvd-l" for="lvd-guest">Guest co-host fee per person</label><input class="lvd-in" id="lvd-guest" inputmode="numeric" value="' + (D.guest == null ? '0' : D.guest) + '">' +
 '<p class="lvd-hint">Separate from the viewing pass. Set zero to turn guest places off.</p>' +
-'<button class="lvd-go" id="lvd-go">' +
-'<span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW</button>' +
-'<p class="lvd-hint">Everyone entitled is pushed the moment you tap this, and the gold banner appears on their Home screen.</p>' +
 '<p class="lvd-err" id="lvd-err" hidden></p>' +
-'</div>' +
-giftsBlock() +
-'</div>';
+'<button type="button" class="n105-outline c105-beauty-open" id="lvd-beauty">' + (window.IVHOUSE104 ? IVHOUSE104.icon('sparkle') : '') + '<span>PREVIEW BEAUTY</span></button>' +
+'<button type="button" class="lvd-go" id="lvd-go"><span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW</button>' +
+'<p class="lvd-hint">Everyone entitled is pushed the moment you tap this, and the gold banner appears on their Home screen.</p>' +
+'</div>' + giftsBlock() + historyBlock() + '</div>';
 var box = pane.querySelector('#lvd-chips');
+function priceField() {
+var wrap = pane.querySelector('#lvd-price-wrap'); if (!wrap) return;
+wrap.innerHTML = D.ppv > 0 ? '<label class="lvd-l" for="lvd-ppv">Price in rupees</label><input class="lvd-in" id="lvd-ppv" inputmode="numeric" value="' + D.ppv + '">' : '';
+var input = wrap.querySelector('#lvd-ppv');
+if (input) input.addEventListener('input', function () { D.ppv = Math.max(0, parseInt(input.value || '0', 10) || 0); });
+}
 function chips() {
-var h = '<button class="lvd-chip' + (D.nobody ? ' on' : '') + '" data-k="nobody"><span>₹</span>Nobody · all pay</button>' +
-'<button class="lvd-chip' + (D.forever ? ' on' : '') + '" data-k="forever"><span aria-hidden="true">' + ICO.crown + '</span>Forever Members</button>';
+var h = '<button type="button" class="lvd-chip' + (D.nobody ? ' on' : '') + '" data-k="nobody"><span>₹</span>Nobody · all pay</button>' +
+'<button type="button" class="lvd-chip' + (D.forever ? ' on' : '') + '" data-k="forever"><span aria-hidden="true">' + ICO.crown + '</span>Forever Members</button>';
 D.tiers.forEach(function (t) {
 var on = D.chosen[t.level] !== false;
-h += '<button class="lvd-chip' + (on ? ' on' : '') + '" data-k="t' + t.level + '"><span aria-hidden="true">' + ICO.crown + '</span>' + esc(t.name || ('Tier ' + t.level)) + '</button>';
+h += '<button type="button" class="lvd-chip' + (on ? ' on' : '') + '" data-k="t' + Number(t.level) + '"><span aria-hidden="true">' + ICO.crown + '</span>' + esc(t.name || ('Tier ' + t.level)) + '</button>';
 });
-h += '<button class="lvd-chip' + (D.ppv > 0 ? ' on' : '') + '" data-k="ppv"><span>₹</span>Pay per view</button>';
-if (D.ppv > 0) h += '<label class="lvd-ppv"><input class="lvd-in" id="lvd-ppv" inputmode="numeric" value="' + D.ppv + '"><s>per person, in ₹</s></label>';
-box.innerHTML = h;
+h += '<button type="button" class="lvd-chip' + (D.ppv > 0 ? ' on' : '') + '" data-k="ppv"><span>₹</span>Pay per view</button>';
+box.innerHTML = h; priceField();
 Array.prototype.forEach.call(box.querySelectorAll('[data-k]'), function (b) {
 b.addEventListener('click', function () {
 var k = b.dataset.k;
 if (k === 'nobody') { D.nobody = !D.nobody; if (D.nobody) { D.forever = false; D.chosen = {}; } }
 else if (k === 'forever') { D.forever = !D.forever; if (D.forever) D.nobody = false; }
-else if (k === 'ppv') { D.ppv = D.ppv > 0 ? 0 : 199; }
-else { var lv = Number(k.slice(1)); D.chosen[lv] = D.chosen[lv] === false; if (D.chosen[lv]) D.nobody = false; }
+else if (k === 'ppv') { D.ppv = D.ppv > 0 ? 0 : 499; }
+else { var lv = Number(k.slice(1)), wasOn = D.chosen[lv] !== false; D.chosen[lv] = !wasOn; if (!wasOn) D.nobody = false; }
 chips();
 });
 });
-var ppv = box.querySelector('#lvd-ppv');
-if (ppv) ppv.addEventListener('input', function () { D.ppv = Math.max(0, parseInt(ppv.value || '0', 10) || 0); });
 }
 chips();
+pane.querySelector('#lvd-beauty').addEventListener('click', openBeauty105);
+['title', 'sub', 'guest'].forEach(function (key) {
+var input = pane.querySelector('#lvd-' + key); if (input) input.addEventListener('input', function () { D[key] = input.value; });
+});
 var go = pane.querySelector('#lvd-go');
 go.addEventListener('click', function () {
-var title = (pane.querySelector('#lvd-title').value || '').trim();
-var sub = (pane.querySelector('#lvd-sub').value || '').trim();
-var guest = Math.max(0, parseInt(pane.querySelector('#lvd-guest').value || '0', 10) || 0);
-var err = pane.querySelector('#lvd-err');
-function fail(m) { err.hidden = false; err.textContent = m; }
+if (D.busy) return;
+var title = pane.querySelector('#lvd-title').value.trim(), sub = pane.querySelector('#lvd-sub').value.trim();
+var guestRaw = pane.querySelector('#lvd-guest').value.trim(), err = pane.querySelector('#lvd-err');
+function fail(m) { err.hidden = false; err.textContent = m; D.busy = false; go.disabled = false; go.innerHTML = '<span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW'; }
+if (!/^\d+$/.test(guestRaw)) { fail('Enter a guest fee of zero or more.'); return; }
 if (!title) { fail('Give the broadcast a title first.'); return; }
-D.title = title; D.sub = sub; D.guest = guest;
-var allowed = [];
-if (!D.nobody) {
-if (D.forever) allowed.push(0);
-D.tiers.forEach(function (t) { if (D.chosen[t.level] !== false) allowed.push(Number(t.level)); });
-}
+var guest = Number(guestRaw), allowed = [];
+if (!D.nobody) { if (D.forever) allowed.push(0); D.tiers.forEach(function (t) { if (D.chosen[t.level] !== false) allowed.push(Number(t.level)); }); }
 if (!allowed.length && D.ppv <= 0) { fail('Choose who may watch, or put a price on the door.'); return; }
-err.hidden = true;
-go.disabled = true; go.innerHTML = 'GOING LIVE…';
-IV.call('/rest/v1/rpc/start_live_with_guests', {
-title_in: title, subtitle_in: sub || null, access_in: 'tier', min_tier_in: allowed.length ? Math.min.apply(null, allowed) : 9,
-price_in: D.ppv, cover_in: null, allowed_tiers_in: allowed, guest_price_in: guest
-}).then(function (res) {
-var id = (res && res[0] && res[0].id) || (res && res.id) || null;
+D.title = title; D.sub = sub; D.guest = guest; D.busy = true; err.hidden = true; go.disabled = true; go.textContent = 'GOING LIVE...';
+var startingId = null;
+IV.call('/rest/v1/rpc/start_live_with_guests', { title_in: title, subtitle_in: sub || null, access_in: 'tier', min_tier_in: allowed.length ? Math.min.apply(null, allowed) : 9,
+price_in: D.ppv, cover_in: null, allowed_tiers_in: allowed, guest_price_in: guest }).then(function (res) {
+var id = Number((res && res[0] && res[0].id) || (res && res.id) || res);
 if (!id) throw new Error('The broadcast was made but the house did not return its number.');
-return id;
+startingId = id; return id;
 }).then(function (id) {
-D.session = { id: id, title: title, sub: sub, guestPrice: guest, price: D.ppv, allowed: allowed, startedAt: Date.now(), pending: true };
+D.busy = false; D.session = { id: id, title: title, sub: sub, guestPrice: guest, price: D.ppv, allowed: allowed, startedAt: Date.now(), pending: true };
 D.from = new Date();
 open({ id: id, title: title, sub: sub, role: 'host', price: D.ppv, seatPrice: guest, allowed: allowed, startedAt: D.from, activateOnJoin: true });
 }).catch(function (x) {
-fail((x && x.message) || 'That did not go through.');
-go.disabled = false; go.innerHTML = '<span aria-hidden="true">' + ICO.live + '</span>GO LIVE NOW';
+if (startingId && (!D.session || Number(D.session.id) !== startingId)) IV.call('/rest/v1/rpc/abort_live_start', { session_id_in: startingId }).catch(function () {});
+var raw = (x && x.message) || 'That did not go through.';
+fail(/start_live_with_guests|PGRST202/.test(raw) ? 'The paid-live database setup is not ready. No session or notification was created. Apply the corrected CC.102 first.' : raw);
 });
 });
-IV.get('/rest/v1/subscription_tiers?select=name,level&order=level.asc')
-.then(function (rows) { D.tiers = Array.isArray(rows) ? rows : []; if (pane.isConnected) chips(); })
-.catch(function () {});
+IV.get('/rest/v1/subscription_tiers?select=name,level,is_active&order=level.asc').then(function (rows) {
+D.tiers = (Array.isArray(rows) ? rows : []).filter(function (t) { return t.is_active === true && Number(t.level) > 0; });
+if (pane.isConnected && box.isConnected) chips();
+}).catch(function () {});
+paintDeskGifts(); paintHistory();
 }
 function statusWord(st) {
-return ({
-waiting_host: 'WAITING FOR YOU',
-payment_review: 'PAYMENT TO CHECK',
-awaiting_payment: 'NOT PAID YET',
-approved: 'APPROVED',
-joining: 'JOINING',
-active: 'ON AIR',
-left: 'STEPPED DOWN',
-declined: 'DECLINED',
-removed: 'REMOVED',
-expired: 'EXPIRED',
-cancelled: 'CANCELLED',
-payment_rejected: 'PAYMENT REFUSED'
-})[st] || String(st || '').replace(/_/g, ' ').toUpperCase();
+return ({ waiting_host: 'WAITING FOR YOU', payment_review: 'PAYMENT TO CHECK', awaiting_payment: 'NOT PAID YET', approved: 'APPROVED', joining: 'JOINING', active: 'ON AIR', left: 'STEPPED DOWN', declined: 'DECLINED', removed: 'REMOVED', expired: 'EXPIRED', cancelled: 'CANCELLED', payment_rejected: 'PAYMENT REFUSED' })[st] || String(st || '').replace(/_/g, ' ').toUpperCase();
 }
 function deskOnAir(pane) {
-var s = D.session;
-pane.innerHTML =
-'<div class="lvd">' +
-'<div class="lvd-onair">' +
-'<p class="lvd-oa-k">YOU ARE ON AIR</p>' +
-'<b class="lvd-oa-t">' + esc(s.title) + '</b>' +
-'<p class="lvd-oa-s"><span id="lvd-oa-clock">on air 0:00</span> · <span id="lvd-oa-view">0 watching</span>, <span id="lvd-oa-see">only you see this count</span></p>' +
-'<div class="lvd-oa-btns">' +
-'<button class="lvd-open" id="lvd-open">OPEN THE ROOM</button>' +
-'<button class="lvd-end" id="lvd-end">END</button>' +
-'</div>' +
-'</div>' +
-'<p class="lvd-l" style="margin-top:18px">Guests</p>' +
-'<div id="lvd-guests" class="lvd-guests"><p class="lvd-hint">No guest places taken yet.</p></div>' +
-giftsBlock() +
-'</div>';
+D.pane = pane; var s = D.session; if (!s) { deskPrep(pane); return; }
+clearInterval(D.clockT); clearInterval(D.pollT); D.clockT = D.pollT = null;
+pane.innerHTML = '<div class="lvd c105-live"><div class="lvd-onair c105-onair">' +
+'<p class="lvd-oa-k">YOU ARE ON AIR</p><b class="lvd-oa-t">' + esc(s.title) + '</b>' +
+'<p class="lvd-oa-s"><span id="lvd-oa-clock">on air 0:00</span>  -  <span id="lvd-oa-view">' + Number(s.viewer || 0) + ' watching</span>, only you</p>' +
+'<div class="lvd-oa-btns"><button type="button" class="lvd-open" id="lvd-open">OPEN THE ROOM</button><button type="button" class="lvd-end" id="lvd-end">END</button></div></div>' +
+'<section class="c105-live-guests"><p class="lvd-l">Guests <span>WEBSITE CONTROLS</span></p><div id="lvd-guests" class="lvd-guests"><p class="lvd-hint">Reading the guest places…</p></div></section>' +
+giftsBlock() + historyBlock() + '</div>';
 var tick = function () {
-var el = pane.querySelector('#lvd-oa-clock');
-if (!el) return;
-el.textContent = 'on air ' + clockOf((Date.now() - s.startedAt) / 1000);
+var el = pane.querySelector('#lvd-oa-clock'); if (!el) return;
+el.textContent = 'on air ' + clockOf(Math.max(0, (Date.now() - Number(s.startedAt || Date.now())) / 1000));
 };
-tick(); clearInterval(D.clockT); D.clockT = setInterval(tick, 1000);
+tick(); D.clockT = setInterval(tick, 1000);
 var v = function () {
-IV.get('/rest/v1/live_public?select=viewer_count,status&id=eq.' + s.id).then(function (rows) {
-var r = rows && rows[0]; if (!r) return;
-var el = pane.querySelector('#lvd-oa-view'); if (el) el.textContent = (r.viewer_count || 0) + ' watching';
-var see = pane.querySelector('#lvd-oa-see'); if (see) see.textContent = 'only you see this count';
+if (pane !== D.pane || !pane.isConnected || D.session !== s) return;
+IV.get('/rest/v1/live_public?select=viewer_count,status&id=eq.' + Number(s.id)).then(function (rows) {
+var r = rows && rows[0]; if (!r || pane !== D.pane) return;
+var el = pane.querySelector('#lvd-oa-view'); if (el) el.textContent = Number(r.viewer_count || 0) + ' watching';
 if (r.status && r.status !== 'live') {
-D.session = null;
+D.session = null; clearInterval(D.pollT);
 if (isOpen()) showBye('The room has closed', 'Ivory ended this broadcast.');
 if (pane.isConnected) desk(pane);
 }
 }).catch(function () {});
-IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: s.id }).then(function (rows) {
-var box = pane.querySelector('#lvd-guests'); if (!box) return;
+IV.call('/rest/v1/rpc/live_guest_requests_for_host', { session_id_in: Number(s.id) }).then(function (rows) {
+var box = pane.querySelector('#lvd-guests'); if (!box || D.session !== s) return;
 rows = Array.isArray(rows) ? rows : [];
 if (!rows.length) { box.innerHTML = '<p class="lvd-hint">' + (s.guestPrice > 0 ? 'No one has asked for a seat yet. The price is ' + money(s.guestPrice) + '.' : 'No seats tonight — a seat price of zero means no one can ask.') + '</p>'; return; }
 var full = seatsTaken(rows) >= SEATS;
-box.innerHTML = (full ? '<p class="lvd-hint">All five places are filled. Remove one to make room.</p>' : '') +
-rows.map(function (r) {
+box.innerHTML = (full ? '<p class="lvd-hint">All five places are filled. Remove one to make room.</p>' : '') + rows.map(function (r) {
 var waiting = r.status === 'waiting_host';
-return '<div class="lvd-guest' + (waiting ? ' waiting' : '') + '">' +
-'<b>' + esc(r.display_name || 'A member') + '</b>' +
-'<s>' + ((r.media_kind === 'audio') ? 'AUDIO' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + ' · ' + money(r.fee_inr || 0) + '</s>' +
-(waiting ? '<div class="lvd-gbtns"><button class="lvd-gb gold" data-let="' + r.id + '"' + (full ? ' disabled' : '') + '>' +
-(full ? 'FIVE PLACES FILLED' : 'APPROVE') + '</button><button class="lvd-gb" data-no="' + r.id + '">DECLINE</button></div>' : '') +
-'</div>';
+return '<div class="lvd-guest' + (waiting ? ' waiting' : '') + '"><b>' + esc(r.display_name || 'A member') + '</b><s>' + (r.media_kind === 'audio' ? 'AUDIO' : 'VIDEO') + ' · ' + esc(statusWord(r.status)) + ' · ' + money(r.fee_inr || 0) + '</s>' +
+(waiting ? '<div class="lvd-gbtns"><button type="button" class="lvd-gb gold" data-let="' + Number(r.id) + '"' + (full ? ' disabled' : '') + '>' + (full ? 'FIVE PLACES FILLED' : 'APPROVE') + '</button><button type="button" class="lvd-gb" data-no="' + Number(r.id) + '">DECLINE</button></div>' : '') + '</div>';
 }).join('');
 Array.prototype.forEach.call(box.querySelectorAll('[data-let]'), function (b) {
 b.addEventListener('click', function () {
 b.disabled = true; b.textContent = 'PLEASE WAIT';
-IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.let), approve_in: true })
-.then(function () { toast('Let in. Their window opens the moment they join.'); v(); })
-.catch(function () { b.disabled = false; b.textContent = 'APPROVE'; });
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.let), approve_in: true }).then(function () { toast('Let in. Their window opens the moment they join.'); v(); }).catch(function (x) { b.disabled = false; b.textContent = 'APPROVE'; toast((x && x.message) || 'The guest was not approved.', true); });
 });
 });
 Array.prototype.forEach.call(box.querySelectorAll('[data-no]'), function (b) {
 b.addEventListener('click', function () {
 b.disabled = true;
-IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.no), approve_in: false })
-.then(function () { v(); }).catch(function () { b.disabled = false; });
+IV.call('/rest/v1/rpc/respond_live_guest_request', { request_id_in: Number(b.dataset.no), approve_in: false }).then(v).catch(function (x) { b.disabled = false; toast((x && x.message) || 'The request was not changed.', true); });
 });
 });
 }).catch(function () {});
 };
-v(); var pv = setInterval(v, 5000);
-var stop = function () { clearInterval(pv); };
-window.addEventListener('iv-live-ended', stop, { once: true });
-window.addEventListener('iv-live-closed', function () { if (!D.session) stop(); });
-paintDeskGifts();
+v(); D.pollT = setInterval(v, 5000);
+paintDeskGifts(); paintHistory();
 pane.querySelector('#lvd-open').addEventListener('click', function () {
-open({ id: s.id, title: s.title, sub: s.sub, role: 'host', price: s.price, seatPrice: s.guestPrice,
-allowed: s.allowed, startedAt: new Date(s.startedAt) });
+open({ id: s.id, title: s.title, sub: s.sub, role: 'host', price: s.price, seatPrice: s.guestPrice, allowed: s.allowed, minTier: s.minTier, startedAt: new Date(s.startedAt), hostVideo: s.hostVideo });
 });
 pane.querySelector('#lvd-end').addEventListener('click', function () {
 var b = pane.querySelector('#lvd-end');
@@ -42407,56 +41979,20 @@ if (S.endBusy) return;
 var sid = s.id; S.endBusy = true; b.disabled = true; b.textContent = 'ENDING…';
 var request = IV && IV.call ? IV.call('/rest/v1/rpc/end_live', { session_id_in: sid }) : Promise.reject(new Error('The session circuit is unavailable.'));
 request.then(function () {
-S.endBusy = false;
-if (D.session && D.session.id === sid) D.session = null;
-clearInterval(D.clockT);
+S.endBusy = false; if (D.session && D.session.id === sid) D.session = null;
+clearInterval(D.clockT); clearInterval(D.pollT);
 try { close(true); } catch (e) {}
 if (pane.isConnected) desk(pane);
 window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: sid } }));
 toast('The house confirmed the ending. Everyone has been let out.');
 }).catch(function (x) {
-S.endBusy = false; b.disabled = false; b.dataset.armed = '1'; b.textContent = 'TAP AGAIN';
+S.endBusy = false; if (b.isConnected) { b.disabled = false; b.dataset.armed = '1'; b.textContent = 'TAP AGAIN'; }
 toast(((x && x.message) || 'The house did not confirm the ending.') + ' The room is still live.', true);
 });
 return;
 }
 b.dataset.armed = '1'; b.textContent = 'TAP AGAIN';
 });
-}
-function giftsBlock() {
-return '<p class="lvd-l" style="margin-top:20px">Gifts</p>' +
-'<div id="lvd-gifts" class="lvd-gifts"><p class="lvd-hint">Reading tonight’s gifts…</p></div>';
-}
-function paintDeskGifts() {
-var box = document.getElementById('lvd-gifts');
-if (!box || !D.session) return;
-if (!IV || !IV.get) return;
-var sid = D.session.id;
-IV.get('/rest/v1/gift_sends?select=id,amount_inr,status,created_at,gifts(name,emoji),member_id(display_name)'
-+ '&session_id=eq.' + encodeURIComponent(sid) + '&order=created_at.desc&limit=30')
-.catch(function () {
-return IV.get('/rest/v1/gift_sends?select=id,amount_inr,status,created_at&session_id=eq.'
-+ encodeURIComponent(sid) + '&order=created_at.desc&limit=30');
-})
-.then(function (rows) {
-if (!box.isConnected) return;
-rows = Array.isArray(rows) ? rows : [];
-if (!rows.length) { box.innerHTML = '<p class="lvd-hint">Nothing has been sent to this room yet. It will appear here the moment it is.</p>'; return; }
-var total = 0, waiting = 0;
-var list = rows.map(function (g) {
-var row = g.gifts || {};
-var who = (g.member_id && g.member_id.display_name) || 'A member';
-var ok = g.status === 'confirmed';
-var amt = Number(g.amount_inr || 0);
-if (ok) total += amt; else waiting += 1;
-return '<div class="lvd-gift"><b>' + esc((row.emoji ? row.emoji + ' ' : '') + (row.name || 'A gift')) + ' · ' + money(amt) + '</b>' +
-'<s>' + esc(who) + (ok ? '' : ' · WAITING FOR PAYMENT') + '</s>' +
-'<span class="lvd-tag' + (ok ? ' ok' : '') + '">' + (ok ? 'RECEIVED' : 'PENDING') + '</span></div>';
-}).join('');
-box.innerHTML = '<p class="lvd-hint" style="margin:0 0 4px">' + money(total) + ' received'
-+ (waiting ? ' · ' + waiting + ' still waiting for payment' : '') + '</p>' + list;
-})
-.catch(function () { if (box.isConnected) box.innerHTML = '<p class="lvd-hint">The gift ledger did not answer just now.</p>'; });
 }
 window.IVLIVE = {
 open: open, close: close, isOpen: isOpen, desk: desk,
@@ -42465,7 +42001,7 @@ say: say, paintPill: paintPill, placeTiles: placeTiles,
 appearanceAttach: appearanceAttach, appearanceDetach: appearanceDetach, appearanceOpen: appearanceOpen, appearanceRestart: appearanceRestart,
 money: money, clockOf: clockOf
 };
-setInterval(function () { if (D.session && document.getElementById('lvd-gifts')) paintDeskGifts(); }, 12000);
+setInterval(function () { if (D.pane && document.getElementById('lvd-gifts')) loadGifts105(); }, 12000);
 window.IVLIVE.watch = function (opts) { open(Object.assign({ role: 'watch' }, opts || {})); };
 })();
 </script>
@@ -43627,5 +43163,6 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 <script id="iv-bank104" src="bank104.js"></script>
 <script id="iv-wheel104" src="wheel104.js"></script>
 <script id="iv-studio104" src="studio104.js"></script>
+<link id="iv-pass105-css" rel="stylesheet" href="pass105.css">
 </body>
 </html>
