@@ -31751,12 +31751,9 @@ return fn('b2-media', { op: 'get', post_id: ref.postId, field: ref.field || 'med
 .then(function (d) { return d.url; });
 });
 }
-tries.push(function () { return fn('b2-media', { op: 'get', key: ref.key }).then(function (d) { return d.url; }); });
 tries.push(function () {
-return fn('b2-media', { op: 'sign_previews', paths: [ref.key] }).then(function (d) {
-var it = (d.items || [])[0];
-return it && (it.url || it.signed_url);
-});
+return fn('b2-media', { op: 'object_get', key: ref.key, kind: ref.kind || '', bank_id: ref.bankId == null ? null : ref.bankId })
+.then(function (d) { return d.url; });
 });
 }
 var i = 0, lastError = null;
@@ -31793,7 +31790,7 @@ var source = wrapped._bank || wrapped;
 var path = String(source.path || source.ref || source.key || wrapped.key || '').trim();
 if (/^https:\/\//.test(path)) return Promise.resolve(path);
 if (!path) return Promise.reject(new Error('This bank row has no file key. Reopen the bank and try again.'));
-return open({ rail: bankRail(source, null), key: path });
+return open({ rail: bankRail(source, null), key: path, kind: source._kind || source.kind || '', bankId: source.id == null ? null : source.id, fresh: !!wrapped.fresh });
 }
 function blobFrom(url) {
 return fetch(url).then(function (r) {
@@ -31802,47 +31799,60 @@ return r.blob();
 });
 }
 function signRead(ref) {
+if (ref._bank) return openBank(ref);
 if (ref.rail === 'r2' || ref.rail === 'r2pub') {
 return fn('r2-vault', { op: 'get', key: ref.key })
 .then(function (d) { return d.url; })
-.catch(function () { return fn('r2-vault', { op: 'get', post_id: ref.postId }).then(function (d) { return d.url; }); });
+.catch(function () {
+if (!ref.postId) throw new Error('R2 would not sign this exact object key.');
+return fn('r2-vault', { op: 'get', post_id: ref.postId }).then(function (d) { return d.url; });
+});
 }
 return fn('b2-media', ref.postId
 ? { op: 'get', post_id: ref.postId, field: ref.field || 'media' }
-: { op: 'get', key: ref.key })
-.then(function (d) { return d.url; })
-.catch(function () {
-return fn('b2-media', { op: 'sign_previews', paths: [ref.key] })
-.then(function (d) { var it = (d.items || [])[0]; return it && (it.url || it.signed_url); });
-});
+: { op: 'object_get', key: ref.key, kind: ref.kind || '', bank_id: ref.bankId == null ? null : ref.bankId })
+.then(function (d) { return d.url; });
 }
 function move(ref, toRail, opts) {
 opts = opts || {};
 var from = ref.rail === 'r2pub' ? 'r2' : ref.rail;
 toRail = toRail === 'r2pub' ? 'r2pub' : toRail;
 if (!ref.key) return Promise.reject(new Error('That file has no key to move.'));
+if (from !== 'b2' && from !== 'r2') return Promise.reject(new Error('Only a private B2 or R2 object can be moved here.'));
+if (toRail !== 'b2' && toRail !== 'r2' && toRail !== 'r2pub') return Promise.reject(new Error('That destination rail is not supported.'));
 if (from === toRail) return Promise.resolve(ref);
-return signRead({ rail: from, key: ref.key, postId: ref.postId })
+return signRead({ rail: from, key: ref.key, postId: ref.postId, field: ref.field,
+kind: ref.kind || ref._kind || '', bankId: ref.bankId, _bank: ref._bank })
 .then(function (url) {
-if (!url) throw new Error('The rail that holds it would not sign a read, so it cannot be moved. ' +
-'This is the one door the house must open in its own function.');
+if (!url) throw new Error('The rail that holds it would not sign a read, so it cannot be moved.');
 return blobFrom(url);
 })
 .then(function (blob) {
 var name = String(ref.key).split('/').pop();
 var file = new File([blob], name, { type: blob.type || mimeOf(name) });
-var kind = opts.kind || guessKind(name, blob.type);
+var kind = opts.kind || ref._kind || ref.kind || guessKind(name, blob.type);
+if (kind === 'cover') kind = 'image';
 return put(file, kind, null, { routes: (function () { var r = {}; r[kind] = toRail; return r; })() })
 .then(function (got) {
+if (!got || !got.key) throw new Error('The destination returned no object key. No reference was changed.');
 return rewriteRefs(ref, got, opts).then(function (rows) { return { got: got, rows: rows }; });
 });
 })
 .then(function (res) {
-if (opts.removeOld !== false && from === 'r2') {
-fn('r2-vault', { op: 'delete', key: ref.key }).catch(function () {});
+if (opts.removeOld !== false && !res.rows.length) {
+throw new Error('A new copy was uploaded, but no database reference was updated. The old file was kept; resolve its owner before moving it again.');
 }
-return { rail: res.got.rail, key: res.got.key, url: res.got.url, bytes: res.got.bytes,
-rows: res.rows };
+if (opts.removeOld === false) {
+return { rail: res.got.rail, key: res.got.key, url: res.got.url, bytes: res.got.bytes, rows: res.rows, oldRemoved: false };
+}
+var deletion = from === 'r2'
+? fn('r2-vault', { op: 'delete', key: ref.key })
+: fn('b2-media', { op: 'object_delete', key: ref.key });
+return deletion.then(function () {
+return { rail: res.got.rail, key: res.got.key, url: res.got.url, bytes: res.got.bytes, rows: res.rows, oldRemoved: true };
+}).catch(function (e) {
+throw new Error('The new copy is live and ' + res.rows.length + ' reference(s) were updated, but the old copy could not be removed: ' + ((e && e.message) || 'the rail refused.'));
+});
 });
 }
 function guessKind(name, mime) {
@@ -31852,45 +31862,53 @@ if (mime.indexOf('audio/') === 0) return 'voice';
 if (mime.indexOf('video/') === 0) return 'video';
 return 'attachment';
 }
+function dbWrite(path, body, label) {
+return fetch(SB + path, {
+method: 'PATCH',
+headers: Object.assign(fnHeaders(), { Prefer: 'return=representation' }),
+body: JSON.stringify(body)
+}).then(function (r) {
+return r.text().then(function (text) {
+if (!r.ok) throw new Error(label + ' was not rewritten (HTTP ' + r.status + ').');
+var rows = [];
+try { rows = text ? JSON.parse(text) : []; } catch (e) { rows = []; }
+if (!Array.isArray(rows) || rows.length !== 1) throw new Error(label + ' did not confirm its new reference. The old file was kept.');
+return label;
+});
+});
+}
 function rewriteRefs(ref, got, opts) {
 var oldKey = ref.key, newKey = got.key;
-var tag = got.rail === 'r2' ? 'r2' : got.rail === 'r2pub' ? 'r2' : 'b2';
+var tag = got.rail === 'r2' || got.rail === 'r2pub' ? 'r2' : 'b2';
 var jobs = [];
-var sel = '/rest/v1/posts?select=id,media_ref&media_ref=eq.' + encodeURIComponent(oldKey);
-jobs.push(K.get(sel).then(function (rows) {
-return Promise.all((rows || []).map(function (p) {
-var url = got.url || (tag + '://' + newKey);
-return fetch(SB + '/rest/v1/posts?id=eq.' + p.id, {
-method: 'PATCH',
-headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
-body: JSON.stringify({ media_ref: newKey, media_source: tag })
-}).then(function () { return 'post ' + p.id; });
+jobs.push(Promise.all(['media_ref', 'thumb_ref'].map(function (column) {
+return K.get('/rest/v1/posts?select=id,media_source,media_ref,thumb_source,thumb_ref&' + column + '=eq.' + encodeURIComponent(oldKey));
+})).then(function (parts) {
+var byId = {};
+parts.forEach(function (rows) { (rows || []).forEach(function (p) { byId[p.id] = p; }); });
+return Promise.all(Object.keys(byId).map(function (id) {
+var p = byId[id], body = {};
+if (p.media_ref === oldKey) { body.media_ref = newKey; body.media_source = tag; }
+if (p.thumb_ref === oldKey) { body.thumb_ref = newKey; body.thumb_source = tag; }
+if (!Object.keys(body).length) throw new Error('Post ' + id + ' changed while it was being moved. Read it again; the old file was kept.');
+return dbWrite('/rest/v1/posts?id=eq.' + encodeURIComponent(id), body, 'post ' + id);
 }));
-}).catch(function () { return []; }));
+}));
 ['wheel_images', 'wheel_voices'].forEach(function (t) {
 jobs.push(K.get('/rest/v1/' + t + '?select=id,path&path=eq.' + encodeURIComponent(oldKey))
 .then(function (rows) {
 return Promise.all((rows || []).map(function (b) {
-return fetch(SB + '/rest/v1/' + t + '?id=eq.' + b.id, {
-method: 'PATCH',
-headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
-body: JSON.stringify({ path: newKey })
-}).then(function () { return t + ' ' + b.id; });
+return dbWrite('/rest/v1/' + t + '?id=eq.' + encodeURIComponent(b.id), { path: newKey }, t + ' ' + b.id);
 }));
-}).catch(function () { return []; }));
+}));
 });
-jobs.push(K.get('/rest/v1/member_private_folio_entries?select=id,tags&url=eq.' +
-encodeURIComponent('b2://' + oldKey))
+var oldLocator = (ref.rail === 'r2' || ref.rail === 'r2pub' ? 'r2' : 'b2') + '://' + oldKey;
+jobs.push(K.get('/rest/v1/member_private_folio_entries?select=id,tags&url=eq.' + encodeURIComponent(oldLocator))
 .then(function (rows) {
 return Promise.all((rows || []).map(function (f) {
-var tags = f.tags || [];
-return fetch(SB + '/rest/v1/member_private_folio_entries?id=eq.' + encodeURIComponent(f.id), {
-method: 'PATCH',
-headers: Object.assign(fnHeaders(), { Prefer: 'return=minimal' }),
-body: JSON.stringify({ url: tag + '://' + newKey, tags: tags })
-}).then(function () { return 'folio ' + f.id; });
+return dbWrite('/rest/v1/member_private_folio_entries?id=eq.' + encodeURIComponent(f.id), { url: tag + '://' + newKey, tags: f.tags || [] }, 'folio ' + f.id);
 }));
-}).catch(function () { return []; }));
+}));
 return Promise.all(jobs).then(function (parts) {
 var out = [];
 parts.forEach(function (p) { if (p && p.length) out = out.concat(p); });
@@ -31951,7 +31969,9 @@ e.why = m.why; throw e;
 }
 return (m.rows || []).map(function (r) {
 return { key: String(r.ref || ''), bytes: num(r.bytes), kind: String(r.kind || ''),
-owner: String(r.owner || ''), rail: 'b2' };
+owner: String(r.owner || ''), rail: 'b2', postId: r.post_id || r.postId || null,
+field: r.field || (String(r.kind || '') === 'cover' ? 'cover' : 'media'),
+name: r.name || String(r.ref || '').split('/').pop() };
 });
 });
 }
@@ -32013,7 +32033,7 @@ host.innerHTML =
 '<div class="rail-pick" data-kind="' + kind + '">' +
 '<span class="rp-k">' + (opts.label || 'Where it sleeps') + '</span>' +
 '<span class="rp-chips">' +
-[['b2', 'B2'], ['r2', 'R2'], ['r2pub', 'R2 PUBLIC'], ['supabase', 'SUPABASE']].map(function (c) {
+[['b2', 'B2'], ['r2', 'R2']].concat(/image|cover|portrait/.test(kind) ? [['r2pub', 'R2 PUBLIC']] : []).map(function (c) {
 return '<button type="button" class="rp-chip' + (cur === c[0] ? ' on' : '') +
 '" data-rail="' + c[0] + '">' + c[1] + '</button>';
 }).join('') +
@@ -32068,8 +32088,8 @@ pane.innerHTML =
 '<button class="dk-chip" data-shelf="b2">B2 VAULT</button>' +
 '<button class="dk-chip" data-shelf="r2">R2 VAULT</button>' +
 '<button class="dk-chip" data-shelf="supabase">SUPABASE</button>' +
-'<button class="dk-chip" data-shelf="bank">THE BANKS</button>' +
 '</div>' +
+'<p class="st-fine st-bank-owner">Wheel Image, Word and Voice Banks now have one editing home: <b>Admin → Wheel</b>. Their files remain visible here and can still move between B2 and R2.</p>' +
 '<div id="st-shelf"></div>' +
 '<details class="st-advanced" id="st-advanced">' +
 '<summary><span>Routing &amp; limits</span><s>Choose where every kind of new upload sleeps</s></summary>' +
@@ -32193,6 +32213,9 @@ s.textContent = 'Back to the house default \u2014 B2 for everything, R2 for film
 function tabs() {
 Array.prototype.forEach.call(pane.querySelectorAll('#st-tabs [data-shelf]'), function (b) {
 b.classList.toggle('on', b.dataset.shelf === St.shelf);
+b.setAttribute('aria-pressed', b.dataset.shelf === St.shelf ? 'true' : 'false');
+if (b.dataset.stBound === '1') return;
+b.dataset.stBound = '1';
 b.addEventListener('click', function () {
 St.shelf = b.dataset.shelf;
 tabs(); shelf();
@@ -32269,23 +32292,28 @@ return true;
 }
 function bindShelfControls(list) {
 Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-f]'), function (b) {
+if (b.dataset.stBound === '1') return; b.dataset.stBound = '1';
 b.addEventListener('click', function () { St.filter = b.dataset.f; shelf(); });
 });
 var q = $('st-q');
-if (q) q.addEventListener('input', function () {
+if (q && q.dataset.stBound !== '1') { q.dataset.stBound = '1'; q.addEventListener('input', function () {
 St.q = q.value;
 paintList(list);
-});
+}); }
 Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-look]'), function (b) {
+if (b.dataset.stBound === '1') return; b.dataset.stBound = '1';
 b.addEventListener('click', function () { look(b.dataset.look, list); });
 });
 Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-bin]'), function (b) {
+if (b.dataset.stBound === '1') return; b.dataset.stBound = '1';
 b.addEventListener('click', function () { removeObject(b.dataset.bin, list); });
 });
 Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-move]'), function (b) {
+if (b.dataset.stBound === '1') return; b.dataset.stBound = '1';
 b.addEventListener('click', function () { moveObject(b.dataset.move, list); });
 });
 Array.prototype.forEach.call(pane.querySelectorAll('#st-shelf [data-bank-act]'), function (b) {
+if (b.dataset.stBound === '1') return; b.dataset.stBound = '1';
 b.addEventListener('click', function () { bankControl(b, list); });
 });
 }
@@ -32360,10 +32388,11 @@ if (!box) return;
 var rows = list.filter(passes);
 if (!rows.length) {
 box.innerHTML = '<div class="dk-empty">Nothing here under that name. Try ALL, or clear the search.</div>';
+bindShelfControls(list);
 return;
 }
 box.innerHTML = rows.map(function (it) {
-return itemRow(it, { remove: St.shelf === 'r2' });
+return itemRow(it, { remove: St.shelf === 'r2' || St.shelf === 'b2' });
 }).join('');
 bindShelfControls(list);
 primeThumbs(rows);
@@ -32376,7 +32405,7 @@ if (!picture) return;
 var btn = pane.querySelector('[data-look="' + (it.key || '').replace(/"/g, '\\"') + '"]');
 if (!btn) return;
 var img = null;
-var job = it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId });
+var job = it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId, field: it.field, kind: it.kind, bankId: it.bankId });
 job.then(function (url) {
 if (!url) return;
 img = new Image();
@@ -32400,7 +32429,7 @@ btn.classList.add('is-jammed');
 function look(key, list) {
 var it = list.filter(function (i) { return i.key === key || i.ref === key; })[0] || { key: key, rail: 'b2' };
 openViewer(it, function () {
-return it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId });
+return it._bank ? S.openBank(it) : S.open({ rail: it.rail || 'b2', key: it.key, postId: it.postId, field: it.field, kind: it.kind, bankId: it.bankId });
 });
 }
 function openViewer(it, jobFactory) {
@@ -32511,12 +32540,12 @@ note.className = 'st-note';
 note.textContent = 'Reading it from ' + from.toUpperCase() + ' \u2026';
 IVSTORE.move(it, target, { kind: kindNow }).then(function (res) {
 note.className = 'st-note good';
-note.textContent = 'Carried. It sleeps in ' + String(res.rail).toUpperCase() + ' now, and ' +
-(res.rows.length ? res.rows.length + ' row' + (res.rows.length === 1 ? '' : 's') + ' followed it.'
-: 'nothing else pointed at it.');
-K.toast('Carried across.');
+note.textContent = 'Carried. It sleeps in ' + String(res.rail).toUpperCase() + ' now; ' +
+res.rows.length + ' row' + (res.rows.length === 1 ? '' : 's') + ' followed it, and the old copy ' +
+(res.oldRemoved ? 'was removed.' : 'was kept as requested.');
+K.toast(res.oldRemoved ? 'Carried across; the old copy is gone.' : 'Carried across; the old copy was kept.');
 St.r2 = null; St.b2 = null;
-setTimeout(function () { shut(); shelf(); }, 900);
+setTimeout(function () { shut(); refreshStatus(); }, 900);
 }).catch(function (e) {
 btn.disabled = false; btn.textContent = 'CARRY IT ACROSS';
 note.className = 'st-note bad';
@@ -32532,28 +32561,32 @@ if (/\.(jpe?g|png|webp|gif|heic)$/.test(k)) return 'image';
 return 'attachment';
 }
 function removeObject(key, list) {
+var it = (list || []).filter(function (x) { return x.key === key; })[0] || { key: key, rail: 'b2' };
+var isB2 = (it.rail || 'b2') === 'b2', railName = isB2 ? 'B2' : 'R2';
 var veil = K.el('div', 'bc-veil');
 var sheet = K.el('div', 'bc-sheet');
+sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true'); sheet.setAttribute('aria-label', 'Remove this object from ' + railName + '?');
 sheet.innerHTML =
 '<div class="bc-grab"></div>' +
-'<p class="dk-kick">Remove this from the film vault?</p>' +
-'<p class="dk-lede">' + esc(key.split('/').pop()) + '. The object leaves R2 for good. ' +
-'If a post still points at it, that post will lose its film.</p>' +
+'<p class="dk-kick">Remove this object from ' + railName + '?</p>' +
+'<p class="dk-lede">' + esc(key.split('/').pop()) + '. The object leaves ' + railName + ' for good. ' +
+'Any post, Wheel Bank or folio page still pointing at it will lose that file; their database rows are not deleted.</p>' +
 '<button class="dk-btn" id="st-rm">REMOVE IT</button>' +
-'<button class="dk-btn quiet" id="st-rmkeep">KEEP IT</button>';
-veil.appendChild(sheet);
-document.body.appendChild(veil);
+'<button class="dk-btn quiet" id="st-rmkeep">KEEP IT</button>' +
+'<p class="st-note" id="st-rmnote" aria-live="polite"></p>';
+veil.appendChild(sheet); document.body.appendChild(veil);
 requestAnimationFrame(function () { veil.classList.add('on'); });
 function shut() { veil.classList.remove('on'); setTimeout(function () { veil.remove(); }, 260); }
 veil.addEventListener('click', function (e) { if (e.target === veil) shut(); });
 sheet.querySelector('#st-rmkeep').addEventListener('click', shut);
 sheet.querySelector('#st-rm').addEventListener('click', function () {
-var b = this; b.disabled = true; b.textContent = 'REMOVING\u2026';
-S.fn('r2-vault', { op: 'delete', key: key }).then(function () {
-shut(); K.toast('Gone from the film vault.'); loadShelves('r2');
+var b = this; b.disabled = true; b.textContent = 'REMOVING…';
+var call = isB2 ? S.fn('b2-media', { op: 'object_delete', key: key }) : S.fn('r2-vault', { op: 'delete', key: key });
+call.then(function () {
+shut(); K.toast('Gone from ' + railName + '.'); St.b2 = null; St.r2 = null; refreshStatus();
 }).catch(function (e) {
 b.disabled = false; b.textContent = 'REMOVE IT';
-K.toast(e.message || 'R2 refused the removal.', true);
+var note = sheet.querySelector('#st-rmnote'); if (note) { note.className = 'st-note bad'; note.textContent = (e && e.message) || (railName + ' refused the removal.'); }
 });
 });
 }
@@ -32562,7 +32595,8 @@ var box = $('st-shelf');
 if (St.shelf === 'b2') return shelfB2(box);
 if (St.shelf === 'r2') return shelfR2(box);
 if (St.shelf === 'supabase') return shelfSupabase(box);
-return shelfBank(box);
+St.shelf = 'b2';
+return shelfB2(box);
 }
 function shelfB2(box) {
 box.innerHTML = '<div class="st-shelf"><div class="st-loading">Opening the B2 ledger\u2026</div></div>';
@@ -32763,7 +32797,7 @@ files.reduce(function (chain, f) {
 return chain.then(function () {
 return S.put(f, kind === 'image' ? 'image' : 'voice').then(function (got) {
 return K.call('/rest/v1/rpc/wheel_bank_add', {
-kind: kind === 'image' ? 'image' : 'audio',
+kind: kind === 'image' ? 'image' : 'voice',
 title: kind === 'image' ? 'An image from Ivory' : 'A voice from Ivory',
 path: got.key, fname_in: got.name, bytes_in: got.bytes, mime_in: got.mime
 }).then(function () { done++; });
@@ -43588,5 +43622,10 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 <script id="iv-pass102-js" src="iv-pass102.js"></script>
 <link id="iv-pass103-css" rel="stylesheet" href="pass103.css">
 <script id="iv-early103" src="early103.js" defer></script>
+<link id="iv-pass104-css" rel="stylesheet" href="pass104.css">
+<script id="iv-house104" src="house104.js"></script>
+<script id="iv-bank104" src="bank104.js"></script>
+<script id="iv-wheel104" src="wheel104.js"></script>
+<script id="iv-studio104" src="studio104.js"></script>
 </body>
 </html>
