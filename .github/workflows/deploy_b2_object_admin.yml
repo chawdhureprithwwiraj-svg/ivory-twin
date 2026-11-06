@@ -2,6 +2,12 @@ name: Deploy the Admin B2 object door
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - supabase/functions/b2-object-admin/index.ts
+      - supabase/config.toml
+      - .github/workflows/deploy_b2_object_admin.yml
 
 permissions:
   contents: read
