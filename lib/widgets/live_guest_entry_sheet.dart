@@ -59,6 +59,7 @@ class _LiveGuestEntrySheetState extends State<LiveGuestEntrySheet> {
   bool _loading = true;
   bool _busy = false;
   bool _submitted = false;
+  bool _upiPending = false;
   String? _message;
 
   @override
@@ -212,6 +213,7 @@ class _LiveGuestEntrySheetState extends State<LiveGuestEntrySheet> {
       setState(() {
         _busy = false;
         _submitted = true;
+        _upiPending = true;
       });
     } catch (e) {
       if (!mounted) return;
@@ -307,7 +309,7 @@ class _LiveGuestEntrySheetState extends State<LiveGuestEntrySheet> {
                 Text(
                   c.amountDueInr == 0
                       ? 'Your guest request is with Ivory.'
-                      : (_mode == 'upi'
+                      : (_upiPending
                           ? 'Your payment is waiting for verification.'
                           : 'Your payment is confirmed; your request is with Ivory.'),
                   textAlign: TextAlign.center,
@@ -320,7 +322,7 @@ class _LiveGuestEntrySheetState extends State<LiveGuestEntrySheet> {
                       style: TextStyle(
                           color: IvoryColors.textSoft, fontSize: 12.5)),
                 ],
-                if (_mode == 'upi' && c.amountDueInr > 0) ...<Widget>[
+                if (_upiPending && c.amountDueInr > 0) ...<Widget>[
                   const SizedBox(height: 6),
                   const Text(
                     'Your request appears in Ivory’s guest queue after she '
@@ -343,16 +345,27 @@ class _LiveGuestEntrySheetState extends State<LiveGuestEntrySheet> {
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 12),
-                if (_mode == 'razorpay')
+                if (_mode != 'upi') ...<Widget>[
                   RazorpayPayPanel(
                     purpose: 'live_guest_slot',
                     liveGuestRequestId: c.requestId,
                     label: 'Live guest place · ${widget.title}',
                     onUnlocked: () {
-                      if (mounted) setState(() => _submitted = true);
+                      if (mounted) {
+                        setState(() {
+                          _submitted = true;
+                          _upiPending = false;
+                        });
+                      }
                     },
-                  )
-                else ...<Widget>[
+                  ),
+                  if (_mode == 'both') ...<Widget>[
+                    const SizedBox(height: 16),
+                    const PaymentMethodDivider(),
+                    const SizedBox(height: 16),
+                  ],
+                ],
+                if (_mode != 'razorpay') ...<Widget>[
                   if (!canUseUpi)
                     const Text(
                       'The house has not set UPI details yet.',

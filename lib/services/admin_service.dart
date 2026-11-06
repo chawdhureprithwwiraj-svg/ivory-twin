@@ -337,13 +337,38 @@ class AdminService {
         .toSet();
   }
 
-  Future<List<Map<String, dynamic>>> fetchLibrary({int limit = 40}) async {
-    final List<dynamic> rows = await _db
-        .from('admin_posts')
-        .select()
-        .order('created_at', ascending: false)
-        .limit(limit);
-    return rows.cast<Map<String, dynamic>>();
+  /// Read the whole Library in deterministic keyset pages.
+  ///
+  /// There is deliberately no post ceiling here. Offset pages can skip or
+  /// repeat rows when somebody publishes while a long read is in flight, so
+  /// each page instead asks for ids below the last id it actually received.
+  /// The unique id is both the order and the cursor; a short page is the end.
+  Future<List<Map<String, dynamic>>> fetchLibrary({int pageSize = 200}) async {
+    if (pageSize < 1 || pageSize > 1000) {
+      throw ArgumentError.value(pageSize, 'pageSize', 'Use 1 to 1000 rows.');
+    }
+    final List<Map<String, dynamic>> all = <Map<String, dynamic>>[];
+    int? cursor;
+    while (true) {
+      dynamic query = _db.from('admin_posts').select();
+      if (cursor != null) query = query.lt('id', cursor);
+      final List<dynamic> rows = await query
+          .order('id', ascending: false)
+          .limit(pageSize);
+      if (rows.isEmpty) break;
+      all.addAll(rows.cast<Map<String, dynamic>>());
+
+      final dynamic rawId =
+          (rows.last as Map<String, dynamic>)['id'];
+      final int? nextCursor =
+          rawId is num ? rawId.toInt() : int.tryParse('$rawId');
+      if (nextCursor == null || nextCursor == cursor) {
+        throw StateError('The Library returned an invalid pagination cursor.');
+      }
+      cursor = nextCursor;
+      if (rows.length < pageSize) break;
+    }
+    return all;
   }
 
   Future<void> setPublished(int postId, bool value) async {

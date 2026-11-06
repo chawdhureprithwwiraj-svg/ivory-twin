@@ -270,7 +270,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           priceInr: widget.priceInr,
                           blocked: _quote != null ||
                               _cid != null ||
-                              _mode == 'razorpay',
+                              _mode != 'upi',
                           onChanged: (bool v, int p) => setState(() {
                                 _usePurse = v;
                                 _purseInr = v ? p : 0;
@@ -280,18 +280,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         CheckoutCards.submitted(context, widget.tierName)
                       else if (_pending != null)
                         CheckoutCards.pending(context, _pending!)
-                      else if (_mode == 'razorpay')
-                        RazorpayPayPanel(
-                          purpose: 'subscription',
-                          tierId: widget.tierId,
-                          label: widget.tierName,
-                          creditId: _cid,
-                          code: _quote?.code,
-                        )
                       else ...<Widget>[
-                        _stepOne(),
-                        const SizedBox(height: 16),
-                        _stepTwo(),
+                        if (_mode != 'upi') ...<Widget>[
+                          RazorpayPayPanel(
+                            purpose: 'subscription',
+                            tierId: widget.tierId,
+                            label: widget.tierName,
+                            creditId: _cid,
+                            code: _quote?.code,
+                          ),
+                          if (_mode == 'both') ...<Widget>[
+                            const SizedBox(height: 18),
+                            const PaymentMethodDivider(),
+                            const SizedBox(height: 18),
+                          ],
+                        ],
+                        if (_mode != 'razorpay') ...<Widget>[
+                          _stepOne(),
+                          const SizedBox(height: 16),
+                          _stepTwo(),
+                        ],
                       ],
                       const SizedBox(height: 18),
                       CheckoutCards.safetyNote(),

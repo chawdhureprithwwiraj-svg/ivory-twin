@@ -66,7 +66,7 @@ Widget wishStatusCard(Wish w, {required String mode}) {
               ),
             ),
           ],
-          if (w.status == 'accepted' && mode == 'razorpay') ...<Widget>[
+          if (w.status == 'accepted' && mode != 'upi') ...<Widget>[
             const SizedBox(height: 12),
             RazorpayPayPanel(
               purpose: 'custom_request',

@@ -129,7 +129,7 @@ class _GiftSheetState extends State<GiftSheet> {
       GiftMoment.show(context, emoji: g.emoji, name: g.name, from: 'from you');
       setState(() => _sendId = id);
 
-      if (_mode != 'razorpay') {
+      if (_mode == 'upi') {
         final PaymentSettings? s = _settings;
         if (s != null && s.isConfigured) {
           final Uri uri = s.intentUri(
@@ -216,11 +216,15 @@ class _GiftSheetState extends State<GiftSheet> {
                 ),
               ),
               const SizedBox(height: 18),
-              if (_sendId != null && _mode == 'razorpay')
-                ..._payStep()
-              else if (_sendId != null)
-                ..._confirmStep(context)
-              else
+              if (_sendId != null) ...<Widget>[
+                if (_mode != 'upi') ..._payStep(),
+                if (_mode == 'both') ...<Widget>[
+                  const SizedBox(height: 18),
+                  const PaymentMethodDivider(),
+                  const SizedBox(height: 18),
+                ],
+                if (_mode != 'razorpay') ..._confirmStep(context),
+              ] else
                 ..._chooseStep(context),
               if (_message != null) ...<Widget>[
                 const SizedBox(height: 14),

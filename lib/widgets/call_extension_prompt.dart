@@ -151,28 +151,36 @@ class _ExtensionSheetState extends State<_ExtensionSheet> {
                 style: TextStyle(fontSize: 14, height: 1.5),
               ),
             )
-          else if (_mode == 'razorpay')
-            RazorpayPayPanel(
-              purpose: 'call_extension',
-              callRequestId: widget.callId,
-              label: 'More time with Ivory',
-              onUnlocked: () {
-                if (mounted) setState(() => _sent = true);
-              },
-            )
           else ...<Widget>[
-            TextField(
-              controller: _utr,
-              decoration: const InputDecoration(
-                labelText: 'UPI reference (UTR) after paying',
+            if (_mode != 'upi') ...<Widget>[
+              RazorpayPayPanel(
+                purpose: 'call_extension',
+                callRequestId: widget.callId,
+                label: 'More time with Ivory',
+                onUnlocked: () {
+                  if (mounted) setState(() => _sent = true);
+                },
               ),
-            ),
-            const SizedBox(height: 14),
-            IvoryGradientButton(
-              label: 'SEND FOR CONFIRMING',
-              icon: Icons.verified_outlined,
-              onPressed: _submitUpi,
-            ),
+              if (_mode == 'both') ...<Widget>[
+                const SizedBox(height: 16),
+                const PaymentMethodDivider(),
+                const SizedBox(height: 16),
+              ],
+            ],
+            if (_mode != 'razorpay') ...<Widget>[
+              TextField(
+                controller: _utr,
+                decoration: const InputDecoration(
+                  labelText: 'UPI reference (UTR) after paying',
+                ),
+              ),
+              const SizedBox(height: 14),
+              IvoryGradientButton(
+                label: 'SEND FOR CONFIRMING',
+                icon: Icons.verified_outlined,
+                onPressed: _submitUpi,
+              ),
+            ],
           ],
           if (_error != null) ...<Widget>[
             const SizedBox(height: 10),

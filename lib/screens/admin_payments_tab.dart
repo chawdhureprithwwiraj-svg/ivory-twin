@@ -16,6 +16,8 @@ class AdminPaymentsTab extends StatefulWidget {
 class AdminPaymentsTabState extends State<AdminPaymentsTab> {
   final TextEditingController _upi = TextEditingController();
   final TextEditingController _payee = TextEditingController();
+  final TextEditingController _razorpayKey = TextEditingController();
+  String _mode = 'upi';
 
   List<IvoryPayment> _payments = <IvoryPayment>[];
   PaymentSettings? _settings;
@@ -35,23 +37,33 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
   void dispose() {
     _upi.dispose();
     _payee.dispose();
+    _razorpayKey.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool refreshSettings = true}) async {
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
-      final PaymentSettings s = await PaymentService.instance.fetchSettings();
+      final PaymentSettings s;
+      if (refreshSettings || _settings == null) {
+        s = await PaymentService.instance.fetchSettings();
+      } else {
+        s = _settings!;
+      }
       final List<IvoryPayment> rows = await PaymentService.instance
           .fetchAllPayments(status: _filter == 'all' ? null : _filter);
       if (!mounted) return;
       setState(() {
-        _settings = s;
-        if (_upi.text.isEmpty) _upi.text = s.upiId;
-        if (_payee.text.isEmpty) _payee.text = s.payeeName;
+        if (refreshSettings || _settings == null) {
+          _settings = s;
+          _upi.text = s.upiId;
+          _payee.text = s.payeeName;
+          _razorpayKey.text = s.razorpayKeyId;
+          _mode = s.mode;
+        }
         _payments = rows;
         _loading = false;
       });
@@ -65,14 +77,40 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
   }
 
   Future<void> _saveSettings() async {
+    final String upi = _upi.text.trim();
+    final String payee = _payee.text.trim();
+    final String keyId = _razorpayKey.text.trim();
+    final bool needsUpi = _mode == 'upi' || _mode == 'both';
+    final bool needsRazorpay = _mode == 'razorpay' || _mode == 'both';
+    if (payee.isEmpty) {
+      _snack('Please write the payee name.');
+      return;
+    }
+    if (needsUpi &&
+        !RegExp(r'^[^\s@]+@[^\s@]+$').hasMatch(upi)) {
+      _snack('Please enter a real UPI ID for the selected payment mode.');
+      return;
+    }
+    if (keyId.isNotEmpty &&
+        !RegExp(r'^rzp_(test|live)_[A-Za-z0-9]{6,}$').hasMatch(keyId)) {
+      _snack('Enter the Razorpay key ID beginning rzp_test_ or rzp_live_, '
+          'never the secret.');
+      return;
+    }
+    if (needsRazorpay && keyId.isEmpty) {
+      _snack('The Razorpay key ID is needed for the selected payment mode.');
+      return;
+    }
     setState(() => _savingSettings = true);
     try {
       await PaymentService.instance.updateSettings(
-        upiId: _upi.text,
-        payeeName: _payee.text,
+        upiId: upi,
+        payeeName: payee,
+        mode: _mode,
+        razorpayKeyId: keyId,
       );
       if (!mounted) return;
-      _snack('UPI details saved.');
+      _snack('Payment settings saved.');
       await _load();
     } catch (_) {
       if (mounted) _snack('Could not save. Are you signed in as admin?');
@@ -90,7 +128,7 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
             ? 'Payment verified. The guest request is now in your live queue.'
             : 'Approved. ${p.tierName ?? 'The tier'} is unlocked.');
       }
-      await _load();
+      await _load(refreshSettings: false);
     } catch (_) {
       if (mounted) _snack('Could not approve that payment.');
     } finally {
@@ -131,7 +169,7 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
         p.id,
         reason.text.trim().isEmpty ? null : reason.text.trim(),
       );
-      await _load();
+      await _load(refreshSettings: false);
     } catch (_) {
       if (mounted) _snack('Could not reject that payment.');
     } finally {
@@ -220,7 +258,7 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
                 onChanged: (String? v) {
                   if (v == null) return;
                   setState(() => _filter = v);
-                  _load();
+                  _load(refreshSettings: false);
                 },
               ),
             ],
@@ -268,6 +306,21 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
           const IvoryEyebrow('Where the money goes',
               icon: Icons.account_balance_outlined),
           const SizedBox(height: 12),
+          SegmentedButton<String>(
+            segments: const <ButtonSegment<String>>[
+              ButtonSegment<String>(value: 'upi', label: Text('UPI')),
+              ButtonSegment<String>(
+                  value: 'razorpay', label: Text('Razorpay')),
+              ButtonSegment<String>(value: 'both', label: Text('Both')),
+            ],
+            selected: <String>{_mode},
+            showSelectedIcon: false,
+            onSelectionChanged: _savingSettings
+                ? null
+                : (Set<String> choice) =>
+                    setState(() => _mode = choice.first),
+          ),
+          const SizedBox(height: 14),
           TextField(
             controller: _upi,
             decoration: const InputDecoration(
@@ -280,22 +333,48 @@ class AdminPaymentsTabState extends State<AdminPaymentsTab> {
             controller: _payee,
             decoration: const InputDecoration(labelText: 'Payee name'),
           ),
-          const SizedBox(height: 8),
-          Text(
-            _settings?.isConfigured == true
-                ? 'Members are paying to ${_settings!.upiId}.'
-                : 'Set a real UPI id - checkout stays disabled until you do.',
-            style: TextStyle(
-              color: _settings?.isConfigured == true
-                  ? IvoryColors.textFaint
-                  : IvoryColors.danger,
-              fontSize: 12.5,
-              height: 1.4,
+          const SizedBox(height: 12),
+          TextField(
+            controller: _razorpayKey,
+            autocorrect: false,
+            enableSuggestions: false,
+            decoration: const InputDecoration(
+              labelText: 'Razorpay key ID · never the secret',
+              hintText: 'rzp_live_… or rzp_test_…',
             ),
           ),
+          const SizedBox(height: 8),
+          if (_mode != 'razorpay')
+            Text(
+              _settings?.isConfigured == true
+                  ? 'UPI payments go to ${_settings!.upiId}.'
+                  : 'Set a real UPI ID for UPI checkout.',
+              style: TextStyle(
+                color: _settings?.isConfigured == true
+                    ? IvoryColors.textFaint
+                    : IvoryColors.danger,
+                fontSize: 12.5,
+                height: 1.4,
+              ),
+            ),
+          if (_mode != 'upi') ...<Widget>[
+            const SizedBox(height: 4),
+            Text(
+              _settings?.hasRazorpayKey == true
+                  ? 'The publishable Razorpay key ID is set. The secret stays on the server.'
+                  : 'Set the publishable Razorpay key ID for Razorpay checkout.',
+              style: TextStyle(
+                color: _settings?.hasRazorpayKey == true
+                    ? IvoryColors.textFaint
+                    : IvoryColors.danger,
+                fontSize: 12.5,
+                height: 1.4,
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           IvoryGradientButton(
-            label: 'SAVE UPI DETAILS',
+            label: 'SAVE PAYMENT SETTINGS',
             icon: Icons.save_outlined,
             busy: _savingSettings,
             onPressed: _savingSettings ? null : _saveSettings,

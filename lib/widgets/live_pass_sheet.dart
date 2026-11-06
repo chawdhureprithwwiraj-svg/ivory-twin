@@ -192,86 +192,94 @@ class _LivePassSheetState extends State<LivePassSheet> {
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('CLOSE'),
                 ),
-              ] else if (_mode == 'razorpay') ...<Widget>[
-                RazorpayPayPanel(
-                  purpose: 'live_pass',
-                  sessionId: widget.sessionId,
-                  label: widget.title,
-                ),
               ] else ...<Widget>[
-                Center(
-                  child: Text(
-                    widget.title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
+                if (_mode != 'upi') ...<Widget>[
+                  RazorpayPayPanel(
+                    purpose: 'live_pass',
+                    sessionId: widget.sessionId,
+                    label: widget.title,
                   ),
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: Text(
-                    '\u20B9${widget.priceInr} - one seat, one night.',
-                    style:
-                        TextStyle(fontSize: 13, color: IvoryColors.textSoft),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                if (!ready)
-                  const Text(
-                      'The house has not set its UPI details yet.',
-                      textAlign: TextAlign.center)
-                else ...<Widget>[
-                  InkWell(
-                    onTap: _copy,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: IvoryColors.surfaceWarm,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: IvoryColors.hairline),
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          const Icon(Icons.copy_rounded, size: 17),
-                          const SizedBox(width: 10),
-                          Expanded(
-                              child: Text(s?.upiId ?? '',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700))),
-                          const Text('tap to copy',
-                              style: TextStyle(fontSize: 11)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: _pay,
-                    icon: const Icon(Icons.launch_rounded, size: 17),
-                    label: Text('OPEN MY UPI APP - RS.${widget.priceInr}'),
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: _utr,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'UPI reference number',
-                      hintText: 'The 12-digit number after you paid',
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  if (_message != null) ...<Widget>[
-                    Text(_message!,
-                        style: TextStyle(
-                            fontSize: 12.5, color: IvoryColors.plum)),
-                    const SizedBox(height: 8),
+                  if (_mode == 'both') ...<Widget>[
+                    const SizedBox(height: 18),
+                    const PaymentMethodDivider(),
+                    const SizedBox(height: 18),
                   ],
-                  IvoryGradientButton(
-                    label: _sending ? 'SENDING...' : 'I HAVE PAID',
-                    icon: Icons.verified_outlined,
-                    busy: _sending,
-                    onPressed: _sending ? null : _submit,
+                ],
+                if (_mode != 'razorpay') ...<Widget>[
+                  Center(
+                    child: Text(
+                      widget.title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                   ),
+                  const SizedBox(height: 6),
+                  Center(
+                    child: Text(
+                      '\u20B9${widget.priceInr} - one seat, one night.',
+                      style:
+                          TextStyle(fontSize: 13, color: IvoryColors.textSoft),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  if (!ready)
+                    const Text(
+                        'The house has not set its UPI details yet.',
+                        textAlign: TextAlign.center)
+                  else ...<Widget>[
+                    InkWell(
+                      onTap: _copy,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: IvoryColors.surfaceWarm,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: IvoryColors.hairline),
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            const Icon(Icons.copy_rounded, size: 17),
+                            const SizedBox(width: 10),
+                            Expanded(
+                                child: Text(s?.upiId ?? '',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700))),
+                            const Text('tap to copy',
+                                style: TextStyle(fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: _pay,
+                      icon: const Icon(Icons.launch_rounded, size: 17),
+                      label: Text('OPEN MY UPI APP - RS.${widget.priceInr}'),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _utr,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'UPI reference number',
+                        hintText: 'The 12-digit number after you paid',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    if (_message != null) ...<Widget>[
+                      Text(_message!,
+                          style: TextStyle(
+                              fontSize: 12.5, color: IvoryColors.plum)),
+                      const SizedBox(height: 8),
+                    ],
+                    IvoryGradientButton(
+                      label: _sending ? 'SENDING...' : 'I HAVE PAID',
+                      icon: Icons.verified_outlined,
+                      busy: _sending,
+                      onPressed: _sending ? null : _submit,
+                    ),
+                ],
                 ],
               ],
             ],

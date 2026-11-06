@@ -163,14 +163,21 @@ class _PostUnlockSheetState extends State<PostUnlockSheet> {
               const SizedBox(height: 20),
               if (_done)
                 ..._thanks(context)
-              else if (_mode == 'razorpay') ...<Widget>[
-                RazorpayPayPanel(
-                  purpose: 'post_unlock',
-                  postId: p.id,
-                  label: p.title,
-                ),
-              ] else
-                ..._form(context, p, ready),
+              else ...<Widget>[
+                if (_mode != 'upi') ...<Widget>[
+                  RazorpayPayPanel(
+                    purpose: 'post_unlock',
+                    postId: p.id,
+                    label: p.title,
+                  ),
+                  if (_mode == 'both') ...<Widget>[
+                    const SizedBox(height: 18),
+                    const PaymentMethodDivider(),
+                    const SizedBox(height: 18),
+                  ],
+                ],
+                if (_mode != 'razorpay') ..._form(context, p, ready),
+              ],
             ],
           ),
         ),

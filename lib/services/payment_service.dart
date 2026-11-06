@@ -117,14 +117,23 @@ class PaymentService {
     }
   }
 
-  /// Admin: change where the money goes.
+  /// Admin: change where the money goes and which payment rails are offered.
+  /// Only Razorpay's publishable key ID belongs here; never its secret.
   Future<void> updateSettings({
     required String upiId,
     required String payeeName,
+    required String mode,
+    required String razorpayKeyId,
   }) async {
+    if (!<String>{'upi', 'razorpay', 'both'}.contains(mode)) {
+      throw ArgumentError.value(mode, 'mode', 'Unknown payment mode.');
+    }
+    final String keyId = razorpayKeyId.trim();
     await _db.from('payment_settings').update(<String, dynamic>{
       'upi_id': upiId.trim(),
       'payee_name': payeeName.trim(),
+      'mode': mode,
+      'razorpay_key_id': keyId.isEmpty ? null : keyId,
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', 1);
   }

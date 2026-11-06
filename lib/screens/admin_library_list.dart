@@ -26,7 +26,10 @@ class AdminLibraryList extends StatefulWidget {
 }
 
 class _AdminLibraryListState extends State<AdminLibraryList> {
+  static const int _batch = 40;
+  final TextEditingController _search = TextEditingController();
   List<Map<String, dynamic>> _items = <Map<String, dynamic>>[];
+  int _visible = _batch;
 
   /// Ids on Ivory's Firstlist. Read from the database on every load so
   /// the stars always show the truth, never a guess kept in the app.
@@ -48,6 +51,34 @@ class _AdminLibraryListState extends State<AdminLibraryList> {
   void didUpdateWidget(AdminLibraryList old) {
     super.didUpdateWidget(old);
     if (old.refreshStamp != widget.refreshStamp) _load();
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _filteredItems {
+    final String q = _search.text.trim().toLowerCase();
+    if (q.isEmpty) return _items;
+    return _items.where((Map<String, dynamic> post) {
+      final int id = ((post['id'] as num?) ?? 0).toInt();
+      final String state = post['is_published'] == true
+          ? 'published live'
+          : 'draft hidden';
+      final String first =
+          _firstlist.contains(id) ? 'firstlist pinned starred' : '';
+      final String haystack = <String>[
+        '$id',
+        '${post['type'] ?? ''}',
+        '${post['title'] ?? ''}',
+        '${post['summary'] ?? ''}',
+        state,
+        first,
+      ].join(' ').toLowerCase();
+      return haystack.contains(q);
+    }).toList();
   }
 
   Future<void> _load() async {
@@ -76,6 +107,7 @@ class _AdminLibraryListState extends State<AdminLibraryList> {
       _order = order;
       setState(() {
         _items = rows;
+        _visible = _batch;
         _loading = false;
       });
     } catch (_) {
@@ -111,6 +143,9 @@ class _AdminLibraryListState extends State<AdminLibraryList> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> filtered = _filteredItems;
+    final List<Map<String, dynamic>> shown =
+        filtered.take(_visible).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -121,6 +156,7 @@ class _AdminLibraryListState extends State<AdminLibraryList> {
             const Spacer(),
             IconButton(
               onPressed: _load,
+              tooltip: 'Read the complete Library again',
               icon: const Icon(Icons.refresh, color: IvoryColors.plum),
             ),
           ],
@@ -136,8 +172,53 @@ class _AdminLibraryListState extends State<AdminLibraryList> {
         else if (_items.isEmpty)
           Text('Nothing published yet.',
               style: TextStyle(color: IvoryColors.textFaint))
-        else
-          ..._items.map(_row),
+        else ...<Widget>[
+          TextField(
+            controller: _search,
+            onChanged: (String _) => setState(() => _visible = _batch),
+            decoration: InputDecoration(
+              labelText: 'Search the complete Library',
+              hintText: 'Title, number, kind, draft or Firstlist',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _search.text.isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: () {
+                        _search.clear();
+                        setState(() => _visible = _batch);
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _search.text.trim().isEmpty
+                ? '${_items.length} posts · showing ${shown.length}'
+                : '${filtered.length} matching posts · showing ${shown.length}',
+            style: TextStyle(color: IvoryColors.textFaint, fontSize: 12.5),
+          ),
+          const SizedBox(height: 8),
+          if (shown.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              child: Text('No posts match that search.',
+                  style: TextStyle(color: IvoryColors.textFaint)),
+            )
+          else
+            ...shown.map(_row),
+          if (shown.length < filtered.length) ...<Widget>[
+            const SizedBox(height: 8),
+            Center(
+              child: OutlinedButton.icon(
+                onPressed: () => setState(() => _visible += _batch),
+                icon: const Icon(Icons.expand_more_rounded),
+                label: Text(
+                    'SHOW MORE · ${filtered.length - shown.length} WAITING'),
+              ),
+            ),
+          ],
+        ],
       ],
     );
   }

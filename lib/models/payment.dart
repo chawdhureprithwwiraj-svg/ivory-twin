@@ -6,6 +6,8 @@ class PaymentSettings {
     required this.payeeName,
     required this.noteTemplate,
     required this.instructions,
+    required this.mode,
+    required this.razorpayKeyId,
     this.supportNote,
   });
 
@@ -13,18 +15,30 @@ class PaymentSettings {
   final String payeeName;
   final String noteTemplate;
   final String instructions;
+  final String mode;
+  final String razorpayKeyId;
   final String? supportNote;
 
   bool get isConfigured =>
       upiId.contains('@') && !upiId.startsWith('yourname@');
+  bool get hasRazorpayKey => razorpayKeyId.trim().isNotEmpty;
+  bool get offersUpi => mode == 'upi' || mode == 'both';
+  bool get offersRazorpay => mode == 'razorpay' || mode == 'both';
 
-  factory PaymentSettings.fromMap(Map<String, dynamic> m) => PaymentSettings(
-        upiId: (m['upi_id'] as String?) ?? '',
-        payeeName: (m['payee_name'] as String?) ?? 'Ivory',
-        noteTemplate: (m['note_template'] as String?) ?? 'Ivory membership',
-        instructions: (m['instructions'] as String?) ?? '',
-        supportNote: m['support_note'] as String?,
-      );
+  factory PaymentSettings.fromMap(Map<String, dynamic> m) {
+    final String storedMode = ((m['mode'] as String?) ?? 'upi').trim();
+    return PaymentSettings(
+      upiId: (m['upi_id'] as String?) ?? '',
+      payeeName: (m['payee_name'] as String?) ?? 'Ivory',
+      noteTemplate: (m['note_template'] as String?) ?? 'Ivory membership',
+      instructions: (m['instructions'] as String?) ?? '',
+      mode: <String>{'upi', 'razorpay', 'both'}.contains(storedMode)
+          ? storedMode
+          : 'upi',
+      razorpayKeyId: (m['razorpay_key_id'] as String?) ?? '',
+      supportNote: m['support_note'] as String?,
+    );
+  }
 
   /// Builds the standard UPI deep link every Indian payment app honours.
   Uri intentUri({required int amountInr, required String note}) {

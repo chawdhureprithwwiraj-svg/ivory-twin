@@ -7,18 +7,18 @@ import '../theme/ivory_theme.dart';
 /// ============================================================
 /// IVORY - RAZORPAY, PARALLEL TO UPI
 ///
-/// The app reads payment_settings.mode live. When the house is in
-/// 'razorpay' mode the screens embed RazorpayPayPanel; in 'upi'
-/// mode they keep the old form, untouched. The secret key never
-/// touches this file - orders and verification happen in the two
-/// Edge Functions.
+/// The app reads payment_settings.mode live. In 'razorpay' mode the
+/// screens embed RazorpayPayPanel; in 'upi' mode they keep the UPI form;
+/// in 'both' mode they offer each rail without mixing their references.
+/// The secret key never touches this file - orders and verification happen
+/// in the two Edge Functions.
 /// ============================================================
 
 class RazorpayService {
   RazorpayService._();
   static final RazorpayService instance = RazorpayService._();
 
-  /// 'upi' or 'razorpay', straight from the house switch.
+  /// 'upi', 'razorpay' or 'both', straight from the house switch.
   Future<String> fetchMode() async {
     try {
       final dynamic row = await Supabase.instance.client
@@ -26,10 +26,42 @@ class RazorpayService {
           .select('mode')
           .eq('id', 1)
           .maybeSingle();
-      return (row?['mode'] as String?) ?? 'upi';
+      final String mode = ((row?['mode'] as String?) ?? 'upi').trim();
+      return <String>{'upi', 'razorpay', 'both'}.contains(mode)
+          ? mode
+          : 'upi';
     } catch (_) {
       return 'upi';
     }
+  }
+}
+
+/// A quiet separator when the house offers both payment rails.
+class PaymentMethodDivider extends StatelessWidget {
+  const PaymentMethodDivider({super.key, this.label = 'OR PAY BY UPI'});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        const Expanded(child: Divider(color: IvoryColors.hairline)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: IvoryColors.textFaint,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: IvoryColors.hairline)),
+      ],
+    );
   }
 }
 
