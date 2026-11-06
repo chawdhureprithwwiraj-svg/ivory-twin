@@ -11,6 +11,9 @@
 
 const ENDPOINT =
   'https://soephrftgddbwkzwjddj.supabase.co/functions/v1/b2-media';
+const ADMIN_OBJECT_ENDPOINT =
+  'https://soephrftgddbwkzwjddj.supabase.co/functions/v1/b2-object-admin';
+const ADMIN_OBJECT_OPS = new Set(['object_get', 'object_delete']);
 
 export async function onRequestOptions() {
   return new Response(null, {
@@ -35,7 +38,14 @@ export async function onRequestPost(context) {
       if (v) headers.set(name, v);
     }
     const body = await request.text();
-    const res = await fetch(ENDPOINT, { method: 'POST', headers, body });
+    let operation = '';
+    try { operation = JSON.parse(body).op || ''; } catch (_) {
+      return json({ status: 400, data: { error: 'A JSON storage operation is required.' } });
+    }
+    // Only these two exact-key operations leave the post/member function.
+    // Everything else follows the original endpoint and entitlement rules.
+    const endpoint = ADMIN_OBJECT_OPS.has(operation) ? ADMIN_OBJECT_ENDPOINT : ENDPOINT;
+    const res = await fetch(endpoint, { method: 'POST', headers, body });
     const text = await res.text();
     let data;
     try {
