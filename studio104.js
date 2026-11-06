@@ -3,7 +3,6 @@
   'use strict';
   if (!window.IVROOMS || window.IVSTUDIO104) return;
   var H = window.IVHOUSE104, R = window.IVR;
-  var baseCreate = window.IVROOMS.create;
   var LABEL = { blog: 'STORY', poll: 'POLL', image: 'PHOTO', audio: 'AUDIO', video: 'VIDEO' };
 
   function fetchLibrary() {
@@ -24,14 +23,15 @@
 
   function mount(host) {
     var S = { posts: null, order: [], seq: 0, busy: false, q: '', type: 'all', state: 'all', firstOnly: false, message: '', bad: false };
-    host.className = 'p104-studio';
-    host.innerHTML = '<div class="p104-lib-head"><div><p class="p104-kick">THE LIBRARY</p><h2>Every post, in your hand.</h2><p>Edit the same post, choose the 25 Firstlist places, and keep Home in the same order.</p></div>' +
-      '<button type="button" class="p104-icon" data-action="refresh" aria-label="Refresh the library">↻</button></div>' +
-      '<p class="p104-state" data-lib-state aria-live="polite"></p><div data-firstlist></div>' +
-      '<div class="p104-lib-tools"><label>Find a post<input class="p104-input" data-search placeholder="Title, summary or post number"></label>' +
+    host.className = 'p104-studio c105-library-native';
+    host.setAttribute('data-pass104-library', '1');
+    host.innerHTML = '<div class="p104-lib-head"><div><p class="p104-kick">THE LIBRARY</p></div>' +
+      '<button type="button" class="p104-icon" data-action="refresh" aria-label="Refresh the library">' + H.icon('refresh') + '</button></div>' +
+      '<p class="p104-state" data-lib-state aria-live="polite"></p>' +
+      '<details class="c105-library-tools"><summary>FILTER & SEARCH <span>website controls</span></summary><div class="p104-lib-tools"><label>Find a post<input class="p104-input" data-search placeholder="Title, summary or post number"></label>' +
       '<div class="p104-filters" data-type-filters>' + ['all', 'blog', 'image', 'audio', 'video', 'poll'].map(function (k) { return '<button type="button" class="p104-chip' + (k === 'all' ? ' on' : '') + '" data-action="filter-type" data-value="' + k + '">' + (k === 'all' ? 'ALL' : LABEL[k]) + '</button>'; }).join('') + '</div>' +
-      '<div class="p104-filters"><button type="button" class="p104-chip on" data-action="filter-state" data-value="all">LIVE + DRAFT</button><button type="button" class="p104-chip" data-action="filter-state" data-value="live">LIVE</button><button type="button" class="p104-chip" data-action="filter-state" data-value="draft">DRAFT</button><button type="button" class="p104-chip" data-action="filter-first">FIRSTLIST ONLY</button></div></div>' +
-      '<div class="p104-lib-list" data-library><div class="p104-loading">Opening the complete library…</div></div>';
+      '<div class="p104-filters"><button type="button" class="p104-chip on" data-action="filter-state" data-value="all">LIVE + DRAFT</button><button type="button" class="p104-chip" data-action="filter-state" data-value="live">LIVE</button><button type="button" class="p104-chip" data-action="filter-state" data-value="draft">DRAFT</button><button type="button" class="p104-chip" data-action="filter-first">FIRSTLIST ONLY</button></div></div></details>' +
+      '<div class="p104-lib-list" data-library><div class="p104-loading">Opening the complete library…</div></div><div data-firstlist></div>';
 
     function say(message, bad) {
       S.message = message || ''; S.bad = !!bad;
@@ -85,7 +85,7 @@
           (id ? '<b>' + H.esc(p ? (p.title || 'Untitled') : 'Post ' + id) + '</b><small>' + H.esc(p ? (LABEL[p.type] || 'POST') : 'PINNED POST') + '</small><button type="button" class="p104-chip on" data-action="place" data-id="' + id + '">MOVE / SWAP</button>'
                 : '<b>Open place</b><small>Choose any post</small><button type="button" class="p104-chip" data-action="choose-slot" data-pos="' + i + '">CHOOSE POST</button>') + '</article>');
       }
-      box.innerHTML = '<section class="p104-first"><div class="p104-first-head"><div><h3>IVORY’S FIRSTLIST</h3><p>25 places · ' + S.order.length + ' filled · Home reads this same order</p></div><span>' + S.order.length + ' / 25</span></div>' +
+      box.innerHTML = '<section class="p104-first c105-firstlist"><div class="p104-first-head"><div><p class="p104-kick">WEBSITE FIRSTLIST MANAGER</p><h3>IVORY’S FIRSTLIST</h3><p>Exactly 25 places · ' + S.order.length + ' filled · Home reads this same order</p></div><span>' + S.order.length + ' / 25</span></div>' +
         '<div class="p104-slot-rail" aria-label="The 25 Firstlist places">' + cards.join('') + '</div><p class="p104-hint">Tap a filled place to jump or swap. Empty places stay visible; nothing is pinned automatically.</p></section>';
     }
     function filtered() {
@@ -112,17 +112,18 @@
       if (!list.length) { box.innerHTML = '<div class="p104-empty">Nothing stands under these filters.</div>'; return; }
       box.innerHTML = '<p class="p104-count">' + list.length + ' of ' + S.posts.length + ' posts · true server views, never display bloom</p>' + list.map(function (p) {
         var id = Number(p.id), pos = S.order.indexOf(id), live = p.is_published === true;
-        return '<article class="p104-post' + (live ? '' : ' draft') + '" data-post-row="' + id + '"><div class="p104-post-top"><span class="p104-type">' + H.esc(LABEL[p.type] || 'POST') + '</span>' +
-          (pos >= 0 ? '<span class="p104-rank">FIRSTLIST ' + (pos + 1) + '</span>' : '') + '<span class="p104-live">' + (live ? 'LIVE' : 'DRAFT') + '</span></div>' +
-          '<h3>' + H.esc(p.title || 'Untitled') + '</h3>' + (p.summary ? '<p>' + H.esc(p.summary) + '</p>' : '') +
-          '<div class="p104-meta"><span>' + H.esc(access(p)) + '</span><span>' + Number(p.view_count || 0) + ' true views</span><span>post ' + id + '</span></div>' +
-          '<div class="p104-post-actions"><button type="button" class="p104-btn small" data-action="edit" data-id="' + id + '">EDIT</button>' +
-          (pos >= 0 ? '<button type="button" class="p104-chip on" data-action="place" data-id="' + id + '">PLACE ' + (pos + 1) + '</button>' : '') +
-          (pos > 0 ? '<button type="button" class="p104-icon" data-action="earlier" data-id="' + id + '" aria-label="Earlier on the Firstlist">↑</button>' : '') +
-          (pos >= 0 && pos < S.order.length - 1 ? '<button type="button" class="p104-icon" data-action="later" data-id="' + id + '" aria-label="Later on the Firstlist">↓</button>' : '') +
-          '<button type="button" class="p104-chip' + (pos >= 0 ? ' on' : '') + '" data-action="first-toggle" data-id="' + id + '">' + (pos >= 0 ? 'TAKE OFF FIRSTLIST' : 'ADD TO FIRSTLIST') + '</button>' +
-          '<button type="button" class="p104-chip" data-action="publish" data-id="' + id + '">' + (live ? 'HIDE FROM FEED' : 'PUBLISH') + '</button>' +
-          '<button type="button" class="p104-chip danger" data-action="delete" data-id="' + id + '">DELETE</button></div></article>';
+        var views = Number(p.view_count || 0), kind = p.type === 'blog' ? 'story' : (p.type === 'audio' ? 'audio' : p.type === 'video' ? 'video' : p.type === 'image' ? 'image' : 'poll');
+        return '<article class="p104-post p105-post' + (live ? '' : ' draft') + '" data-post-row="' + id + '">' +
+          '<span class="p105-post-type" title="' + H.esc(LABEL[p.type] || 'POST') + '">' + H.icon(kind) + '</span>' +
+          '<div class="p105-post-main"><h3>' + H.esc(p.title || 'Untitled') + '</h3><p>' + (live ? 'Live' : 'Draft') + ' · ' + H.esc(access(p)) + ' · ' + views + ' view' + (views === 1 ? '' : 's') + '</p></div>' +
+          '<div class="p105-post-actions">' +
+          '<button type="button" class="n105-icon" data-action="edit" data-id="' + id + '" aria-label="Edit this post" title="Edit this post">' + H.icon('edit') + '</button>' +
+          (pos >= 0 ? '<button type="button" class="p105-rank" data-action="place" data-id="' + id + '" aria-label="Move Firstlist place ' + (pos + 1) + '">' + (pos + 1) + '</button>' : '') +
+          (pos > 0 ? '<button type="button" class="n105-icon" data-action="earlier" data-id="' + id + '" aria-label="Earlier on the Firstlist">' + H.icon('up') + '</button>' : '') +
+          (pos >= 0 && pos < S.order.length - 1 ? '<button type="button" class="n105-icon" data-action="later" data-id="' + id + '" aria-label="Later on the Firstlist">' + H.icon('down') + '</button>' : '') +
+          '<button type="button" class="n105-icon p105-star' + (pos >= 0 ? ' on' : '') + '" data-action="first-toggle" data-id="' + id + '" aria-label="' + (pos >= 0 ? 'On Ivory’s Firstlist - place ' + (pos + 1) : 'Add to Ivory’s Firstlist') + '">' + H.icon('star', pos >= 0) + '</button>' +
+          '<button type="button" class="n105-switch' + (live ? ' on' : '') + '" data-action="publish" data-id="' + id + '" role="switch" aria-checked="' + (live ? 'true' : 'false') + '" aria-label="' + (live ? 'Hide from the feed' : 'Publish') + '"></button>' +
+          '<button type="button" class="n105-icon p105-delete" data-action="delete" data-id="' + id + '" aria-label="Delete for good">' + H.icon('delete') + '</button></div></article>';
       }).join('');
     }
     function applyMove(id, newPos, quiet) {
@@ -276,6 +277,18 @@
         onConfirm: function () { return H.api('/rest/v1/rpc/delete_post', { post_id_in: Number(id) }).then(function () { notifyContent(); load(true); say('Deleted.', false); return true; }); } });
     }
 
+    host.__ivStudio = {
+      reload: load,
+      open: function (id) {
+        return load(true).then(function (ok) {
+          if (!ok || !post(id)) return false;
+          editSheet(Number(id));
+          var row = host.querySelector('[data-post-row="' + Number(id) + '"]');
+          if (row) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          return true;
+        });
+      }
+    };
     host.addEventListener('input', function (e) { if (e.target.hasAttribute('data-search')) { S.q = e.target.value; paintList(); } });
     host.addEventListener('click', function (e) {
       var b = e.target.closest('[data-action]'); if (!b || S.busy) return;
@@ -298,13 +311,7 @@
     load(false);
   }
 
-  window.IVROOMS.create = function (pane) {
-    if (typeof baseCreate === 'function') baseCreate(pane);
-    var host = document.createElement('section');
-    host.setAttribute('data-pass104-library', '1');
-    var recent = pane.querySelector('.c2-recent');
-    if (recent) recent.parentNode.replaceChild(host, recent); else pane.appendChild(host);
-    mount(host);
-  };
-  window.IVSTUDIO104 = { fetchLibrary: fetchLibrary };
+  /* Create105 owns the single mounting point. Do not wrap IVROOMS.create here:
+     a second wrapper would mount two libraries and duplicate every read/write. */
+  window.IVSTUDIO104 = { fetchLibrary: fetchLibrary, mount: mount };
 })();
