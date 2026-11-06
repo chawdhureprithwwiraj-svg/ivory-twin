@@ -11,6 +11,15 @@
     mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg',
     opus: 'audio/ogg', flac: 'audio/flac', amr: 'audio/amr'
   };
+  var MIME_ALIAS = {
+    'image/jpg': 'image/jpeg', 'image/pjpeg': 'image/jpeg', 'image/x-png': 'image/png',
+    'audio/mp3': 'audio/mpeg', 'audio/x-mp3': 'audio/mpeg', 'audio/x-m4a': 'audio/mp4',
+    'audio/x-wav': 'audio/wav', 'audio/wave': 'audio/wav', 'audio/x-flac': 'audio/flac',
+    'audio/x-aac': 'audio/aac'
+  };
+  var IMAGE_TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'image/gif': 1, 'image/heic': 1 };
+  var AUDIO_TYPES = { 'audio/mpeg': 1, 'audio/mp4': 1, 'audio/aac': 1, 'audio/wav': 1,
+    'audio/ogg': 1, 'audio/flac': 1, 'audio/amr': 1 };
   function endpoint(name) {
     try {
       if (/^(ivory-twin\.pages\.dev|ivoryhouse\.dpdns\.org)$/i.test(location.hostname)) return '/api/' + name;
@@ -86,18 +95,26 @@
       host.innerHTML = '';
       open(row, true).then(function (url) {
         if (!d.veil.isConnected) return;
-        state.textContent = 'The file is open.';
+        state.textContent = 'The storage address is signed; waiting for the file bytes…';
         var media;
         if (kind === 'voice') {
           media = document.createElement('audio'); media.controls = true; media.preload = 'metadata'; media.className = 'p104-audio';
+          media.addEventListener('loadedmetadata', function () { if (d.veil.isConnected) state.textContent = 'Audio is ready. Press play to hear it.'; });
+          media.addEventListener('playing', function () { if (d.veil.isConnected) state.textContent = 'Audio is playing.'; });
         } else {
           media = document.createElement('img'); media.alt = row.title || row.fname || 'Bank image'; media.className = 'p104-image';
+          media.addEventListener('load', function () { if (d.veil.isConnected) state.textContent = 'The picture bytes loaded.'; }, { once: true });
         }
-        media.src = url;
         media.addEventListener('error', function () {
-          state.textContent = 'The file did not open.';
-          host.innerHTML = '<p class="p104-error">The address was signed, but the file bytes would not load. Try a fresh address.</p>';
+          if (!d.veil.isConnected) return;
+          var code = media.error && media.error.code;
+          var detail = kind === 'voice'
+            ? 'The signed address returned, but this browser could not load or decode the audio. No playback was confirmed.'
+            : 'The signed address returned, but this browser could not load or decode the image.';
+          state.textContent = 'The file bytes did not open.';
+          host.innerHTML = '<p class="p104-error">' + H.esc(detail + (code ? ' Browser media error ' + code + '.' : '')) + '</p>';
         }, { once: true });
+        media.src = url;
         host.appendChild(media);
       }).catch(function (e) {
         if (!d.veil.isConnected) return;
@@ -115,8 +132,14 @@
     return s || 'media.bin';
   }
   function mimeOf(file) {
-    var ext = String(file.name || '').toLowerCase().split('.').pop();
-    return file.type || MIME[ext] || 'application/octet-stream';
+    var ext = String((file && file.name) || '').toLowerCase().split('.').pop();
+    var declared = String((file && file.type) || '').trim().toLowerCase().split(';')[0];
+    var guessed = MIME[ext] || '';
+    if (MIME_ALIAS[declared]) declared = MIME_ALIAS[declared];
+    if (!declared || declared === 'application/octet-stream' || declared === 'binary/octet-stream' || declared === 'application/x-octet-stream') {
+      return guessed || declared || 'application/octet-stream';
+    }
+    return declared;
   }
   function putRaw(url, file, type, progress) {
     return new Promise(function (resolve, reject) {
@@ -125,37 +148,42 @@
       if (type) x.setRequestHeader('Content-Type', type);
       x.upload.onprogress = function (e) { if (progress && e.lengthComputable) progress(e.loaded / e.total); };
       x.onload = function () {
-        if (x.status >= 200 && x.status < 300) { if (progress) progress(1); resolve(); }
-        else reject(new Error('B2 refused the file (HTTP ' + x.status + ').'));
+        if (x.status >= 200 && x.status < 300) { if (progress) progress(1); resolve(x.status); }
+        else reject(new Error('B2 refused the file (HTTP ' + (x.status || 'unknown') + ').'));
       };
-      x.onerror = function () { reject(new Error('B2 could not be reached.')); };
+      x.onerror = function () { reject(new Error('The upload received no readable HTTP response. This can be a connection or B2 CORS issue; no bank row was written.')); };
+      x.onabort = function () { reject(new Error('The upload was cancelled before B2 confirmed it; no bank row was written.')); };
       x.send(file);
     });
   }
   function uploadOne(file, kind, progress) {
-    var image = kind === 'image';
+    if (!file || !(Number(file.size) > 0)) return Promise.reject(new Error('That file is empty. Pick it again.'));
+    var image = kind === 'image', size = Number(file.size);
+    if (!image && kind !== 'voice' && kind !== 'audio') return Promise.reject(new Error('Choose either an image or a voice file.'));
     var type = mimeOf(file);
-    if (!file || !file.size) return Promise.reject(new Error('That file is empty. Pick it again.'));
-    if (image && (!/^image\//.test(type) || file.size > 48 * 1048576)) return Promise.reject(new Error('Choose a JPEG, PNG, WebP or GIF image under 48 MB.'));
-    if (!image && !/^audio\//.test(type) && !MIME[String(file.name || '').toLowerCase().split('.').pop()]) return Promise.reject(new Error('Choose an audio file for the Voice Bank.'));
-    if (file.size > 5000000000) return Promise.reject(new Error('B2 single-file uploads must be under 5 GB.'));
+    if (image && (!IMAGE_TYPES[type] || size > 48 * 1048576)) return Promise.reject(new Error('Choose a JPEG, PNG, WebP, GIF or HEIC image under 48 MB.'));
+    if (!image && !AUDIO_TYPES[type]) return Promise.reject(new Error('Choose an MP3, M4A, AAC, WAV, OGG, FLAC or AMR file for the Voice Bank.'));
+    if (size > 5000000000) return Promise.reject(new Error('B2 single-file uploads must be under 5 GB.'));
     var name = safe(file.name);
-    return fn('b2-media', { op: 'put', kind: image ? 'image' : 'audio', name: name, size: file.size, content_type: type })
+    return fn('b2-media', { op: 'put', kind: image ? 'image' : 'audio', name: name, size: size, content_type: type })
       .then(function (signed) {
-        if (!signed.url || !signed.key) throw new Error('B2 did not return an upload link.');
+        if (!signed || !signed.key || !signed.url || !/^https:\/\//i.test(signed.url)) throw new Error('B2 did not return a secure HTTPS upload link and object key.');
         return putRaw(signed.url, file, type, progress).then(function () { return signed; });
       }).then(function (signed) {
         return H.api('/rest/v1/rpc/wheel_bank_add', {
           kind: image ? 'image' : 'voice',
           title: image ? 'An image from Ivory' : 'A voice from Ivory',
           path: signed.key,
-          fname_in: String(file.name || name), bytes_in: file.size, mime_in: type
+          fname_in: String(file.name || name), bytes_in: size, mime_in: type
         }).then(function (r) {
-          if (!r || r.ok !== true) throw new Error((r && (r.why || r.error)) || 'The bank refused the row. The uploaded bytes were not called banked.');
+          if (!r || r.ok !== true) throw new Error((r && (r.why || r.error)) || 'The bank refused the row.');
           return r;
+        }).catch(function (e) {
+          throw new Error(((e && e.message) || 'The bank refused the row.') + ' B2 may already hold the uploaded bytes, but no bank row was confirmed; nothing was automatically deleted.');
         });
       });
   }
+
   function upload(files, kind, onProgress) {
     files = Array.prototype.slice.call(files || []);
     var done = 0, failed = 0, errors = [];

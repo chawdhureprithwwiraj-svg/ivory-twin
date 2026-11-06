@@ -13200,7 +13200,7 @@ linear-gradient(115deg,#FFF8DF 0%,#F9DF9D 46%,#EDBD63 100%);box-shadow:0 14px 32
       <section class="hp-recent" data-reveal>
         <div class="rec-head">
           <h2>Recent stories &amp; media</h2>
-          <a class="rec-all" data-tap>Explore all &rarr;</a>
+          <a class="rec-all" data-tap href="#explore" data-goto="explore">Explore all &rarr;</a>
         </div>
         <p class="rec-sub">Written stories, voice notes and vignettes</p>
         <div class="pcards" data-iv-shared="1"><div class="iv-feed-loading">Opening the shared shelf…</div></div>
@@ -18971,31 +18971,37 @@ window.IVSESS = (function () {
 })();
 
 </script>
-<script>
+<script id="iv-profile107-js">
 /* ═══════════════ THE PROFILE · the real account, and a sign-out that works ═══════════════ */
 (function () {
   var IV = window.IVSESS; if (!IV) return;
-  var P = { prof: null, mem: null, busy: false };
+  var bootIdentity = IV.ident() || {};
+  var P = { prof: null, mem: null, busy: false, seq: 0,
+    uid: String(bootIdentity.id || ''), loading: !!bootIdentity.id };
+  var ADMIN_ROLES = ['admin', 'owner', 'ivory', 'sub_admin', 'subadmin', 'keeper', 'studio'];
 
   function $(id) { return document.getElementById(id); }
   function put(id, txt) { var e = $(id); if (e && txt !== undefined && txt !== null) e.textContent = txt; }
+  function isAdminRole(role) { return ADMIN_ROLES.indexOf(String(role || '').toLowerCase()) >= 0; }
 
-  /* the address is the name the house knows you by until a display name is set */
+  /* Email is only a member fallback, never the house owner's public name. */
   function pretty(email) {
     var local = String(email || '').split('@')[0];
-    if (!local) return 'A guest';
+    if (!local) return '';
     var s = local.replace(/[._\-]+/g, ' ').trim();
     return s ? s.replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }) : local;
   }
 
   function paintIdentity() {
-    var id = IV.ident();
-    var who = (P.prof && P.prof.display_name) || '';
-    var name = who || (id.email ? pretty(id.email) : 'A guest');
+    var id = IV.ident() || {}, uid = String(id.id || '');
+    var prof = P.uid === uid && P.prof && String(P.prof.id || uid) === uid ? P.prof : null;
+    var who = String((prof && prof.display_name) || '').trim();
+    var admin = isAdminRole(prof && prof.role) || !!(window.ivIsAdmin && window.ivIsAdmin());
+    var name = !uid ? 'Guest' : admin ? 'Ivory' : who || (P.loading && P.uid === uid ? 'Member' : (pretty(id.email) || 'Member'));
     put('pf-name', name);
-    put('pf-mail', id.email || 'not signed in yet');
+    put('pf-mail', id.email || (uid ? 'Account address unavailable' : 'not signed in yet'));
     var av = $('pf-ava'); if (av) av.textContent = (name || 'I').slice(0, 1).toUpperCase();
-    var out = $('pf-out'); if (out) out.disabled = !id.email;
+    var out = $('pf-out'); if (out) out.disabled = !uid;
 
     /* membership, straight off the house's own table */
     var mem = P.mem;
@@ -19021,18 +19027,28 @@ window.IVSESS = (function () {
   }
 
   function readProfile() {
-    var id = IV.ident(); if (!id.id) return Promise.resolve();
-    return IV.get('/rest/v1/profiles?select=id,role,display_name&id=eq.' + id.id)
-      .then(function (rows) { P.prof = (rows && rows[0]) || { id: id.id, role: 'user' }; })
-      .catch(function () { P.prof = null; })
-      .then(function () {
+    var id = IV.ident() || {}, uid = String(id.id || ''), seq = ++P.seq;
+    P.uid = uid; P.prof = null; P.mem = null; P.loading = !!uid;
+    if (!uid) { paintIdentity(); return Promise.resolve(null); }
+    paintIdentity();
+    function current() { return seq === P.seq && String((IV.ident() || {}).id || '') === uid; }
+    return IV.get('/rest/v1/profiles?select=id,role,display_name&id=eq.' + encodeURIComponent(uid))
+      .then(function (rows) { return (rows && rows[0]) || { id: uid, role: 'user', display_name: '' }; })
+      .catch(function () { return { id: uid, role: 'user', display_name: '' }; })
+      .then(function (row) {
+        if (!current()) return null;
+        P.prof = { id: uid, role: row.role || 'user', display_name: String(row.display_name || '') };
+        P.loading = false; paintIdentity();
         return IV.call('/rest/v1/rpc/my_membership', {}).catch(function () { return null; });
       })
       .then(function (m) {
+        if (!current()) return null;
         if (Array.isArray(m)) m = m[0];
         if (m && (m.tier_level || m.level)) P.mem = { tier_level: m.tier_level || m.level, tier_name: m.tier_name || m.name };
         else P.mem = null;
         paintIdentity();
+        if (window.IVBADGE && window.IVBADGE.dressFromPage) window.IVBADGE.dressFromPage();
+        return P.prof;
       });
   }
 
@@ -19046,9 +19062,10 @@ window.IVSESS = (function () {
   }
 
   window.ivPaintProfile = function () {
+    var job = readProfile();
     paintIdentity();
-    if (IV.ident().id) readProfile();
-    if (window.IVCALL) window.IVCALL.paintProfile();   /* the two session meters, from call_balance */
+    if (window.IVCALL && window.IVCALL.paintProfile) window.IVCALL.paintProfile();   /* the two session meters, from call_balance */
+    return job;
   };
 
   /* the house's screen switcher, wrapped — nothing else changes */
@@ -19068,7 +19085,7 @@ window.IVSESS = (function () {
     if (P.busy) return; P.busy = true;
     var b = $('pf-out'); if (b) { b.disabled = true; b.textContent = 'Leaving…'; }
     IV.signOut();
-    P.prof = null; P.mem = null;
+    P.seq++; P.uid = ''; P.loading = false; P.prof = null; P.mem = null;
     setTimeout(function () {
       P.busy = false;
       if (b) { b.disabled = false; b.textContent = 'SIGN OUT'; }
@@ -19090,15 +19107,30 @@ window.IVSESS = (function () {
   var out = $('pf-out');
   if (out) out.addEventListener('click', function (e) { e.preventDefault(); leave(); });
 
+  function profileVisible() {
+    var screen = $('profile-screen');
+    return !!(screen && screen.classList && screen.classList.contains('on'));
+  }
+  function clearProfile() {
+    P.seq++; P.uid = ''; P.loading = false; P.prof = null; P.mem = null;
+    paintIdentity();
+  }
   IV.on(function (ev) {
-    if (ev === 'out' || ev === 'lapsed') { paintIdentity(); window.ivPaintBadge && window.ivPaintBadge(); }
+    if (ev === 'out' || ev === 'lapsed') {
+      clearProfile(); window.ivPaintBadge && window.ivPaintBadge();
+    } else if (ev === 'in') {
+      var id = IV.ident() || {};
+      P.seq++; P.uid = String(id.id || ''); P.loading = !!id.id; P.prof = null; P.mem = null;
+      paintIdentity();
+      if (P.uid && profileVisible()) readProfile();
+    }
   });
+  window.addEventListener('iv-identity-changed', function () { paintIdentity(); });
 
   paintIdentity();
 })();
-
 </script>
-<script>
+<script id="iv-adminidentity107-js">
 /* ═══════════════ THE ADMIN MARK · how the desk is always one tap away ═══════════════
    The app does exactly this: an ADMIN chip beside the title, and a crest in the
    top bar that opens the console (main_shell.dart, workspace_premium). It is the
@@ -19107,29 +19139,54 @@ window.IVSESS = (function () {
   var IV = window.IVSESS; if (!IV) return;
   var ROLES = ['admin', 'owner', 'ivory', 'sub_admin', 'subadmin', 'keeper', 'studio'];
   var EMAILS = ['chawdhureprithwwiraj@gmail.com'];
-  var isAdmin = false, asked = false;
+  var isAdmin = false, checkedUid = '', resolvedUid = '', requestSeq = 0, pending = null;
 
-  function ask() {
-    var id = IV.ident();
-    if (!id.id) { isAdmin = false; paint(); return Promise.resolve(false); }
-    var cached = null;
-    try { cached = sessionStorage.getItem('ivory.admin'); } catch (e) {}
-    if (cached !== null) { isAdmin = cached === '1'; paint(); if (isAdmin) return Promise.resolve(true); }
-    if (asked) return Promise.resolve(isAdmin);
-    asked = true;
-    return IV.get('/rest/v1/profiles?select=role,display_name&id=eq.' + id.id)
+  function memberName(id, row) {
+    var user = IV.user ? (IV.user() || {}) : {};
+    var chosen = String((row && row.display_name) || user.display_name || user.name || '').trim();
+    if (chosen) return chosen;
+    var local = String((id && id.email) || '').split('@')[0].replace(/[._-]+/g, ' ').trim();
+    return local ? local.replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }) : 'Member';
+  }
+  function identityChanged() {
+    try { window.dispatchEvent(new CustomEvent('iv-identity-changed', { detail: { admin: isAdmin, name: window.ivProfileName || '' } })); } catch (e) {}
+  }
+  function ask(force) {
+    var id = IV.ident() || {}, uid = String(id.id || '');
+    if (!uid) {
+      requestSeq++; checkedUid = ''; resolvedUid = ''; pending = null; isAdmin = false;
+      window.ivProfileName = ''; paint(); identityChanged(); return Promise.resolve(false);
+    }
+    if (checkedUid !== uid) {
+      requestSeq++; checkedUid = uid; resolvedUid = ''; pending = null; isAdmin = false;
+      window.ivProfileName = memberName(id); paint(); identityChanged();
+      try { sessionStorage.removeItem('ivory.admin'); } catch (e) {}
+    }
+    if (!force && resolvedUid === uid) return Promise.resolve(isAdmin);
+    if (pending && pending.uid === uid) return pending.promise;
+
+    var seq = ++requestSeq;
+    var request = IV.get('/rest/v1/profiles?select=role,display_name&id=eq.' + encodeURIComponent(uid))
       .then(function (rows) {
-        var role = String(((rows && rows[0]) || {}).role || '').toLowerCase();
-        var name = ((rows && rows[0]) || {}).display_name || '';
-        isAdmin = ROLES.indexOf(role) >= 0 || EMAILS.indexOf(id.email) >= 0;
-        try { sessionStorage.setItem('ivory.admin', isAdmin ? '1' : '0'); } catch (e) {}
-        window.ivProfileName = name;
-        paint(); return isAdmin;
+        if (seq !== requestSeq || String((IV.ident() || {}).id || '') !== uid) return false;
+        var row = (rows && rows[0]) || {};
+        var role = String(row.role || '').toLowerCase();
+        isAdmin = ROLES.indexOf(role) >= 0 || EMAILS.indexOf(String(id.email || '').toLowerCase()) >= 0;
+        window.ivProfileName = isAdmin ? 'Ivory' : memberName(id, row);
+        resolvedUid = uid; paint(); identityChanged(); return isAdmin;
       })
       .catch(function () {
-        isAdmin = EMAILS.indexOf(id.email) >= 0;
-        paint(); return isAdmin;
+        if (seq !== requestSeq || String((IV.ident() || {}).id || '') !== uid) return false;
+        isAdmin = EMAILS.indexOf(String(id.email || '').toLowerCase()) >= 0;
+        window.ivProfileName = isAdmin ? 'Ivory' : memberName(id);
+        resolvedUid = uid; paint(); identityChanged(); return isAdmin;
+      })
+      .then(function (result) {
+        if (pending && pending.seq === seq) pending = null;
+        return result;
       });
+    pending = { uid: uid, seq: seq, promise: request };
+    return request;
   }
 
   function crest() {
@@ -19170,12 +19227,23 @@ window.IVSESS = (function () {
     });
   }
 
-  window.ivPaintBadge = function () { asked = false; try { sessionStorage.removeItem('ivory.admin'); } catch (e) {} return ask(); };
-  window.ivIsAdmin = function () { return isAdmin; };
+  window.ivPaintBadge = function () { return ask(true); };
+  window.ivIsAdmin = function () {
+    var uid = String((IV.ident() || {}).id || '');
+    if (uid !== checkedUid) ask(false);
+    return isAdmin;
+  };
 
   IV.on(function (ev) {
-    if (ev === 'out' || ev === 'lapsed') { isAdmin = false; asked = true; paint(); }
-    else if (ev === 'in') { window.ivPaintBadge(); }
+    if (ev === 'out' || ev === 'lapsed') {
+      requestSeq++; checkedUid = ''; resolvedUid = ''; pending = null; isAdmin = false;
+      window.ivProfileName = ''; paint(); identityChanged();
+      try { sessionStorage.removeItem('ivory.admin'); } catch (e) {}
+    } else if (ev === 'in') {
+      requestSeq++; checkedUid = ''; resolvedUid = ''; pending = null; isAdmin = false;
+      window.ivProfileName = memberName(IV.ident() || {}); paint(); identityChanged();
+      window.ivPaintBadge();
+    }
   });
 
   var css = document.createElement('style');
@@ -19203,7 +19271,6 @@ window.IVSESS = (function () {
 
   ask();
 })();
-
 </script>
 <script>
 /* ═══════════════ LIVE · the rooms, inside the house ═══════════════ */
@@ -19621,8 +19688,7 @@ window.IVSESS = (function () {
     ['LIVE','live'],['BROADCAST','broadcast'],['TIERS','tiers'],['WISHES','wishes'],
     ['STORIES','stories'],['PAYMENTS','payments'],['ENQUIRIES','enquiries'],['GOLD','gold'],
     ['HEART','heart'],['REWARDS','rewards'],['CODES','codes'],['BELLS','bells'],
-    ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TRANSLATE','translate'],
-    ['TICKER','ticker'],['WHEEL','wheel'],['OVERVIEW','overview'],['FRAMES','frames'],['OFFICERS','officers'],['VAULT','vault']
+    ['LADDER','ladder'],['DOOR','door'],['LINE','line'],['TICKER','ticker'],['WHEEL','wheel'],['OVERVIEW','overview'],['FRAMES','frames'],['OFFICERS','officers'],['VAULT','vault']
   ];
   var BUILT = {create:1, members:1, reports:1, calls:1, live:1, broadcast:1, tiers:1, wishes:1, stories:1, payments:1, enquiries:1, gold:1, heart:1, rewards:1, codes:1, bells:1, ladder:1, door:1, line:1, translate:1, ticker:1, wheel:1, overview:1, frames:1, officers:1, vault:1};
   /* what each room is, in the app's own words — so no two rooms read alike */
@@ -24780,6 +24846,21 @@ window.IVROOMS.wishes = function (pane) {
   var R = window.IVR, esc = R.esc;
   var S = { wishes: null, cats: {}, names: {}, open: null, err: null, busy: {} };
   var FLOW = ['submitted', 'accepted', 'in_progress', 'delivered'];
+  var ICON = {
+    auto_awesome: '<path d="M12 2.8l1.6 5.1 5.1 1.6-5.1 1.6-1.6 5.1-1.6-5.1-5.1-1.6 5.1-1.6 1.6-5.1z"/><path d="M19 15.6l.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9z"/>',
+    sparkle: '<path d="M12 2.8l1.6 5.1 5.1 1.6-5.1 1.6-1.6 5.1-1.6-5.1-5.1-1.6 5.1-1.6z"/><path d="M19 15.6l.9 2.5 2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9z"/>',
+    favorite: '<path d="M20.8 8.7c0 4.4-8.8 10.1-8.8 10.1S3.2 13.1 3.2 8.7a4.2 4.2 0 017.6-2.5 4.2 4.2 0 017.6 2.5z"/>',
+    star: '<path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9-5.4 2.9 1-6-4.4-4.3 6.1-.9z"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><circle cx="9" cy="9.5" r="1.5"/><path d="M5 17l4.2-4.2 2.7 2.4 2.5-2.6 4.6 4.4"/>',
+    photo_camera: '<path d="M4 8.2h3l1.5-2h5l1.5 2h3A2.2 2.2 0 0120.2 10v7.5a2.2 2.2 0 01-2.2 2.2H6a2.2 2.2 0 01-2.2-2.2V10A2.2 2.2 0 016 7.8z"/><circle cx="12" cy="13.3" r="3.2"/>',
+    headphones: '<path d="M4 13v-1a8 8 0 0116 0v1"/><rect x="3" y="12" width="4.5" height="8" rx="2"/><rect x="16.5" y="12" width="4.5" height="8" rx="2"/>',
+    music_note: '<path d="M14 4v11.5a3.5 3.5 0 11-2-3.2V7l8-2v8.5a3.5 3.5 0 11-2-3.2V3z"/>',
+    mail: '<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4.5 7l7.5 6 7.5-6"/>'
+  };
+  function wishIcon(token) {
+    var key = String(token || 'sparkle').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICON[key] || ICON.sparkle) + '</svg>';
+  }
 
   pane.innerHTML = R.head('The well', 'What they have <em>wished for.</em>',
       'Every wish is a coin on the water. Take it in hand, say what you will do, and when it is done ' +
@@ -24825,8 +24906,8 @@ window.IVROOMS.wishes = function (pane) {
       var cat = S.cats[w.category_id];
       var mine = S.open === String(w.id);
       return '<article class="wi-coin ' + st + (mine ? ' open' : '') + '" data-id="' + esc(String(w.id)) + '">' +
-        '<button class="wi-face" data-open="' + esc(String(w.id)) + '">' +
-          '<span class="wi-disc"><i>' + esc((cat && cat.icon) || '\u2726') + '</i></span>' +
+        '<button type="button" class="wi-face" data-open="' + esc(String(w.id)) + '" aria-expanded="' + (mine ? 'true' : 'false') + '">' +
+          '<span class="wi-disc" aria-hidden="true">' + wishIcon(cat && cat.icon) + '</span>' +
           '<span class="wi-tx"><b>' + esc(w.title || 'A wish') + '</b>' +
             '<i>' + esc((cat && cat.name) || 'A wish of her own') + ' \u00b7 ' +
               (w.budget_inr ? R.money(w.budget_inr) : 'a gift') + '</i>' +
@@ -43337,5 +43418,6 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 <script id="iv-wheel104" src="wheel104.js"></script>
 <script id="iv-studio104" src="studio104.js"></script>
 <link id="iv-pass105-css" rel="stylesheet" href="pass105.css">
+<link id="iv-pass107-css" rel="stylesheet" href="pass107.css">
 </body>
 </html>

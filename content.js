@@ -239,10 +239,12 @@ window.IVCONTENT = (function () {
     rows.forEach(function (p) { if (!postById(p.id)) S.posts.push(p); });
   }
   function refreshFirstlist(force) {
-    if (!IV || !IV.get) return Promise.resolve([]);
+    if (!IV || !IV.call) return Promise.resolve([]);
     if (S.firstLoading && !force) return S.firstLoading;
     var seq = ++S.firstSeq;
-    S.firstLoading = get('/rest/v1/post_previews?select=*&pin_rank=gt.0&order=pin_rank.asc&limit=25').then(function (rows) {
+    /* firstlist() is the canonical member-visible, ordered shelf. The admin
+       Library uses admin_posts; the member Home must not guess a table column. */
+    S.firstLoading = call('/rest/v1/rpc/firstlist', {}).then(function (rows) {
       if (seq !== S.firstSeq) return S.firstRows;
       S.firstRows = Array.isArray(rows) ? rows : [];
       mergeFirstRows(S.firstRows); S.firstLoading = null; renderAll(); return S.firstRows;
