@@ -1,5 +1,7 @@
 name: Deploy the Admin B2 object door
 
+# The path-scoped push trigger also works when the deploying PAT cannot call
+# the Actions dispatch API; no repository secret is ever written to the tree.
 on:
   workflow_dispatch:
   push:
