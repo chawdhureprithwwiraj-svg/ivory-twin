@@ -1,7 +1,7 @@
-/* Pass 105 · native Admin header and the single scrolling room row.
-   The original 26 room buttons and their canonical go() handlers remain in
-   place. The former family map/drawer is not loaded by the deterministic
-   builder; this module only dresses and observes the house's own ribbon. */
+/* Pass 105/106 · native Admin header and the single scrolling room row.
+   The 25 website room buttons and their canonical go() handlers remain in
+   place; Pass 106 removes only Translate from this website navigation. The
+   former family map/drawer is not loaded by the deterministic builder. */
 (function () {
   'use strict';
   if (window.IVNAV105) return;
@@ -96,7 +96,7 @@
     document.addEventListener('keydown', keys);
     paint();
   }
-  window.IVNAV105 = { paint: paint, rooms: 26 };
+  window.IVNAV105 = { paint: paint, rooms: 25 };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();

@@ -26324,67 +26324,114 @@ window.IVROOMS.translate = function (pane) {
   load();
 };
 
+/* Pass 106 · the website Ticker desk on the native canonical contract. */
 window.IVROOMS.ticker = function (pane) {
   var R = window.IVR, esc = R.esc;
-  var S = { set: null, kinds: null, pull: null, err: null, busy: false, dirty: {}, kdirty: {} };
+  var S = { set: null, kinds: null, pull: null, notes: null, err: null,
+            busy: false, noteBusy: false, dirty: {}, kdirty: {} };
+  var PALETTE = ['#5C0F22', '#07402C', '#B83200', '#A87A00', '#7A1043',
+                 '#A63A1E', '#7A0A14', '#7A5A12', '#3D6B00', '#4D0A24'];
 
   pane.innerHTML = R.head('The tape', 'The words that <em>ride.</em>',
-      'A ribbon crosses the top of the house with one note on it at a time. These are the lengths, ' +
-      'the breath between, and the kinds of note allowed to ride.') +
+      'The same native clock, kinds, announcements and dream switch govern every website ribbon. ' +
+      'Nothing here substitutes an invented message for a canonical event.') +
     '<div class="rm ivroom-ticker" id="tk">' +
       '<div class="tk-tape"><div class="tk-run" id="tk-run"></div></div>' +
       '<div class="tk-dials" id="tk-dials"></div>' +
-      '<p class="rmx-h">What may ride</p>' +
+      '<p class="rmx-h">What may ride · wording included</p>' +
       '<div class="tk-kinds" id="tk-kinds"></div>' +
-      '<div class="tk-foot"><button class="tk-save" id="tk-save">SAVE</button><p class="tk-said" id="tk-said"></p></div>' +
+      '<p class="rmx-h">Your own announcements</p>' +
+      '<div class="tk-kinds" id="tk-notes"></div>' +
+      '<div class="dk-card" style="margin-top:10px">' +
+        '<label class="dk-label" for="tk-note-body">What it says</label>' +
+        '<textarea class="dk-input" id="tk-note-body" maxlength="140" rows="3"></textarea>' +
+        '<label class="dk-label" for="tk-note-tone">Tone</label>' +
+        '<select class="dk-input" id="tk-note-tone">' +
+          '<option value="soft">Soft ribbon</option>' +
+          '<option value="grand">Grand · longer, with a gold burst</option>' +
+        '</select>' +
+        '<label class="dk-label" for="tk-note-link">A tap opens</label>' +
+        '<select class="dk-input" id="tk-note-link">' +
+          '<option value="">Nothing</option><option value="home">Home</option>' +
+          '<option value="explore">Explore</option><option value="wish">The Wish</option>' +
+          '<option value="premium">Membership</option><option value="ladder">The Ivory Ladder</option>' +
+          '<option value="bells">The Four Bells</option>' +
+        '</select>' +
+        '<button class="dk-btn" id="tk-note-add" type="button">WRITE AN ANNOUNCEMENT</button>' +
+      '</div>' +
+      '<div class="tk-foot"><button class="tk-save" id="tk-save">SAVE CLOCK, KINDS & SWITCHES</button><p class="tk-said" id="tk-said"></p></div>' +
     '</div>';
 
   var $ = function (id) { return R.q(pane, id); };
+  function said(t) { var el = $('tk-said'); if (el) el.textContent = t; }
+  function memberPull() {
+    if (window.IVRIBBON && window.IVRIBBON.pull) {
+      try { return window.IVRIBBON.pull(); } catch (e) { return null; }
+    }
+    return null;
+  }
+  function wordsFor(ev, kinds) {
+    var k = kinds[ev.kind] || {};
+    return String(k.template || '{thing}')
+      .replace(/\{name\}/g, String(ev.name || 'A member'))
+      .replace(/\{thing\}/g, String(ev.thing || ''))
+      .replace(/\{extra\}/g, String(ev.extra || ''))
+      .replace(/\{n\}/g, ev.n == null ? '' : String(ev.n));
+  }
 
   function drawRun() {
-    var p = S.pull || {};
-    var on = (S.set && S.set.is_on !== false) && p.on !== false;
-    var words = [];
-    if (Array.isArray(p.lines)) words = p.lines.map(function (x) { return typeof x === 'string' ? x : (x.text || x.body || x.line || ''); });
-    else if (p.line) words = [p.line];
-    else if (Array.isArray(p.board)) words = p.board.map(function (x) { return x.label || x.text || ''; });
-    if (!words.length) words = ['Where every story leaves a mark'];
-    $('tk-run').innerHTML = '<span>' + words.filter(Boolean).map(function (w) { return esc(String(w)); }).join(' \u00B7 ') + '</span>';
+    var p = S.pull || {}, kinds = p.kinds || {};
+    var master = S.dirty.is_on != null ? S.dirty.is_on : !!(S.set && S.set.is_on !== false);
+    var on = !!(master && p.on === true);
+    var words = on && Array.isArray(p.events) ? p.events.filter(function (e) {
+      return e && Object.prototype.hasOwnProperty.call(kinds, e.kind);
+    }).slice(0, 5).map(function (e) { return wordsFor(e, kinds); }).filter(Boolean) : [];
+    if (!words.length) words = [on ? 'No canonical ribbon is waiting.' : 'The tape is still.'];
+    $('tk-run').innerHTML = '<span>' + words.map(function (w) { return esc(String(w)); }).join(' \u00B7 ') + '</span>';
     $('tk-run').classList.toggle('off', !on);
   }
 
   function drawDials() {
-    var s = S.set || {};
+    if (!S.set) {
+      $('tk-dials').innerHTML = S.err ? R.miss('The canonical clock could not be read.') : R.wait();
+      return;
+    }
+    var s = S.set;
     var rows = [
-      ['gap', 'seconds between tapes', s.gap_seconds, 5, 600],
-      ['ownmin', 'a house note stands at least', s.own_min_minutes, 1, 60],
-      ['ownmax', 'and no longer than', s.own_max_minutes, 1, 60],
-      ['cross', 'seconds to cross the screen', s.cross_seconds, 3, 120],
-      ['grand', 'seconds for a grand note', s.grand_seconds, 3, 120],
-      ['delay', 'seconds before the first', s.start_delay_seconds, 0, 300],
-      ['lane', 'the lane it rides in', s.lane_offset, -3, 3]
+      ['gap_seconds', 'seconds between tapes', s.gap_seconds, 10, 900, 5],
+      ['start_delay_seconds', 'seconds before the first', s.start_delay_seconds, 0, 300, 5],
+      ['cross_seconds', 'seconds to cross the screen', s.cross_seconds, 5, 25, 1],
+      ['grand_seconds', 'seconds for a grand note', s.grand_seconds, 6, 30, 1],
+      ['own_min_minutes', 'own moments after at least · minutes', s.own_min_minutes, 1, 120, 1],
+      ['own_max_minutes', 'and no later than · minutes', s.own_max_minutes, 1, 240, 1],
+      ['lane_offset', 'move the ribbon lower · pixels', s.lane_offset, -30, 120, 4],
+      ['cheers_daily_cap', 'cheers a member can send each day', s.cheers_daily_cap, 1, 100, 1]
     ];
     $('tk-dials').innerHTML = rows.map(function (r) {
-      return R.stepper('tk-' + r[0], r[1], Number(r[2] == null ? 0 : r[2]), r[3], r[4], 1);
+      return R.stepper('tk-' + r[0], r[1], Number(r[2] == null ? 0 : r[2]), r[3], r[4], r[5]);
     }).join('') +
       '<div class="tk-switches">' +
         '<button class="tk-sw' + (s.is_on !== false ? ' on' : '') + '" data-sw="is_on">' + (s.is_on !== false ? 'THE TAPE RUNS' : 'THE TAPE IS STILL') + '</button>' +
         '<button class="tk-sw' + (s.cheers_on !== false ? ' on' : '') + '" data-sw="cheers_on">' + (s.cheers_on !== false ? 'IT CHEERS AS IT GOES' : 'NO CHEERING') + '</button>' +
+        '<button class="tk-sw' + (s.dreams_on !== false ? ' on' : '') + '" data-sw="dreams_on">' + (s.dreams_on !== false ? 'DREAMS MAY CROSS' : 'DREAMS ARE STILL') + '</button>' +
       '</div>' +
-      '<div class="tk-colours"><i>colours allowed</i><div id="tk-colours"></div></div>';
+      '<div class="tk-colours"><i>the ten native colours allowed</i><div id="tk-colours"></div></div>';
     R.wireSteps(pane, function (id, v) { S.dirty[id.replace(/^tk-/, '')] = v; });
     var off = Array.isArray(s.colours_off) ? s.colours_off.map(Number) : [];
-    $('tk-colours').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) {
-      return '<button class="tk-col c' + i + (off.indexOf(i) >= 0 ? ' off' : '') + '" data-col="' + i + '"></button>';
+    $('tk-colours').innerHTML = PALETTE.map(function (colour, i) {
+      var n = i + 1;
+      return '<button aria-label="Ribbon colour ' + n + '" aria-pressed="' + (off.indexOf(n) < 0) +
+        '" class="tk-col' + (off.indexOf(n) >= 0 ? ' off' : '') + '" style="background:' + colour + '" data-col="' + n + '"></button>';
     }).join('');
     R.each(pane, '[data-col]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var i = Number(b.getAttribute('data-col'));
+        var n = Number(b.getAttribute('data-col'));
         b.classList.toggle('off');
+        b.setAttribute('aria-pressed', b.classList.contains('off') ? 'false' : 'true');
         var cur = (S.dirty.colours_off != null ? S.dirty.colours_off : off.slice());
-        var at = cur.indexOf(i);
-        if (at >= 0) cur.splice(at, 1); else cur.push(i);
-        S.dirty.colours_off = cur.sort();
+        var at = cur.indexOf(n);
+        if (at >= 0) cur.splice(at, 1); else cur.push(n);
+        S.dirty.colours_off = cur.sort(function (a, b) { return a - b; });
       });
     });
     R.each(pane, '[data-sw]').forEach(function (b) {
@@ -26393,7 +26440,8 @@ window.IVROOMS.ticker = function (pane) {
         var now = b.classList.contains('on');
         b.classList.toggle('on', !now);
         if (k === 'is_on') b.textContent = !now ? 'THE TAPE RUNS' : 'THE TAPE IS STILL';
-        else b.textContent = !now ? 'IT CHEERS AS IT GOES' : 'NO CHEERING';
+        else if (k === 'cheers_on') b.textContent = !now ? 'IT CHEERS AS IT GOES' : 'NO CHEERING';
+        else b.textContent = !now ? 'DREAMS MAY CROSS' : 'DREAMS ARE STILL';
         S.dirty[k] = !now;
         if (k === 'is_on') drawRun();
       });
@@ -26407,9 +26455,10 @@ window.IVROOMS.ticker = function (pane) {
       var on = k.is_on !== false;
       return '<div class="tk-reel' + (on ? ' on' : '') + '" data-k="' + i + '">' +
         '<span class="tk-wheel"><i></i></span>' +
-        '<div class="tk-kb"><b>' + esc(k.label || R.words(k.kind || '')) + '</b>' +
-          '<i>' + esc(String(k.template || '').slice(0, 70)) + '</i></div>' +
+        '<div class="tk-kb"><b>' + esc(k.label || R.words(k.kind || '')) + '</b><i>' + esc(k.kind || '') + '</i></div>' +
         '<button class="tk-yes' + (on ? ' on' : '') + '" data-kon="' + i + '">' + (on ? 'RIDES' : 'HELD') + '</button>' +
+        '<div style="grid-column:1/-1;width:100%"><input class="dk-input" data-kword="' + i + '" maxlength="160" value="' +
+          esc(String(k.template || '{thing}')) + '" aria-label="Wording for ' + esc(k.label || k.kind || '') + '"></div>' +
       '</div>';
     }).join('');
     R.each(pane, '[data-kon]').forEach(function (b) {
@@ -26422,53 +26471,139 @@ window.IVROOMS.ticker = function (pane) {
         (S.kdirty[i] = S.kdirty[i] || {}).is_on = !now;
       });
     });
+    R.each(pane, '[data-kword]').forEach(function (input) {
+      input.addEventListener('input', function () {
+        var i = Number(input.getAttribute('data-kword'));
+        (S.kdirty[i] = S.kdirty[i] || {}).template = input.value;
+      });
+    });
   }
+
+  function noteLine(n) {
+    var grand = n.tone === 'grand' || n.grand === true;
+    return (grand ? 'Grand · ' : '') +
+      (n.ends_at ? 'until ' + R.when(n.ends_at) : 'until removed');
+  }
+  function drawNotes() {
+    if (!S.notes) { $('tk-notes').innerHTML = R.wait(); return; }
+    if (!S.notes.length) { $('tk-notes').innerHTML = R.none('No house announcements.', 'Write one below; only canonical note events will ride.'); return; }
+    $('tk-notes').innerHTML = S.notes.map(function (n, i) {
+      var on = n.is_on !== false;
+      return '<div class="tk-reel' + (on ? ' on' : '') + '">' +
+        '<span class="tk-wheel"><i></i></span>' +
+        '<div class="tk-kb"><b>' + esc(n.body || '') + '</b><i>' + esc(noteLine(n)) + '</i></div>' +
+        '<span class="tk-yes' + (on ? ' on' : '') + '">' + (on ? 'RIDES' : 'HELD') + '</span>' +
+        '<button class="dk-chip" style="grid-column:1/-1;justify-self:end" data-note-del="' + i + '">DELETE</button>' +
+      '</div>';
+    }).join('');
+    R.each(pane, '[data-note-del]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (S.noteBusy) return;
+        if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'TAP AGAIN TO DELETE'; return; }
+        var n = S.notes[Number(b.getAttribute('data-note-del'))];
+        S.noteBusy = true; b.disabled = true;
+        R.api('/rest/v1/rpc/iv_ticker_note_del', { note_id: n.id })
+          .then(function () { S.noteBusy = false; memberPull(); refresh(); })
+          .catch(function (e) { S.noteBusy = false; b.disabled = false; said(R.msg(e)); });
+      });
+    });
+  }
+
+  $('tk-note-add').addEventListener('click', function () {
+    if (S.noteBusy) return;
+    var body = $('tk-note-body').value.trim();
+    if (body.length < 3) { said('Please write what the announcement says.'); return; }
+    var payload = { body: body, tone: $('tk-note-tone').value,
+                    link_to: $('tk-note-link').value || null };
+    S.noteBusy = true; $('tk-note-add').disabled = true;
+    R.api('/rest/v1/rpc/iv_ticker_note_add', payload).then(function () {
+      S.noteBusy = false; $('tk-note-add').disabled = false;
+      $('tk-note-body').value = ''; $('tk-note-tone').value = 'soft';
+      said('Added. The member ribbon is reading it now.');
+      memberPull(); refresh();
+    }).catch(function (e) {
+      S.noteBusy = false; $('tk-note-add').disabled = false; said(R.msg(e));
+    });
+  });
 
   $('tk-save').addEventListener('click', function () {
     if (S.busy) return;
-    var jobs = [];
-    var keys = Object.keys(S.dirty);
-    if (keys.length) {
-      var patch = {}; keys.forEach(function (k) { patch[k] = S.dirty[k]; });
-      if (patch.ownmax != null && patch.ownmin != null && patch.ownmax < patch.ownmin) {
-        $('tk-said').textContent = 'The longest cannot be shorter than the least.'; return;
-      }
-      jobs.push(R.api('/rest/v1/ticker_settings?id=eq.1', patch, 'PATCH', 'return=minimal'));
-    }
+    var jobs = [], keys = Object.keys(S.dirty), patch = {};
+    keys.forEach(function (k) { patch[k] = S.dirty[k]; });
+    var lo = patch.own_min_minutes != null ? patch.own_min_minutes : (S.set || {}).own_min_minutes;
+    var hi = patch.own_max_minutes != null ? patch.own_max_minutes : (S.set || {}).own_max_minutes;
+    if (lo != null && hi != null && hi < lo) { said('The longest own-moment delay cannot be shorter than the least.'); return; }
+    if (keys.length) jobs.push(R.api('/rest/v1/ticker_settings?id=eq.1', patch, 'PATCH', 'return=minimal'));
+    var badWord = Object.keys(S.kdirty).some(function (i) {
+      var d = S.kdirty[i];
+      return d.template != null && d.template.trim().length < 3;
+    });
+    if (badWord) { said('Every kind needs at least a few words. Use {name}, {thing}, {n} and {extra} where needed.'); return; }
     Object.keys(S.kdirty).forEach(function (i) {
       var row = S.kinds[Number(i)];
       if (!row || !row.kind) return;
-      jobs.push(R.api('/rest/v1/ticker_kinds?kind=eq.' + encodeURIComponent(row.kind), S.kdirty[i], 'PATCH', 'return=minimal'));
+      var change = S.kdirty[i];
+      if (change.template != null) change.template = change.template.trim();
+      jobs.push(R.api('/rest/v1/ticker_kinds?kind=eq.' + encodeURIComponent(row.kind), change, 'PATCH', 'return=minimal'));
     });
-    if (!jobs.length) { $('tk-said').textContent = 'Nothing has been turned. The tape runs as it did.'; return; }
-    S.busy = true;
+    if (!jobs.length) { said('Nothing has been turned. The tape runs as it did.'); return; }
+    S.busy = true; $('tk-save').disabled = true;
     Promise.all(jobs).then(function () {
-      S.busy = false; S.dirty = {}; S.kdirty = {};
-      if (window.IVVOICE) window.IVVOICE.play('seal', 'big', $('tk-save'));
-      $('tk-said').textContent = 'Saved. The ribbon will follow this at the next breath.';
-      return refresh();
-    }).catch(function (e) { S.busy = false; $('tk-said').textContent = R.msg(e); });
+      S.busy = false; S.dirty = {}; S.kdirty = {}; $('tk-save').disabled = false;
+      said('Saved. The member ribbon is following the canonical settings now.');
+      memberPull(); refresh();
+    }).catch(function (e) {
+      S.busy = false; $('tk-save').disabled = false; said(R.msg(e));
+    });
   });
 
-  function refresh() { S.set = null; S.kinds = null; S.pull = null; return load(); }
-
+  function kindRows(value) {
+    if (Array.isArray(value)) return value.slice();
+    var rows = [];
+    Object.keys(value || {}).forEach(function (kind) {
+      var row = Object.assign({}, value[kind] || {});
+      if (!row.kind) row.kind = kind;
+      rows.push(row);
+    });
+    return rows;
+  }
+  function activeKindMap(rows) {
+    var map = {};
+    rows.forEach(function (row) {
+      if (row && row.kind && row.is_on !== false) map[row.kind] = row;
+    });
+    return map;
+  }
+  function refresh() {
+    S.set = null; S.kinds = null; S.pull = null; S.notes = null;
+    return load();
+  }
   function load() {
     if (!R.signed()) {
+      S.set = null; S.kinds = []; S.pull = null; S.notes = [];
       $('tk-dials').innerHTML = R.miss('The tape answers to the keeper alone.');
-      $('tk-kinds').innerHTML = '';
-      drawRun();
-      return;
+      $('tk-kinds').innerHTML = ''; $('tk-notes').innerHTML = ''; drawRun();
+      return Promise.resolve();
     }
-    var a = R.get('/rest/v1/ticker_settings?select=*&id=eq.1').then(function (r) { return (r && r[0]) || null; }).catch(function (e) { S.err = e; return null; });
-    var b = R.get('/rest/v1/ticker_kinds?select=*&order=sort.asc').catch(function () { return null; });
-    var c = R.api('/rest/v1/rpc/ticker_pull', {}).catch(function () { return null; });
-    Promise.all([a, b, c]).then(function (r) {
-      S.set = r[0]; S.kinds = r[1]; S.pull = r[2];
-      drawRun(); drawDials(); drawKinds();
-      if (S.err) $('tk-said').textContent = R.msg(S.err);
+    S.err = null;
+    return R.api('/rest/v1/rpc/iv_ticker_pull', { include_notes: true }).then(function (p) {
+      if (!p || typeof p !== 'object' || !p.settings) {
+        throw new Error('The canonical Ticker desk did not return its settings.');
+      }
+      var rows = kindRows(p.kinds);
+      S.set = p.settings;
+      S.kinds = rows;
+      S.pull = { on: p.on === true, events: Array.isArray(p.events) ? p.events : [],
+                 kinds: activeKindMap(rows) };
+      S.notes = Array.isArray(p.notes) ? p.notes : [];
+      drawRun(); drawDials(); drawKinds(); drawNotes();
+    }).catch(function (e) {
+      S.err = e; S.set = null; S.kinds = []; S.notes = [];
+      S.pull = { on: false, events: [], kinds: {} };
+      drawRun(); drawDials(); drawKinds(); drawNotes(); said(R.msg(e));
     });
   }
-  load();
+  return load();
 };
 
 window.IVROOMS.wheel = function (pane) {
@@ -26634,7 +26769,7 @@ window.IVROOMS.wheel = function (pane) {
 
 (function () {
   var ROOMS = ['create', 'reports', 'stories', 'wishes', 'enquiries', 'gold', 'heart', 'rewards',
-               'codes', 'bells', 'ladder', 'door', 'line', 'translate', 'ticker', 'wheel'];
+               'codes', 'bells', 'ladder', 'door', 'line', 'ticker', 'wheel'];
   ROOMS.forEach(function (k) {
     var fn = window.IVROOMS[k];
     if (!fn || fn.__mounted) return;
@@ -30976,36 +31111,13 @@ if (window.IVRIBBON) return;
 var SB  = 'https://soephrftgddbwkzwjddj.supabase.co';
 var KEY = 'sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
 var S = {
-on: true, gap: 30, cross: 10, grand: 13, startDelay: 20, laneOffset: 0,
-coloursOff: [], cheersOn: true, cheersCap: 20
+on: false, gap: 30, ownMin: 5, ownMax: 10, cross: 10, grand: 13,
+startDelay: 20, laneOffset: 0, dreamsOn: true,
+coloursOff: [], cheersOn: false, cheersCap: 20
 };
 var KINDS = {};          /* kind → {label, template} */
 var EVENTS = [];         /* the house's real moments */
-var DEFAULTS = {
-mark:        { label: 'A mark',        template: '{name} was given a new mark' },
-rung:        { label: 'A rung',        template: '{name} climbed to {thing}' },
-fullday:     { label: 'A full day',    template: '{name} kept the whole day lit' },
-glow:        { label: 'A glow',        template: '{name} glowed for {n} days together' },
-peal:        { label: 'A peal',        template: '{name} rang every bell today' },
-pledge:      { label: 'A pledge',      template: '{name} took the bells for {thing}' },
-bellset:     { label: 'A bell set',    template: '{name} set the bells for {thing}' },
-treasure:    { label: 'A treasure',    template: '{name} turned up {thing}' },
-treasure_gift:{ label: 'A gift',       template: '{name} was given {thing}' },
-knockoff10:  { label: 'Ten of ten',    template: '{name} struck all ten coins today' },
-welcome:     { label: 'Welcome',       template: '{name} walked in and the doorbell sang' },
-gift:        { label: 'A gift',        template: '{name} sent {thing} into the house' },
-gift_live:   { label: 'A gift, live',  template: '{name} sent {thing} mid-sentence' },
-post:        { label: 'A new page',    template: '{thing} is on the shelf now' },
-live:        { label: 'On air',        template: '{name} is live in the room' },
-note:        { label: 'The house',     template: '{thing}' }
-};
-var NOTES = [                      /* only the house's own true words */
-{ id: 'n1', kind: 'note', thing: 'Where every story leaves a mark', ref: 'home', palette: 8 },
-{ id: 'n2', kind: 'note', thing: 'A wish left on the water is answered in person', ref: 'wish', palette: 1 },
-{ id: 'n3', kind: 'note', thing: 'The lamp is lit · the tenth day is waiting', ref: 'explore', palette: 4 },
-{ id: 'n4', kind: 'note', thing: 'Ivory · a house, never a feed', ref: 'home', palette: 10 },
-{ id: 'n5', kind: 'note', thing: 'The room is open · you are not watching alone', ref: 'live', palette: 2 }
-];
+var NOTES = [];
 var CHEERABLE = ' mark treasure treasure_gift rung fullday bellset pledge glow peal knockoff10 gift gift_live welcome post ';
 var GLYPH = {
 mark: '\u265B', treasure: '\u25C6', treasure_gift: '\u25C6', rung: '\u25B2',
@@ -31015,8 +31127,9 @@ welcome: '\u273A', post: '\u2743', live: '\u25C9', note: '\u2726'
 };
 var lay = null, pill = null, cur = null, timer = null, crossTimer = null;
 var busy = false, started = false, paused = false, hush = false;
-var played = {}, recentActors = [], lastPal = -1, ownSeed = 0, dreamTurn = 0;
-var began = 0, lastEnd = 0;
+var played = {}, recentActors = [], lastPal = -1, dreamTurn = 0;
+var began = 0, lastEnd = 0, lastOwn = 0, ownGapSecs = 450;
+var pullTimer = null;
 function $(id) { return document.getElementById(id); }
 function esc(s) {
 return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -31068,7 +31181,7 @@ var pool = open.length > 1 ? open.filter(function (n) { return n !== lastPal; })
 return pool[Math.floor(Math.random() * pool.length)];
 }
 function copyFor(ev) {
-var k = KINDS[ev.kind] || DEFAULTS[ev.kind] || DEFAULTS.note;
+var k = KINDS[ev.kind] || { label: 'The house', template: '{thing}' };
 var name = ev.name && String(ev.name).trim() ? cut(ev.name, 18) : 'A member';
 var tx = String(k.template || '{thing}')
 .replace(/\{name\}/g, name)
@@ -31077,22 +31190,53 @@ var tx = String(k.template || '{thing}')
 .replace(/\{n\}/g, ev.n == null ? '' : String(ev.n));
 return { label: k.label || 'The house', text: tx };
 }
+function kindOn(kind) {
+return Object.prototype.hasOwnProperty.call(KINDS, kind);
+}
+function rollOwnGap() {
+var lo = Math.max(1, Math.min(240, Number(S.ownMin) || 5));
+var hi = Math.max(lo, Math.min(240, Number(S.ownMax) || lo));
+ownGapSecs = lo * 60 + Math.floor(Math.random() * ((hi - lo) * 60 + 1));
+}
 function choose() {
 var now = Date.now();
-var pool = EVENTS.filter(function (e) {
-if (!KINDS[e.kind] && !DEFAULTS[e.kind]) return false;
+var ownDue = lastOwn && now - lastOwn >= ownGapSecs * 1000;
+for (var pass = 0; pass < 2; pass++) {
+var recycle = pass === 1;
+var ok = EVENTS.filter(function (e) {
+if (!kindOn(e.kind)) return false;
 var p = played[e.id];
-if (!p) return true;
-if (now - p < 30 * 60 * 1000) return false;               /* half an hour */
-return e.kind === 'note' ? true : (now - Date.parse(e.at || 0)) < 12 * 3600 * 1000;
-});
-if (!pool.length) pool = NOTES.slice();
-pool = pool.filter(function (e) {
+if (recycle) {
+if (!p || now - p < 30 * 60 * 1000) return false;
+if (e.kind !== 'note' && now - Date.parse(e.at || 0) >= 12 * 3600 * 1000) return false;
+} else if (p) return false;
 return !e.actor || recentActors.indexOf(e.actor) < 0;
 });
-if (!pool.length) return NOTES[Math.floor(Math.random() * NOTES.length)];
-var top = pool.slice(0, Math.max(1, Math.min(6, pool.length)));
+if (!ok.length) continue;
+var mine = ok.filter(function (e) { return ownMoment(e); });
+var others = ok.filter(function (e) { return !ownMoment(e); });
+var own = ownDue && mine.length > 0;
+var pool = own ? mine : others;
+if (!pool.length) continue;
+var grands = pool.filter(function (e) { return e.grand; });
+if (grands.length && Math.random() < 0.5) pool = grands;
+pool.sort(function (a, b) { return Date.parse(b.at || 0) - Date.parse(a.at || 0); });
+var top = pool.slice(0, Math.min(6, pool.length));
+if (own) { lastOwn = now; rollOwnGap(); }
 return top[Math.floor(Math.random() * top.length)];
+}
+return null;
+}
+function dismissCurrent() {
+clearTimeout(crossTimer); crossTimer = null;
+var el = pill || (lay && lay.querySelector('.rbn'));
+if (el && el.parentNode) el.parentNode.removeChild(el);
+pill = null; cur = null; busy = false;
+}
+function halt() {
+clearTimeout(timer); timer = null;
+dismissCurrent();
+if (sheet && sheet.classList.contains('on')) closeCheer();
 }
 function pull() {
 var t = '';
@@ -31106,29 +31250,43 @@ return fetch(SB + '/rest/v1/rpc/ticker_pull', {
 method: 'POST', headers: h, body: '{}'
 }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
 if (!j || typeof j !== 'object') return;
-var houseOpen = j.on === true;      /* she may rest the member moments */
+var wasOn = S.on;
 var st = j.settings || {};
-if (st.gap_seconds) S.gap = +st.gap_seconds;
-if (st.cross_seconds) S.cross = +st.cross_seconds;
-if (st.grand_seconds) S.grand = +st.grand_seconds;
+S.on = j.on === true;
+if (!S.on) {
+KINDS = {}; EVENTS = []; S.cheersOn = false;
+halt(); paintBand();
+return;
+}
+if (st.gap_seconds != null) S.gap = +st.gap_seconds;
+if (st.own_min_minutes != null) S.ownMin = +st.own_min_minutes;
+if (st.own_max_minutes != null) S.ownMax = +st.own_max_minutes;
+if (st.cross_seconds != null) S.cross = +st.cross_seconds;
+if (st.grand_seconds != null) S.grand = +st.grand_seconds;
 if (st.start_delay_seconds != null) S.startDelay = +st.start_delay_seconds;
 if (st.lane_offset != null) S.laneOffset = +st.lane_offset;
+if (st.dreams_on != null) S.dreamsOn = st.dreams_on === true;
 if (st.cheers_on != null) S.cheersOn = st.cheers_on === true;
-if (st.cheers_daily_cap) S.cheersCap = +st.cheers_daily_cap;
+if (st.cheers_daily_cap != null) S.cheersCap = +st.cheers_daily_cap;
 if (Array.isArray(st.colours_off)) S.coloursOff = st.colours_off.map(Number);
+var freshKinds = {};
 var ks = j.kinds || {};
 Object.keys(ks).forEach(function (k) {
 var v = ks[k] || {};
-KINDS[k] = { label: v.label || (DEFAULTS[k] && DEFAULTS[k].label) || 'The house',
-template: v.template || (DEFAULTS[k] && DEFAULTS[k].template) || '{thing}' };
+freshKinds[k] = { label: v.label || '', template: v.template || '{thing}' };
 });
-var ev = houseOpen && Array.isArray(j.events) ? j.events : [];
+KINDS = freshKinds;
+var ev = Array.isArray(j.events) ? j.events : [];
 EVENTS = ev.filter(function (e) { return e && e.id != null && e.kind; }).map(function (e) {
 return { id: String(e.id), kind: String(e.kind), at: e.at, actor: e.actor || null,
 name: e.name || null, n: e.n, thing: e.thing || '', extra: e.extra || '',
 grand: e.grand === true, colour: e.colour, ref: e.ref || null };
 });
 paintBand();
+if (!wasOn) {
+if (!lastOwn) lastOwn = Date.now();
+rollOwnGap(); next(1);
+} else if (!timer && !busy) next(S.gap);
 }).catch(function () {});
 }
 function ensure() {
@@ -31145,6 +31303,8 @@ return 'normal';
 }
 function build(ev) {
 var tone = pickTone(ev);
+lastPal = tone;
+lay.style.setProperty('--rbn-top', Math.max(4, 54 + (Number(S.laneOffset) || 0)) + 'px');
 var c = copyFor(ev);
 var dream = ev.kind === 'dream';
 var el = document.createElement('div');
@@ -31169,7 +31329,9 @@ b.addEventListener('pointerdown', function () { el.classList.add('hold'); });
 return el;
 }
 function present(ev) {
-if (!ensure() || busy) return;
+if (!ev || !S.on || !started || busy || !prefOn() || quiet()) return;
+if (ev.kind === 'dream' ? !S.dreamsOn : !kindOn(ev.kind)) return;
+if (!ensure()) return;
 busy = true;
 cur = ev;
 var el = build(ev);
@@ -31198,6 +31360,7 @@ el.appendChild(p);
 }
 }
 function finish(el) {
+clearTimeout(crossTimer); crossTimer = null;
 if (el && el.parentNode) el.parentNode.removeChild(el);
 if (pill === el) { pill = null; cur = null; }
 busy = false;
@@ -31205,34 +31368,39 @@ lastEnd = Date.now();
 next(S.gap);
 }
 function next(after) {
-clearTimeout(timer);
+clearTimeout(timer); timer = null;
 if (!S.on || !started) return;
-timer = setTimeout(function () { tick(); }, Math.max(4, after) * 1000);
+timer = setTimeout(function () { tick(); }, Math.max(1, Number(after) || 0) * 1000);
 }
 function tick() {
-started = true;
-if (!prefOn()) return next(60);
+timer = null;
+if (!S.on || !started) return;
+if (!prefOn()) { dismissCurrent(); paintBand(); return next(60); }
 if (quiet()) return next(10);
-if (Date.now() - began < S.startDelay * 1000) return next(S.startDelay - (Date.now() - began) / 1000);
-if (busy) return next(S.gap);
-if (!EVENTS.length && !NOTES.length) return next(S.gap);
+var elapsed = (Date.now() - began) / 1000;
+if (elapsed < S.startDelay) return next(S.startDelay - elapsed);
+if (busy) return;
 dreamTurn++;
-if (dreamTurn % 3 === 0) {
+if (dreamTurn % 3 === 0 && S.dreamsOn) {
 present({ id: 'dream-' + Date.now(), kind: 'dream', name: 'Your dream house',
 thing: 'a room of your own, kept the way you left it' });
 } else {
-present(choose());
+var ev = choose();
+if (ev) present(ev);
 }
+if (!busy) next(S.gap);
 }
 function start() {
 if (started) return;
 if (!ensure()) return;
-began = Date.now();
+began = Date.now(); lastOwn = began; lastEnd = 0;
+played = {}; recentActors = [];
+rollOwnGap();
 started = true;
-pull();
-setInterval(pull, 5 * 60 * 1000);
-next(S.startDelay);
 paintBand();
+pull();
+clearInterval(pullTimer);
+pullTimer = setInterval(pull, 5 * 60 * 1000);
 }
 function touch(ev, el) {
 el.classList.add('hold');
@@ -31486,29 +31654,34 @@ tab(r === 'explore' ? 'explore' : 'home');
 }
 function paintBand() {
 var flow = document.querySelector('.hp-flow');
-if (!flow) return;
+var band = document.querySelector('.hp-ticker');
+if (!flow) { if (band) band.style.display = 'none'; return; }
 var items = [];
 var seen = {};
-EVENTS.slice(0, 8).forEach(function (e) {
+if (S.on && started && prefOn()) {
+EVENTS.filter(function (e) { return kindOn(e.kind); }).slice(0, 8).forEach(function (e) {
 if (seen[e.kind + e.id]) return;
 seen[e.kind + e.id] = 1;
 var c = copyFor(e);
 items.push({ ev: e, tx: c.text.toUpperCase(), tone: pickTone(e) });
 });
-NOTES.forEach(function (n) {
-items.push({ ev: n, tx: n.thing.toUpperCase(), tone: n.palette });
-});
-var html = items.concat(items).map(function (it, i) {
+}
+if (band) {
+band.style.display = items.length ? '' : 'none';
+band.setAttribute('aria-hidden', items.length ? 'false' : 'true');
+}
+flow.__items = items;
+flow.innerHTML = items.concat(items).map(function (it, i) {
 return '<button class="hp-tk" type="button" data-i="' + (i % items.length) +
 '" data-tone="' + it.tone + '">' + esc(it.tx) + '<s aria-hidden="true">\u2726</s></button>';
 }).join('');
-flow.innerHTML = html;
 if (!flow.__wired) {
 flow.__wired = 1;
 flow.addEventListener('click', function (e) {
 var b = e.target.closest('.hp-tk');
-if (!b) return;
-var it = items[+b.getAttribute('data-i')] || NOTES[0];
+if (!b || !S.on) return;
+var it = (flow.__items || [])[+b.getAttribute('data-i')];
+if (!it) return;
 voice('touch');
 openCheer(it.ev, null);
 });
@@ -31542,7 +31715,7 @@ window.IVRIBBON = {
 pull: pull, present: function (ev) { present(ev); }, notes: NOTES,
 go: go, sheet: openCheer, start: start,
 get settings() { return S; },
-stop: function () { started = false; clearTimeout(timer); }
+stop: function () { started = false; halt(); paintBand(); }
 };
 })();
 </script>
