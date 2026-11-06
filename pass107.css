@@ -1,0 +1,100 @@
+/* Pass 107 · only the reported responsive fixes. No external assets or fonts. */
+
+/* Wishes: database icon tokens become bounded inline SVGs in rooms.js; keep
+   long titles, category names and controls inside their own responsive tracks. */
+.n105-admin .ivroom-wishes .wi-face{
+  display:grid!important;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;
+  gap:10px;width:100%;min-width:0;max-width:100%;text-align:left;box-sizing:border-box;
+}
+.n105-admin .ivroom-wishes .wi-disc{
+  display:grid;place-items:center;flex:none;width:42px;min-width:42px;height:42px;overflow:hidden;
+  box-sizing:border-box;border-radius:50%;
+}
+.n105-admin .ivroom-wishes .wi-disc svg{display:block;width:18px;height:18px;max-width:100%;flex:none}
+.n105-admin .ivroom-wishes .wi-tx{display:block;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+.n105-admin .ivroom-wishes .wi-tx>b,
+.n105-admin .ivroom-wishes .wi-tx>i,
+.n105-admin .ivroom-wishes .wi-tx>em{display:block;min-width:0;max-width:100%;overflow:visible!important;text-overflow:clip!important;white-space:normal;overflow-wrap:anywhere}
+.n105-admin .ivroom-wishes .wi-then{min-width:0;max-width:100%;white-space:nowrap;justify-self:end}
+.n105-admin .ivroom-wishes .wi-cast{min-width:0;max-width:100%;box-sizing:border-box}
+.n105-admin .ivroom-wishes .wi-ask,
+.n105-admin .ivroom-wishes .wi-said{max-width:100%;overflow-wrap:anywhere;word-break:normal}
+.n105-admin .ivroom-wishes .wi-reply,
+.n105-admin .ivroom-wishes .wi-link{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+.n105-admin .ivroom-wishes .wi-steps{display:flex;flex-wrap:wrap;align-items:stretch;gap:7px;min-width:0}
+.n105-admin .ivroom-wishes .wi-step{flex:1 1 128px;min-width:0;max-width:100%;min-height:42px;white-space:normal;overflow-wrap:anywhere}
+.n105-admin .ivroom-wishes .wi-save{display:block;width:100%;min-height:46px;white-space:normal;overflow-wrap:anywhere}
+.n105-admin .ivroom-wishes .wi-face:focus-visible,
+.n105-admin .ivroom-wishes .wi-step:focus-visible,
+.n105-admin .ivroom-wishes .wi-save:focus-visible{outline:3px solid rgba(185,135,50,.45);outline-offset:3px}
+@media(max-width:440px){
+  .n105-admin .ivroom-wishes .wi-face{grid-template-columns:36px minmax(0,1fr);gap:9px}
+  .n105-admin .ivroom-wishes .wi-disc{width:36px;min-width:36px;height:36px}
+  .n105-admin .ivroom-wishes .wi-then{grid-column:2;justify-self:start;white-space:normal}
+  .n105-admin .ivroom-wishes .wi-step{flex-basis:calc(50% - 7px)}
+}
+@media(max-width:340px){
+  .n105-admin .ivroom-wishes .wi-step{flex-basis:100%}
+}
+
+/* Private Line: the moving artwork is a clean upper panel. Copy has its own
+   opaque parchment region below it, including when reduced motion uses a still. */
+#home-screen .card.c-line{
+  --line-art-height:clamp(148px,52vw,210px);
+  position:relative!important;isolation:isolate;overflow:hidden!important;
+  margin-right:0!important;min-height:0!important;border-radius:24px!important;
+  background:#fff9ef!important;box-shadow:0 18px 34px -24px rgba(74,26,39,.36),inset 0 0 0 1px rgba(184,137,63,.28)!important;
+}
+#home-screen .card.c-line>.ivf-v{
+  inset:0 0 auto 0!important;width:100%!important;height:var(--line-art-height)!important;
+  object-fit:cover!important;object-position:86% 40%!important;
+}
+#home-screen .card.c-line>.ivf-scrim{
+  inset:0 0 auto 0!important;height:var(--line-art-height)!important;z-index:1!important;
+  background:linear-gradient(180deg,rgba(55,17,27,.04),rgba(55,17,27,.16))!important;
+}
+#home-screen .card.c-line::after{
+  top:0!important;bottom:auto!important;height:var(--line-art-height)!important;z-index:2!important;
+  border-radius:inherit;mix-blend-mode:normal!important;
+  background:linear-gradient(115deg,rgba(255,246,220,.11),transparent 48%,rgba(103,38,59,.10))!important;
+}
+#home-screen .card.c-line .card-in{
+  position:relative!important;z-index:3!important;display:flex!important;flex-direction:column!important;
+  justify-content:flex-start!important;align-items:flex-start;gap:0;
+  min-height:0!important;height:auto!important;box-sizing:border-box;
+  padding:calc(var(--line-art-height) + 15px) 19px 18px!important;
+  border:0!important;background:transparent!important;overflow:hidden;
+}
+#home-screen .card.c-line .card-in::before{
+  content:"";position:absolute;z-index:1;top:var(--line-art-height);right:0;bottom:0;left:0;
+  border-top:1px solid rgba(184,137,63,.28);
+  background:linear-gradient(155deg,#fffaf0 0%,#f7ead7 100%);pointer-events:none;
+}
+#home-screen .card.c-line .card-in>.envelope{display:none!important}
+#home-screen .card.c-line .card-in>:not(.envelope){position:relative!important;z-index:3!important;max-width:100%;overflow-wrap:anywhere}
+#home-screen .card.c-line .eyebrow{
+  margin:0 0 6px!important;padding:0!important;color:#865b35!important;
+  font-size:9px!important;line-height:1.35;letter-spacing:.18em;text-shadow:none!important;
+}
+#home-screen .card.c-line .title{
+  margin:0 0 8px!important;padding:0!important;color:#5a1a30!important;
+  -webkit-text-fill-color:#5a1a30!important;background:none!important;filter:none!important;
+  font:700 clamp(21px,5.4vw,25px)/1.12 Georgia,"Times New Roman",serif!important;
+  letter-spacing:0!important;text-shadow:none!important;text-transform:none!important;
+}
+#home-screen .card.c-line .lede{
+  max-width:42ch!important;margin:0!important;color:#65414a!important;
+  font:italic 13px/1.55 Georgia,"Times New Roman",serif!important;text-shadow:none!important;
+}
+#home-screen .card.c-line .note{
+  max-width:42ch!important;margin:8px 0 0!important;color:#8b653f!important;
+  font:700 10.5px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  letter-spacing:.04em;text-shadow:none!important;opacity:1!important;
+}
+@media(max-width:360px){
+  #home-screen .card.c-line{--line-art-height:clamp(136px,48vw,174px)}
+  #home-screen .card.c-line .card-in{padding-right:15px!important;padding-left:15px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #home-screen .card.c-line::after{mix-blend-mode:normal!important}
+}

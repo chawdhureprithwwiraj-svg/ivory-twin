@@ -27,10 +27,37 @@
     return page(null);
   }
   function setFirst(id, on) { return H.api('/rest/v1/rpc/set_firstlist', { post_id_in: Number(id), pinned_in: !!on }); }
+  function uniqueIds(rows, field) {
+    var out = [], seen = Object.create(null);
+    (Array.isArray(rows) ? rows : []).forEach(function (row) {
+      var raw = field ? row && row[field] : row && row.id;
+      var id = Number(raw);
+      if (id > 0 && isFinite(id) && !seen[id]) { seen[id] = true; out.push(id); }
+    });
+    return out;
+  }
+  function fetchFirstlistState() {
+    /* Native Admin reads membership and the ordered member rail separately.
+       Neither optional read is allowed to take down the complete Library. */
+    var ids = H.api('/rest/v1/rpc/firstlist_ids', {}).then(function (rows) {
+      if (!Array.isArray(rows)) throw new Error('Firstlist membership was not a list.');
+      return uniqueIds(rows, 'post_id');
+    }).catch(function () { return null; });
+    var order = H.api('/rest/v1/rpc/firstlist', {}).then(function (rows) {
+      if (!Array.isArray(rows)) throw new Error('Firstlist order was not a list.');
+      return uniqueIds(rows, null);
+    }).catch(function () { return null; });
+    return Promise.all([ids, order]).then(function (state) {
+      var ordered = state[1] !== null;
+      var orderedIds = ordered ? state[1].slice(0, 25) : [];
+      var memberIds = state[0] !== null ? state[0] : (ordered ? state[1] : []);
+      return { ids: memberIds, order: orderedIds, orderReady: ordered };
+    });
+  }
   function ordinal(n) { return n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : n + 'th'; }
 
   function mount(host) {
-    var S = { posts: null, order: [], seq: 0, busy: false, q: '', type: 'all', state: 'all', firstOnly: false, message: '', bad: false };
+    var S = { posts: null, order: [], firstIds: [], orderReady: false, firstLoading: true, seq: 0, busy: false, q: '', type: 'all', state: 'all', firstOnly: false, message: '', bad: false };
     host.className = 'p104-studio c105-library-native';
     host.setAttribute('data-pass104-library', '1');
     host.innerHTML = '<div class="p104-lib-head"><div><p class="p104-kick">THE LIBRARY</p></div>' +
@@ -59,18 +86,33 @@
     function title(id) { var p = post(id); return p ? (p.title || 'Untitled') : 'Post ' + id; }
     function load(quiet) {
       var seq = ++S.seq;
+      S.firstLoading = true;
       if (!quiet) setBusy(true, 'Opening the complete library…');
-      return Promise.all([
-        fetchLibrary(),
-        H.get('/rest/v1/post_previews?select=id,pin_rank&pin_rank=gt.0&order=pin_rank.asc&limit=25')
-      ]).then(function (r) {
+      /* The authenticated, keyset-paginated admin_posts read owns Library
+         availability. Firstlist is an independent optional read, as in the APK. */
+      return fetchLibrary().then(function (posts) {
         if (seq !== S.seq || !host.isConnected) return false;
-        S.posts = r[0] || [];
-        S.order = (Array.isArray(r[1]) ? r[1] : []).map(function (p) { return Number(p.id); }).filter(function (id) { return id > 0; }).slice(0, 25);
+        S.posts = Array.isArray(posts) ? posts : [];
+        S.order = []; S.firstIds = []; S.orderReady = false;
         setBusy(false); paintSlots(); paintList();
-        return true;
+        return fetchFirstlistState().then(function (state) {
+          if (seq !== S.seq || !host.isConnected) return true;
+          S.firstIds = state.ids;
+          S.order = state.order;
+          S.orderReady = state.orderReady;
+          S.firstLoading = false;
+          paintSlots(); paintList();
+          return true;
+        }).catch(function () {
+          if (seq === S.seq && host.isConnected) {
+            S.firstIds = []; S.order = []; S.orderReady = false; S.firstLoading = false;
+            paintSlots(); paintList();
+          }
+          return true;
+        });
       }).catch(function (e) {
         if (seq !== S.seq || !host.isConnected) return false;
+        S.firstLoading = false;
         setBusy(false);
         host.querySelector('[data-library]').innerHTML = '<div class="p104-error-card"><b>The library did not open whole.</b><p>' + H.esc((e && e.message) || 'The house refused.') + '</p><p>No half-read post has been sent to the editor.</p><button type="button" class="p104-btn" data-action="refresh">TRY AGAIN</button></div>';
         return false;
@@ -86,6 +128,12 @@
     }
     function paintSlots() {
       var box = host.querySelector('[data-firstlist]'); if (!box) return;
+      if (!S.orderReady) {
+        box.innerHTML = '<section class="p104-first c105-firstlist"><div class="p104-first-head"><div><p class="p104-kick">WEBSITE FIRSTLIST MANAGER</p><h3>IVORY’S FIRSTLIST</h3><p>' +
+          (S.firstLoading ? 'Reading the ordered member rail separately from the Library…' : 'The ordered rail is unavailable. The complete Library remains open; refresh to try the Firstlist again.') +
+          '</p></div></div></section>';
+        return;
+      }
       var cards = [];
       for (var i = 0; i < 25; i++) {
         var id = S.order[i], p = id ? post(id) : null;
@@ -102,7 +150,7 @@
         if (S.type !== 'all' && p.type !== S.type) return false;
         if (S.state === 'live' && p.is_published !== true) return false;
         if (S.state === 'draft' && p.is_published === true) return false;
-        if (S.firstOnly && S.order.indexOf(Number(p.id)) < 0) return false;
+        if (S.firstOnly && S.firstIds.indexOf(Number(p.id)) < 0) return false;
         if (q && (String(p.title || '') + ' ' + String(p.summary || '') + ' ' + String(p.id)).toLowerCase().indexOf(q) < 0) return false;
         return true;
       });
@@ -119,7 +167,7 @@
       var list = filtered();
       if (!list.length) { box.innerHTML = '<div class="p104-empty">Nothing stands under these filters.</div>'; return; }
       box.innerHTML = '<p class="p104-count">' + list.length + ' of ' + S.posts.length + ' posts · true server views, never display bloom</p>' + list.map(function (p) {
-        var id = Number(p.id), pos = S.order.indexOf(id), live = p.is_published === true;
+        var id = Number(p.id), pos = S.orderReady ? S.order.indexOf(id) : -1, pinned = S.firstIds.indexOf(id) >= 0, live = p.is_published === true;
         var views = Number(p.view_count || 0), kind = p.type === 'blog' ? 'story' : (p.type === 'audio' ? 'audio' : p.type === 'video' ? 'video' : p.type === 'image' ? 'image' : 'poll');
         return '<article class="p104-post p105-post' + (live ? '' : ' draft') + '" data-post-row="' + id + '">' +
           '<span class="p105-post-type" title="' + H.esc(LABEL[p.type] || 'POST') + '">' + H.icon(kind) + '</span>' +
@@ -129,13 +177,14 @@
           (pos >= 0 ? '<button type="button" class="p105-rank" data-action="place" data-id="' + id + '" aria-label="Move Firstlist place ' + (pos + 1) + '">' + (pos + 1) + '</button>' : '') +
           (pos > 0 ? '<button type="button" class="n105-icon" data-action="earlier" data-id="' + id + '" aria-label="Earlier on the Firstlist">' + H.icon('up') + '</button>' : '') +
           (pos >= 0 && pos < S.order.length - 1 ? '<button type="button" class="n105-icon" data-action="later" data-id="' + id + '" aria-label="Later on the Firstlist">' + H.icon('down') + '</button>' : '') +
-          '<button type="button" class="n105-icon p105-star' + (pos >= 0 ? ' on' : '') + '" data-action="first-toggle" data-id="' + id + '" aria-label="' + (pos >= 0 ? 'On Ivory’s Firstlist - place ' + (pos + 1) : 'Add to Ivory’s Firstlist') + '">' + H.icon('star', pos >= 0) + '</button>' +
+          '<button type="button" class="n105-icon p105-star' + (pinned ? ' on' : '') + '" data-action="first-toggle" data-id="' + id + '" aria-label="' + (pinned ? (pos >= 0 ? 'On Ivory’s Firstlist - place ' + (pos + 1) : 'On Ivory’s Firstlist - order unavailable') : 'Add to Ivory’s Firstlist') + '">' + H.icon('star', pinned) + '</button>' +
           '<button type="button" class="n105-switch' + (live ? ' on' : '') + '" data-action="publish" data-id="' + id + '" role="switch" aria-checked="' + (live ? 'true' : 'false') + '" aria-label="' + (live ? 'Hide from the feed' : 'Publish') + '"></button>' +
           '<button type="button" class="n105-icon p105-delete" data-action="delete" data-id="' + id + '" aria-label="Delete for good">' + H.icon('delete') + '</button></div></article>';
       }).join('');
     }
     function applyMove(id, newPos, quiet) {
       if (S.busy) return Promise.resolve(false);
+      if (!S.orderReady) { say('The Firstlist order is unavailable; no reorder was attempted. Refresh it before moving places.', true); return Promise.resolve(false); }
       var plan;
       try { plan = H.reorderPlan(S.order, id, newPos); } catch (e) { say(e.message, true); return Promise.resolve(false); }
       /* Choosing the last empty slot needs no suffix writes, but the pin RPC
@@ -149,6 +198,7 @@
         .catch(function (e) { setBusy(false); say((e && e.message) || 'The Firstlist refused. The shelf was read again so no guessed order remains.', true); return load(true).then(function () { return false; }); });
     }
     function placeSheet(id) {
+      if (!S.orderReady) { say('The Firstlist order is unavailable; refresh before moving places.', true); return; }
       var pos = S.order.indexOf(Number(id)); if (pos < 0) return;
       var d = H.sheet({ title: 'PLACE ' + (pos + 1) + ' OF ' + S.order.length, lede: title(id),
         html: '<div class="p104-actions p104-quick">' + [1, 2, 3].map(function (n) { return '<button type="button" class="p104-btn small" data-quick="' + (n - 1) + '"' + (pos === n - 1 ? ' disabled' : '') + '>Make it ' + ordinal(n) + '</button>'; }).join('') + '</div>' +
@@ -169,6 +219,7 @@
       });
     }
     function chooseSlot(position) {
+      if (!S.orderReady) { say('The Firstlist order is unavailable; refresh before choosing a place.', true); return; }
       if (S.order.length >= 25) { say('All 25 Firstlist places are filled. Move or remove one first.', true); return; }
       var available = (S.posts || []).filter(function (p) { return S.order.indexOf(Number(p.id)) < 0; });
       var d = H.sheet({ title: 'CHOOSE PLACE ' + (position + 1), lede: 'The post is appended by the canonical RPC, then only the changed suffix is rearranged.',
@@ -183,10 +234,12 @@
     }
     function toggleFirst(id) {
       if (S.busy) return;
-      var pos = S.order.indexOf(Number(id));
-      if (pos < 0 && S.order.length >= 25) { say('The Firstlist has exactly 25 places. Take one off before adding another.', true); return; }
-      setBusy(true, pos >= 0 ? 'Taking it off the Firstlist…' : 'Adding it at the end…');
-      setFirst(id, pos < 0).then(function () { setBusy(false); return changed(pos >= 0 ? 'Taken off Ivory’s Firstlist.' : 'Added to Ivory’s Firstlist.'); })
+      var pinned = S.firstIds.indexOf(Number(id)) >= 0;
+      if (!pinned && ((S.orderReady && S.order.length >= 25) || (!S.orderReady && S.firstIds.length >= 25))) {
+        say('The Firstlist has exactly 25 places. Take one off before adding another.', true); return;
+      }
+      setBusy(true, pinned ? 'Taking it off the Firstlist…' : 'Adding it at the end…');
+      setFirst(id, !pinned).then(function () { setBusy(false); return changed(pinned ? 'Taken off Ivory’s Firstlist.' : 'Added to Ivory’s Firstlist.'); })
         .catch(function (e) { setBusy(false); say((e && e.message) || 'The Firstlist refused.', true); load(true); });
     }
     function railSource(got) { return got.rail === 'supabase' ? 'supabase' : (got.rail === 'r2' || got.rail === 'r2pub') ? 'r2' : 'b2'; }
@@ -321,5 +374,5 @@
 
   /* Create105 owns the single mounting point. Do not wrap IVROOMS.create here:
      a second wrapper would mount two libraries and duplicate every read/write. */
-  window.IVSTUDIO104 = { fetchLibrary: fetchLibrary, mount: mount };
+  window.IVSTUDIO104 = { fetchLibrary: fetchLibrary, fetchFirstlistState: fetchFirstlistState, mount: mount };
 })();

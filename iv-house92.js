@@ -28,9 +28,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   function $(s, r) { return (r || d).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); }
   function on(el, ev, fn, cap) { if (el) el.addEventListener(ev, fn, !!cap); }
-  var fmt = function (n) { try { return Number(n).toLocaleString('en-IN'); } catch (e) { return String(n); } };
-  /* her line carries the figure as it is: 4028, never 4,028 */
-  var plain = function (n) { var v = String(n == null ? '' : n).replace(/[^\d]/g, ''); return v ? String(Number(v)) : ''; };
+  var VISITOR_COPY = 'you are 4028 visitor of the day';
 
   /* ── 2 · the visitor line, in her words ──────────────────────────────────
      "just write: you are 4028 visitor of the day" — no total, no clock.     */
@@ -55,25 +53,22 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     $$('.pulse-strip').forEach(function (strip) {
       var tx = $('.pulse-tx', strip);
       if (!tx) return;
-      var n = strip.getAttribute('data-pulse') || '';
-      if (!n) {
-        var b = $('b', tx);
-        n = (b && b.textContent.replace(/[^\d]/g, '')) || '';
-      }
-      if (!n) return;
-      setFrozen(tx, 'you are ' + plain(n) + ' visitor of the day');
+      if (strip.getAttribute('data-pulse') !== '4028') strip.setAttribute('data-pulse', '4028');
+      setFrozen(tx, VISITOR_COPY);
     });
-    /* the profile's plate: the number stays the monument, the words follow her */
+    /* The number and the words are one fixed line, on Home and Profile. */
     $$('.pulse-card').forEach(function (card) {
-      var lead = $('.pulse-lead', card), tail = $('.pulse-tail', card), ord = $('.pulse-ord', card);
+      var lead = $('.pulse-lead', card), tail = $('.pulse-tail', card);
+      var ord = $('#pf-pulse-ord', card) || $('.pulse-ord', card);
+      var number = $('#pf-pulse-n', card), copy = $('#pf-pulse-copy', card);
       if (lead && lead.textContent.trim() !== 'you are') lead.textContent = 'you are';
       if (tail && tail.textContent.trim() !== 'visitor of the day') tail.textContent = 'visitor of the day';
-      if (ord) { if (ord.textContent) ord.textContent = ''; if (ord.style.display !== 'none') ord.style.display = 'none'; }
-      var copy = $('#pf-pulse-copy', card);
-      if (copy) {
-        var n2 = $('#pf-pulse-n', card);
-        if (n2 && n2.textContent) setFrozen(copy, 'you are ' + plain(n2.textContent) + ' visitor of the day');
+      if (number) {
+        if (number.getAttribute('data-to') !== '4028') number.setAttribute('data-to', '4028');
+        setFrozen(number, '4028');
       }
+      if (ord) { if (ord.textContent) ord.textContent = ''; if (ord.style.display !== 'none') ord.style.display = 'none'; }
+      if (copy) setFrozen(copy, VISITOR_COPY);
     });
   }
 
