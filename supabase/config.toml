@@ -11,3 +11,6 @@ verify_jwt = false
 verify_jwt = false
 
 # END OF FILE - supabase/config.toml
+
+[functions.b2-object-admin]
+verify_jwt = false
