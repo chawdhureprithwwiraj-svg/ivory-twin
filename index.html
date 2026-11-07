@@ -13388,7 +13388,7 @@ linear-gradient(115deg,#FFF8DF 0%,#F9DF9D 46%,#EDBD63 100%);box-shadow:0 14px 32
           <svg viewBox="0 0 24 24"><circle cx="8.4" cy="8.4" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.4 11.4L20 20M16.4 15.6l-2 2M18.6 17.8l-2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </div>
         <div class="dawn-body">
-          <span class="dawn-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.4" cy="8.4" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M11 11L19 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Before the dawn</span>
+          <button class="dawn-pill" type="button" data-open="door" aria-controls="sheet-door" aria-label="Open the Before the dawn door"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.4" cy="8.4" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M11 11L19 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Before the dawn</button>
           <p class="dawn-count"><b>0</b> early reads all told</p>
         </div>
       </section>
@@ -18997,7 +18997,7 @@ window.IVSESS = (function () {
     var prof = P.uid === uid && P.prof && String(P.prof.id || uid) === uid ? P.prof : null;
     var who = String((prof && prof.display_name) || '').trim();
     var admin = isAdminRole(prof && prof.role) || !!(window.ivIsAdmin && window.ivIsAdmin());
-    var name = !uid ? 'Guest' : admin ? 'Ivory' : who || (P.loading && P.uid === uid ? 'Member' : (pretty(id.email) || 'Member'));
+    var name = !uid ? 'Guest' : admin ? 'Ivory' : (who || pretty(id.email) || 'Member');
     put('pf-name', name);
     put('pf-mail', id.email || (uid ? 'Account address unavailable' : 'not signed in yet'));
     var av = $('pf-ava'); if (av) av.textContent = (name || 'I').slice(0, 1).toUpperCase();
@@ -33687,13 +33687,18 @@ var discTimer = null, discLive = null, liveReader = null, liveRead = null;
 var liveStarted = false, liveSessionHook = false, liveVisibilityHook = false;
 var rtSocket = null, rtHeartbeat = null, rtReconnect = null, rtRef = 0, rtRetry = 0;
 var RT_TOPIC = 'realtime:public:live_sessions';
-function discMark(realCount, liveRow) {
-var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
-var count = isAdmin ? Number(realCount || 0) : roomCount(realCount, liveRow && liveRow.id,
-liveRow && (liveRow.started_at || liveRow.created_at));
+function liveCountLabel(row) {
+var value = row && row.viewer_count, n = Number(value);
+if (value == null || value === '' || !isFinite(n) || n < 0) return 'Viewer count unavailable';
+return fmt(n) + ' viewer' + (Math.round(n) === 1 ? '' : 's');
+}
+function discMark(liveRow) {
+var title = String((liveRow && liveRow.title) || 'Ivory is Live').trim() || 'Ivory is Live';
+var count = liveCountLabel(liveRow);
 var locked = liveRow && liveRow.is_entitled === false;
+var action = locked ? 'See eligible membership plans' : 'Join live';
 return '' +
-'<button class="ivdisc" id="iv-live-disc" type="button" aria-label="' + (locked ? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in') + '" title="' + K.esc((liveRow && liveRow.title) || 'Ivory is Live') + '">' +
+'<button class="ivdisc" id="iv-live-disc" type="button" aria-label="' + K.esc(title + ' · Live now · ' + count + ' · ' + action) + '" title="' + K.esc(title) + '">' +
 '<span class="ivdisc-aura" aria-hidden="true"></span>' +
 '<span class="ivdisc-seal">' +
 '<span class="ivdisc-coin" aria-hidden="true">' +
@@ -33734,9 +33739,8 @@ return '' +
 '<span class="ivdisc-k"><i></i>LIVE</span>' +
 '</span>' +
 '<span class="ivdisc-tx">' +
-'<b>Ivory is Live</b>' +
-'<s>' + fmt(count) + ' in the room' + (isAdmin ? ' · yours to see alone' : '') +
-' · ' + (locked ? 'see plans' : 'walk in') + ' →</s>' +
+'<b>' + K.esc(title) + '</b>' +
+'<s>' + count + ' · ' + (locked ? 'see plans' : 'join live') + ' →</s>' +
 '</span>' +
 '<span class="ivdisc-go" aria-hidden="true">→</span>' +
 '</button>';
@@ -33765,25 +33769,28 @@ if (host.parentNode !== home || home.firstElementChild !== host) home.insertBefo
 }
 return host;
 }
-function ribbonPhrase() {
-return '<span><i></i>IVORY IS LIVE <b>•</b> WALK IN <b>✦</b></span>';
-}
 function paintLiveRibbon(row) {
 var ribbon = $('iv-live-ribbon');
 if (!ribbon) {
 ribbon = document.createElement('button');
 ribbon.id = 'iv-live-ribbon'; ribbon.type = 'button'; ribbon.hidden = true;
-ribbon.innerHTML = '<span class="iv-livescroll-clip" aria-hidden="true"><span class="iv-livescroll-track">' +
-'<span class="iv-livescroll-group">' + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + '</span>' +
-'<span class="iv-livescroll-group">' + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + ribbonPhrase() + '</span>' +
-'</span></span>';
 ribbon.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
 (document.body || document.documentElement).appendChild(ribbon);
 }
 ribbon.hidden = !row;
-ribbon.setAttribute('aria-label', row && row.is_entitled === false
-? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in');
 document.body.classList.toggle('iv-live-on', !!row);
+if (!row) { ribbon.innerHTML = ''; return ribbon; }
+var title = String(row.title || 'Ivory is Live').trim() || 'Ivory is Live';
+var count = liveCountLabel(row);
+var locked = row.is_entitled === false;
+var action = locked ? 'MEMBERSHIP' : 'JOIN LIVE';
+ribbon.innerHTML = '<span class="iv-live-dot" aria-hidden="true"></span>' +
+'<span class="iv-live-ribbon-copy"><b class="iv-live-badge">LIVE</b>' +
+'<strong class="iv-live-title">' + K.esc(title) + '</strong>' +
+'<span class="iv-live-count">' + K.esc(count) + '</span></span>' +
+'<span class="iv-live-ribbon-cta" aria-hidden="true">' + action + ' <i>→</i></span>';
+ribbon.setAttribute('aria-label', title + ' · Live now · ' + count + ' · ' + (locked ? 'See eligible membership plans' : 'Join live'));
+ribbon.setAttribute('data-entitled', locked ? 'false' : 'true');
 return ribbon;
 }
 function paintDisc(rows) {
@@ -33808,7 +33815,7 @@ return;
 var row = live[0]; discLive = row; paintLiveRibbon(row);
 if (plaque) plaque.style.display = 'none';
 if (!old) {
-host.innerHTML = discMark(row.viewer_count, row);
+host.innerHTML = discMark(row);
 var el = $('iv-live-disc');
 if (el) {
 el.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
@@ -33818,17 +33825,13 @@ milled();
 if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
 } else {
 old.classList.remove('is-leaving');
+var title = String(row.title || 'Ivory is Live').trim() || 'Ivory is Live';
 var s = old.querySelector('.ivdisc-tx s');
-if (s) {
-var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
-var n = isAdmin ? Number(row.viewer_count || 0)
-: roomCount(row.viewer_count, row.id, row.started_at || row.created_at);
-s.textContent = fmt(n) + ' in the room' + (isAdmin ? ' · yours to see alone' : '') +
-' · ' + (row.is_entitled === false ? 'see plans' : 'walk in') + ' →';
-}
-var t = old.querySelector('.ivdisc-tx b'); if (t) t.textContent = 'Ivory is Live';
-old.setAttribute('aria-label', row.is_entitled === false ? 'Ivory is Live — see eligible membership plans' : 'Ivory is Live — walk in');
-if (row.title) old.title = row.title;
+if (s) s.textContent = liveCountLabel(row) + ' · ' + (row.is_entitled === false ? 'see plans' : 'join live') + ' →';
+var t = old.querySelector('.ivdisc-tx b'); if (t) t.textContent = title;
+old.setAttribute('aria-label', title + ' · Live now · ' + liveCountLabel(row) + ' · ' +
+(row.is_entitled === false ? 'See eligible membership plans' : 'Join live'));
+old.title = title;
 }
 }
 function readLive() {
@@ -33948,13 +33951,6 @@ card.setAttribute('data-views', n);
 function softenRoom() {
 var isAdmin = window.ivIsAdmin && window.ivIsAdmin();
 if (isAdmin) return;
-var watch = $('lv-watch');
-if (watch && /in the room/.test(watch.textContent)) {
-var real = parseInt(String(watch.textContent).replace(/[^\d]/g, ''), 10) || 1;
-var shown = roomCount(real, 'room-' + real);
-watch.textContent = fmt(Math.max(shown, real)) + ' in the room';
-watch.setAttribute('data-softer', '1');
-}
 var odo = $('ivx-odo');
 if (odo && !odo.dataset.soft) {
 var r = parseInt(String(odo.textContent).replace(/[^\d]/g, ''), 10);
@@ -38725,11 +38721,12 @@ save({ lastAt: Date.parse(fresh[fresh.length - 1].created_at) || Date.now() });
 var i = 0;
 function next() {
 if (i >= fresh.length) return;
-var r = fresh[i++];
+var r = fresh[i++], actionUrl = r.action_url || null;
+var tab = !callId(actionUrl) && isLiveNotice(r) ? 'live' : (r.action_tab || 'inbox');
 show(r.title || 'The house', r.body || '', {
 tag: 'iv-' + r.id,
-tab: r.action_tab || 'inbox',
-url: r.action_url || null
+tab: tab,
+url: actionUrl
 }).then(function () {
 setTimeout(next, 260);          /* never two bells stacked on one another */
 });
@@ -38752,16 +38749,54 @@ function callId(value) {
 var m = String(value || '').match(/^#?ivory-call:(\d+)$/i);
 return m ? Number(m[1]) : 0;
 }
+function isLiveNotice(row) {
+var text = String((row && row.title) || '') + ' ' + String((row && row.body) || '');
+return /\bivory\s+is\s+live(?:\s+now)?\b/i.test(text);
+}
+function isLiveAddress(value) {
+var h = String(value || '').replace(/^#/, '').toLowerCase();
+return h === 'live' || h === 'live-screen';
+}
 function openCallLink(value) {
 var id = callId(value);
 if (!id || !window.IVCALL || !window.IVCALL.openCall) return false;
 window.IVCALL.openCall(id);
 return true;
 }
+var liveRouteSeq = 0;
+function openLiveRoute() {
+var seq = ++liveRouteSeq, tries = 0;
+function screen() {
+if (window.ivoryShow && (!document.body || document.body.dataset.screen !== 'live')) {
+try { window.ivoryShow('live'); } catch (e) {}
+}
+}
+if (window.IVLIVE && window.IVLIVE.isOpen && window.IVLIVE.isOpen()) { screen(); return true; }
+screen();
+function enter() {
+if (seq !== liveRouteSeq) return;
+if (window.IVLIVE && window.IVLIVE.isOpen && window.IVLIVE.isOpen()) return;
+var fn = window.IVLIVE102 && window.IVLIVE102.open
+? window.IVLIVE102.open : (window.ivLive && window.ivLive.open);
+if (fn) {
+try {
+var result = fn();
+if (result && typeof result.catch === 'function') result.catch(function () {});
+} catch (e) {}
+return;
+}
+screen();
+if (++tries < 24) setTimeout(enter, 250);
+}
+enter();
+return true;
+}
 if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
 navigator.serviceWorker.addEventListener('message', function (e) {
 var d = e && e.data;
-if (d && d.ivory === 'tab' && d.url && callId(d.url)) openCallLink(d.url);
+if (!d || d.ivory !== 'tab') return;
+if (d.url && callId(d.url)) { openCallLink(d.url); return; }
+if (String(d.tab || '').toLowerCase() === 'live') openLiveRoute();
 });
 }
 window.addEventListener('hashchange', function () {
@@ -38769,7 +38804,7 @@ if (callId(location.hash)) openCallLink(location.hash);
 });
 window.IVNOTIFY = {
 ask: ask, offer: offerOnce, show: show, to: to, watch: watch, once: once,
-openCallLink: openCallLink,
+openCallLink: openCallLink, openLiveRoute: openLiveRoute,
 state: function () { return { permission: permission(), on: !!state().on, lastAt: state().lastAt || 0 }; }
 };
 function offerOnce() {
@@ -38796,6 +38831,7 @@ if (!callId(location.hash)) return;
 if (openCallLink(location.hash)) return;
 if (++arrivalTries < 16) setTimeout(arrive, 250);
 })();
+if (isLiveAddress(location.hash)) openLiveRoute();
 })();
 </script>
 <script id="iv-audit-js">
@@ -39333,6 +39369,15 @@ if (layers().length) return;
 clearOrphans();
 goRoom(roomFromAddress());
 });
+function applyInitialRoom() {
+var initial = roomFromAddress();
+if (initial) goRoom(initial);
+}
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', function () { setTimeout(applyInitialRoom, 0); }, { once: true });
+} else {
+setTimeout(applyInitialRoom, 0);
+}
 window.addEventListener('pageshow', function () { restoreOpenPairs(); clearOrphans(); });
 document.addEventListener('click', function (e) {
 var d = e.target && e.target.closest && e.target.closest('#ld-wheel');
@@ -41178,11 +41223,7 @@ if (S.appearance) S.appearance.bindButton(appearanceButton);
 var ex = $('lv-exit');
 if (ex) ex.addEventListener('click', function () {
 if (S.role !== 'host') { stepDown(); return; }
-if (ex.dataset.armed === '1') { endShow(); return; }
-ex.dataset.armed = '1';
-ex.classList.add('arming');
-ex.setAttribute('aria-label', 'Press again to end the broadcast');
-setTimeout(function () { if (ex.isConnected) { ex.dataset.armed = ''; ex.classList.remove('arming'); } }, 4200);
+endShow();
 });
 }
 function swapCamera(sw) {
@@ -41267,18 +41308,7 @@ toast(pending ? 'The start was cancelled.' : 'You stepped out. The broadcast is 
 });
 var end = $('lv-end-room');
 if (end) end.addEventListener('click', function () {
-if (end.dataset.armed !== '1') {
-end.dataset.armed = '1';
-end.classList.add('arming');
-end.textContent = 'TAP AGAIN · END FOR EVERYONE';
-setTimeout(function () {
-if (!end.isConnected || end.dataset.armed !== '1') return;
-end.dataset.armed = '';
-end.classList.remove('arming');
-end.textContent = 'END FOR EVERYONE';
-}, 5000);
-return;
-}
+if (S.endBusy) return;
 sheetClose();
 endShow();
 });
@@ -41609,8 +41639,7 @@ function paintAudienceNote(r) {
 var note = $('lv-note'); if (!note || !r) return;
 var real = Number(r.viewer_count || 0);
 if (S.role === 'host') { note.textContent = real + ' watching · only you see the real count'; return; }
-var shown = window.IVPRESENCE ? IVPRESENCE.roomCount(real, r.id || S.id, r.started_at) : real;
-var count = window.IVPRESENCE ? IVPRESENCE.fmt(shown) : String(shown);
+var count = window.IVPRESENCE ? IVPRESENCE.fmt(real) : String(real);
 note.textContent = (S.sub ? S.sub + ' · ' : '') + count + ' watching';
 }
 function poll() {
@@ -41958,23 +41987,39 @@ IV.call('/rest/v1/rpc/leave_live_guest', { request_id_in: req })
 }
 }
 function endShow() {
-if (S.endBusy) return;
-if (!IV || !IV.call || !S.id) { showBye('The room is still live', 'The house cannot confirm the ending right now. Try again.', true); return; }
+if (S.role !== 'host' || S.endBusy || S.over) return Promise.resolve(false);
+if (!IV || !IV.call || !S.id) {
+showBye('The room is still live', 'The house cannot confirm the ending right now. Try again.', true);
+return Promise.resolve(false);
+}
 S.endBusy = true;
-var id = S.id, seq = S.joinSeq;
+var id = S.id, seq = S.joinSeq, request;
 showBye('Ending the room…', 'Waiting for the house to confirm. The broadcast is not ended yet.');
-IV.call('/rest/v1/rpc/end_live', { session_id_in: id }).then(function () {
+try { request = IV.call('/rest/v1/rpc/end_live', { session_id_in: id }); }
+catch (e) { request = Promise.reject(e); }
+return Promise.resolve(request).then(function (result) {
+if (seq !== S.joinSeq || S.id !== id) return false;
+if (result === false || (result && (result.ok === false || result.success === false || result.ended === false))) {
+throw new Error('The house did not confirm the ending.');
+}
 if (D.session && D.session.id === id) D.session = null;
-window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: id } }));
-if (seq !== S.joinSeq || S.id !== id) return;
 S.endBusy = false; S.over = true; S.joinSeq++;
-clearInterval(S.pollT); clearInterval(S.guestT); clearInterval(S.heartbeatT);
+clearInterval(S.tickT); clearInterval(S.pollT); clearInterval(S.talkT);
+clearInterval(S.guestT); clearInterval(S.heartbeatT);
+S.tickT = S.pollT = S.talkT = S.guestT = S.heartbeatT = null;
 leaveRTC();
+window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: id } }));
 showBye('You ended the room', 'The house confirmed it. Everyone has been let out.');
+return true;
 }).catch(function (x) {
-if (seq !== S.joinSeq || S.id !== id) return;
-S.endBusy = false; S.over = false;
+if (seq !== S.joinSeq || S.id !== id) return false;
+S.endBusy = false;
+if (S.over) {
+showBye('The room has closed', 'The house confirmed it. Everyone has been let out.');
+return true;
+}
 showBye('The room is still live', ((x && x.message) || 'The house did not confirm the ending.') + ' Try ending again, or step out without ending it.', true);
+return false;
 });
 }
 var D = { session: null, sessions: [], gifts: [], giftSets: {}, noteFlags: {}, tiers: [], chosen: {}, forever: true, nobody: false, ppv: 0, busy: false, clockT: null, pollT: null, seq: 0, pane: null };
@@ -42228,11 +42273,13 @@ open({ id: s.id, title: s.title, sub: s.sub, role: 'host', price: s.price, seatP
 });
 pane.querySelector('#lvd-end').addEventListener('click', function () {
 var b = pane.querySelector('#lvd-end');
-if (b.dataset.armed === '1') {
 if (S.endBusy) return;
 var sid = s.id; S.endBusy = true; b.disabled = true; b.textContent = 'ENDING…';
-var request = IV && IV.call ? IV.call('/rest/v1/rpc/end_live', { session_id_in: sid }) : Promise.reject(new Error('The session circuit is unavailable.'));
-request.then(function () {
+var request;
+try { request = IV && IV.call ? IV.call('/rest/v1/rpc/end_live', { session_id_in: sid }) : Promise.reject(new Error('The session circuit is unavailable.')); }
+catch (e) { request = Promise.reject(e); }
+Promise.resolve(request).then(function (result) {
+if (result === false || (result && (result.ok === false || result.success === false || result.ended === false))) throw new Error('The house did not confirm the ending.');
 S.endBusy = false; if (D.session && D.session.id === sid) D.session = null;
 clearInterval(D.clockT); clearInterval(D.pollT);
 try { close(true); } catch (e) {}
@@ -42240,12 +42287,9 @@ if (pane.isConnected) desk(pane);
 window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: sid } }));
 toast('The house confirmed the ending. Everyone has been let out.');
 }).catch(function (x) {
-S.endBusy = false; if (b.isConnected) { b.disabled = false; b.dataset.armed = '1'; b.textContent = 'TAP AGAIN'; }
+S.endBusy = false; if (b.isConnected) { b.disabled = false; b.textContent = 'END'; }
 toast(((x && x.message) || 'The house did not confirm the ending.') + ' The room is still live.', true);
 });
-return;
-}
-b.dataset.armed = '1'; b.textContent = 'TAP AGAIN';
 });
 }
 window.IVLIVE = {
@@ -42870,6 +42914,7 @@ if (S.loading && !force) return S.loading;
 S.loading = rpc('wheel_open_state', {}).then(function (st) {
 st = st || {}; S.state = st; S.loaded = true; S.loading = null;
 paintSegments(rows(st.weights)); paint(st);
+if (window.IvoryRite && IvoryRite.observeState) IvoryRite.observeState(st);
 return st;
 }).catch(function (e) { S.loading = null; setText('ws-conn', 'House ledger · reconnect to refresh'); throw e; });
 return S.loading;
@@ -42913,8 +42958,14 @@ function refuse(err) {
 var why = String((err && err.kind) || 'network');
 var next = S.state.next_at ? fmtAt(S.state.next_at) : 'the next published Gilded Hour';
 var copy = { k: 'The ledger could not be reached', h: 'Nothing was taken', b: (err && err.message) || 'Try once more.' };
-if (why === 'hours' || why === 'closed') copy = { k: 'The wheel keeps its hours', h: 'Not yet', b: 'The next turn opens at ' + next + '. Come back inside the Gilded Hours.' };
-if (why === 'used' || why === 'spun') copy = { k: 'Already turned', h: 'One turn, this hour', b: 'You have spun this window. The next one is yours — the salon knows when.' };
+if (why === 'hours' || why === 'closed') {
+if (window.IvoryRite && IvoryRite.releaseGate) IvoryRite.releaseGate();
+copy = { k: 'The wheel keeps its hours', h: 'Not yet', b: 'The next turn opens at ' + next + '. Come back inside the Gilded Hours.' };
+}
+if (why === 'used' || why === 'spun') {
+if (window.IvoryRite && IvoryRite.markSpun) IvoryRite.markSpun();
+copy = { k: 'Already turned', h: 'One turn, this hour', b: 'You have spun this window. The next one is yours — the salon knows when.' };
+}
 if (why === 'offline' || why === 'network') copy.b = 'The house could not be reached. No outcome was drawn and nothing was taken.';
 setText('wof-k', copy.k); setText('wof-h', copy.h); setText('wof-b', copy.b);
 card.classList.add('on'); W.classList.add('has-card'); bar.style.opacity = '.35'; bar.style.pointerEvents = 'none';
@@ -43035,9 +43086,14 @@ document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && el
 var oldOpen = window.IVORY_WHEEL.open, oldClose = window.IVORY_WHEEL.close;
 window.IVORY_WHEEL.open = function () { var r = oldOpen.apply(this, arguments); load(true).catch(function () {}); return r; };
 window.IVORY_WHEEL.close = function () {
+var gated = !!(window.IvoryRite && IvoryRite.needsTurn && IvoryRite.needsTurn());
+if (gated && S.busy) return false;
 S.token++; S.busy = false; clearTimers();
 var r = oldClose.apply(this, arguments);
 if (spinBtn) { spinBtn.disabled = false; spinBtn.textContent = 'Turn the wheel'; }
+if (gated && window.IvoryRite && IvoryRite.needsTurn && IvoryRite.needsTurn()) {
+setTimeout(function () { if (window.IvoryRite && IvoryRite.needsTurn && IvoryRite.needsTurn()) IvoryRite.play(); }, 260);
+}
 return r;
 };
 window.IVORY_WHEEL.spin = spin;
@@ -43419,5 +43475,6 @@ select.ivc-minute{width:112px;min-height:44px;padding:9px 30px 9px 14px;border:1
 <script id="iv-studio104" src="studio104.js"></script>
 <link id="iv-pass105-css" rel="stylesheet" href="pass105.css">
 <link id="iv-pass107-css" rel="stylesheet" href="pass107.css">
+<link id="iv-pass108-css" rel="stylesheet" href="pass108.css">
 </body>
 </html>

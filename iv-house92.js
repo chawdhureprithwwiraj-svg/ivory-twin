@@ -1126,11 +1126,22 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     greet.innerHTML = '<span class="ghh">' + miniHeart(true) + '</span><span>' + (greeted ? 'Heart greeted today' : 'Greet your heart') + '</span>' + (!greeted && action ? '<b>+' + num(action, 'points', 20) + '</b>' : '');
     var list = $('.gg-list', body); list.innerHTML = '';
     (HS.actions || []).forEach(function (a) {
-      var row = d.createElement('div'); row.className = 'gg' + (a.done ? ' done' : '');
+      var key = String(a.key || ''), route = heartActionRoute(key);
+      var row = d.createElement(route ? 'button' : 'div');
+      row.className = 'gg' + (a.done ? ' done' : '') + (route ? ' gg-action' : ' gg-unverified');
+      if (route) {
+        row.type = 'button';
+        row.setAttribute('data-heart-action', key);
+        row.setAttribute('aria-label', String(a.label || key) + ' — open its section');
+        if (route === 'greet') row.disabled = greeted || heartBusy;
+      } else {
+        row.setAttribute('aria-disabled', 'true');
+        row.setAttribute('title', 'No verified website destination is available for this action.');
+      }
       var done = typeof a.done === 'number' ? a.done : (a.done ? 1 : 0);
       var cap = num(a, 'cap');
-      row.innerHTML = '<span class="ggi">' + miniHeart(!!done) + '</span><span class="ggt">' + esc(a.label || a.key) + '</span>' +
-        (cap ? '<span class="ggsub">' + done + '/' + cap + '</span>' : (done ? '<span class="ggsub">done</span>' : '')) +
+      row.innerHTML = '<span class="ggi">' + miniHeart(!!done) + '</span><span class="ggt">' + esc(a.label || key) + '</span>' +
+        (route ? (cap ? '<span class="ggsub">' + done + '/' + cap + '</span>' : (done ? '<span class="ggsub">done</span>' : '')) : '<span class="ggsub gg-unrouted">not linked</span>') +
         '<span class="ggp">+' + num(a, 'points') + '</span>';
       list.appendChild(row);
     });
@@ -1161,6 +1172,37 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     heartDirty = false;
     if (BS) renderBellHeart();
   }
+
+  /* Only rows with a known website destination become buttons. `reach_out`
+     has no verified web destination yet, so it stays visibly unlinked. */
+  function heartActionRoute(key) {
+    switch (String(key || '')) {
+      case 'greet': return 'greet';
+      case 'read_post':
+      case 'poll_vote': return 'explore';
+      case 'vault_key': return 'vault';
+      case 'live_join': return 'live';
+      case 'line_letter': return 'bells';
+      default: return '';
+    }
+  }
+  function openHeartAction(key) {
+    var route = heartActionRoute(key);
+    if (route === 'greet') { greetHeart(); return true; }
+    if (route === 'explore') { goRoom('explore'); return true; }
+    if (route === 'vault') {
+      if (w.IVGOLD102 && IVGOLD102.openVault) { IVGOLD102.openVault(); return true; }
+      toast('The Golden Vault is still loading. Try again.', true); return false;
+    }
+    if (route === 'live') {
+      var live = w.IVLIVE102 && IVLIVE102.open ? IVLIVE102.open : (w.ivLive && ivLive.open);
+      if (live) { live(); return true; }
+      toast('The Live door is still loading. Try again.', true); return false;
+    }
+    if (route === 'bells') { openSheet('bells'); return true; }
+    return false;
+  }
+
   function loadHeart() {
     if (heartBusy || !signed()) return Promise.resolve();
     heartBusy = true; buildHeart();
@@ -1825,6 +1867,13 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   on(d, 'click', function (e) {
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;
+    var heartAction = t.closest('[data-heart-action]');
+    var heartSheet = $('#sheet-heart');
+    if (heartAction && heartSheet && heartSheet.contains(heartAction)) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      openHeartAction(heartAction.getAttribute('data-heart-action'));
+      return;
+    }
     if (t.closest('#home-explore')) { e.preventDefault(); goRoom('explore'); return; }
     var setOpen = t.closest('#p94-set-button'); if (setOpen) { e.preventDefault(); e.stopImmediatePropagation(); openSets(); return; }
     var ceremony = t.closest('[data-bell-ceremony]'); if (ceremony) { e.preventDefault(); e.stopImmediatePropagation(); finishBellCeremony(ceremony.getAttribute('data-bell-ceremony')); return; }
@@ -1864,6 +1913,7 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     renderHeart: renderHeart,
     renderBells: renderBells,
     openStory: openStory,
+    heartActionRoute: heartActionRoute,
     heartbeat: { state: heartbeatState, sync: syncHeartbeat, probe: probeHeartbeat },
     state: function () { return { heart: HS, bells: BS }; }
   };
