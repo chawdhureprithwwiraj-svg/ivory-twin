@@ -19098,7 +19098,7 @@ window.IVSESS = (function () {
         if (!current()) return null;
         P.prof = { id: uid, role: row.role || 'user', display_name: String(row.display_name || '') };
         P.loading = false; paintIdentity();
-        return IV.call('/rest/v1/rpc/my_membership', {}).catch(function () { return null; });
+        return IV.get('/rest/v1/my_membership?select=tier_level,tier_name,days_left&order=tier_level.desc&limit=1').catch(function () { return null; });
       })
       .then(function (m) {
         if (!current()) return null;
@@ -40897,7 +40897,7 @@ if (askedLevel) return Promise.resolve(window.__ivLevel == null ? -1 : window.__
 askedLevel = true;
 var iv = IV();
 if (!iv || !iv.call) return Promise.resolve(0);
-return iv.call('/rest/v1/rpc/my_membership', {}).then(function (m) {
+return iv.get('/rest/v1/my_membership?select=tier_level,tier_name&order=tier_level.desc&limit=1').then(function (m) {
 if (Array.isArray(m)) m = m[0];
 window.__ivLevel = m ? Number(m.tier_level || m.level || 0) : 0;
 return window.__ivLevel;
@@ -42534,7 +42534,7 @@ return Promise.resolve(S);
 }
 S.loading = Promise.all([
 get('/rest/v1/subscription_tiers?select=*&is_active=eq.true&order=level.asc'),
-safe(rpc('my_membership', {}), null),
+safe(get('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1'), null),
 safe(rpc('my_payments', {}), [])
 ]).then(function (r) {
 S.tiers = rows(r[0]).filter(function (t) { return t && t.is_active !== false; });
