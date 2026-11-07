@@ -50,41 +50,48 @@
    screen. Keep the original House palette, not the old scrolling rainbow. */
 #iv-live-ribbon[hidden]{display:none!important}
 #iv-live-ribbon{
-  display:flex!important;align-items:center;gap:9px;box-sizing:border-box;
-  left:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));
-  width:100%;height:48px;margin:0;padding:5px 14px;border:0;border-top:1px solid rgba(255,255,255,.78);
-  border-bottom:1px solid rgba(122,78,26,.28);border-radius:0;overflow:hidden;
-  color:#4a0e17;background:linear-gradient(100deg,#fff9e8 0%,#f3dfb0 49%,#e7c47a 100%);
-  box-shadow:0 -7px 22px -16px rgba(73,34,20,.62),inset 0 1px 0 rgba(255,255,255,.78);
-  animation:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  position:fixed;left:50%;right:auto;top:56%;bottom:auto;transform:translate(-50%,-50%);z-index:72;
+  display:flex!important;align-items:center;gap:10px;box-sizing:border-box;width:calc(100vw - 28px);max-width:620px;
+  min-height:68px;height:auto;margin:0;padding:11px 14px;border:1px solid rgba(126,84,30,.34);
+  border-radius:22px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  color:#4A170D;background:linear-gradient(118deg,#FFFDF6 0%,#FFF5DD 42%,#EED6A4 100%);
+  box-shadow:0 22px 44px -24px rgba(74,43,13,.50),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(136,92,31,.13);
+  animation:ivLiveCardGlow 2.8s ease-in-out infinite;
 }
-#iv-live-ribbon:focus-visible{outline:3px solid #7b3c1e;outline-offset:-4px}
+@keyframes ivLiveCardGlow{
+  0%,100%{box-shadow:0 20px 40px -24px rgba(74,43,13,.46),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(136,92,31,.13)}
+  50%{box-shadow:0 24px 48px -22px rgba(74,43,13,.58),0 0 0 2px rgba(213,171,90,.16),inset 0 1px 0 rgba(255,255,255,.98)}
+}
+#iv-live-ribbon:focus-visible{outline:3px solid #7b3c1e;outline-offset:3px}
 #iv-live-ribbon .iv-live-dot{
-  flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:#6b0e20;
-  box-shadow:0 0 0 3px rgba(107,14,32,.12),0 0 10px rgba(107,14,32,.38);
+  flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:#78172A;
+  box-shadow:0 0 0 4px rgba(120,23,42,.11),0 0 12px rgba(120,23,42,.28);animation:ivLiveDotPulse 1.45s ease-in-out infinite
 }
+@keyframes ivLiveDotPulse{50%{opacity:.58;transform:scale(.82)}}
 #iv-live-ribbon .iv-live-ribbon-copy{display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;overflow:hidden}
-#iv-live-ribbon .iv-live-badge{flex:none;color:#6b0e20;font:900 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.13em}
+#iv-live-ribbon .iv-live-badge{flex:none;color:#78172A;font:900 10px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.15em}
 #iv-live-ribbon .iv-live-title{
-  display:block;flex:0 1 auto;min-width:0;max-width:48vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  color:#4a0e17;font:700 13px/1.2 Georgia,"Times New Roman",serif;
+  display:block;flex:0 1 auto;min-width:0;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#4A170D;font:700 15px/1.2 Georgia,"Times New Roman",serif;
 }
 #iv-live-ribbon .iv-live-count{flex:none;color:#73552c;font:700 10px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
 #iv-live-ribbon .iv-live-ribbon-cta{
-  flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border:1px solid rgba(91,14,30,.25);
-  border-radius:999px;background:linear-gradient(180deg,#6b1222,#4a0e17);color:#fff8e5;
-  font:800 8.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;white-space:nowrap;
+  flex:none;display:inline-flex;align-items:center;gap:5px;padding:9px 12px;border:1px solid rgba(91,14,30,.24);
+  border-radius:999px;background:linear-gradient(180deg,#7A1A2A,#5B1020);color:#FFF8E7;
+  font:800 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 12px -8px rgba(64,23,18,.55)
 }
-#iv-live-ribbon .iv-live-ribbon-cta i{font:700 12px/1 Georgia,serif}
+#iv-live-ribbon .iv-live-ribbon-cta i{font:700 13px/1 Georgia,serif}
+body.on-live #iv-live-ribbon,body.on-desk #iv-live-ribbon,body.cast-live #iv-live-ribbon{display:none!important;pointer-events:none}
 @media(max-width:390px){
-  #iv-live-ribbon{gap:7px;padding-right:9px;padding-left:10px}
-  #iv-live-ribbon .iv-live-ribbon-copy{gap:6px}
-  #iv-live-ribbon .iv-live-title{max-width:31vw;font-size:12px}
+  #iv-live-ribbon{gap:7px;padding-right:9px;padding-left:10px;min-height:62px}
+  #iv-live-ribbon .iv-live-ribbon-copy{gap:5px}
+  #iv-live-ribbon .iv-live-title{max-width:32vw;font-size:13px}
   #iv-live-ribbon .iv-live-count{font-size:9px}
-  #iv-live-ribbon .iv-live-ribbon-cta{gap:3px;padding:7px 8px;font-size:8px}
+  #iv-live-ribbon .iv-live-ribbon-cta{gap:3px;padding:8px 8px;font-size:8px}
 }
-@media(min-width:1100px){#iv-live-ribbon{bottom:52px}}
-@media(prefers-reduced-motion:reduce){#iv-live-ribbon .iv-live-dot{box-shadow:0 0 0 3px rgba(107,14,32,.12)}}
+@media(max-height:620px){#iv-live-ribbon{top:58%;min-height:58px;padding-top:8px;padding-bottom:8px}}
+@media(prefers-reduced-motion:reduce){#iv-live-ribbon,.iv-live-dot{animation:none!important}}
 
 /* The Home medallion stays gold, with a visible, bounded server title. */
 #iv-disc-seat .ivdisc-tx b{
@@ -92,3 +99,17 @@
   font-size:clamp(14px,4.4vw,17px)!important;line-height:1.16;
 }
 #iv-disc-seat .ivdisc-tx s{display:block;font-variant-numeric:tabular-nums}
+
+/* Reach-out choices are real member destinations, not unlabeled decoration. */
+#sheet-heart-reach .p94-reach-grid{display:grid;gap:10px;padding:3px 0 8px}
+#sheet-heart-reach .p94-reach-grid>.p94-fine{margin:0 2px 4px;text-align:center;color:#755638}
+#sheet-heart-reach .p94-reach-key{
+  appearance:none;-webkit-appearance:none;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;
+  width:100%;min-height:56px;padding:11px 15px;border:1px solid rgba(158,113,44,.28);border-radius:16px;
+  color:#4A2A16;background:linear-gradient(180deg,#FFFDF6,#F5E8CB);box-shadow:inset 0 1px 0 #FFF,0 8px 18px -14px rgba(72,42,12,.42);
+  text-align:left;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent
+}
+#sheet-heart-reach .p94-reach-key b{font:800 10px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.13em;color:#6B1423}
+#sheet-heart-reach .p94-reach-key span{font:13px/1.35 Georgia,"Times New Roman",serif;color:#765A3B}
+#sheet-heart-reach .p94-reach-key:focus-visible{outline:3px solid rgba(185,135,50,.55);outline-offset:2px}
+#sheet-heart-reach .p94-reach-key:active{transform:translateY(1px);background:linear-gradient(180deg,#F8E8C8,#EBD4A2)}

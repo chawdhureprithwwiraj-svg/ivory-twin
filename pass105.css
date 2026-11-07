@@ -389,6 +389,12 @@ body .bc-veil{background:rgba(74,14,23,.36)}
 #ivc-sheet .ivc-btn{border-color:#D4AF37;background:linear-gradient(90deg,#D4AF37,#E3A857);color:#4A0E17}
 #ivc-sheet .ivc-btn.quiet{background:transparent;border-color:rgba(212,175,55,.42)}
 #ivc-sheet .ivc-day,#ivc-sheet .ivc-hr,#ivc-sheet .ivc-minute,#ivc-sheet .ivc-note-in{border-color:rgba(212,175,55,.30);background:#FFFCF2;color:#4A0E17}
+/* The inherited sheet rule above used higher specificity than the picker’s
+   selected state, washing both the chosen date and hour back to cream. */
+#ivc-sheet .ivc-day.on,#ivc-sheet .ivc-hr.on{border-color:#6E0C24;background:linear-gradient(180deg,#B81A34,#8E0F27);color:#FFF1D6;box-shadow:inset 0 0 0 1px rgba(255,241,214,.42),0 0 0 2px rgba(212,175,55,.78),0 7px 14px -9px rgba(74,14,23,.82)}
+#ivc-sheet .ivc-day.on i,#ivc-sheet .ivc-day.on s{color:#FFF1D6}
+#ivc-sheet .ivc-day.on b{color:#FFFDF6}
+#ivc-sheet .ivc-day:focus-visible,#ivc-sheet .ivc-hr:focus-visible{outline:3px solid #8A5A12;outline-offset:2px}
 #desk-screen .c105-library-native .p104-lib-list{grid-template-columns:1fr}
 #desk-screen .bcx-foot{font-size:11px}
 #desk-screen .dk-pane .st-rail-chip{min-width:44px}

@@ -28,48 +28,16 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   function $(s, r) { return (r || d).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); }
   function on(el, ev, fn, cap) { if (el) el.addEventListener(ev, fn, !!cap); }
-  var VISITOR_COPY = 'you are 4028 visitor of the day';
-
-  /* ── 2 · the visitor line, in her words ──────────────────────────────────
-     "just write: you are 4028 visitor of the day" — no total, no clock.     */
-  /* the page repaints the visitor line on its own clock; a frozen node keeps
-     her line and quietly ignores the page's older copy                     */
-  function setFrozen(el, val) {
-    if (!el) return;
-    if (el.__p92v === val) return;
-    el.__p92v = val;
-    if (!el.__p92f) {
-      el.__p92f = 1;
-      try {
-        var ts = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent').set;
-        el.__p92ts = ts;
-        Object.defineProperty(el, 'textContent', { configurable: true, get: function () { return el.__p92v; }, set: function () {} });
-        Object.defineProperty(el, 'innerHTML', { configurable: true, get: function () { return el.__p92v; }, set: function () {} });
-      } catch (e) {}
-    }
-    try { if (el.__p92ts) el.__p92ts.call(el, val); else el.textContent = val; } catch (e) {}
-  }
+  /* The local visit pulse follows the frozen APK: one value per visit,
+     four-minute same-visit cooldown, shared by both member placements. */
+  var lastPulseValue = '';
   function visitorLine() {
-    $$('.pulse-strip').forEach(function (strip) {
-      var tx = $('.pulse-tx', strip);
-      if (!tx) return;
-      if (strip.getAttribute('data-pulse') !== '4028') strip.setAttribute('data-pulse', '4028');
-      setFrozen(tx, VISITOR_COPY);
-    });
-    /* The number and the words are one fixed line, on Home and Profile. */
-    $$('.pulse-card').forEach(function (card) {
-      var lead = $('.pulse-lead', card), tail = $('.pulse-tail', card);
-      var ord = $('#pf-pulse-ord', card) || $('.pulse-ord', card);
-      var number = $('#pf-pulse-n', card), copy = $('#pf-pulse-copy', card);
-      if (lead && lead.textContent.trim() !== 'you are') lead.textContent = 'you are';
-      if (tail && tail.textContent.trim() !== 'visitor of the day') tail.textContent = 'visitor of the day';
-      if (number) {
-        if (number.getAttribute('data-to') !== '4028') number.setAttribute('data-to', '4028');
-        setFrozen(number, '4028');
-      }
-      if (ord) { if (ord.textContent) ord.textContent = ''; if (ord.style.display !== 'none') ord.style.display = 'none'; }
-      if (copy) setFrozen(copy, VISITOR_COPY);
-    });
+    var pulseApi = w.IVPRESENCE;
+    if (!pulseApi || !pulseApi.pulse || !pulseApi.paintPulse) return;
+    var value = String(pulseApi.pulse().n);
+    if (value === lastPulseValue) return;
+    lastPulseValue = value;
+    pulseApi.paintPulse();
   }
 
   /* ── 6 · the ladder stands in every bar ──────────────────────────────────
@@ -1126,13 +1094,14 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     greet.innerHTML = '<span class="ghh">' + miniHeart(true) + '</span><span>' + (greeted ? 'Heart greeted today' : 'Greet your heart') + '</span>' + (!greeted && action ? '<b>+' + num(action, 'points', 20) + '</b>' : '');
     var list = $('.gg-list', body); list.innerHTML = '';
     (HS.actions || []).forEach(function (a) {
-      var key = String(a.key || ''), route = heartActionRoute(key);
+      var key = String(a.key || ''), route = heartActionRoute(key, a.label);
       var row = d.createElement(route ? 'button' : 'div');
       row.className = 'gg' + (a.done ? ' done' : '') + (route ? ' gg-action' : ' gg-unverified');
       if (route) {
         row.type = 'button';
         row.setAttribute('data-heart-action', key);
-        row.setAttribute('aria-label', String(a.label || key) + ' — open its section');
+        row.setAttribute('data-heart-route', route);
+        row.setAttribute('aria-label', String(a.label || key) + (route === 'reachout' ? ' — choose a way to reach out' : ' — open its section'));
         if (route === 'greet') row.disabled = greeted || heartBusy;
       } else {
         row.setAttribute('aria-disabled', 'true');
@@ -1141,7 +1110,9 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       var done = typeof a.done === 'number' ? a.done : (a.done ? 1 : 0);
       var cap = num(a, 'cap');
       row.innerHTML = '<span class="ggi">' + miniHeart(!!done) + '</span><span class="ggt">' + esc(a.label || key) + '</span>' +
-        (route ? (cap ? '<span class="ggsub">' + done + '/' + cap + '</span>' : (done ? '<span class="ggsub">done</span>' : '')) : '<span class="ggsub gg-unrouted">not linked</span>') +
+        (route === 'reachout' ? '<span class="ggsub">choose</span>' :
+          (route ? (cap ? '<span class="ggsub">' + done + '/' + cap + '</span>' : (done ? '<span class="ggsub">done</span>' : '')) :
+            '<span class="ggsub gg-unrouted">not linked</span>')) +
         '<span class="ggp">+' + num(a, 'points') + '</span>';
       list.appendChild(row);
     });
@@ -1173,21 +1144,40 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
     if (BS) renderBellHeart();
   }
 
-  /* Only rows with a known website destination become buttons. `reach_out`
-     has no verified web destination yet, so it stays visibly unlinked. */
-  function heartActionRoute(key) {
-    switch (String(key || '')) {
+  /* The two actions that had no destination now lead to real member doors. */
+  function heartActionRoute(key, label) {
+    var k = String(key || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    var text = String(label || '').toLowerCase();
+    switch (k) {
       case 'greet': return 'greet';
       case 'read_post':
       case 'poll_vote': return 'explore';
       case 'vault_key': return 'vault';
       case 'live_join': return 'live';
-      case 'line_letter': return 'bells';
-      default: return '';
+      case 'line_letter':
+      case 'private_line': return 'line';
+      case 'reach_out': return 'reachout';
+      case 'ring_bell':
+      case 'ring_bells':
+      case 'bell_ring': return 'bells';
     }
+    if (/send a wish.*gift.*story/.test(text)) return 'reachout';
+    if (/private line/.test(text)) return 'line';
+    if (/ring a bell/.test(text)) return 'bells';
+    return '';
   }
-  function openHeartAction(key) {
-    var route = heartActionRoute(key);
+  function openReachOutSheet() {
+    makeSheet('sheet-heart-reach', 'Reach out to Ivory',
+      '<div class="p94-reach-grid">' +
+        '<p class="p94-fine">Choose a real door. The house records the action when it accepts it.</p>' +
+        '<button type="button" class="p94-reach-key" data-heart-reach="wish"><b>MAKE A WISH</b><span>Open the active wish catalogue</span></button>' +
+        '<button type="button" class="p94-reach-key" data-heart-reach="gift"><b>SEND A GIFT</b><span>Choose a story, then use its Send a Gift button</span></button>' +
+        '<button type="button" class="p94-reach-key" data-heart-reach="stories"><b>OPEN STORIES</b><span>Visit the story shelf</span></button>' +
+      '</div>', 'p94-reach-wrap');
+    openSheet('heart-reach');
+  }
+  function openHeartAction(key, route) {
+    route = route || heartActionRoute(key);
     if (route === 'greet') { greetHeart(); return true; }
     if (route === 'explore') { goRoom('explore'); return true; }
     if (route === 'vault') {
@@ -1200,6 +1190,8 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
       toast('The Live door is still loading. Try again.', true); return false;
     }
     if (route === 'bells') { openSheet('bells'); return true; }
+    if (route === 'line') { openSheet('line'); return true; }
+    if (route === 'reachout') { openReachOutSheet(); return true; }
     return false;
   }
 
@@ -1867,11 +1859,24 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   on(d, 'click', function (e) {
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;
+    var reachChoice = t.closest('[data-heart-reach]');
+    var reachSheet = $('#sheet-heart-reach');
+    if (reachChoice && reachSheet && reachSheet.contains(reachChoice)) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      var destination = reachChoice.getAttribute('data-heart-reach');
+      closeById('sheet-heart-reach');
+      if (destination === 'wish') goRoom('wish');
+      else if (destination === 'gift') {
+        goRoom('explore');
+        toast('Choose a story, then use its Send a Gift button.');
+      } else if (destination === 'stories') goRoom('explore');
+      return;
+    }
     var heartAction = t.closest('[data-heart-action]');
     var heartSheet = $('#sheet-heart');
     if (heartAction && heartSheet && heartSheet.contains(heartAction)) {
       e.preventDefault(); e.stopImmediatePropagation();
-      openHeartAction(heartAction.getAttribute('data-heart-action'));
+      openHeartAction(heartAction.getAttribute('data-heart-action'), heartAction.getAttribute('data-heart-route'));
       return;
     }
     if (t.closest('#home-explore')) { e.preventDefault(); goRoom('explore'); return; }

@@ -12704,8 +12704,9 @@ animation:pulseTurn 46s linear infinite;
 @keyframes pulseTurn{to{transform:rotate(360deg)}}
 .pulse-lead{
 margin:14px 0 0;text-align:center;
-font-family:Georgia,serif;font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;
+font-family:Georgia,serif;font-size:10.5px;letter-spacing:.12em;text-transform:none;
 color:rgba(255,226,172,.88);text-shadow:0 1px 8px rgba(24,2,8,.9)}
+#pf-pulse .pulse-lead{letter-spacing:.12em!important;text-transform:none!important}
 .pulse-big{display:flex;align-items:flex-start;justify-content:center;gap:3px;margin:2px 0 0;position:relative}
 .pulse-big b{
 font-family:Georgia,serif;font-size:62px;line-height:.98;font-weight:600;letter-spacing:-.02em;
@@ -12755,6 +12756,7 @@ box-shadow:0 0 12px rgba(224,180,95,.55);
 transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
 .pulse-copy{margin:0;font-family:Georgia,serif;font-style:italic;font-size:12px;line-height:1.55;
 color:#7A5A2C}
+.pulse-strip{max-width:calc(100vw - 32px);flex-wrap:wrap;row-gap:4px}
 @media (prefers-reduced-motion:reduce){
 .ivdisc-aura,.ivdisc-coin svg,.ivdisc-glow i,.ivdisc-k i,.pulse-halo i{animation:none!important}
 }
@@ -18894,7 +18896,7 @@ function sparkleAt(el){
 })();
 </script>
 <script src="media/agora/AgoraRTC_N-4.23.4.js"></script>
-<script>
+<script id="iv-identity109-js">
 /* ═══════════════ ONE IDENTITY · shared by every room ═══════════════
    One account, one token, one place. The door writes here, the desk reads
    here, the live rooms read here, the profile reads here. Nothing keeps a
@@ -18976,11 +18978,13 @@ window.IVSESS = (function () {
       else if (read() && lapsing()) ready = renew().catch(function () {});
       else ready = Promise.resolve();
       return ready.then(function () {
-        return fetch(SB + path, {
+        var request = {
           method: opt.method || 'POST',
           headers: headers(opt.extra || {}),
           body: (body === undefined || body === null) ? undefined : JSON.stringify(body)
-        });
+        };
+        if (opt.cache) request.cache = opt.cache;
+        return fetch(SB + path, request);
       }).then(function (r) {
         return r.text().then(function (t) {
           var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) { j = t; }
@@ -19028,7 +19032,6 @@ window.IVSESS = (function () {
            token: token, headers: headers, call: call, get: get,
            signIn: signIn, signOut: signOut, renew: renew, on: on, lapsing: lapsing };
 })();
-
 </script>
 <script id="iv-profile107-js">
 /* ═══════════════ THE PROFILE · the real account, and a sign-out that works ═══════════════ */
@@ -20687,8 +20690,8 @@ window.IVCALL = (function () {
       if (offer && offer.note) h += '<p class="ivc-note">\u201c' + esc(offer.note) + '\u201d</p>';
 
       h += '<div class="ivc-days" id="ivc-days">' + days.map(function (d) {
-        var on = S.day === d.getTime();
-        return '<button class="ivc-day' + (on ? ' on' : '') + '" data-day="' + d.getTime() + '">' +
+        var on = S.day === d.getTime(), label = DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()];
+        return '<button type="button" class="ivc-day' + (on ? ' on' : '') + '" data-day="' + d.getTime() + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="Select ' + label + '">' +
           '<i>' + DOW[d.getDay()] + '</i><b>' + d.getDate() + '</b><s>' + MON[d.getMonth()] + '</s></button>';
       }).join('') + '</div>';
 
@@ -20703,7 +20706,7 @@ window.IVCALL = (function () {
         var end = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), hr, 59, 59, 999);
         var ok = start.getTime() <= hi.getTime() && end.getTime() >= lo.getTime();
         var on = S.hour === hr;
-        return '<button class="ivc-hr' + (on ? ' on' : '') + '" data-hr="' + hr + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
+        return '<button type="button" class="ivc-hr' + (on ? ' on' : '') + '" data-hr="' + hr + '" aria-pressed="' + (on ? 'true' : 'false') + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
       }).join('') + '</div>';
       h += '<div class="ivc-minute-row"><label for="ivc-minute">Minutes past the hour</label>' +
         '<select id="ivc-minute" class="ivc-minute"' + (S.hour == null ? ' disabled' : '') + '>' +
@@ -21874,13 +21877,15 @@ window.IVCALL = (function () {
         ? 'They chose a time you cannot make. Choose the day, the earliest time you can, and how long your window stays open \u2014 they choose inside it, and it is settled.'
         : 'Sessions run from ' + spoken(hrs.open) + ' through to ' + spoken(hrs.close) + '. They are told the moment you set it, and may be moved again.') + '</p>' +
       '<div class="ivc-days">' + days.map(function (d) {
-        return '<button class="ivc-day' + (S.day === d.getTime() ? ' on' : '') + '" data-day="' + d.getTime() + '"><i>' + DOW[d.getDay()] + '</i><b>' + d.getDate() + '</b><s>' + MON[d.getMonth()] + '</s></button>';
+        var on = S.day === d.getTime(), label = DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()];
+        return '<button type="button" class="ivc-day' + (on ? ' on' : '') + '" data-day="' + d.getTime() + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="Select ' + label + '"><i>' + DOW[d.getDay()] + '</i><b>' + d.getDate() + '</b><s>' + MON[d.getMonth()] + '</s></button>';
       }).join('') + '</div>' +
       '<div class="ivc-hours">' + candidateHours(hrs).map(function (hr) {
         var start = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), hr, 0, 0, 0);
         var endOfHour = new Date(sel.getFullYear(), sel.getMonth(), sel.getDate(), hr, 59, 59, 999);
         var ok = start.getTime() <= horizon.getTime() && endOfHour.getTime() >= earliest.getTime();
-        return '<button class="ivc-hr' + (S.hour === hr ? ' on' : '') + '" data-hr="' + hr + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
+        var on = S.hour === hr;
+        return '<button type="button" class="ivc-hr' + (on ? ' on' : '') + '" data-hr="' + hr + '" aria-pressed="' + (on ? 'true' : 'false') + '"' + (ok ? '' : ' disabled') + '>' + clock(hr, 0) + '</button>';
       }).join('') + '</div>' +
       '<div class="ivc-minute-row"><label for="ivc-minute">Minutes past the hour</label>' +
         '<select id="ivc-minute" class="ivc-minute"' + (S.hour == null ? ' disabled' : '') + '>' +
@@ -33689,59 +33694,75 @@ var eased = 1 - Math.pow(1 - progress, 1.35);
 var shown = Math.round(base + (1000 - base) * eased);
 return Math.max(Number(real) || 0, Math.min(1000, Math.max(base, shown)));
 }
-var PKEY = 'ivory.pulse.v1', GAP = 4 * 60 * 1000;      /* four minutes, exactly */
-function ist() {
-var now = new Date();
-return new Date(now.getTime() + (330 + now.getTimezoneOffset()) * 60000);
+var PULSE_DAY_MS = 86400000, PULSE_DAY_START_MS = 5 * 60 * 60 * 1000;
+var PULSE_COOLDOWN_MS = 4 * 60 * 1000;
+var PULSE_DAY_KEY = 'ivory_pulse_day', PULSE_VALUE_KEY = 'ivory_pulse_value', PULSE_AT_KEY = 'ivory_pulse_at';
+var pulseCurrent = null;
+function pulseClock(nowMs) {
+var shifted = Number(nowMs) + (330 - PULSE_DAY_START_MS / 60000) * 60000;
+if (!isFinite(shifted)) shifted = Date.now() + 30 * 60000;
+var elapsed = ((shifted % PULSE_DAY_MS) + PULSE_DAY_MS) % PULSE_DAY_MS;
+return { day: Math.floor(shifted / PULSE_DAY_MS), through: elapsed / PULSE_DAY_MS };
 }
-function istDay() {
-var t = ist();
-return t.getFullYear() + '-' + (t.getMonth() + 1) + '-' + t.getDate();
+function pulseHash(n) {
+var h = Math.imul(Number(n) | 0, 2654435761) & 0x7fffffff;
+h ^= h >>> 13;
+h = Math.imul(h, 1274126177) & 0x7fffffff;
+h ^= h >>> 16;
+return h >>> 0;
 }
-function readPulse() {
-try { return JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch (e) { return null; }
+function estimatePulse(nowMs) {
+var clock = pulseClock(nowMs == null ? Date.now() : nowMs), day = clock.day;
+var dawn = 640 + pulseHash(day) % 260;
+var dusk = 2450 + pulseHash(day + 9176) % 1550;
+var t = Math.max(0, Math.min(1, clock.through));
+var curve = 0.34 * t + 0.66 * Math.pow(t, 2.2);
+var value = dawn + (dusk - dawn) * curve;
+return value < 700 ? 700 : value;
 }
-function writePulse(v) {
-try { localStorage.setItem(PKEY, JSON.stringify(v)); } catch (e) {}
+function pulseStore() {
+try { if (window.localStorage) return window.localStorage; } catch (e) {}
+try { if (typeof localStorage !== 'undefined') return localStorage; } catch (e) {}
+return null;
 }
-function floorAt(day, hour) {
-var seed = hash('day:' + day);
-var open = 180 + Math.round(rnd(seed, 'open') * 900);
-var grown = open + hour * (95 + Math.round(rnd(seed, 'rate') * 260));
-return Math.max(100, Math.min(4620, Math.round(grown)));
+function storedInt(store, key, fallback) {
+try {
+var raw = store && store.getItem(key);
+if (raw == null || raw === '') return fallback;
+var n = Number(raw);
+return isFinite(n) ? Math.floor(n) : fallback;
+} catch (e) { return fallback; }
 }
-function countVisit() {
-var t = ist(), day = istDay(), now = Date.now(), st = readPulse();
-if (!st || st.day !== day || !(Number(st.pos) > 0)) {
-st = { day: day, pos: floorAt(day, t.getHours()) + 1, last: now };
-writePulse(st);
-return st;
+function newVisit(nowMs) {
+var now = nowMs == null ? Date.now() : Number(nowMs);
+if (!isFinite(now)) now = Date.now();
+var day = pulseClock(now).day, next = Math.round(estimatePulse(now)), store = pulseStore();
+var lastDay = storedInt(store, PULSE_DAY_KEY, -1);
+var lastValue = storedInt(store, PULSE_VALUE_KEY, 0);
+var lastAt = storedInt(store, PULSE_AT_KEY, 0);
+var sinceMs = now - lastAt;
+if (lastDay === day && lastValue > 0 && sinceMs < PULSE_COOLDOWN_MS) {
+pulseCurrent = lastValue;
+return { n: pulseCurrent, day: day, reused: true };
 }
-if (now - Number(st.last || 0) >= GAP) {
-st.pos = Math.min(4997, Number(st.pos) + 1);
-st.last = now;
-writePulse(st);
+if (lastDay === day && next <= lastValue) {
+next = lastValue + 1 + pulseHash(lastValue + day) % 7;
 }
-return st;
+try {
+if (store) {
+store.setItem(PULSE_DAY_KEY, String(day));
+store.setItem(PULSE_VALUE_KEY, String(next));
+store.setItem(PULSE_AT_KEY, String(now));
+}
+} catch (e) {}
+pulseCurrent = next;
+return { n: pulseCurrent, day: day, reused: false };
 }
 function pulse() {
-var t = ist();
-var st = readPulse();
-var mins = t.getHours() * 60 + t.getMinutes();
-var since = mins >= 240 ? mins - 240 : mins + (1440 - 240);
-var day = istDay();
-var n = (st && st.day === day && Number(st.pos) > 0)
-? Number(st.pos)
-: floorAt(day, t.getHours()) + 1;
-return {
-n: Math.min(4997, n),
-of: 4997,
-since: since,
-day: t.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][t.getMonth()],
-ends: 1440 - since
-};
+var now = Date.now(), clock = pulseClock(now);
+return { n: pulseCurrent == null ? Math.round(estimatePulse(now)) : pulseCurrent, day: clock.day };
 }
+function pulseLine(p) { return 'You are the ' + fmt(p.n) + ' member to walk in.'; }
 var discTimer = null, discLive = null, liveReader = null, liveRead = null;
 var liveStarted = false, liveSessionHook = false, liveVisibilityHook = false;
 var rtSocket = null, rtHeartbeat = null, rtReconnect = null, rtRef = 0, rtRetry = 0;
@@ -33822,7 +33843,15 @@ var host = $('iv-disc-seat');
 if (!host) { host = document.createElement('div'); host.id = 'iv-disc-seat'; }
 var home = document.querySelector('#home-screen .hp');
 if (home) {
-if (host.parentNode !== home || home.firstElementChild !== host) home.insertBefore(host, home.firstChild);
+var kids = Array.prototype.slice.call(home.children), anchor = null;
+kids.forEach(function (child) {
+if (child.classList && (child.classList.contains('hp-ticker') || child.classList.contains('ribbon'))) anchor = child;
+});
+if (!anchor) kids.forEach(function (child) { if (child.classList && child.classList.contains('hp-bar')) anchor = child; });
+if (anchor) {
+var after = anchor.nextElementSibling;
+if (host.parentNode !== home || after !== host) home.insertBefore(host, after);
+} else if (host.parentNode !== home || home.firstElementChild !== host) home.insertBefore(host, home.firstChild);
 } else if (host.parentNode !== document.body) {
 (document.body || document.documentElement).appendChild(host);
 }
@@ -33893,14 +33922,37 @@ old.setAttribute('aria-label', title + ' · Live now · ' + liveCountLabel(row) 
 old.title = title;
 }
 }
+var emptyLiveReads = 0;
 function readLive() {
 if (liveRead) return liveRead;
 if (!window.IVSESS || !IVSESS.get) return Promise.resolve(null);
-liveRead = IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,is_entitled,started_at,created_at&status=eq.live&order=started_at.desc&limit=5')
-.then(function (rows) { paintDisc(rows || []); return rows || []; })
+liveRead = IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,is_entitled,started_at,created_at&status=eq.live&order=started_at.desc&limit=5', { cache: 'no-store' })
+.then(function (rows) {
+rows = Array.isArray(rows) ? rows : [];
+if (rows.length) { emptyLiveReads = 0; paintDisc(rows); return rows; }
+if (discLive && emptyLiveReads === 0) {
+emptyLiveReads = 1;
+setTimeout(function () { readLive(); }, 1100);
+return rows;
+}
+emptyLiveReads = 0;
+paintDisc(rows);
+return rows;
+})
 .catch(function () { return null; })
 .then(function (rows) { liveRead = null; return rows; }, function (e) { liveRead = null; throw e; });
 return liveRead;
+}
+function livePollDelay() {
+return document.visibilityState === 'visible' ? 5000 : 30000;
+}
+function scheduleLiveRead(wait) {
+if (!liveStarted) return;
+clearTimeout(discTimer);
+discTimer = setTimeout(function () {
+discTimer = null;
+readLive().then(function () { scheduleLiveRead(livePollDelay()); });
+}, typeof wait === 'number' ? wait : livePollDelay());
 }
 function rtSend(event, payload, topic) {
 var ws = rtSocket;
@@ -33967,24 +34019,27 @@ rtSocket = null; clearInterval(rtHeartbeat); rtHeartbeat = null; rtSchedule();
 }
 function watchLive() {
 liveReader = readLive;
-readLive();
 if (!liveStarted) {
 liveStarted = true;
-discTimer = setInterval(readLive, 20000);
+scheduleLiveRead(0);
 rtConnect();
 }
 if (window.IVSESS && !liveSessionHook) {
 liveSessionHook = true;
 IVSESS.on(function (ev) {
-if (ev === 'in' || ev === 'out' || ev === 'renewed' || ev === 'lapsed') { rtToken(); readLive(); }
+if (ev === 'in' || ev === 'out' || ev === 'renewed' || ev === 'lapsed') {
+rtToken(); readLive(); scheduleLiveRead(0);
+}
 });
 }
 if (!liveVisibilityHook) {
 liveVisibilityHook = true;
 document.addEventListener('visibilitychange', function () {
-if (document.visibilityState === 'visible') { readLive(); rtConnect(); }
+if (document.visibilityState === 'visible') { readLive(); rtConnect(); scheduleLiveRead(0); }
+else scheduleLiveRead(livePollDelay());
 });
-window.addEventListener('online', function () { readLive(); rtConnect(); });
+window.addEventListener('online', function () { readLive(); rtConnect(); scheduleLiveRead(0); });
+window.addEventListener('focus', function () { readLive(); rtConnect(); scheduleLiveRead(0); });
 }
 }
 window.ivPaintDisc = function () { return paintDisc(discLive ? [discLive] : []); };
@@ -34026,60 +34081,50 @@ odo.appendChild(span);
 }
 }
 }
-function ordinal(n) {
-var a = n % 100;
-if (a >= 11 && a <= 13) return 'th';
-return ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
-}
-function pulseLine(p) { return 'You are the ' + fmt(p.n) + ordinal(p.n) + ' visitor of today'; }
 function pulseCard() {
-var p = pulse();
+var p = pulse(), n = fmt(p.n), line = pulseLine(p);
 return '' +
-'<section class="pf-card pulse-card" id="pf-pulse" data-reveal>' +
+'<section class="pf-card pulse-card" id="pf-pulse" data-reveal aria-label="' +
+K.esc(line) + '">' +
 '<span class="pulse-rays" aria-hidden="true"></span>' +
 '<span class="pulse-halo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
 '<p class="pulse-lead">You are the</p>' +
-'<div class="pulse-big"><b id="pf-pulse-n" data-to="' + p.n + '">' + fmt(p.n) + '</b>' +
-'<s id="pf-pulse-ord">' + ordinal(p.n) + '</s></div>' +
-'<p class="pulse-tail">visitor of today</p>' +
+'<div class="pulse-big"><b id="pf-pulse-n" data-to="' + n + '">' + n + '</b>' +
+'<s id="pf-pulse-ord" hidden></s></div>' +
+'<p class="pulse-tail">member to walk in.</p>' +
 '<span class="pulse-sheen" aria-hidden="true"></span>' +
-'<p class="pulse-copy" id="pf-pulse-copy" hidden>' + pulseLine(p) + '</p>' +
+'<p class="pulse-copy" id="pf-pulse-copy" hidden>' + K.esc(line) + '</p>' +
 '</section>';
 }
-function countUp(card) {
-var b = card.querySelector('#pf-pulse-n');
-if (!b || card.__counted) return;
-card.__counted = 1;
-var to = Number(b.getAttribute('data-to') || 0);
-if (!to) return;
-var t0 = (window.performance || Date).now(), ms = 1500;
-var step = function (t) {
-var k = Math.min(1, (t - t0) / ms);
-var e = 1 - Math.pow(1 - k, 3);
-b.textContent = fmt(Math.round(to * e));
-if (k < 1) requestAnimationFrame(step);
-else b.textContent = fmt(to);
-};
-requestAnimationFrame(step);
+function removePulseNotes(root) {
+if (!root || !root.querySelectorAll) return;
+Array.prototype.forEach.call(root.querySelectorAll('.pulse-estimate-note'), function (note) {
+if (note.parentNode) note.parentNode.removeChild(note);
+});
 }
 function paintPulse() {
-var p = pulse();
+var p = pulse(), nText = fmt(p.n), exact = pulseLine(p);
 var card = $('pf-pulse');
 if (card) {
 var n = card.querySelector('#pf-pulse-n'), ord = card.querySelector('#pf-pulse-ord'),
 copy = card.querySelector('#pf-pulse-copy');
-if (n) n.setAttribute('data-to', p.n);
-if (ord) ord.textContent = ordinal(p.n);
-if (copy) copy.textContent = pulseLine(p);
+if (n) { n.setAttribute('data-to', nText); n.textContent = nText; }
+if (ord) { ord.textContent = ''; ord.hidden = true; }
+if (copy) copy.textContent = exact;
+card.setAttribute('aria-label', exact);
+removePulseNotes(card);
 }
 Array.prototype.forEach.call(document.querySelectorAll('.pulse-strip'), function (strip) {
 var tx = strip.querySelector('.pulse-tx');
 if (!tx) return;
-tx.innerHTML = 'Visitor <b>' + fmt(p.n) + '</b> of ' + fmt(p.of) +
-' today \u00b7 a new day at 3:59 am';
+tx.innerHTML = 'You are the <b>' + K.esc(nText) + '</b> member to walk in.';
 strip.setAttribute('data-pulse', String(p.n));
+strip.setAttribute('aria-label', exact);
+removePulseNotes(strip);
 });
+return p;
 }
+function refreshPulseVisit() { newVisit(); return paintPulse(); }
 function seatPulse() {
 var prof = document.querySelector('#profile-screen .hp');
 if (!prof || prof.querySelector('.pulse-card')) return;
@@ -34089,27 +34134,7 @@ wrap.innerHTML = pulseCard();
 var node = wrap.firstChild;
 if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(node, anchor);
 else prof.appendChild(node);
-setTimeout(function () { node.classList.add('on'); }, 40);
-var fire = function () { countUp(node); };
-if (window.IntersectionObserver) {
-var io = new IntersectionObserver(function (rows) {
-rows.forEach(function (r) { if (r.isIntersecting) { fire(); io.disconnect(); } });
-}, { threshold: 0.35 });
-io.observe(node);
-} else { setTimeout(fire, 900); }
-}
-function welcome() {
-var p = pulse();
-var key = 'ivory.pulse.' + ist().toDateString();
-var said = null;
-try { said = localStorage.getItem(key); } catch (e) {}
-if (said) return;
-setTimeout(function () {
-if (window.ivoryToast) {
-window.ivoryToast(pulseLine(p));
-}
-try { localStorage.setItem(key, '1'); } catch (e) {}
-}, 2400);
+setTimeout(function () { node.classList.add('on'); paintPulse(); }, 40);
 }
 var crestEl = null;
 function crestBuild() {
@@ -34162,19 +34187,27 @@ wrappedBadge.__eye = 1;
 window.ivPaintBadge = wrappedBadge;
 }
 }
-countVisit();
+refreshPulseVisit();
 document.addEventListener('visibilitychange', function () {
-if (document.visibilityState === 'visible') { countVisit(); paintPulse(); }
+if (document.visibilityState === 'visible') refreshPulseVisit();
 });
+window.addEventListener('focus', refreshPulseVisit);
+window.addEventListener('pageshow', refreshPulseVisit);
 watchLive();
-window.addEventListener('iv-live-started', function () { if (liveReader) liveReader(); });
-window.addEventListener('iv-live-ended', function () { paintDisc([]); if (liveReader) setTimeout(liveReader, 30); });
+window.addEventListener('iv-live-started', function () {
+emptyLiveReads = 0;
+if (liveReader) { liveReader(); scheduleLiveRead(0); }
+});
+window.addEventListener('iv-live-ended', function () {
+emptyLiveReads = 0;
+paintDisc([]);
+if (liveReader) { setTimeout(liveReader, 30); scheduleLiveRead(250); }
+});
 seedPosts();
 seatPulse();
 paintPulse();
 setInterval(function () {
 seedPosts();
-paintPulse();
 softenRoom();
 }, 45000);
 if (window.ivoryShow) {
@@ -34194,11 +34227,12 @@ window.ivoryShow = wrapped;
 if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(boot, 0);
 else document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 0); });
 return {
-views: views, roomCount: roomCount, pulse: pulse, fmt: fmt,
+views: views, roomCount: roomCount, pulse: pulse, newVisit: newVisit,
+estimatePulse: estimatePulse, pulseClock: pulseClock, pulseHash: pulseHash, pulseLine: pulseLine,
+paintPulse: paintPulse, fmt: fmt,
 paintDisc: paintDisc, readLive: readLive, seedPosts: seedPosts, seatPulse: seatPulse,
 realtime: function () { return { state: rtSocket ? rtSocket.readyState : -1, reconnecting: !!rtReconnect, heartbeat: !!rtHeartbeat }; },
-pieces: function () { return pieces; },
-welcome: welcome
+pieces: function () { return pieces; }
 };
 })();
 </script>
@@ -38697,7 +38731,7 @@ window.IVVOICE = (function () {
 <script id="iv-notify-js">
 (function () {
 var KEY = 'iv.notify.v1';
-var reg = null, watching = null;
+var reg = null, watching = false, watchTimer = null, watchBusy = false, watchHooks = false;
 function state() {
 try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
 }
@@ -38794,15 +38828,41 @@ next();
 return fresh.length;
 }).catch(function () { return 0; });
 }
+function pollDelay() { return document.visibilityState === 'visible' ? 5000 : 30000; }
+function scheduleWatch(ms) {
+if (!watching) return;
+clearTimeout(watchTimer);
+watchTimer = setTimeout(pollOnce, typeof ms === 'number' ? ms : pollDelay());
+}
+function pollOnce() {
+if (!watching) return;
+if (watchBusy) { scheduleWatch(pollDelay()); return; }
+watchBusy = true;
+once().catch(function () { return 0; }).then(function () {
+watchBusy = false;
+scheduleWatch(pollDelay());
+});
+}
+function wakeWatch() {
+if (!watching) return;
+clearTimeout(watchTimer);
+pollOnce();
+}
 function watch() {
-if (watching) return watching;
+if (watching) return watchTimer;
+watching = true;
 sw();                    /* the worker is ready before the first bell, not after */
-once();
-watching = setInterval(function () {
-if (document.visibilityState === 'visible' || document.visibilityState === 'hidden') once();
-}, 20000);
-document.addEventListener('visibilitychange', function () { once(); });
-return watching;
+if (!watchHooks) {
+watchHooks = true;
+document.addEventListener('visibilitychange', function () {
+if (document.visibilityState === 'visible') wakeWatch();
+else scheduleWatch(pollDelay());
+});
+window.addEventListener('online', wakeWatch);
+window.addEventListener('focus', wakeWatch);
+}
+pollOnce();
+return watchTimer;
 }
 function callId(value) {
 var m = String(value || '').match(/^#?ivory-call:(\d+)$/i);
@@ -39727,6 +39787,13 @@ if (type === 'audio') return 'audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac';
 if (type === 'video') return 'video/*,.mp4,.mov,.m4v,.webm';
 return '';
 }
+function chooseExistingFile(input) {
+if (!input) return;
+try { input.removeAttribute('capture'); } catch (e) {}
+if (window.IVCAPTURE && typeof IVCAPTURE.pick === 'function') { IVCAPTURE.pick(input); return; }
+input.__ivpass = true;
+input.click();
+}
 function create(pane) {
 var ME = ++LIVE, S = {
 type: 'blog', title: '', summary: '', body: '', options: ['', ''], minutes: '',
@@ -40004,8 +40071,8 @@ if (S.type === 'image') S.coverRail = value;
 } else S.coverRail = value;
 paintMedia(); keep(); return;
 }
-if (action === 'choose-media') { var f = q('[data-media-file]'); f.accept = acceptFor(S.type); f.click(); return; }
-if (action === 'choose-cover') { q('[data-cover-file]').click(); return; }
+if (action === 'choose-media') { var f = q('[data-media-file]'); f.accept = acceptFor(S.type); chooseExistingFile(f); return; }
+if (action === 'choose-cover') { chooseExistingFile(q('[data-cover-file]')); return; }
 if (action === 'remove-media') { S.mediaFile = null; paintMedia(); keep(); return; }
 if (action === 'manage-vaults') { manageVaults(); return; }
 if (action === 'add-option') { S.options.push(''); paintPoll(); keep(); return; }
