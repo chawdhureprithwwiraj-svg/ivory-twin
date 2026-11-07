@@ -49,11 +49,11 @@ export class LocalLiveBeautyPreview{
       '<div class="c105-bp-bottom"><section class="c105-bp-panel" data-panel hidden></section><div class="c105-bp-label">'+FACE+'<span>IVORY ONLY · CAMERA STAYS LOCAL</span></div>'+
       '<p class="c105-bp-status" data-status aria-live="polite">Preparing a private camera preview...</p>'+
       '<p class="c105-bp-explain">No room joined, no token requested, no broadcast started. These are the same skin controls used in your host broadcast.</p>'+
-      '<button type="button" class="c105-bp-adjust" data-adjust disabled>'+TUNE+'<span>ADJUST BEAUTY</span></button><button type="button" class="c105-bp-resume" data-resume hidden>TRY THE CAMERA AGAIN</button>'+
+      '<button type="button" class="c105-bp-adjust" data-adjust aria-controls="c105-bp-adjustments" aria-expanded="false">'+TUNE+'<span>ADJUST BEAUTY</span></button><button type="button" class="c105-bp-resume" data-resume hidden>TRY THE CAMERA AGAIN</button>'+
       '<p class="c105-bp-scope">No face-shape or eye-colour effects are included.</p></div>';
-    this.root=root;this.raw=root.querySelector('[data-raw]');this.output=root.querySelector('[data-output]');this.status=root.querySelector('[data-status]');this.switchButton=root.querySelector('[data-switch]');this.adjust=root.querySelector('[data-adjust]');this.resume=root.querySelector('[data-resume]');this.panel=root.querySelector('[data-panel]');
+    this.root=root;this.raw=root.querySelector('[data-raw]');this.output=root.querySelector('[data-output]');this.status=root.querySelector('[data-status]');this.switchButton=root.querySelector('[data-switch]');this.adjust=root.querySelector('[data-adjust]');this.resume=root.querySelector('[data-resume]');this.panel=root.querySelector('[data-panel]');this.panel.id='c105-bp-adjustments';
     [this.raw,this.output].forEach(v=>{v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');});
-    root.querySelector('[data-close]').addEventListener('click',()=>this.close());this.switchButton.addEventListener('click',()=>this.switchCamera());this.adjust.addEventListener('click',()=>{this.panel.hidden=!this.panel.hidden;});this.resume.addEventListener('click',()=>this.start());
+    root.querySelector('[data-close]').addEventListener('click',()=>this.close());this.switchButton.addEventListener('click',()=>this.switchCamera());this.adjust.setAttribute('aria-controls',this.panel.id);this.adjust.setAttribute('aria-expanded','false');this.adjust.addEventListener('click',()=>{this.panel.hidden=!this.panel.hidden;this.adjust.setAttribute('aria-expanded',String(!this.panel.hidden));});this.resume.addEventListener('click',()=>this.start());
     this.onKey=e=>{if(e.key==='Escape'){e.preventDefault();this.close();}};this.onVisibility=()=>this.visibility();this.buildPanel();
   }
   buildPanel(){
@@ -62,7 +62,7 @@ export class LocalLiveBeautyPreview{
     const note=document.createElement('p');note.className='c105-bp-panelnote';note.textContent='Local skin preview only. Your camera returns to normal when Beauty is off or this preview closes.';this.panel.appendChild(note);this.paintPanel();
   }
   paintPanel(){this.master.setAttribute('aria-checked',String(!!this.state.on));Object.keys(this.rows).forEach(k=>{const n=Math.round(this.state.fx[k]*100);this.rows[k].input.value=String(n);this.rows[k].value.textContent=n+'%';});}
-  setStatus(text,error=false){if(this.closing)return;this.status.textContent=text;this.resume.hidden=!error;this.ready=!error&&!!this.stream;this.adjust.disabled=!this.ready;this.switchButton.disabled=!this.ready||this.starting;}
+  setStatus(text,error=false){if(this.closing)return;this.status.textContent=text;this.resume.hidden=!error;this.ready=!error&&!!this.stream;this.switchButton.disabled=!this.ready||this.starting;}
   async open(){if(this.root.isConnected)return this;document.body.appendChild(this.root);document.body.classList.add('on-beauty-preview');document.addEventListener('keydown',this.onKey);document.addEventListener('visibilitychange',this.onVisibility);this.root.focus();this.start();return this;}
   async acquire(facing){
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera preview is not supported in this browser.');
@@ -77,7 +77,7 @@ export class LocalLiveBeautyPreview{
       this.stream=stream;this.facing=facing;this.raw.srcObject=stream;await play(this.raw);if(gen!==this.generation||this.closing)return;
       this.setStatus('Your private preview is ready. You are not live.');if(this.state.on)await this.startEngine();
     }catch(e){if(gen!==this.generation||this.closing)return;this.stopStream();this.setStatus('The private camera preview could not start. Check camera access.',true);}
-    finally{if(gen===this.generation)this.starting=false;if(!this.closing){this.switchButton.disabled=!this.stream;this.adjust.disabled=!this.stream;}}
+    finally{if(gen===this.generation)this.starting=false;if(!this.closing)this.switchButton.disabled=!this.stream;}
   }
   async startEngine(){
     if(this.engine||!this.state.on||!this.stream||this.closing)return;const gen=++this.effectGeneration;let engine=null;
