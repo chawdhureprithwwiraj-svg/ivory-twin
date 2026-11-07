@@ -1,0 +1,94 @@
+/* Pass 108 · owner-approved interaction repairs and warm hierarchy. */
+
+/* The Early Door pill is a native button in Profile; retain its existing
+   gold treatment while giving keyboard users a clear focus ring. */
+#profile-screen .dawn-pill[data-open="door"]{
+  appearance:none;-webkit-appearance:none;font:inherit;line-height:inherit;color:inherit;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#profile-screen .dawn-pill[data-open="door"]:focus-visible{
+  outline:3px solid rgba(185,135,50,.55);outline-offset:3px;
+}
+
+/* Golden Knock-off: let the principal Home offer occupy a full, deliberate
+   card rather than the zero-height override left by the earlier compact pass. */
+#home-screen .hp-feed>.card.c-gold{
+  min-height:clamp(350px,88vw,430px)!important;
+  box-shadow:0 26px 48px -25px rgba(73,42,8,.62),0 0 34px -20px rgba(205,157,53,.72),
+    inset 0 0 0 1px rgba(255,246,215,.82)!important;
+}
+#home-screen .hp-feed>.card.c-gold>.card-in{
+  box-sizing:border-box;min-height:inherit!important;padding:22px 20px 22px!important;
+  background:radial-gradient(120% 88% at 17% 0,rgba(255,217,144,.34),transparent 59%),
+    linear-gradient(165deg,rgba(105,73,20,.96),rgba(74,44,8,.94) 52%,rgba(57,35,7,.97))!important;
+}
+#home-screen .hp-feed>.card.c-gold .title{font-size:clamp(25px,6vw,29px)!important;line-height:1.08!important}
+#home-screen .hp-feed>.card.c-gold .clock b{font-size:30px!important}
+@media(max-width:370px){
+  #home-screen .hp-feed>.card.c-gold{min-height:350px!important}
+  #home-screen .hp-feed>.card.c-gold>.card-in{padding-right:16px!important;padding-left:16px!important}
+}
+
+/* A working, keyboard-accessible action row. Unverified server keys are
+   visibly quiet, never given a made-up destination. */
+#sheet-heart button.gg.gg-action{
+  appearance:none;-webkit-appearance:none;display:flex!important;align-items:center;width:100%;
+  box-sizing:border-box;min-height:48px;padding:10px 12px;border:0;text-align:left;
+  color:inherit;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#sheet-heart button.gg.gg-action:hover:not(:disabled){
+  background:linear-gradient(100deg,rgba(255,247,219,.92),rgba(238,217,168,.72))!important;
+}
+#sheet-heart button.gg.gg-action:focus-visible{
+  outline:3px solid rgba(185,135,50,.52);outline-offset:2px;
+}
+#sheet-heart button.gg.gg-action:disabled{cursor:default;opacity:.76}
+#sheet-heart .gg.gg-unverified{display:flex;align-items:center;box-sizing:border-box;min-height:48px;padding:10px 12px;opacity:.78}
+#sheet-heart .gg-unrouted{font-size:9px;letter-spacing:.04em;color:#8a6a33;white-space:nowrap}
+
+/* The live ribbon carries the server title and real viewer_count on every
+   screen. Keep the original House palette, not the old scrolling rainbow. */
+#iv-live-ribbon[hidden]{display:none!important}
+#iv-live-ribbon{
+  display:flex!important;align-items:center;gap:9px;box-sizing:border-box;
+  left:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));
+  width:100%;height:48px;margin:0;padding:5px 14px;border:0;border-top:1px solid rgba(255,255,255,.78);
+  border-bottom:1px solid rgba(122,78,26,.28);border-radius:0;overflow:hidden;
+  color:#4a0e17;background:linear-gradient(100deg,#fff9e8 0%,#f3dfb0 49%,#e7c47a 100%);
+  box-shadow:0 -7px 22px -16px rgba(73,34,20,.62),inset 0 1px 0 rgba(255,255,255,.78);
+  animation:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+#iv-live-ribbon:focus-visible{outline:3px solid #7b3c1e;outline-offset:-4px}
+#iv-live-ribbon .iv-live-dot{
+  flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:#6b0e20;
+  box-shadow:0 0 0 3px rgba(107,14,32,.12),0 0 10px rgba(107,14,32,.38);
+}
+#iv-live-ribbon .iv-live-ribbon-copy{display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;overflow:hidden}
+#iv-live-ribbon .iv-live-badge{flex:none;color:#6b0e20;font:900 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.13em}
+#iv-live-ribbon .iv-live-title{
+  display:block;flex:0 1 auto;min-width:0;max-width:48vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#4a0e17;font:700 13px/1.2 Georgia,"Times New Roman",serif;
+}
+#iv-live-ribbon .iv-live-count{flex:none;color:#73552c;font:700 10px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+#iv-live-ribbon .iv-live-ribbon-cta{
+  flex:none;display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border:1px solid rgba(91,14,30,.25);
+  border-radius:999px;background:linear-gradient(180deg,#6b1222,#4a0e17);color:#fff8e5;
+  font:800 8.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;white-space:nowrap;
+}
+#iv-live-ribbon .iv-live-ribbon-cta i{font:700 12px/1 Georgia,serif}
+@media(max-width:390px){
+  #iv-live-ribbon{gap:7px;padding-right:9px;padding-left:10px}
+  #iv-live-ribbon .iv-live-ribbon-copy{gap:6px}
+  #iv-live-ribbon .iv-live-title{max-width:31vw;font-size:12px}
+  #iv-live-ribbon .iv-live-count{font-size:9px}
+  #iv-live-ribbon .iv-live-ribbon-cta{gap:3px;padding:7px 8px;font-size:8px}
+}
+@media(min-width:1100px){#iv-live-ribbon{bottom:52px}}
+@media(prefers-reduced-motion:reduce){#iv-live-ribbon .iv-live-dot{box-shadow:0 0 0 3px rgba(107,14,32,.12)}}
+
+/* The Home medallion stays gold, with a visible, bounded server title. */
+#iv-disc-seat .ivdisc-tx b{
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;
+  font-size:clamp(14px,4.4vw,17px)!important;line-height:1.16;
+}
+#iv-disc-seat .ivdisc-tx s{display:block;font-variant-numeric:tabular-nums}
