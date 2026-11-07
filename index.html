@@ -18303,7 +18303,7 @@ function sparkleAt(el){
   var copy=document.getElementById('rite-copy');
   var kEl=document.getElementById('rite-k'), hEl=document.getElementById('rite-h'), bEl=document.getElementById('rite-b');
   var goBtn=document.getElementById('rite-go'), skipBtn=document.getElementById('rite-skip'), xBtn=document.getElementById('rite-x');
-  var playing=false, timers=[], launched=false;
+  var playing=false, timers=[], launched=false, gatePending=false, checkingGate=false, serverCycleKey=null, spunThisGate=false;
 
   function mins(d){ return d.getHours()*60+d.getMinutes(); }
   var forced=null;
@@ -18316,9 +18316,24 @@ function sparkleAt(el){
     return null;
   }
   function dayKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
-  function spunKey(){ var w=windowNow(); return w?('ivory.wheel.spun.'+dayKey()+'.'+w.k):null; }
-  function hasSpun(){ try{ var k=spunKey(); return !!(k && localStorage.getItem(k)); }catch(e){ return false; } }
-  function markSpun(){ try{ var k=spunKey(); if(k) localStorage.setItem(k,'1'); }catch(e){} }
+  function spunKey(){
+    if(serverCycleKey) return 'ivory.wheel.spun.server.'+encodeURIComponent(serverCycleKey);
+    var w=windowNow(); return w?('ivory.wheel.spun.'+dayKey()+'.'+w.k):null;
+  }
+  function hasSpun(){
+    if(spunThisGate) return true;
+    try{ var k=spunKey(); return !!(k && localStorage.getItem(k)); }catch(e){ return false; }
+  }
+  function markSpun(){
+    spunThisGate=true; gatePending=false;
+    try{ var k=spunKey(); if(k) localStorage.setItem(k,'1'); }catch(e){}
+  }
+  function needsTurn(){ return checkingGate || (gatePending && !hasSpun()); }
+  function paintGateControls(){
+    var mustTurn=needsTurn();
+    if(skipBtn) skipBtn.hidden=mustTurn;
+    if(xBtn){ xBtn.hidden=mustTurn; xBtn.setAttribute('aria-hidden',mustTurn?'true':'false'); }
+  }
 
   function later(fn,ms){ var t=setTimeout(fn,ms); timers.push(t); return t; }
   function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
@@ -18365,7 +18380,7 @@ function sparkleAt(el){
       hEl.textContent='The wheel has descended';
       bEl.innerHTML='Twelve segments, one feather. Take your turn while the hours hold.';
       goBtn.textContent='Take the turn';
-      skipBtn.textContent='Not now \u2014 into the house';
+      skipBtn.textContent='Your turn comes first';
     }
   }
 
@@ -18381,9 +18396,10 @@ function sparkleAt(el){
 
   function play(){
     if(playing) return;
-    playing=true; launched=true;
+    playing=true; launched=true; checkingGate=false;
+    goBtn.hidden=false; goBtn.disabled=false;
     var spun=hasSpun();
-    copyFor(spun);
+    copyFor(spun); paintGateControls();
     R.classList.add('on'); R.setAttribute('aria-hidden','false');
     document.body.classList.add('rite-open');
     try{ sessionStorage.setItem('ivory.rite','1'); }catch(e){}
@@ -18414,12 +18430,18 @@ function sparkleAt(el){
     R.classList.remove('on'); R.setAttribute('aria-hidden','true');
     document.body.classList.remove('rite-open');
     try{ film.pause(); }catch(e){}
-    playing=false;
+    playing=false; checkingGate=false;
     if(typeof then==='function') later(then, 260);
   }
 
   goBtn.addEventListener('click', function(){
+    if(checkingGate) return;
     var spun=hasSpun();
+    if(needsTurn()){
+      leave(function(){ window.scrollTo(0,0); if(window.IvoryRite.openWheel) window.IvoryRite.openWheel(); });
+      return;
+    }
+    if(gatePending && spun) gatePending=false;
     leave(function(){
       window.scrollTo(0,0);
       if(!spun && window.IvoryRite.openWheel) window.IvoryRite.openWheel();
@@ -18427,17 +18449,27 @@ function sparkleAt(el){
   });
   skipBtn.addEventListener('click', function(){
     var spun=hasSpun();
+    if(needsTurn()){ bEl.textContent='Your turn on the wheel comes before entering the house.'; return; }
     leave(function(){
       window.scrollTo(0,0);
       if(spun && window.IvoryRite.openWheel) window.IvoryRite.openWheel();
     });
   });
-  xBtn.addEventListener('click', function(){ leave(); });
+  xBtn.addEventListener('click', function(){ if(needsTurn()) return; leave(); });
   document.addEventListener('keydown', function(e){
     if(!R.classList.contains('on')) return;
-    if(e.key==='Escape'){ e.preventDefault(); leave(); }
+    if(e.key==='Escape'){
+      e.preventDefault();
+      if(needsTurn()){ if(e.stopImmediatePropagation) e.stopImmediatePropagation(); return; }
+      leave(); return;
+    }
+    if(e.key==='Tab' && (checkingGate || needsTurn())){
+      e.preventDefault();
+      try{ (checkingGate?R:goBtn).focus(); }catch(err){}
+      return;
+    }
     if(e.key==='Tab'){
-      var f=R.querySelectorAll('button, [href], video');
+      var f=Array.prototype.filter.call(R.querySelectorAll('button, [href], video'),function(n){return !n.hidden&&n.offsetParent!==null;});
       if(!f.length) return;
       var first=f[0], last=f[f.length-1];
       if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
@@ -18445,30 +18477,57 @@ function sparkleAt(el){
     }
   });
 
+  function observeState(st){
+    if(!st) return;
+    var next=st.cycle_closes_at?String(st.cycle_closes_at):null;
+    if(next!==serverCycleKey){ serverCycleKey=next; spunThisGate=false; }
+    if(st.open!==true && gatePending) gatePending=false;
+  }
+  function releaseGate(){ gatePending=false; paintGateControls(); }
   window.IvoryRite={
     play:play,
     force:function(k){ forced = k ? {k:k,lab:k==='am'?'Morning turn':k==='pm'?'Afternoon turn':'Sunrise turn'} : {k:'am',lab:'Morning turn'};
-      try{ sessionStorage.removeItem('ivory.rite'); }catch(e){} play(); },
+      gatePending=true; spunThisGate=false; try{ sessionStorage.removeItem('ivory.rite'); }catch(e){} play(); },
     unforce:function(){ forced=null; },
     markSpun:markSpun,
     hasSpun:hasSpun,
+    needsTurn:needsTurn,
+    observeState:observeState,
+    releaseGate:releaseGate,
     windowNow:windowNow,
     openWheel:function(){ var m=document.getElementById('wof-med'); if(m) m.click(); }
   };
 
-  /* the house opens: once the member is in, and only inside the hours */
+  function showCheckingGate(){
+    checkingGate=true;
+    R.classList.add('on'); R.setAttribute('aria-hidden','false');
+    document.body.classList.add('rite-open'); copy.classList.add('is-up');
+    kEl.textContent='The Gilded Hours'; hEl.textContent='Checking the house clock';
+    bEl.textContent='The server decides when the Wheel opens. One moment.';
+    goBtn.hidden=false; goBtn.disabled=true; goBtn.textContent='Checking the house clock…';
+    skipBtn.hidden=true; xBtn.hidden=true; xBtn.setAttribute('aria-hidden','true');
+    R.setAttribute('tabindex','-1'); try{ R.focus(); }catch(e){}
+  }
+
+  /* The server owns Gilded Hours; the handset clock never opens the gate. */
   function boot(){
     if(launched) return;
     var tries=0;
     var t=setInterval(function(){
       tries++;
       var member=document.body.classList.contains('member');
+      var admin=!!(window.ivIsAdmin&&window.ivIsAdmin());
       var busy=document.getElementById('boot') && document.getElementById('boot').offsetParent;
-      if(member && !busy){
-        clearInterval(t);
-        var seen=false;
-        try{ seen=!!sessionStorage.getItem('ivory.rite'); }catch(e){}
-        if(!seen && windowNow()) { setTimeout(play, 700); }
+      if(member && !admin && !busy){
+        if(!window.IVWHEEL100 || !IVWHEEL100.load){ if(tries>80) clearInterval(t); return; }
+        clearInterval(t); showCheckingGate();
+        var current=IVWHEEL100.state?IVWHEEL100.state():null;
+        var read=current&&typeof current.open==='boolean'?Promise.resolve(current):IVWHEEL100.load(false);
+        read.then(function(st){
+          observeState(st);
+          if(st && st.open===true){ gatePending=true; play(); }
+          else leave();
+        }).catch(function(){ leave(); });
       }
       if(tries>80) clearInterval(t);
     }, 350);
