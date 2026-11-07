@@ -127,13 +127,18 @@ jobs:
           token = os.environ['CLOUDFLARE_API_TOKEN']
           base = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin/deployments'
           def get_env(environment):
-              query = urllib.parse.urlencode({'env': environment, 'per_page': 50})
+              query = urllib.parse.urlencode({'env': environment, 'per_page': 20})
               request = urllib.request.Request(base + '?' + query, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass108-preview-receipt'})
               try:
                   with urllib.request.urlopen(request, timeout=30) as response:
                       data = json.loads(response.read())
               except urllib.error.HTTPError as error:
-                  raise RuntimeError('Cloudflare deployment metadata HTTP %s' % error.code)
+                  try:
+                      body = json.loads(error.read())
+                      detail = '; '.join(str(x.get('message', '')) for x in body.get('errors', []) if x.get('message'))
+                  except Exception:
+                      detail = ''
+                  raise SystemExit('::error::Cloudflare deployment metadata HTTP %s%s' % (error.code, (': ' + detail[:240]) if detail else ''))
               if data.get('success') is not True:
                   raise RuntimeError('Cloudflare deployment metadata lookup failed')
               return data.get('result') or []
