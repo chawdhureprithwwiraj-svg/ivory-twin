@@ -116,3 +116,65 @@ jobs:
             --project-name ivory-twin \
             --branch pass108-cloudflare-preview \
             --commit-dirty=true
+
+      - name: Record preview deployment and production rollback target
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, sys, urllib.error, urllib.parse, urllib.request
+          account = os.environ['CF_ACCOUNT_ID']
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          base = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin/deployments'
+          def get_env(environment):
+              query = urllib.parse.urlencode({'env': environment, 'per_page': 50})
+              request = urllib.request.Request(base + '?' + query, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass108-preview-receipt'})
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      data = json.loads(response.read())
+              except urllib.error.HTTPError as error:
+                  raise RuntimeError('Cloudflare deployment metadata HTTP %s' % error.code)
+              if data.get('success') is not True:
+                  raise RuntimeError('Cloudflare deployment metadata lookup failed')
+              return data.get('result') or []
+          def safe_url(value):
+              if not isinstance(value, str): return ''
+              if not re.fullmatch(r'https://[A-Za-z0-9.-]+\.ivory-twin\.pages\.dev/?', value):
+                  return ''
+              return value
+          production = [x for x in get_env('production') if (x.get('latest_stage') or {}).get('status') == 'success' and not x.get('is_skipped')]
+          if not production:
+              raise SystemExit('::error::No successful production rollback target was found.')
+          rollback = max(production, key=lambda x: x.get('created_on') or '')
+          metadata = (rollback.get('deployment_trigger') or {}).get('metadata') or {}
+          if metadata.get('branch') != 'main':
+              raise SystemExit('::error::Latest successful production target is not from main; stopping.')
+          previews = [x for x in get_env('preview') if (x.get('latest_stage') or {}).get('status') == 'success' and not x.get('is_skipped')]
+          branch = 'pass108-cloudflare-preview'
+          stage = [x for x in previews if ((x.get('deployment_trigger') or {}).get('metadata') or {}).get('branch') == branch]
+          if not stage:
+              raise SystemExit('::error::Successful Cloudflare preview deployment was not found.')
+          preview = max(stage, key=lambda x: x.get('created_on') or '')
+          aliases = [safe_url(x) for x in (preview.get('aliases') or [])]
+          aliases = [x for x in aliases if x]
+          preview_url = 'https://pass108-cloudflare-preview.ivory-twin.pages.dev/'
+          if preview_url.rstrip('/') not in [x.rstrip('/') for x in aliases] and safe_url(preview.get('url')) != preview_url.rstrip('/'):
+              raise SystemExit('::error::Expected preview alias was not confirmed; stopping.')
+          rollback_id = rollback.get('id') or ''
+          preview_id = preview.get('id') or ''
+          if not rollback_id or not preview_id:
+              raise SystemExit('::error::Deployment IDs were missing; stopping.')
+          lines = [
+              '## Pass-108 Cloudflare staging receipt',
+              '- Preview URL: ' + preview_url,
+              '- Preview deployment ID: `' + preview_id + '`; branch: `' + branch + '`; status: `success`.',
+              '- Production branch: `main`; custom domain remains attached to the existing project.',
+              '- Current successful production rollback target: `' + rollback_id + '`; created: `' + str(rollback.get('created_on') or 'unknown') + '`; URL: `' + safe_url(rollback.get('url')) + '`.',
+              '- The workflow deployed only the preview branch; no production deployment or DNS change was requested.'
+          ]
+          print('\n'.join(lines))
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary, 'a', encoding='utf-8') as output:
+                  output.write('\n'.join(lines) + '\n')
+          PY
