@@ -1,0 +1,118 @@
+name: Pass-108 Cloudflare Pages preview (non-production)
+
+on:
+  push:
+    branches:
+      - pass108-cloudflare-preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass108-cloudflare-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+    steps:
+      - name: Check out the isolated preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: pass108-cloudflare-preview
+
+      - name: Confirm credentials and production isolation before upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CF_ACCOUNT_ID" ]]; then
+            echo "::error::Cloudflare Action secrets are unavailable; no deployment was attempted."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, os, re, sys, urllib.error, urllib.request
+          def stop(message):
+              print('::error::' + message)
+              raise SystemExit(1)
+          account = os.environ.get('CF_ACCOUNT_ID', '')
+          token = os.environ.get('CLOUDFLARE_API_TOKEN', '')
+          if not re.fullmatch(r'[0-9a-fA-F]{32}', account):
+              stop('CF_ACCOUNT_ID has an invalid shape; no deployment was attempted.')
+          url = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin'
+          req = urllib.request.Request(url, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass108-preview-preflight'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  payload = json.loads(response.read())
+          except urllib.error.HTTPError as error:
+              stop('Cloudflare Pages project lookup returned HTTP %s; no deployment was attempted.' % error.code)
+          except Exception:
+              stop('Cloudflare Pages project lookup failed; no deployment was attempted.')
+          if payload.get('success') is not True:
+              stop('Cloudflare rejected the project lookup; no deployment was attempted.')
+          project = payload.get('result') or {}
+          if project.get('name') != 'ivory-twin':
+              stop('The expected Pages project was not confirmed; no deployment was attempted.')
+          production = project.get('production_branch')
+          if production != 'main':
+              stop('Expected production branch "main" was not confirmed; refusing to deploy any preview.')
+          domains = project.get('domains') or []
+          if 'ivoryhouse.dpdns.org' not in domains:
+              stop('The custom domain is not attached to the expected project; no deployment was attempted.')
+          preview = 'pass108-cloudflare-preview'
+          if preview == production:
+              stop('Preview branch equals production branch; refusing deployment.')
+          print('Preflight confirmed Pages project=ivory-twin; production_branch=main; custom_domain_attached=true; requested_branch=' + preview + '.')
+          print('Only a non-production branch deployment will be attempted.')
+          PY
+
+      - name: Verify the exact Pass-108 payload and assemble static files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, shutil, sys
+          from pathlib import Path
+          manifest = json.loads(Path('.github/pass108_cloudflare_stage_manifest.json').read_text())
+          files = manifest.get('files') or []
+          if manifest.get('payload_files') != 91 or len(files) != 91 or manifest.get('payload_bytes') != 36835553:
+              raise SystemExit('::error::Unexpected Pass-108 payload manifest; refusing deployment.')
+          if manifest.get('candidate') != {'path': 'index.html', 'bytes': 3165601, 'sha256': '975f7319f616d58862b444beae828b9d638d2596538db233112ad5cfde831d44'}:
+              raise SystemExit('::error::Candidate identity changed; refusing deployment.')
+          shutil.rmtree('dist', ignore_errors=True)
+          Path('dist').mkdir()
+          seen = set()
+          for item in files:
+              rel = item.get('path', '')
+              source = Path(rel)
+              if not rel or rel in seen or source.is_absolute() or '..' in source.parts:
+                  raise SystemExit('::error::Unsafe or duplicate manifest path; refusing deployment.')
+              seen.add(rel)
+              if not source.is_file():
+                  raise SystemExit('::error::Required candidate file missing: ' + rel)
+              data = source.read_bytes()
+              if len(data) != item.get('bytes') or hashlib.sha256(data).hexdigest() != item.get('sha256'):
+                  raise SystemExit('::error::Candidate file differs from the verified manifest: ' + rel)
+              if rel.startswith('functions/'):
+                  continue
+              dest = Path('dist') / source
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(source, dest)
+          if not Path('functions/api/b2-media.js').is_file() or not Path('functions/api/r2-vault.js').is_file():
+              raise SystemExit('::error::Cloudflare Pages Functions missing at project root; refusing deployment.')
+          print('Verified 91 files / 36,835,553 bytes and the exact Pass-108 page hash.')
+          print('Assembled static assets under dist/; left functions/ at the Pages project root.')
+          PY
+
+      - name: Deploy the preview branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler pages deploy dist \
+            --project-name ivory-twin \
+            --branch pass108-cloudflare-preview \
+            --commit-dirty=true
