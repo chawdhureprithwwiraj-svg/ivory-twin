@@ -71,3 +71,28 @@
 html.p92-lean .g102-room::before,html.p92-lean .g102-ambient i:nth-child(n+5){display:none}html.p92-lean .g102-ambient i,html.p92-lean .g102-room{animation:none!important}
 @media(max-width:600px){.g102-flips{gap:8px;grid-template-columns:repeat(5,minmax(45px,58px))}.g102-rules p{font-size:12px;padding:8px 10px}.g102-seal-orbit{transform:scale(.88);margin:-5px auto}.g102-topic-words{margin-top:-12px}.g102-sound{flex-basis:38px;width:38px;height:38px}.g102-result-burst{display:none}}
 @media(prefers-reduced-motion:reduce){.g102[data-mode] .g102-room,.g102-room::before,.g102-ambient i,.g102-option,.g102-clock,.g102-key-emblem,.g102-big-key,.g102-day-title h3,.g102-topic-coin,.g102-seal-orbit>i,.g102-result-burst i,.g102-verdict-icon,.g102-score{animation:none!important}.g102-flip-inner,.g102-topic-words{transition:none!important}.g102-auto i{animation:none!important;width:100%}.g102-topic-reveal .g102-topic-words{opacity:1;transform:none}.g102-topic-reveal .g102-seal-orbit>i{opacity:.35}}
+
+/* Pass 111 · the right people, in the right order, and a real closed room. */
+.ivr-voice.together .ivr-ring{width:min(292px,calc(100vw - 36px));height:220px}
+.ivr-voice.together .ivr-pair{gap:14px;align-items:flex-start}
+.ivr-pair .ivr-person{display:flex;flex:0 1 132px;min-width:0;flex-direction:column;align-items:center;gap:8px}
+.ivr-voice.together .ivr-pair .ivr-person + .ivr-person{margin-left:0}
+.ivr-pair .ivr-person-name{display:block;max-width:138px;color:#FFF3D8;text-align:center;
+  font:500 12px/1.3 Georgia,serif;overflow-wrap:anywhere;text-wrap:balance}
+.ivr-pair .ivr-coin-member{background:radial-gradient(circle at 34% 26%,#FFE9E3,#D9A89C 48%,#925F6A 100%);color:#4B1024}
+.ivr-pair .ivr-coin-ivory{background:conic-gradient(from 205deg,#F7DFA4,#B8832A,#FFEFC8,#8E6115,#F3D08A,#B8832A,#F7DFA4)}
+.ivr-video.swap #ivr-remote::after{content:attr(data-remote-name)}
+.ivr-ended{position:absolute;inset:0;z-index:15;display:none;place-items:center;box-sizing:border-box;
+  padding:24px;background:radial-gradient(90% 70% at 50% 34%,#6B1024 0%,#3A0410 62%,#1E0208 100%);color:#FFF3D6}
+.ivr-ended.on{display:grid}
+.ivr-ended-card{width:min(100%,370px);padding:28px 24px 24px;border:1px solid rgba(243,208,138,.38);border-radius:24px;
+  background:linear-gradient(180deg,rgba(66,7,21,.92),rgba(34,2,10,.96));box-shadow:0 24px 72px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,236,190,.12);text-align:center}
+.ivr-ended-mark{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 16px;border:1px solid rgba(243,208,138,.52);border-radius:50%;
+  color:#F3D08A;font:400 27px/1 Georgia,serif}
+.ivr-ended-kick{margin:0 0 10px;color:#E6C57F;font:700 9px/1.2 ui-sans-serif,system-ui,sans-serif;letter-spacing:.22em}
+.ivr-ended-card h2{margin:0 0 10px;color:#FFF3D6;font:400 25px/1.2 Georgia,serif}
+.ivr-ended-card p:not(.ivr-ended-kick){margin:0 auto 20px;max-width:290px;color:rgba(251,240,218,.76);font:400 13px/1.55 ui-sans-serif,system-ui,sans-serif}
+.ivr-ended-card button{min-height:46px;width:100%;border:1px solid rgba(243,208,138,.46);border-radius:999px;cursor:pointer;
+  color:#3A0410;background:linear-gradient(180deg,#FFEBB8,#E7BC68 54%,#C8933A);font:800 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.18em}
+@media(max-width:360px){.ivr-voice.together .ivr-pair{gap:8px}.ivr-pair .ivr-person-name{max-width:116px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.ivr-ended *{animation:none!important;transition:none!important}}

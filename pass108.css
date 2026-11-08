@@ -46,17 +46,17 @@
 #sheet-heart .gg.gg-unverified{display:flex;align-items:center;box-sizing:border-box;min-height:48px;padding:10px 12px;opacity:.78}
 #sheet-heart .gg-unrouted{font-size:9px;letter-spacing:.04em;color:#8a6a33;white-space:nowrap}
 
-/* The live ribbon carries the server title and real viewer_count on every
-   screen. Keep the original House palette, not the old scrolling rainbow. */
-#iv-live-ribbon[hidden]{display:none!important}
+/* The Live door floats high on non-Home screens. Its card is click-through;
+   only the explicit action button captures a tap, so the page still scrolls. */
+#iv-live-ribbon[hidden],body[data-screen="home"] #iv-live-ribbon{display:none!important}
 #iv-live-ribbon{
-  position:fixed;left:50%;right:auto;top:56%;bottom:auto;transform:translate(-50%,-50%);z-index:72;
+  position:fixed;left:50%;right:auto;top:calc(64px + env(safe-area-inset-top,0px));bottom:auto;transform:translateX(-50%);z-index:39;
   display:flex!important;align-items:center;gap:10px;box-sizing:border-box;width:calc(100vw - 28px);max-width:620px;
-  min-height:68px;height:auto;margin:0;padding:11px 14px;border:1px solid rgba(126,84,30,.34);
-  border-radius:22px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  color:#4A170D;background:linear-gradient(118deg,#FFFDF6 0%,#FFF5DD 42%,#EED6A4 100%);
-  box-shadow:0 22px 44px -24px rgba(74,43,13,.50),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(136,92,31,.13);
-  animation:ivLiveCardGlow 2.8s ease-in-out infinite;
+  min-height:58px;height:auto;margin:0;padding:9px 12px;border:1px solid rgba(126,84,30,.26);
+  border-radius:18px;overflow:hidden;pointer-events:none;
+  color:#4A170D;background:rgba(255,249,234,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 12px 28px -20px rgba(74,43,13,.44),inset 0 1px 0 rgba(255,255,255,.85);
+  animation:ivLiveCardGlow 3.8s ease-in-out infinite;
 }
 @keyframes ivLiveCardGlow{
   0%,100%{box-shadow:0 20px 40px -24px rgba(74,43,13,.46),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(136,92,31,.13)}
@@ -76,11 +76,12 @@
 }
 #iv-live-ribbon .iv-live-count{flex:none;color:#73552c;font:700 10px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
 #iv-live-ribbon .iv-live-ribbon-cta{
-  flex:none;display:inline-flex;align-items:center;gap:5px;padding:9px 12px;border:1px solid rgba(91,14,30,.24);
-  border-radius:999px;background:linear-gradient(180deg,#7A1A2A,#5B1020);color:#FFF8E7;
+  flex:none;display:inline-flex;align-items:center;gap:5px;min-height:40px;padding:8px 11px;border:1px solid rgba(91,14,30,.20);
+  border-radius:999px;background:rgba(91,16,32,.92);color:#FFF8E7;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;
   font:800 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;white-space:nowrap;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 12px -8px rgba(64,23,18,.55)
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 4px 10px -8px rgba(64,23,18,.48)
 }
+#iv-live-ribbon .iv-live-ribbon-cta:focus-visible{outline:3px solid #7b3c1e;outline-offset:2px}
 #iv-live-ribbon .iv-live-ribbon-cta i{font:700 13px/1 Georgia,serif}
 body.on-live #iv-live-ribbon,body.on-desk #iv-live-ribbon,body.cast-live #iv-live-ribbon{display:none!important;pointer-events:none}
 @media(max-width:390px){
@@ -90,7 +91,7 @@ body.on-live #iv-live-ribbon,body.on-desk #iv-live-ribbon,body.cast-live #iv-liv
   #iv-live-ribbon .iv-live-count{font-size:9px}
   #iv-live-ribbon .iv-live-ribbon-cta{gap:3px;padding:8px 8px;font-size:8px}
 }
-@media(max-height:620px){#iv-live-ribbon{top:58%;min-height:58px;padding-top:8px;padding-bottom:8px}}
+@media(max-height:620px){#iv-live-ribbon{top:calc(58px + env(safe-area-inset-top,0px));min-height:52px;padding-top:6px;padding-bottom:6px}}
 @media(prefers-reduced-motion:reduce){#iv-live-ribbon,.iv-live-dot{animation:none!important}}
 
 /* The Home medallion stays gold, with a visible, bounded server title. */
