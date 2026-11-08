@@ -15,6 +15,13 @@ const ADMIN_OBJECT_ENDPOINT =
   'https://soephrftgddbwkzwjddj.supabase.co/functions/v1/b2-object-admin';
 const ADMIN_OBJECT_OPS = new Set(['object_get', 'object_delete']);
 
+function isBranchPreview(request) {
+  try {
+    const host = new URL(request.url).hostname.toLowerCase();
+    return host !== 'ivory-twin.pages.dev' && host.endsWith('.ivory-twin.pages.dev');
+  } catch (_) { return false; }
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
@@ -28,8 +35,11 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost(context) {
+  const request = context.request;
+  if (isBranchPreview(request)) {
+    return json({ status: 403, data: { error: 'Storage APIs are disabled on branch preview deployments.' } });
+  }
   try {
-    const request = context.request;
     const headers = new Headers();
     const ct = request.headers.get('content-type');
     if (ct) headers.set('content-type', ct);
