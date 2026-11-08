@@ -991,7 +991,7 @@ allowed: Array.isArray(row.allowed_tiers) ? row.allowed_tiers : [],
 minTier: Number(row.min_tier || 0),
 tierName: row.tier_name || '',
 hostVideo: row.host_video_enabled !== false,
-startedAt: row.started_at || row.created_at || null
+startedAt: row.started_at || null
 });
 return true;
 }
@@ -1005,7 +1005,7 @@ return Promise.resolve(false);
 if (!w.IVSESS || !IVSESS.get) { toast('The session circuit is unavailable.', true); return Promise.resolve(false); }
 if (busy) return Promise.resolve(false);
 busy = true; discBusy(true);
-return IVSESS.get('/rest/v1/live_public?select=id,title,subtitle,status,is_entitled,price_inr,guest_price_inr,allowed_tiers,min_tier,tier_name,host_video_enabled,started_at,created_at&status=eq.live&order=started_at.desc&limit=1')
+return IVSESS.get('/rest/v1/live_public?select=id,title,subtitle,status,is_entitled,price_inr,guest_price_inr,allowed_tiers,min_tier,tier_name,host_video_enabled,started_at&status=eq.live&order=started_at.desc&limit=1', { cache: 'no-store' })
 .then(function (rows) {
 if (mine !== seq) return false;
 var row = rows && rows[0];

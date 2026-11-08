@@ -19054,6 +19054,18 @@ window.IVSESS = (function () {
     return s ? s.replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }) : local;
   }
 
+  function currentProfileName() {
+    var id = IV.ident() || {}, uid = String(id.id || '');
+    var prof = P.uid === uid && P.prof && String(P.prof.id || uid) === uid ? P.prof : null;
+    var admin = isAdminRole(prof && prof.role) || !!(window.ivIsAdmin && window.ivIsAdmin());
+    if (!uid) return 'Member';
+    return admin ? 'Ivory' : (String((prof && prof.display_name) || '').trim() || pretty(id.email) || 'Member');
+  }
+
+  /* Room UI may read the profile already held by this page without scraping
+     its text or making a second account request. */
+  window.ivProfileDisplayName = currentProfileName;
+
   function paintIdentity() {
     var id = IV.ident() || {}, uid = String(id.id || '');
     var prof = P.uid === uid && P.prof && String(P.prof.id || uid) === uid ? P.prof : null;
@@ -20940,10 +20952,13 @@ window.IVCALL = (function () {
     scr.innerHTML = roomMarkup(kind);
     var clockEl = scr.querySelector('#ivr-clock-text');
     var R = { id: callId, kind: kind, client: null, mic: null, cam: null, prior: 0,
-              from: null, tick: null, over: false, left: false, endBusy: false, selfLarge: false,
-              remoteVideo: null, remoteName: '', swapBusy: false, vTrack: null, appearance: null, appearanceLoad: null,
+              from: null, tick: null, over: false, left: false, endBusy: false, endedRemotely: false,
+              cameraPublished: false, checkingEnd: false, endCheckTimer: null,
+              selfLarge: false, remoteVideo: null, remoteName: '', memberName: '',
+              swapBusy: false, vTrack: null, appearance: null, appearanceLoad: null,
               admin: !!(window.ivIsAdmin && window.ivIsAdmin()) };
     S.room = R;
+    paintRemoteName();
 
     function setClock() {
       if (!R.from) { clockEl.textContent = '0:00'; return; }
@@ -20963,32 +20978,42 @@ window.IVCALL = (function () {
     IV.get('/rest/v1/call_requests?select=id,kind,minutes,status,member_id,started_at,requested_for,window_end&id=eq.' + callId)
       .then(function (rows) {
         var r = (rows && rows[0]) || {};
+        if (isTerminalStatus(r.status)) { showEndedState(r.status); throw terminalError(); }
         if (r.started_at) R.from = new Date(r.started_at);
         R.minutes = num(r.minutes, 30);
-        /* On her phone the remote person is the member, never a second Ivory.
-           Hydrate the canonical profile name without delaying admission. */
-        if (R.admin && r.member_id) {
-          IV.get('/rest/v1/profiles?select=id,display_name&id=eq.' + encodeURIComponent(r.member_id))
+        /* On either handset, paint the Member first and let the canonical
+           profile name hydrate without slowing admission to the call. */
+        var ident = (IV.ident && IV.ident()) || {};
+        var memberId = R.admin ? r.member_id : ident.id;
+        if (memberId) {
+          IV.get('/rest/v1/profiles?select=id,display_name&id=eq.' + encodeURIComponent(memberId))
             .then(function (people) {
               var person = (people && people[0]) || {};
-              if (S.room !== R) return;
-              R.remoteName = String(person.display_name || '').trim();
+              if (S.room !== R || R.left) return;
+              if (R.admin) R.remoteName = String(person.display_name || '').trim();
+              else R.memberName = String(person.display_name || '').trim();
               paintRemoteName();
             }).catch(function () {});
         }
-        return IV.call('/rest/v1/rpc/call_enter', { call_id_in: callId });
+        return IV.call('/rest/v1/rpc/call_enter', { call_id_in: callId }).then(function (secs) {
+          if (R.left || S.room !== R) throw terminalError();
+          return secs;
+        });
       })
       .then(function (secs) {
         R.prior = num(secs, 0);
         return IV.call('/functions/v1/agora-token', { mode: 'call', id: callId });
       })
       .then(function (tk) {
+        if (R.left || S.room !== R) throw new Error('This session has ended.');
         if (!window.AgoraRTC) throw new Error('The room engine did not load on this page. Check your signal and tap Join again — your session and its minutes are untouched.');
         if (!tk || !tk.token) throw new Error((tk && tk.error) || 'The room did not open.');
         var c = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
         R.client = c;
         c.on('user-published', function (user, mediaType) {
+          if (R.left || S.room !== R) return;
           c.subscribe(user, mediaType).then(function () {
+            if (R.left || S.room !== R) return;
             voiceTogether();
             if (mediaType === 'video') {
               R.remoteVideo = user.videoTrack || null;
@@ -21001,18 +21026,31 @@ window.IVCALL = (function () {
             paintRemoteName();
           });
         });
-        c.on('user-left', function () { elseFill(remoteLabel() + ' has stepped away. The session is still open — come back when they do.'); });
+        c.on('user-left', function () {
+          if (R.left || R.endedRemotely || R.checkingEnd) return;
+          R.checkingEnd = true;
+          elseFill('Connection ended. Checking whether the session has closed…');
+          checkAfterDisconnect(0);
+        });
         return c.join(tk.appId || tk.app_id, tk.channel, tk.token, Number(tk.uid) || null).then(function () {
+          if (R.left || S.room !== R) throw new Error('This session has ended.');
           var tracks = [AgoraRTC.createMicrophoneAudioTrack()];
           if (kind === 'video') tracks.push(AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' }));
           return Promise.all(tracks);
         }).then(function (tr) {
+          if (R.left || S.room !== R) {
+            (tr || []).forEach(function (track) { try { track && track.close(); } catch (e) {} });
+            throw new Error('This session has ended.');
+          }
           R.mic = tr[0]; R.cam = tr[1] || null; R.vTrack = R.cam;
-          showSelf();
-          return c.publish(R.cam ? [R.mic, R.cam] : [R.mic]).then(function () { if (kind === 'video') appearanceAttach(); });
+          return c.publish([R.mic]).then(function () {
+            if (kind !== 'video' || !R.cam) return null;
+            return appearanceAttach().then(function () { return publishInitialCamera(); });
+          });
         });
       })
       .then(function () {
+        if (R.left || S.room !== R) return;
         if (!R.from) R.from = new Date();
         /* the door is open: the pill goes, the room speaks */
         var flow = scr.querySelector('#ivr-flow'); if (flow) flow.classList.add('off');
@@ -21020,6 +21058,7 @@ window.IVCALL = (function () {
         var nt = scr.querySelector('#ivr-voice-note');
         if (nt && !nt.dataset.open) { nt.dataset.open = '1'; nt.textContent = 'The room is open. Say hello.'; }
         R.tick = setInterval(function () {
+          if (R.left || S.room !== R) return;
           var s = setClock();
           if (s != null && s > 0 && s % 60 === 0 && !R.over) {
             IV.call('/rest/v1/rpc/call_time_up', { call_id_in: callId, seconds_in: s })
@@ -21034,19 +21073,94 @@ window.IVCALL = (function () {
         }, 1000);
       })
       .catch(function (x) {
+        if (R.endedRemotely) return;
         elseFill((x && x.message) || 'The room did not open. Check your signal and tap Join again — your session and its minutes are untouched.');
         setClock();
       });
 
     /* TOGETHER, HERE — the app's words for two people sharing a room, and the
        two medallions that carry them without a single pixel of video. */
+    function isTerminalStatus(status) {
+      return ['ended', 'finished', 'completed', 'cancelled', 'declined', 'expired', 'closed'].indexOf(String(status || '').toLowerCase()) >= 0;
+    }
+    function terminalError() { var e = new Error('This session has ended.'); e.code = 'IV_CALL_ENDED'; return e; }
+    function profileMemberName() {
+      try { if (typeof window.ivProfileDisplayName === 'function') return String(window.ivProfileDisplayName() || '').trim(); } catch (e) {}
+      return '';
+    }
+    function memberLabel() {
+      var name = R.admin ? R.remoteName : (R.memberName || profileMemberName());
+      return String(name || 'Member').trim() || 'Member';
+    }
+    function memberInitials(name) {
+      var words = String(name || 'Member').trim().split(/\s+/).filter(Boolean);
+      return words.slice(0, 2).map(function (word) { return word.charAt(0); }).join('').toUpperCase() || 'M';
+    }
     function remoteLabel() { return R.admin ? (R.remoteName || 'The member') : 'Ivory'; }
     function paintRemoteName() {
-      var nm = scr.querySelector('#ivr-remote-name'); if (nm) nm.textContent = remoteLabel();
+      var member = memberLabel();
+      var name = scr.querySelector('#ivr-member-name'); if (name) name.textContent = member;
+      var coin = scr.querySelector('#ivr-member-coin'); if (coin) coin.textContent = memberInitials(member);
+      var ivory = scr.querySelector('#ivr-ivory-name'); if (ivory) ivory.textContent = 'Ivory';
+      var ivoryCoin = scr.querySelector('#ivr-ivory-coin'); if (ivoryCoin) ivoryCoin.textContent = 'I';
       var wait = scr.querySelector('.ivr-wait-b'); if (wait) wait.textContent = 'Waiting for ' + remoteLabel();
+      var videoRemote = scr.querySelector('#ivr-remote'); if (videoRemote) videoRemote.setAttribute('data-remote-name', remoteLabel());
+      var waitCoin = scr.querySelector('.ivr-wait-coin'); if (waitCoin) waitCoin.textContent = memberInitials(R.admin ? member : 'Ivory');
+    }
+    function checkAfterDisconnect(attempt) {
+      if (R.left || S.room !== R) return;
+      readCall().then(function (row) {
+        if (R.left || S.room !== R) return;
+        if (row && isTerminalStatus(row.status)) { showEndedState(row.status); return; }
+        if (attempt < 10) {
+          R.endCheckTimer = setTimeout(function () { checkAfterDisconnect(attempt + 1); }, 700);
+          return;
+        }
+        R.checkingEnd = false;
+        elseFill(row
+          ? remoteLabel() + ' disconnected. The house still shows this session as open; you can wait for them to reconnect.'
+          : 'The connection ended, but the house could not confirm whether this session is closed. Reconnect to check.');
+      });
+    }
+    function showEndedState(status) {
+      if (S.room !== R || R.left || R.endedRemotely || R.endBusy) return;
+      R.endedRemotely = true; R.left = true; R.over = true; R.checkingEnd = false;
+      if (R.endCheckTimer) { clearTimeout(R.endCheckTimer); R.endCheckTimer = null; }
+      if (R.cleanup) { try { R.cleanup(); } catch (e) {} R.cleanup = null; }
+      if (R.tick) { clearInterval(R.tick); R.tick = null; }
+      var veil = scr.querySelector('.ivr-veil'); if (veil) veil.classList.add('off');
+      ['#ivr-offer', '#ivr-mts', '#ivr-endgate'].forEach(function (selector) {
+        var box = scr.querySelector(selector); if (box) { box.classList.remove('on'); box.innerHTML = ''; }
+      });
+      var copy = scr.querySelector('#ivr-ended-copy');
+      if (copy) copy.textContent = R.admin
+        ? 'The session is closed. There is no open room to return to.'
+        : 'Ivory has ended this session. This room is closed; return to Wish to review it.';
+      var ended = scr.querySelector('#ivr-ended');
+      if (ended) { ended.classList.add('on'); ended.setAttribute('aria-hidden', 'false'); }
+      var appearance = R.appearance, rawEffect = appearance && appearance.rawMST;
+      R.appearance = null;
+      try { if (R.cam && R.cam.setEnabled) R.cam.setEnabled(false); } catch (e) {}
+      try { if (R.cam && R.cam.getMediaStreamTrack) R.cam.getMediaStreamTrack().enabled = false; } catch (e) {}
+      try { if (R.mic && R.mic.setEnabled) R.mic.setEnabled(false); } catch (e) {}
+      try { if (R.mic && R.mic.getMediaStreamTrack) R.mic.getMediaStreamTrack().enabled = false; } catch (e) {}
+      function disconnect() {
+        var client = R.client, leave = Promise.resolve();
+        if (client) {
+          try { leave = Promise.resolve(client.unpublish()).catch(function () {}); } catch (e) {}
+          leave = leave.then(function () { try { return client.leave(); } catch (e) { return null; } }).catch(function () {});
+        }
+        leave.then(function () {
+          try { rawEffect && rawEffect.stop(); } catch (e) {}
+          try { R.mic && R.mic.close(); } catch (e) {}
+          try { R.cam && R.cam.close(); } catch (e) {}
+        });
+      }
+      if (appearance) Promise.resolve(appearance.destroy(false)).catch(function () {}).then(disconnect);
+      else disconnect();
     }
     function voiceTogether() {
-      var v = scr.querySelector('#ivr-voice'); if (!v || v.classList.contains('together')) return;
+      var v = scr.querySelector('#ivr-voice'); if (!v) return;
       v.classList.add('together');
       paintRemoteName();
       var sm = scr.querySelector('#ivr-voice-note');
@@ -21084,10 +21198,21 @@ window.IVCALL = (function () {
           root: scr, getRawTrack: function () { return R.cam; }, getClient: function () { return R.client; },
           isActive: function () { return canAppearance() && S.room === R && !R.left; },
           cameraEnabled: function () { return !!R.cam && R.cam.enabled !== false; },
-          onPublished: function (track) { R.vTrack = track; }, show: function () { showSelf(); }
+          isRawPublished: function () { return !!R.cameraPublished; },
+          onPublished: function (track) { R.vTrack = track; if (track !== R.cam) R.cameraPublished = true; }, show: function () { showSelf(); }
         } });
-        R.appearance = controller;controller.attach().catch(function () {});return controller;
+        R.appearance = controller;return controller.attach().then(function () { return controller; }).catch(function () { return controller; });
       }).catch(function () { toast('Appearance controls could not open. Your camera is unchanged.', true); return null; });
+    }
+    function publishInitialCamera() {
+      if (!R.cam || R.cameraPublished) return Promise.resolve();
+      /* Custom processed tracks publish themselves; a replaced Agora wrapper
+         still needs its first publish after Beauty has finished attaching. */
+      if (R.appearance && R.appearance.active && R.appearance.mode === 'custom') {
+        R.cameraPublished = true; showSelf(); return Promise.resolve();
+      }
+      var track = R.vTrack || R.cam;
+      return c.publish(track).then(function () { R.cameraPublished = true; showSelf(); });
     }
     function appearanceOpen() {
       if (!canAppearance()) return;
@@ -21099,27 +21224,32 @@ window.IVCALL = (function () {
     R.appearanceAttach = appearanceAttach;R.appearanceDetach = appearanceDetach;R.appearanceOpen = appearanceOpen;
 
     /* controls */
-    scr.querySelector('#ivr-leave').addEventListener('click', function () { leaveRoom(false); });
+    scr.querySelector('#ivr-leave').addEventListener('click', function () { if (R.endedRemotely) closeRoom(); else leaveRoom(false); });
 
-    /* END is a house decision, not an ambiguous second tap on the dock. The
-       first key opens a way back; only the explicit permanent key may ask the
-       server to finish the session. leaveRoom keeps the camera alive on error. */
+    /* END is final, so it is armed rather than confirmed: the first tap turns
+       the key into its own question, the second closes the room. No browser
+       dialog ever appears — the house does not speak in those. */
     var endB = scr.querySelector('#ivr-end');
-    if (endB) endB.addEventListener('click', function () {
-      if (R.endBusy) return;
-      var box = scr.querySelector('#ivr-endgate'); if (!box) return;
-      box.innerHTML = '<div class="ivr-mts-card"><div class="ivr-mts-grab"></div>' +
-        '<p class="ivr-mts-kick">The session is still open</p>' +
-        '<p class="ivr-mts-lede">Return to the conversation, or end this session permanently for both of you. Stepping away remains available on the Leave key.</p>' +
-        '<p class="ivr-mts-err" id="ivr-end-err"></p>' +
-        '<button class="ivr-mts-send ivr-end-final" id="ivr-end-final" type="button">END THIS SESSION PERMANENTLY</button>' +
-        '<button class="ivr-mts-shut" id="ivr-end-return" type="button">RETURN TO THE SESSION</button></div>';
-      box.classList.add('on');
-      scr.querySelector('#ivr-end-return').addEventListener('click', function () {
-        if (!R.endBusy) { box.classList.remove('on'); box.innerHTML = ''; }
+    if (endB) {
+      var armT = null;
+      endB.addEventListener('click', function () {
+        if (endB.dataset.armed !== '1') {
+          endB.dataset.armed = '1';
+          var lbl = endB.parentNode.querySelector('.ivr-lbl');
+          if (lbl) lbl.textContent = 'End it?';
+          endB.classList.add('armed');
+          armT = setTimeout(function () {
+            endB.dataset.armed = '0';
+            endB.classList.remove('armed');
+            if (lbl) lbl.textContent = 'End';
+          }, 4000);
+          return;
+        }
+        clearTimeout(armT);
+        endB.dataset.armed = '0';
+        leaveRoom(true);
       });
-      scr.querySelector('#ivr-end-final').addEventListener('click', function () { leaveRoom(true); });
-    });
+    }
 
     /* THE LOUDSPEAKER AND THE EAR — an audio session is held to the ear or
        across a room, and the app lets them choose. The engine takes the route
@@ -21159,7 +21289,9 @@ window.IVCALL = (function () {
         .then(function () { flipB.dataset.busy = '0'; });
     });
 
-    function flipCam(facing) { return appearanceRestart(function () { return flipRawCamera(facing); }); }
+    function flipCam(facing) { return appearanceRestart(function () { return flipRawCamera(facing); }).then(function () {
+      if (!R.cameraPublished && R.cam) return c.publish(R.vTrack || R.cam).then(function () { R.cameraPublished = true; showSelf(); });
+    }); }
     function flipRawCamera(facing) {
       return Promise.resolve().then(function () {
         if (R.cam && R.cam.setDevice && R.cams && R.cams.length > 1) {
@@ -21179,13 +21311,14 @@ window.IVCALL = (function () {
         return AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1', facingMode: facing })
           .then(function (t) {
             var old = R.cam;
-            R.cam = t; R.vTrack = t;
+            var beautyOn = !!(R.appearance && R.appearance.state && R.appearance.state.on);
             if (!wasEnabled && t.setEnabled) t.setEnabled(false);
             R.cameraDeviceId = '';
-            showSelf();
             return R.client.unpublish(old).catch(function () {}).then(function () {
               try { old.close(); } catch (e) {}
-              return R.client.publish(t);
+              R.cam = t; R.vTrack = t; R.cameraPublished = false;
+              if (beautyOn) return null;
+              return R.client.publish(t).then(function () { R.cameraPublished = true; showSelf(); });
             });
           });
       });
@@ -21205,13 +21338,16 @@ window.IVCALL = (function () {
     if (camB) camB.addEventListener('click', function () {
       if (!R.cam) return;
       var enabled = !R.cam.enabled;
-      R.cam.setEnabled(enabled).then(function () {
-        return R.appearance ? R.appearance.setEnabled(enabled) : null;
-      }).then(function () { camB.classList.toggle('off', !enabled); });
+      var cameraJob = R.appearance ? R.appearance.setEnabled(enabled) : R.cam.setEnabled(enabled);
+      Promise.resolve(cameraJob).then(function () {
+        if (!R.appearance) { R.vTrack = R.cam; if (enabled) showSelf(); }
+        camB.classList.toggle('off', !enabled);
+      }).catch(function () { toast('The camera could not change state. Try again.', true); });
     });
     var appearanceB = scr.querySelector('#ivr-appearance');
     if (appearanceB) appearanceB.addEventListener('click', function () { appearanceOpen(); });
-    scr.querySelector('#ivr-x').addEventListener('click', function () { leaveRoom(false); });
+    scr.querySelector('#ivr-x').addEventListener('click', function () { if (R.endedRemotely) closeRoom(); else leaveRoom(false); });
+    var endedClose = scr.querySelector('#ivr-ended-close'); if (endedClose) endedClose.addEventListener('click', function () { closeRoom(); });
 
     /* THE TWO VIEWS CHANGE PLACES.
        She fills the room and I sit in the small window; a tap on the small
@@ -21272,12 +21408,14 @@ window.IVCALL = (function () {
       try { return sessionStorage.getItem('ivory.call.offer.consumed.' + callId) === String(when); }
       catch (e) { return false; }
     }
+
     function readCall() {
+      if (R.left || S.room !== R) return Promise.resolve(MT.row);
       return IV.get('/rest/v1/call_requests?select=id,kind,minutes,price_inr,status,' +
                     'extension_price,extension_minutes,extension_offered_at,extension_paid' +
                     '&id=eq.' + callId).then(function (rows) {
         MT.row = (rows && rows[0]) || null;
-        if (R.left) consumeCurrentOffer();
+        if (MT.row && isTerminalStatus(MT.row.status)) showEndedState(MT.row.status);
         return MT.row;
       }).catch(function () { return null; });
     }
@@ -21454,6 +21592,7 @@ window.IVCALL = (function () {
     }, 5000);
     R.cleanup = function () {
       consumeCurrentOffer();
+      if (R.endCheckTimer) { clearTimeout(R.endCheckTimer); R.endCheckTimer = null; }
       clearInterval(MT.timer); clearInterval(MT.poll); clearTimeout(hintT);
       MT.timer = null; MT.poll = null;
       var offer = scr.querySelector('#ivr-offer'); if (offer) { offer.classList.remove('on'); offer.innerHTML = ''; }
@@ -21487,12 +21626,17 @@ window.IVCALL = (function () {
               '<p class="ivr-wait-s">' + remote + ' will appear here. Nothing is recorded, and nothing is kept after you leave.</p></div></div></div>'
           : '<div class="ivr-voice" id="ivr-voice">' +
             '<div class="ivr-ring"><i></i><i></i><i></i>' +
-              '<div class="ivr-pair">' +
-                '<div class="ivr-coin">I</div>' +
-                '<div class="ivr-coin second" id="ivr-coin-you">' + memberInitial() + '</div>' +
+              '<div class="ivr-pair" aria-label="The Member and Ivory">' +
+                '<div class="ivr-person ivr-person-member">' +
+                  '<div class="ivr-coin ivr-coin-member" id="ivr-member-coin">' + memberInitial() + '</div>' +
+                  '<span class="ivr-person-name" id="ivr-member-name">Member</span>' +
+                '</div>' +
+                '<div class="ivr-person ivr-person-ivory">' +
+                  '<div class="ivr-coin ivr-coin-ivory" id="ivr-ivory-coin">I</div>' +
+                  '<span class="ivr-person-name" id="ivr-ivory-name">Ivory</span>' +
+                '</div>' +
               '</div>' +
             '</div>' +
-            '<p class="ivr-nm" id="ivr-remote-name">' + remote + '</p>' +
             '<p class="ivr-sm" id="ivr-voice-note">One moment — the room is opening.</p>' +
             '<div class="ivr-veil ivr-veil-flow" id="ivr-flow"><p>Waiting for Ivory…</p></div></div>') +
       '</div>' +
@@ -21513,6 +21657,7 @@ window.IVCALL = (function () {
       '<div class="ivr-offer" id="ivr-offer" role="dialog" aria-label="More time with Ivory"></div>' +
       '<div class="ivr-mts" id="ivr-mts" role="dialog" aria-label="Offer more time"></div>' +
       '<div class="ivr-mts ivr-endgate" id="ivr-endgate" role="dialog" aria-modal="true" aria-label="Return or end the session"></div>' +
+      '<div class="ivr-ended" id="ivr-ended" role="alertdialog" aria-modal="true" aria-hidden="true"><div class="ivr-ended-card"><span class="ivr-ended-mark" aria-hidden="true">✓</span><p class="ivr-ended-kick">SESSION CLOSED</p><h2>This session has ended.</h2><p id="ivr-ended-copy">The room is closed.</p><button type="button" id="ivr-ended-close">CLOSE SESSION</button></div></div>' +
       '<div class="ivr-bye" id="ivr-bye"><div><div class="face"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="24" cy="26" r="2.6" fill="currentColor" stroke="none"/><circle cx="40" cy="26" r="2.6" fill="currentColor" stroke="none"/><path d="M22 38c3.2 4.2 6.8 6.2 10 6.2S38.8 42.2 42 38"/></svg></div>' +
       '<h2>Thank you for this.</h2><p>The minutes you used are taken from what was yours, and the rest waits for you.</p></div></div>';
   }
@@ -21529,57 +21674,33 @@ window.IVCALL = (function () {
   }
 
   function leaveRoom(ending) {
-    var R = S.room; if (!R || R.left || R.endBusy) return Promise.resolve(false);
+    var R = S.room; if (!R) return; R.left = true;
+    if (R.appearance) { try { R.appearance.destroy(false); } catch (e) {} R.appearance = null; }
     var scr = $('iv-call-screen');
     var seconds = 0;
     if (R.from) seconds = Math.max(0, Math.floor((Date.now() - R.from.getTime()) / 1000)) + R.prior;
-
-    function shutdown() {
-      R.left = true; R.endBusy = false;
-      if (R.cleanup) { try { R.cleanup(); } catch (e) {} R.cleanup = null; }
-      if (R.appearance) { try { R.appearance.destroy(false); } catch (e) {} R.appearance = null; }
-      if (R.tick) { clearInterval(R.tick); R.tick = null; }
-      if (R.client) {
-        try { R.mic && R.mic.close(); R.cam && R.cam.close(); } catch (e) {}
-        try { R.client.unpublish().catch(function () {}).then(function () { return R.client.leave(); }).catch(function () {}); } catch (e) {}
-      }
-      if (window.ivPaintProfile) window.ivPaintProfile();
-      var bye = scr && scr.querySelector('#ivr-bye');
-      if (bye && ending) {
-        bye.classList.add('on');
-        setTimeout(function () { if (S.room === R) closeRoom(); }, 10000);
-      } else closeRoom();
-      toast(ending ? 'The session is closed.' : 'You stepped out. Your minutes are banked — the session is still open.');
-      return true;
+    if (R.tick) { clearInterval(R.tick); R.tick = null; }
+    if (R.client) {
+      try { R.mic && R.mic.close(); R.cam && R.cam.close(); } catch (e) {}
+      try { R.client.unpublish().catch(function () {}).then(function () { return R.client.leave(); }).catch(function () {}); } catch (e) {}
     }
-
-    /* Leaving is not ending: preserve the immediate, free step-out and its
-       best-effort seconds bookkeeping. Permanent End is different: no track,
-       screen or success message is closed until call_finish has succeeded. */
+    /* leaving is not ending: the seconds are banked, the session stays open.
+       The meters on the profile are read *after* the ledger has answered —
+       never beside it, or they paint the minutes as they were before. */
     var leave = IV.call('/rest/v1/rpc/call_exit', { call_id_in: R.id, seconds_in: seconds }).catch(function () {});
-    if (!ending) {
-      leave.then(function () { if (window.ivPaintProfile) window.ivPaintProfile(); });
-      return Promise.resolve(shutdown());
-    }
-    R.endBusy = true;
-    var finalKey = scr && scr.querySelector('#ivr-end-final');
-    var returnKey = scr && scr.querySelector('#ivr-end-return');
-    var err = scr && scr.querySelector('#ivr-end-err');
-    if (finalKey) { finalKey.disabled = true; finalKey.textContent = 'ENDING THE SESSION…'; }
-    if (returnKey) returnKey.disabled = true;
-    if (err) { err.textContent = ''; err.classList.remove('on'); }
-    return leave.then(function () {
-      return IV.call('/rest/v1/rpc/call_finish', { call_id_in: R.id });
-    }).then(shutdown).catch(function (x) {
-      R.endBusy = false;
-      if (finalKey) { finalKey.disabled = false; finalKey.textContent = 'TRY PERMANENT END AGAIN'; }
-      if (returnKey) returnKey.disabled = false;
-      if (err) {
-        err.textContent = ((x && x.message) ? x.message + ' ' : '') + 'The session is still open. Your camera and conversation were not closed.';
-        err.classList.add('on');
-      }
-      return false;
+    var finish = ending ? IV.call('/rest/v1/rpc/call_finish', { call_id_in: R.id }).catch(function () {}) : null;
+    (finish || leave).then(function () {
+      if (window.ivPaintProfile) window.ivPaintProfile();
     });
+    var bye = scr.querySelector('#ivr-bye');
+    if (bye && ending) {
+      if (R.admin) { var byeCopy = bye.querySelector('p'); if (byeCopy) byeCopy.textContent = 'The room is closed. Thank you for sharing this time.'; }
+      bye.classList.add('on');
+      setTimeout(function () { closeRoom(); }, 10000);   /* the farewell holds ten seconds */
+    } else {
+      closeRoom();
+    }
+    toast(ending ? 'The session is closed.' : 'You stepped out. Your minutes are banked — the session is still open.');
   }
 
   function closeRoom() {
@@ -33672,6 +33793,42 @@ return x / 4294967296;
 function fmt(n) {
 return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
+function nativeExp(x) {
+var sum = 1, term = 1;
+for (var i = 1; i < 18; i++) { term *= x / i; sum += term; }
+return sum;
+}
+function nativeSin(x) {
+var tau = 6.283185307179586, t = x % tau;
+if (t > 3.141592653589793) t -= tau;
+var sum = t, term = t;
+for (var i = 1; i < 9; i++) { term *= -t * t / ((2 * i) * (2 * i + 1)); sum += term; }
+return sum;
+}
+function audienceCount(realCount, sessionId, startedIso, nowMs) {
+var now = nowMs == null ? Date.now() : Number(nowMs);
+if (!isFinite(now)) now = Date.now();
+var start = startedIso ? new Date(startedIso).getTime() : now;
+var seconds = isFinite(start) ? Math.trunc((now - start) / 1000) : 0;
+var minutes = seconds / 60.0;
+if (minutes < 0) return 103;
+var id = Number(sessionId); if (!isFinite(id)) id = 0;
+var h = Math.imul(Math.trunc(id), 2654435761) & 0x7fffffff;
+h ^= h >>> 13;
+h = Math.imul(h, 1274126177) & 0x7fffffff;
+h ^= h >>> 16;
+var floor = 103 + h % 40;
+var ceiling = 470 + (h >>> 7) % 121;
+var fill = 1 - nativeExp(-minutes / 34.0);
+var sway = 6 * Math.abs(nativeSin(minutes / 7.0 + (h % 100) / 15.0));
+var shown = Math.floor(floor + (ceiling - floor) * fill + sway + 0.5);
+var real = Number(realCount);
+if (!isFinite(real) || real < 0) real = 0;
+return Math.max(shown, Math.trunc(real));
+}
+function adminView() {
+try { return !!(window.ivIsAdmin && window.ivIsAdmin()); } catch (e) { return false; }
+}
 function views(seedKey, bornIso) {
 var seed = hash(seedKey);
 var cap = 900 + Math.round(rnd(seed, 'cap') * 4100);        // 900 → 5000
@@ -33770,7 +33927,8 @@ var RT_TOPIC = 'realtime:public:live_sessions';
 function liveCountLabel(row) {
 var value = row && row.viewer_count, n = Number(value);
 if (value == null || value === '' || !isFinite(n) || n < 0) return 'Viewer count unavailable';
-return fmt(n) + ' viewer' + (Math.round(n) === 1 ? '' : 's');
+n = adminView() ? Math.trunc(n) : audienceCount(n, row && row.id, row && row.started_at);
+return fmt(n) + ' viewer' + (n === 1 ? '' : 's');
 }
 function discMark(liveRow) {
 var title = String((liveRow && liveRow.title) || 'Ivory is Live').trim() || 'Ivory is Live';
@@ -33820,7 +33978,7 @@ return '' +
 '</span>' +
 '<span class="ivdisc-tx">' +
 '<b>' + K.esc(title) + '</b>' +
-'<s>' + count + ' · ' + (locked ? 'see plans' : 'join live') + ' →</s>' +
+'<s>' + count + ' · ' + (locked ? 'see plans' : 'join live') + '</s>' +
 '</span>' +
 '<span class="ivdisc-go" aria-hidden="true">→</span>' +
 '</button>';
@@ -33860,9 +34018,12 @@ return host;
 function paintLiveRibbon(row) {
 var ribbon = $('iv-live-ribbon');
 if (!ribbon) {
-ribbon = document.createElement('button');
-ribbon.id = 'iv-live-ribbon'; ribbon.type = 'button'; ribbon.hidden = true;
-ribbon.addEventListener('click', function () { if (window.ivLive) ivLive.open(); });
+ribbon = document.createElement('div');
+ribbon.id = 'iv-live-ribbon'; ribbon.hidden = true; ribbon.setAttribute('role', 'group');
+ribbon.addEventListener('click', function (event) {
+var target = event.target;
+if (target && target.closest && target.closest('.iv-live-ribbon-cta') && window.ivLive) ivLive.open();
+});
 (document.body || document.documentElement).appendChild(ribbon);
 }
 ribbon.hidden = !row;
@@ -33876,8 +34037,9 @@ ribbon.innerHTML = '<span class="iv-live-dot" aria-hidden="true"></span>' +
 '<span class="iv-live-ribbon-copy"><b class="iv-live-badge">LIVE</b>' +
 '<strong class="iv-live-title">' + K.esc(title) + '</strong>' +
 '<span class="iv-live-count">' + K.esc(count) + '</span></span>' +
-'<span class="iv-live-ribbon-cta" aria-hidden="true">' + action + ' <i>→</i></span>';
-ribbon.setAttribute('aria-label', title + ' · Live now · ' + count + ' · ' + (locked ? 'See eligible membership plans' : 'Join live'));
+'<button class="iv-live-ribbon-cta" type="button" aria-label="' + K.esc(locked ? 'See eligible membership plans' : 'Join live') + '">' +
+action + ' <i aria-hidden="true">→</i></button>';
+ribbon.setAttribute('aria-label', title + ' · Live now · ' + count);
 ribbon.setAttribute('data-entitled', locked ? 'false' : 'true');
 return ribbon;
 }
@@ -33915,7 +34077,7 @@ if (window.Sound && Sound.play) { try { Sound.play('chime'); } catch (e) {} }
 old.classList.remove('is-leaving');
 var title = String(row.title || 'Ivory is Live').trim() || 'Ivory is Live';
 var s = old.querySelector('.ivdisc-tx s');
-if (s) s.textContent = liveCountLabel(row) + ' · ' + (row.is_entitled === false ? 'see plans' : 'join live') + ' →';
+if (s) s.textContent = liveCountLabel(row) + ' · ' + (row.is_entitled === false ? 'see plans' : 'join live');
 var t = old.querySelector('.ivdisc-tx b'); if (t) t.textContent = title;
 old.setAttribute('aria-label', title + ' · Live now · ' + liveCountLabel(row) + ' · ' +
 (row.is_entitled === false ? 'See eligible membership plans' : 'Join live'));
@@ -34194,6 +34356,9 @@ if (document.visibilityState === 'visible') refreshPulseVisit();
 window.addEventListener('focus', refreshPulseVisit);
 window.addEventListener('pageshow', refreshPulseVisit);
 watchLive();
+window.addEventListener('iv-identity-changed', function () {
+if (discLive) paintDisc([discLive]);
+});
 window.addEventListener('iv-live-started', function () {
 emptyLiveReads = 0;
 if (liveReader) { liveReader(); scheduleLiveRead(0); }
@@ -34227,8 +34392,9 @@ window.ivoryShow = wrapped;
 if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(boot, 0);
 else document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 0); });
 return {
-views: views, roomCount: roomCount, pulse: pulse, newVisit: newVisit,
+views: views, roomCount: roomCount, audienceCount: audienceCount, pulse: pulse, newVisit: newVisit,
 estimatePulse: estimatePulse, pulseClock: pulseClock, pulseHash: pulseHash, pulseLine: pulseLine,
+liveCountLabel: liveCountLabel,
 paintPulse: paintPulse, fmt: fmt,
 paintDisc: paintDisc, readLive: readLive, seedPosts: seedPosts, seatPulse: seatPulse,
 realtime: function () { return { state: rtSocket ? rtSocket.readyState : -1, reconnecting: !!rtReconnect, heartbeat: !!rtHeartbeat }; },
@@ -38301,19 +38467,14 @@ border-radius: 13px; background: #FFFDF8; border: 1px solid rgba(168,131,68,.34)
 letter-spacing: .1em; color: #7A5A4A; background: rgba(90,16,32,.08);
 border: 1px solid rgba(90,16,32,.16); }
 .lvd-tag.ok { color: #2E5A24; background: rgba(46,90,36,.10); border-color: rgba(46,90,36,.24); }
-.lv-exit-choice{display:block;width:100%;min-height:46px;margin-top:10px}
-.lv-exit-danger{border-color:#B98673;color:#6B2D21;background:#FFF7EC}
-.lv-exit-danger.arming{background:#7A3B2C;border-color:#7A3B2C;color:#FFF8E9}
-.lv-exit-note{margin:12px auto 0;max-width:34ch;text-align:center;font-size:12px}
-#lv-swap[disabled]{opacity:.55;cursor:wait}
 .lv-off-retry{min-width:132px;min-height:44px;margin:14px auto 0;padding:0 18px;border:1px solid rgba(255,232,174,.65);border-radius:999px;background:linear-gradient(180deg,#FFF0C2,#D8AE55);color:#4A0C1B;font:800 11px/1 Arial,sans-serif;letter-spacing:.08em;cursor:pointer}
 .lv-off-retry[hidden]{display:none}.lv-byecard .lv-btno{width:100%;margin-top:9px}.lv-byecard .lv-btno[hidden]{display:none}
-.lv-sheetback.lv-exit-mode{align-items:center;padding:20px;background:rgba(58,4,16,.22);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.lv-exit-mode .lv-sheet{width:min(430px,100%);max-height:88%;margin:0;padding:16px 20px calc(18px + env(safe-area-inset-bottom,0px));border:1px solid rgba(255,239,199,.5);border-radius:22px;background:linear-gradient(145deg,rgba(255,251,236,.88),rgba(238,214,160,.82));box-shadow:0 22px 60px rgba(30,2,9,.3),inset 0 1px 0 rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.lv-exit-mode .lv-grip{display:none}.lv-exit-mode .dk-lede{margin:4px 0 12px;color:#6C4B42;font:400 13px/1.5 Georgia,serif;text-align:left}
-.lv-exit-mode .lv-exit-choice{min-height:50px;margin:0;border:0;border-top:1px solid rgba(108,64,54,.18);border-radius:0;background:transparent;color:#5B2433;box-shadow:none;font:800 11px/1.3 Arial,sans-serif;letter-spacing:.07em}
-.lv-exit-mode .lv-exit-choice:hover{background:rgba(255,255,255,.18)}.lv-exit-mode .lv-exit-danger{color:#8C2435}.lv-exit-mode .lv-exit-danger.arming{background:rgba(142,36,53,.1);color:#7A1429;border-color:rgba(142,36,53,.3)}
-.lv-exit-mode .lv-exit-note{margin-top:12px;color:#765B4C}
+.lv-key.lv-host-end{width:auto;min-width:130px;height:50px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font:900 9px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;white-space:nowrap}
+.lv-key.lv-host-end svg{width:18px;height:18px;flex:none}.lv-key.lv-host-end span{display:block}
+.lv-key.lv-host-end:focus-visible{outline:3px solid rgba(255,232,174,.8);outline-offset:3px}
+.lv-key:disabled{opacity:.58;cursor:wait}
+#lv-swap[disabled]{opacity:.55;cursor:wait}
+@media(max-width:360px){.lv-dock{gap:8px}.lv-key{width:48px;height:48px}.lv-key.lv-host-end{min-width:108px;height:48px;padding:0 9px;font-size:8px}}
 </style>
 <script id="iv-legal-js">
 window.ivLegal = (function () {
@@ -41101,7 +41262,7 @@ return '' +
 '<div class="lv-top" id="lv-top">' +
 '<span class="lv-pill" id="lv-clock"><i></i>LIVE 0:00</span>' +
 '<span class="lv-ttl"><b id="lvr-title">The room</b><s id="lv-note"></s></span>' +
-'<button class="lv-x" id="lv-x" aria-label="Step out of the room">' + ICO.x + '</button>' +
+'<button class="lv-x" id="lv-x" type="button" aria-label="Close room view; keep the broadcast live" title="Close room view">' + ICO.x + '</button>' +
 '</div>' +
 '<div class="lv-pillrow"><button class="lv-gpill" id="lv-guest" hidden></button></div>' +
 '<div class="lv-tiles" id="lv-tiles"></div>' +
@@ -41201,6 +41362,7 @@ if (S.role === 'host' && S.activateOnJoin && !S.activated && S.id && IV && IV.ca
 var pendingId = S.id; S.activateOnJoin = false;
 if (D.session && D.session.id === pendingId && D.session.pending) D.session = null;
 IV.call('/rest/v1/rpc/abort_live_start', { session_id_in: pendingId }).catch(function () {});
+if (D.pane && D.pane.isConnected) desk(D.pane);
 }
 leaveRTC();
 var root = $('lv');
@@ -41315,9 +41477,14 @@ h += '<button class="lv-key" id="lv-swap" aria-label="Swap camera">' + ICO.swap 
 }
 if (canAppearance()) h += '<button class="lv-key" id="lv-appearance" aria-label="Appearance controls" aria-pressed="false">' + ICO.face + '</button>';
 }
-h += '<button class="lv-key danger" id="lv-exit" aria-label="' +
-(S.role === 'host' ? 'End the broadcast for everyone' : 'Step down from the seat') + '">' +
-(S.role === 'host' ? ICO.end : ICO.leave) + '</button>';
+if (S.role === 'host') {
+if (!S.activateOnJoin || S.activated) {
+h += '<button type="button" class="lv-key danger lv-host-end" id="lv-exit" aria-label="End broadcast for everyone" title="End broadcast for everyone">' +
+ICO.end + '<span>END BROADCAST</span></button>';
+}
+} else {
+h += '<button type="button" class="lv-key danger" id="lv-exit" aria-label="Step down from the seat" title="Leave the co-host seat">' + ICO.leave + '</button>';
+}
 d.innerHTML = h;
 var mic = $('lv-mic');
 if (mic) mic.addEventListener('click', function () {
@@ -41413,31 +41580,11 @@ finished();
 }
 function hostExitSheet() {
 if (S.role !== 'host') { close(false); return; }
-var pending = !S.id && S.activateOnJoin;
-var body =
-'<div class="lv-sheethead"><b>Her live room</b><button class="lv-shut" data-shut aria-label="Close">' + ICO.x + '</button></div>' +
-'<p class="dk-lede">' + (pending
-? 'This start is still being prepared. You can cancel it without ending a room.'
-: 'Stepping away does not end the room. Choose only the last button if everyone should be let out.') + '</p>' +
-'<button class="dk-btn lv-exit-choice" id="lv-return" type="button">RETURN TO BROADCAST</button>' +
-'<button class="dk-btn lv-exit-choice" id="lv-stepout" type="button">' +
-(pending ? 'CANCEL THIS START' : 'STEP OUT · KEEP IT LIVE') + '</button>' +
-(pending ? '' : '<button class="dk-btn lv-exit-choice lv-exit-danger" id="lv-end-room" type="button">END FOR EVERYONE</button>') +
-'<p class="dk-lede lv-exit-note">' + (pending ? '' : 'OPEN THE ROOM on the desk brings you back. No one is charged again.') + '</p>';
-sheetOpen(body);
-$('lv-sheetback').classList.add('lv-exit-mode');
-$('lv-return').addEventListener('click', sheetClose);
-$('lv-stepout').addEventListener('click', function () {
-sheetClose();
+var pending = S.activateOnJoin && !S.activated;
 close(false);
-toast(pending ? 'The start was cancelled.' : 'You stepped out. The broadcast is still live.');
-});
-var end = $('lv-end-room');
-if (end) end.addEventListener('click', function () {
-if (S.endBusy) return;
-sheetClose();
-endShow();
-});
+toast(pending
+? 'The pending broadcast start was cancelled.'
+: 'Room view closed. The broadcast stays live; use END BROADCAST on the desk to stop it.');
 }
 function roomJoinProblem(x) {
 offPlate('The room did not open', (x && x.message) || 'Check your signal, then try again.');
@@ -41550,7 +41697,7 @@ var value = Array.isArray(res) ? res[0] : res, started = new Date(value);
 if (!value || !isFinite(started.getTime())) throw new Error('The broadcast did not return its start time.');
 S.activated = true; S.activateOnJoin = false; S.from = started; D.from = started;
 if (D.session && D.session.id === id) { D.session.pending = false; D.session.startedAt = started.getTime(); }
-tick();
+tick(); paintDock();
 window.dispatchEvent(new CustomEvent('iv-live-started', { detail: { id: id } }));
 }).catch(function (x) {
 if (!S.mounted || S.id !== id || S.client !== client) return null;
@@ -42349,7 +42496,7 @@ clearInterval(D.clockT); clearInterval(D.pollT); D.clockT = D.pollT = null;
 pane.innerHTML = '<div class="lvd c105-live"><div class="lvd-onair c105-onair">' +
 '<p class="lvd-oa-k">YOU ARE ON AIR</p><b class="lvd-oa-t">' + esc(s.title) + '</b>' +
 '<p class="lvd-oa-s"><span id="lvd-oa-clock">on air 0:00</span>  -  <span id="lvd-oa-view">' + Number(s.viewer || 0) + ' watching</span>, only you</p>' +
-'<div class="lvd-oa-btns"><button type="button" class="lvd-open" id="lvd-open">OPEN THE ROOM</button><button type="button" class="lvd-end" id="lvd-end">END</button></div></div>' +
+'<div class="lvd-oa-btns"><button type="button" class="lvd-open" id="lvd-open">OPEN THE ROOM</button><button type="button" class="lvd-end" id="lvd-end" aria-label="End broadcast for everyone">END BROADCAST</button></div></div>' +
 '<section class="c105-live-guests"><p class="lvd-l">Guests <span>WEBSITE CONTROLS</span></p><div id="lvd-guests" class="lvd-guests"><p class="lvd-hint">Reading the guest places…</p></div></section>' +
 giftsBlock() + historyBlock() + '</div>';
 var tick = function () {
@@ -42413,7 +42560,7 @@ if (pane.isConnected) desk(pane);
 window.dispatchEvent(new CustomEvent('iv-live-ended', { detail: { id: sid } }));
 toast('The house confirmed the ending. Everyone has been let out.');
 }).catch(function (x) {
-S.endBusy = false; if (b.isConnected) { b.disabled = false; b.textContent = 'END'; }
+S.endBusy = false; if (b.isConnected) { b.disabled = false; b.textContent = 'END BROADCAST'; }
 toast(((x && x.message) || 'The house did not confirm the ending.') + ' The room is still live.', true);
 });
 });
@@ -42495,6 +42642,9 @@ font:500 12px/1.45 ui-sans-serif,system-ui,sans-serif}
 #ws-ledger li b{flex:0 0 auto;font-size:11px;line-height:1.35;text-align:right}
 #ws-mint,#ws-claim-btn,#ws-copy,.ws-close{min-height:44px}
 @media(max-width:380px){#wof-token{width:92vw;font-size:11px}}
+#wof .wof-sub{max-width:min(56vw,360px);text-align:right;line-height:1.35}
+#wof .ws-hours-empty{margin:0;padding:14px 12px;text-align:center;color:rgba(246,224,186,.72);font:italic 12px/1.5 Georgia,serif}
+#wof .ws-next b{overflow-wrap:anywhere}
 
 #iv-wish-history{display:grid;gap:12px;margin:28px 0 18px}
 .ivwish-history-head h2{margin:0 0 5px;font:400 23px/1.25 Georgia,serif;color:#5C1120}
@@ -42966,28 +43116,39 @@ return d.toLocaleString('en-IN', dateOnly
 } catch (e) { return String(v); }
 }
 function shortTime(v) { return String(v || '').replace(/^(\d{1,2}:\d{2})(?::\d{2})?$/, '$1'); }
+var MEMBER_WINDOWS = [
+{ key: 'morning', name: 'Morning Gilded Hour', open: '9:07 a.m.', close: '11:07 a.m.', active: true },
+{ key: 'afternoon', name: 'Afternoon Gilded Hour', open: '2:07 p.m.', close: '4:07 p.m.', active: true },
+{ key: 'sunrise', name: 'Sunday Sunrise Turn', open: '7:07 a.m.', close: '9:07 a.m.', active: true, weekday: 0 }
+];
 function paintHours(st) {
 var host = el('ws-hours'), prog = el('ws-prog');
 if (prog) prog.hidden = true; /* no device-clock progress bar */
 if (!host) return;
-var windows = rows(st.windows);
-if (windows.length) {
+var supplied = rows(st.windows), usingNative = !supplied.length;
+var windows = usingNative ? MEMBER_WINDOWS : supplied;
+var selectedWindow = String(st.window || '').toLowerCase();
 host.innerHTML = windows.map(function (w, i) {
 var key = String(w.key || w.id || w.name || i).toLowerCase().replace(/\s+/g, '-');
-var openNow = st.open === true && [String(w.key || ''), String(w.id || ''), String(w.name || '').toLowerCase(), key]
-.indexOf(String(st.window || '').toLowerCase()) >= 0;
+var identifiers = [w.key, w.id, w.name, key].map(function (v) { return String(v || '').toLowerCase(); });
+var openNow = st.open === true && !!selectedWindow && identifiers.indexOf(selectedWindow) >= 0;
 var sunrise = /sunrise/i.test(String(w.name || '')) || Number(w.weekday) === 0;
 return '<div class="ws-hr' + (openNow ? ' is-open' : '') + (w.active === false ? ' is-off' : '') + '" data-w="' + esc(key) + '">' +
 '<span class="ws-hr-n">' + esc(w.name || ('Gilded Hour ' + (i + 1))) + (sunrise ? '<em>Sundays</em>' : '') + '</span><i></i>' +
 '<span class="ws-hr-t">' + (w.active === false ? 'Resting' : esc(shortTime(w.open)) + ' – ' + esc(shortTime(w.close))) + '</span></div>';
 }).join('');
+var subtitle = el('wof-hours-sub');
+if (subtitle) subtitle.textContent = st.open === true
+? 'House open · ' + String(st.window || 'Gilded Hour') + ' · IST'
+: 'House schedule · Indian Standard Time';
 var lead = document.querySelector('#wof-salon .ws-body > .lead');
-if (lead) lead.textContent = 'The house publishes its current Gilded Hours here. Every opening is server-locked to Indian Standard Time; the feather never follows the handset clock.';
-}
+if (lead) lead.textContent = usingNative
+? 'The Member schedule follows the native app: 9:07–11:07 a.m. and 2:07–4:07 p.m. daily, plus Sunday Sunrise from 7:07–9:07 a.m. The server decides which window is open and when the next one begins (IST).'
+: 'The house publishes every current opening below, including alternate Gilded Hours. The server clock uses Indian Standard Time; the feather never follows the handset clock.';
 if (st.open === true) {
 setText('ws-next-lab', 'Open now');
-setText('ws-next-t', st.cycle_closes_at ? 'This Gilded Hour is open' : 'The house is open');
-setText('ws-next-in', st.window ? String(st.window) + ' · server-locked IST' : 'Server-locked IST');
+setText('ws-next-t', String(st.window || 'Gilded Hour') + ' is open');
+setText('ws-next-in', st.closes_at ? 'Closes ' + fmtAt(st.closes_at) : 'Server-locked IST');
 } else {
 setText('ws-next-lab', 'Next opening');
 setText('ws-next-t', st.next_at ? fmtAt(st.next_at) : 'The house will publish the hour');

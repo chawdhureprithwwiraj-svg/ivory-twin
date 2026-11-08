@@ -1859,6 +1859,8 @@ window.addEventListener('load',function(){last();setTimeout(last,120);});setTime
   on(d, 'click', function (e) {
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;
+    /* The audio-call extension price/minutes are editable fields, not room-navigation taps. */
+    if (t.closest && t.closest('#iv-call-screen .ivr-mts-in')) { e.stopImmediatePropagation(); return; }
     var reachChoice = t.closest('[data-heart-reach]');
     var reachSheet = $('#sheet-heart-reach');
     if (reachChoice && reachSheet && reachSheet.contains(reachChoice)) {

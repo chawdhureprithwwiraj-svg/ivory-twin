@@ -44,7 +44,8 @@ export class AppearanceRoomController{
   paint(){
     const on=!!this.state.on;this.master.setAttribute('aria-pressed',String(on));this.master.setAttribute('aria-label',on?'Turn Beauty off':'Turn Beauty on');
     Object.keys(this.rows).forEach(key=>{const n=key==='faceSlim'?this.state.faceSlim:this.state.fx[key];this.rows[key].input.value=String(Math.round(n*100));this.rows[key].value.textContent=Math.round(n*100)+'%';});
-    this.status.textContent=this.active?'On · strong skin finish':(on?(this.hooks.cameraEnabled()?'Preparing a steady picture…':'On · waiting for the camera'):'Raw camera');this.bindButton(this.button);
+    let cameraOn=true;try{cameraOn=!!this.hooks.cameraEnabled();}catch(e){}
+    this.status.textContent=this.active?(cameraOn?'On · strong skin finish':'On · waiting for the camera'):(on?(cameraOn?'Preparing a steady picture…':'On · waiting for the camera'):'Raw camera');this.bindButton(this.button);
   }
   open(){if(this.destroyed)return;if(!this.hooks.getRawTrack()){toast('Your camera is still opening.',true);return;}this.state.open=true;this.sheet.hidden=false;this.paint();}
   close(){this.state.open=false;if(this.sheet)this.sheet.hidden=true;}
@@ -109,8 +110,14 @@ export class AppearanceRoomController{
     if(replaced){this.mode='replace';this.published=raw;this.hooks.onPublished(raw);this.hooks.show(raw);return;}
     if(!window.AgoraRTC||typeof AgoraRTC.createCustomVideoTrack!=='function'||!client)throw new Error('This room cannot publish the processed camera');
     const custom=await asPromise(AgoraRTC.createCustomVideoTrack({mediaStreamTrack:track}));this.custom=custom;
-    try{await client.unpublish(raw);await client.publish(custom);}catch(error){try{if(client.localTracks&&client.localTracks.indexOf(custom)>=0)await client.unpublish(custom);await client.publish(raw);}catch(ignore){}try{custom.close();}catch(ignore){}this.custom=null;throw error;}
-    this.mode='custom';this.published=custom;this.hooks.onPublished(custom);this.hooks.show(custom);
+    /* A call may stage its first camera publication until this processed track
+       is ready. Live and already-open calls keep the prior raw-published path. */
+    const rawPublished=typeof this.hooks.isRawPublished==='function'?!!this.hooks.isRawPublished():true;
+    try{if(rawPublished)await client.unpublish(raw);await client.publish(custom);}catch(error){
+      try{if(client.localTracks&&client.localTracks.indexOf(custom)>=0)await client.unpublish(custom);}catch(ignore){}
+      if(rawPublished){try{await client.publish(raw);this.hooks.onPublished(raw);this.hooks.show(raw);}catch(ignore){}}
+      try{custom.close();}catch(ignore){}this.custom=null;throw error;}
+    this.mode=rawPublished?'custom':'custom-initial';this.published=custom;this.hooks.onPublished(custom);this.hooks.show(custom);
   }
   applyParams(){if(this.engine)this.engine.setParams(makeParams(this.state,false,this.phase));}
   onFatal(error){if(this.destroyed||!this.state.on)return;this.state.on=false;this.active=false;saveState(this.state);this.generation++;this.paint();const restored=this.enqueue(()=>this.cleanup(true));restored.then(()=>this.paint(),()=>this.paint());restored.catch(()=>{toast('The camera needs you to step out and rejoin.',true);});toast('Beauty was turned off to keep your camera smooth.',true);return restored;}
@@ -118,10 +125,17 @@ export class AppearanceRoomController{
     if(this.destroyed)return asPromise(mutator());const gen=++this.generation;return this.enqueue(async()=>{await this.cleanup(true);if(gen!==this.generation||this.destroyed)return;const result=await mutator();if(gen!==this.generation||this.destroyed||!this.state.on)return result;try{await this.sync(gen);}catch(e){}this.paint();return result;});
   }
   async setEnabled(enabled){
-    if(this.destroyed)return;const gen=++this.generation;return this.enqueue(async()=>{
-      if(this.rawMST)try{this.rawMST.enabled=!!enabled;}catch(e){}const jobs=[];if(this.raw&&this.raw.setEnabled)jobs.push(asPromise(this.raw.setEnabled(enabled)));
-      if(this.published&&this.published!==this.raw&&this.published.setEnabled)jobs.push(asPromise(this.published.setEnabled(enabled)));await Promise.all(jobs);
-      if(!enabled){await this.cleanup(true);this.paint();}else if(this.state.on&&!this.active)await this.sync(gen);
+    if(this.destroyed)return;enabled=!!enabled;const gen=++this.generation;return this.enqueue(async()=>{
+      /* A camera button is a mute, not a Beauty restart. Keep the processed
+         publication and engine in place while the source is paused; resuming
+         then reuses the same filtered track instead of briefly publishing raw. */
+      if(this.rawMST)try{this.rawMST.enabled=enabled;}catch(e){}
+      const roomTrack=this.raw||this.hooks.getRawTrack(),jobs=[];
+      if(roomTrack&&roomTrack.setEnabled)jobs.push(asPromise(roomTrack.setEnabled(enabled)));
+      if(this.published&&this.published!==roomTrack&&this.published.setEnabled)jobs.push(asPromise(this.published.setEnabled(enabled)));
+      await Promise.all(jobs);
+      if(enabled&&this.state.on&&!this.active)await this.sync(gen);
+      this.paint();
     });
   }
   async cleanup(restore){
@@ -149,7 +163,12 @@ export class AppearanceRoomController{
     }
     this.engine=null;this.video=null;this.active=false;this.published=null;this.custom=null;this.mode='';
     if(video){try{video.pause();}catch(e){}try{video.srcObject=null;}catch(e){}video.remove();}
-    if(engine)try{await engine.stop();}catch(e){}if(custom)try{custom.close();}catch(e){}this.raw=null;this.rawMST=null;
+    if(engine)try{await engine.stop();}catch(e){}if(custom)try{custom.close();}catch(e){}
+    /* On room teardown the Agora wrapper closes its current track; in replace
+       mode that is the processed canvas track, so also stop the hidden raw
+       capture explicitly. Normal Beauty-off cleanup keeps the raw camera. */
+    if(!restore&&mode==='replace'&&rawMST)try{rawMST.stop();}catch(e){}
+    this.raw=null;this.rawMST=null;
   }
   destroy(restore=true){
     if(this.destroyed)return this.queue;this.destroyed=true;this.generation++;if(this.gateTimer){clearInterval(this.gateTimer);this.gateTimer=null;}this.close();const result=this.enqueue(()=>this.cleanup(!!restore).catch(()=>this.cleanup(false)));
