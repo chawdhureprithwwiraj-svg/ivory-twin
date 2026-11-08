@@ -33926,7 +33926,7 @@ var emptyLiveReads = 0;
 function readLive() {
 if (liveRead) return liveRead;
 if (!window.IVSESS || !IVSESS.get) return Promise.resolve(null);
-liveRead = IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,is_entitled,started_at,created_at&status=eq.live&order=started_at.desc&limit=5', { cache: 'no-store' })
+liveRead = IVSESS.get('/rest/v1/live_public?select=id,status,title,viewer_count,is_entitled,started_at&status=eq.live&order=started_at.desc&limit=5', { cache: 'no-store' })
 .then(function (rows) {
 rows = Array.isArray(rows) ? rows : [];
 if (rows.length) { emptyLiveReads = 0; paintDisc(rows); return rows; }
