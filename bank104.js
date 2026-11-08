@@ -20,9 +20,13 @@
   var IMAGE_TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'image/gif': 1, 'image/heic': 1 };
   var AUDIO_TYPES = { 'audio/mpeg': 1, 'audio/mp4': 1, 'audio/aac': 1, 'audio/wav': 1,
     'audio/ogg': 1, 'audio/flac': 1, 'audio/amr': 1 };
+  function isProjectPagesHost(host) {
+    return /^(?:[a-z0-9-]+\.)*ivory-twin\.pages\.dev$/i.test(String(host || ''));
+  }
   function endpoint(name) {
     try {
-      if (/^(ivory-twin\.pages\.dev|ivoryhouse\.dpdns\.org)$/i.test(location.hostname)) return '/api/' + name;
+      /* Preview Pages deployments must stay same-origin; their Functions deny POSTs. */
+      if (isProjectPagesHost(location.hostname) || /^ivoryhouse\.dpdns\.org$/i.test(location.hostname)) return '/api/' + name;
     } catch (e) {}
     return WEB_DOOR + name;
   }
