@@ -1,0 +1,277 @@
+# Prepared workflow template only. It is intentionally kept under research/ and is not active.
+# Stage the 91 manifest destination paths on the isolated branch (IVORY_WEB_V2.html -> index.html),
+# copy the manifest to .github/pass115_cloudflare_stage_manifest.json, and activate only after fresh secrets.
+name: Pass-115 Cloudflare Pages preview (non-production)
+
+on:
+  push:
+    branches:
+      - pass115-cloudflare-preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass115-cloudflare-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+    steps:
+      - name: Check out the isolated preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: pass115-cloudflare-preview
+
+      - name: Confirm credentials and production isolation before upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CF_ACCOUNT_ID" ]]; then
+            echo "::error::Cloudflare Actions secrets are unavailable; no deployment was attempted."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, os, re, urllib.error, urllib.request
+          def stop(message):
+              print('::error::' + message)
+              raise SystemExit(1)
+          account = os.environ.get('CF_ACCOUNT_ID', '')
+          token = os.environ.get('CLOUDFLARE_API_TOKEN', '')
+          if not re.fullmatch(r'[0-9a-fA-F]{32}', account):
+              stop('CF_ACCOUNT_ID has an invalid shape; no deployment was attempted.')
+          url = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin'
+          req = urllib.request.Request(url, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass115-preview-preflight'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  payload = json.loads(response.read())
+          except urllib.error.HTTPError as error:
+              stop('Cloudflare Pages project lookup returned HTTP %s; no deployment was attempted.' % error.code)
+          except Exception:
+              stop('Cloudflare Pages project lookup failed; no deployment was attempted.')
+          if payload.get('success') is not True:
+              stop('Cloudflare rejected the project lookup; no deployment was attempted.')
+          project = payload.get('result') or {}
+          if project.get('name') != 'ivory-twin':
+              stop('The expected Pages project was not confirmed; no deployment was attempted.')
+          production = project.get('production_branch')
+          if production != 'main':
+              stop('Expected production branch "main" was not confirmed; refusing to deploy any preview.')
+          domains = project.get('domains') or []
+          if 'ivoryhouse.dpdns.org' not in domains:
+              stop('The custom domain is not attached to the expected project; no deployment was attempted.')
+          preview = 'pass115-cloudflare-preview'
+          if preview == production:
+              stop('Preview branch equals production branch; refusing deployment.')
+          print('Preflight confirmed project=ivory-twin; production_branch=main; custom_domain_attached=true; requested_branch=' + preview + '.')
+          print('Only the isolated preview branch will be deployed; production/DNS are not touched.')
+          PY
+
+      - name: Verify exact Pass-115 payload and assemble static files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, shutil
+          from pathlib import Path
+          manifest = json.loads(Path('.github/pass115_cloudflare_stage_manifest.json').read_text())
+          files = manifest.get('files') or []
+          expected_candidate = {'path': 'index.html', 'bytes': 3178072, 'sha256': '559283920442114f597c5ffcabc84582ebc4fff64a88e1475b653adfa8e79cc1'}
+          if manifest.get('pass') != 115 or manifest.get('payload_files') != 91 or len(files) != 91 or manifest.get('payload_bytes') != 36736299:
+              raise SystemExit('::error::Unexpected Pass-115 payload manifest; refusing deployment.')
+          if manifest.get('static_files') != 89 or manifest.get('static_bytes') != 36730733 or manifest.get('functions_files') != 2:
+              raise SystemExit('::error::Static/Functions totals differ from the approved Pass-115 inventory.')
+          candidate = manifest.get('candidate') or {}
+          if any(candidate.get(key) != value for key, value in expected_candidate.items()):
+              raise SystemExit('::error::Candidate identity changed; refusing deployment.')
+          shutil.rmtree('dist', ignore_errors=True)
+          Path('dist').mkdir()
+          seen = set()
+          static_bytes = 0
+          for item in files:
+              rel = item.get('path', '')
+              source = Path(rel)
+              if not rel or rel in seen or source.is_absolute() or '..' in source.parts or source.is_symlink():
+                  raise SystemExit('::error::Unsafe or duplicate manifest path; refusing deployment.')
+              seen.add(rel)
+              if not source.is_file():
+                  raise SystemExit('::error::Required candidate file missing: ' + rel)
+              data = source.read_bytes()
+              if len(data) != item.get('bytes') or hashlib.sha256(data).hexdigest() != item.get('sha256'):
+                  raise SystemExit('::error::Candidate file differs from the verified manifest: ' + rel)
+              if rel.startswith('functions/'):
+                  continue
+              static_bytes += len(data)
+              dest = Path('dist') / source
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(source, dest)
+          if static_bytes != 36730733:
+              raise SystemExit('::error::Static payload byte total changed; refusing deployment.')
+          if not Path('functions/api/b2-media.js').is_file() or not Path('functions/api/r2-vault.js').is_file():
+              raise SystemExit('::error::Cloudflare Pages Functions missing at project root; refusing deployment.')
+          print('Verified 91 files / 36,736,299 bytes; assembled 89 static files / 36,730,733 bytes under dist/.')
+          print('Kept both verified Pages Functions at the project root.')
+          PY
+
+      - name: Confirm a production rollback target before any preview deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, urllib.error, urllib.parse, urllib.request
+          account = os.environ['CF_ACCOUNT_ID']
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          base = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin/deployments'
+          query = urllib.parse.urlencode({'env': 'production', 'per_page': 20})
+          request = urllib.request.Request(base + '?' + query, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass115-rollback-preflight'})
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  payload = json.loads(response.read())
+          except urllib.error.HTTPError as error:
+              raise SystemExit('::error::Production rollback preflight returned HTTP %s; no preview deploy was attempted.' % error.code)
+          except Exception:
+              raise SystemExit('::error::Production rollback preflight failed; no preview deploy was attempted.')
+          if payload.get('success') is not True:
+              raise SystemExit('::error::Cloudflare rejected rollback preflight; no preview deploy was attempted.')
+          rows = payload.get('result') or []
+          successful = [x for x in rows if (x.get('latest_stage') or {}).get('status') == 'success' and not x.get('is_skipped')]
+          if not successful:
+              raise SystemExit('::error::No successful production rollback target was found; no preview deploy was attempted.')
+          target = max(successful, key=lambda x: x.get('created_on') or '')
+          if not target.get('id'):
+              raise SystemExit('::error::Production rollback target has no deployment ID; no preview deploy was attempted.')
+          metadata = (target.get('deployment_trigger') or {}).get('metadata') or {}
+          if metadata.get('branch') != 'main':
+              raise SystemExit('::error::Latest successful production target is not from main; no preview deploy was attempted.')
+          url = target.get('url') or ''
+          if not re.fullmatch(r'https://[A-Za-z0-9.-]+\.ivory-twin\.pages\.dev/?', url):
+              raise SystemExit('::error::A safe Pages rollback URL was not confirmed; no preview deploy was attempted.')
+          print('Rollback preflight confirmed successful main deployment ' + str(target.get('id') or '') + ' at ' + url + '.')
+          print('This is read-only. No production deployment, DNS, or domain binding will be changed.')
+          PY
+
+      - name: Deploy the preview branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@3.114.17 pages deploy dist \
+            --project-name ivory-twin \
+            --branch pass115-cloudflare-preview \
+            --commit-dirty=true
+
+      - name: Record preview deployment and production rollback target
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, urllib.error, urllib.parse, urllib.request
+          account = os.environ['CF_ACCOUNT_ID']
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          base = 'https://api.cloudflare.com/client/v4/accounts/' + account + '/pages/projects/ivory-twin/deployments'
+          def get_env(environment):
+              query = urllib.parse.urlencode({'env': environment, 'per_page': 20})
+              request = urllib.request.Request(base + '?' + query, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'User-Agent': 'ivory-pass115-preview-receipt'})
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      data = json.loads(response.read())
+              except urllib.error.HTTPError as error:
+                  raise SystemExit('::error::Cloudflare deployment metadata lookup returned HTTP %s.' % error.code)
+              if data.get('success') is not True:
+                  raise SystemExit('::error::Cloudflare deployment metadata lookup failed.')
+              return data.get('result') or []
+          def safe_url(value):
+              if not isinstance(value, str): return ''
+              if not re.fullmatch(r'https://[A-Za-z0-9.-]+\.ivory-twin\.pages\.dev/?', value): return ''
+              return value
+          production = [x for x in get_env('production') if (x.get('latest_stage') or {}).get('status') == 'success' and not x.get('is_skipped')]
+          if not production: raise SystemExit('::error::No successful production rollback target was found.')
+          rollback = max(production, key=lambda x: x.get('created_on') or '')
+          rollback_meta = (rollback.get('deployment_trigger') or {}).get('metadata') or {}
+          if rollback_meta.get('branch') != 'main': raise SystemExit('::error::Latest successful production target is not from main; stopping.')
+          previews = [x for x in get_env('preview') if (x.get('latest_stage') or {}).get('status') == 'success' and not x.get('is_skipped')]
+          stage = [x for x in previews if ((x.get('deployment_trigger') or {}).get('metadata') or {}).get('branch') == 'pass115-cloudflare-preview']
+          if not stage: raise SystemExit('::error::Successful Pass-115 preview deployment was not found.')
+          preview = max(stage, key=lambda x: x.get('created_on') or '')
+          expected_url = 'https://pass115-cloudflare-preview.ivory-twin.pages.dev/'
+          aliases = [safe_url(x) for x in (preview.get('aliases') or [])]
+          aliases = [x for x in aliases if x]
+          if expected_url.rstrip('/') not in [x.rstrip('/') for x in aliases] and safe_url(preview.get('url')).rstrip('/') != expected_url.rstrip('/'):
+              raise SystemExit('::error::Expected Pass-115 preview alias was not confirmed; stopping.')
+          lines = [
+              '## Pass-115 Cloudflare preview receipt',
+              '- Preview URL: ' + expected_url,
+              '- Preview deployment ID: `' + str(preview.get('id') or '') + '`; branch: `pass115-cloudflare-preview`; status: `success`.',
+              '- Production branch remains `main`; no production deployment or DNS change was requested.',
+              '- Latest successful production rollback target: `' + str(rollback.get('id') or '') + '`; created: `' + str(rollback.get('created_on') or 'unknown') + '`; URL: `' + safe_url(rollback.get('url')) + '`.'
+          ]
+          print('\n'.join(lines))
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary, 'a', encoding='utf-8') as output: output.write('\n'.join(lines) + '\n')
+          PY
+
+      - name: Verify live preview assets and fail-closed Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import concurrent.futures, hashlib, json, os, urllib.error, urllib.parse, urllib.request
+          from pathlib import Path
+          manifest = json.loads(Path('.github/pass115_cloudflare_stage_manifest.json').read_text())
+          base = 'https://pass115-cloudflare-preview.ivory-twin.pages.dev/'
+          static = [item for item in manifest['files'] if not item['path'].startswith('functions/')]
+          if len(static) != 89 or sum(item['bytes'] for item in static) != 36730733:
+              raise SystemExit('::error::Unexpected static preview inventory; refusing verification.')
+          def verify_file(item):
+              url = base + urllib.parse.quote(item['path'], safe='/')
+              req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'Cache-Control': 'no-cache'})
+              try:
+                  with urllib.request.urlopen(req, timeout=45) as response:
+                      data = response.read()
+                      status = response.status
+              except Exception as error:
+                  raise RuntimeError('GET failed for %s: %s' % (item['path'], error))
+              digest = hashlib.sha256(data).hexdigest()
+              if status != 200 or len(data) != item['bytes'] or digest != item['sha256']:
+                  raise RuntimeError('preview bytes differ for ' + item['path'])
+              return item['path']
+          with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+              verified = list(pool.map(verify_file, static))
+          if len(verified) != 89:
+              raise SystemExit('::error::Not all static preview files were checked.')
+          function_results = []
+          for path in ('functions/api/b2-media.js', 'functions/api/r2-vault.js'):
+              endpoint = base + 'api/' + Path(path).stem
+              preflight = urllib.request.Request(endpoint, method='OPTIONS', headers={
+                  'Origin': base.rstrip('/'),
+                  'Access-Control-Request-Method': 'POST',
+                  'Access-Control-Request-Headers': 'authorization,apikey,content-type',
+                  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'})
+              with urllib.request.urlopen(preflight, timeout=30) as response:
+                  origin = response.headers.get('Access-Control-Allow-Origin', '')
+                  methods = response.headers.get('Access-Control-Allow-Methods', '').upper()
+                  allowed = response.headers.get('Access-Control-Allow-Headers', '').lower()
+                  if response.status != 204 or origin not in ('*', base.rstrip('/')) or 'POST' not in methods or 'OPTIONS' not in methods or not (allowed == '*' or all(x in allowed for x in ('authorization', 'apikey', 'content-type'))):
+                      raise SystemExit('::error::CORS preflight failed for ' + path)
+              request = urllib.request.Request(endpoint, data=b'{}', method='POST', headers={
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  payload = json.loads(response.read().decode('utf-8'))
+                  if response.status != 200 or int(payload.get('status') or 0) != 403:
+                      raise SystemExit('::error::Preview API isolation guard did not deny the branch request for ' + path)
+              function_results.append(path + ': OPTIONS 204; branch-preview POST outer 200 / nested 403; no production alias')
+          lines = ['## Pass-115 preview verification', '- Static files: 89/89 exact byte/SHA-256 matches (36,730,733 bytes).']
+          lines += ['- ' + value for value in function_results]
+          print('\n'.join(lines))
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary, 'a', encoding='utf-8') as output:
+                  output.write('\n'.join(lines) + '\n')
+          PY
