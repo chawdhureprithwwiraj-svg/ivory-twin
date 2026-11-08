@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF7E2">
+<title>Ivory · The Room</title>
+<style>
+  :root{
+    --paper:#FFFDF6; --paper2:#FBF2DE; --paper3:#F7E8CB;
+    --ink:#3A2007; --ink-soft:#6E4A1C; --gold:#C49A45; --gold-2:#96610F;
+    --bu:#B81A34; --bu-deep:#6E0C24; --cream:#FFF7E2;
+    --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{font-family:var(--serif);color:var(--ink);background:
+      radial-gradient(120% 70% at 50% -10%,#FFF6DE 0,rgba(255,246,222,0) 60%),
+      linear-gradient(180deg,#FFFDF6 0,#FCF3E0 48%,#F6E6C6 100%);
+    background-attachment:fixed;min-height:100svh;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:560px;padding:14px 18px calc(28px + env(safe-area-inset-bottom));position:relative}
+  .wrap:before{content:'';position:fixed;inset:8px;border:1px solid rgba(180,132,44,.26);border-radius:20px;pointer-events:none;z-index:0}
+
+  .top{display:flex;align-items:center;gap:10px;padding:6px 0 12px;position:relative;z-index:1}
+  .mark{font-weight:700;font-size:14px;letter-spacing:.42em;color:#5C1226;text-indent:.42em}
+  .top .sp{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--ui);font-size:8.4px;letter-spacing:.18em;text-transform:uppercase;color:#8A6A3A}
+  .dot{width:6px;height:6px;border-radius:50%;background:#C7A97A;box-shadow:0 0 0 3px rgba(199,169,122,.18)}
+  .chip.live{border-color:rgba(184,26,52,.5);color:#8E1230;background:rgba(255,244,240,.75)}
+  .chip.live .dot{background:var(--bu);box-shadow:0 0 0 3px rgba(184,26,52,.18);animation:beat 1.6s ease-in-out infinite}
+  @keyframes beat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
+
+  h1{margin:0 0 6px;font-size:26px;line-height:1.14;font-weight:700;font-style:italic;color:var(--bu-deep)}
+  .kicker{margin:0 0 8px;font-family:var(--ui);font-size:8.2px;letter-spacing:.3em;text-transform:uppercase;color:#A98545}
+  .lede{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--ink-soft);font-style:italic}
+
+  .card{position:relative;z-index:1;border:1px solid rgba(180,132,44,.34);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(90,42,6,.6);
+    padding:15px 15px 14px;margin:0 0 13px}
+  label.f{display:block;margin:0 0 11px}
+  label.f span{display:block;font-family:var(--ui);font-size:8.2px;letter-spacing:.22em;text-transform:uppercase;color:#96703A;margin:0 0 5px}
+  input[type=email],input[type=password],input[type=text]{width:100%;padding:12px 13px;border-radius:11px;
+    border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.86);font-family:var(--serif);font-size:15px;
+    color:var(--ink);outline:none;-webkit-appearance:none}
+  input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 16px;border:0;
+    border-radius:13px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:700;color:var(--cream);
+    background:linear-gradient(180deg,#A8162F,#7E0E23);
+    box-shadow:0 1px 0 rgba(255,255,255,.22) inset,0 12px 24px -16px rgba(110,12,36,.9);
+    transition:transform .18s var(--ease),filter .18s}
+  .btn:active{transform:translateY(1px) scale(.995)}
+  .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.gold{color:#3A2007;background:linear-gradient(180deg,#F7D77F,#D9A93F);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 12px 24px -18px rgba(120,74,14,.9)}
+  .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);
+    box-shadow:none;font-weight:400}
+  .note{margin:11px 0 0;font-size:11.6px;line-height:1.55;color:#8A6A3A;font-style:italic}
+  .err{margin:11px 0 0;padding:10px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
+  .hide{display:none !important}
+
+  /* — the list of rooms — */
+  .room{display:flex;gap:12px;align-items:center;width:100%;text-align:left;cursor:pointer;
+    padding:12px 12px;margin:0 0 10px;border-radius:14px;border:1px solid rgba(180,132,44,.34);
+    background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.46));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 14px 30px -30px rgba(90,42,6,.7);position:relative;z-index:1}
+  .room .thumb{width:52px;height:52px;flex:0 0 52px;border-radius:12px;overflow:hidden;position:relative;
+    background:radial-gradient(120% 90% at 40% 30%,#3A2456,#170E28);border:1px solid rgba(180,132,44,.5)}
+  .room .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .room .thumb i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:7px;height:7px;
+    border-radius:50%;background:#FF6B81;box-shadow:0 0 0 0 rgba(255,107,129,.7);animation:beat 1.7s infinite}
+  .room .txt{flex:1;min-width:0}
+  .room b{display:block;font-size:15.2px;color:#5C1226;font-weight:700;line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .room s{display:block;text-decoration:none;font-size:11.6px;color:#8A6A3A;margin-top:2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .room .tag{font-family:var(--ui);font-size:8px;letter-spacing:.16em;text-transform:uppercase;
+    padding:4px 7px;border-radius:100px;border:1px solid rgba(180,132,44,.4);color:#7A4A12;white-space:nowrap}
+  .room .tag.live{background:rgba(184,26,52,.1);border-color:rgba(184,26,52,.4);color:#8E1230}
+  .empty{text-align:center;padding:26px 10px;color:#8A6A3A;font-style:italic;font-size:13px;line-height:1.6}
+
+  /* — in the room — */
+  .stage{position:relative;border-radius:16px;overflow:hidden;background:#160D28;
+    border:1px solid rgba(180,132,44,.5);aspect-ratio:3/4;max-height:52vh;display:grid;place-items:center;
+    box-shadow:0 20px 44px -30px rgba(40,16,4,.8)}
+  .stage video{width:100%;height:100%;object-fit:cover;display:block}
+  .stage .who-on{position:absolute;left:10px;top:10px;display:inline-flex;align-items:center;gap:6px;
+    padding:5px 9px;border-radius:100px;background:rgba(110,12,36,.86);color:#FFE9C0;
+    font-family:var(--ui);font-size:8.2px;letter-spacing:.18em;text-transform:uppercase}
+  .stage .watch{position:absolute;right:10px;top:10px;padding:5px 9px;border-radius:100px;
+    background:rgba(10,6,18,.55);color:#FFE9C0;font-family:var(--ui);font-size:10px;letter-spacing:.1em}
+  .stage .wait{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:22px;
+    color:rgba(255,247,226,.8);font-style:italic;font-size:13px;line-height:1.6;
+    background:radial-gradient(120% 80% at 50% 30%,#2A1B44,#140C22 70%)}
+  .stage .wait .spin{margin:0 auto 10px}
+
+  .roomhead{position:relative;z-index:1;margin:12px 2px 10px}
+  .roomhead h2{margin:0;font-size:19px;font-style:italic;font-weight:700;color:var(--bu-deep);line-height:1.2}
+  .roomhead p{margin:3px 0 0;font-family:var(--ui);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9A7742}
+
+  .chat{position:relative;z-index:1;border:1px solid rgba(180,132,44,.3);border-radius:14px;
+    background:rgba(255,255,255,.5);padding:10px 12px;height:34vh;min-height:180px;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .chat::-webkit-scrollbar{display:none}
+  .msg{margin:0 0 9px;font-size:13px;line-height:1.5;color:#4B2C0D;word-break:break-word}
+  .msg:last-child{margin-bottom:0}
+  .msg b{font-family:var(--ui);font-size:8.4px;letter-spacing:.16em;text-transform:uppercase;color:#A98545;
+    display:block;margin:0 0 2px;font-weight:400}
+  .msg.host b{color:#8E1230}
+  .msg.host{color:#5C1226}
+  .msg .mine{margin-left:6px;color:#C49A45}
+  .say{display:flex;gap:8px;margin:10px 0 0;position:relative;z-index:1}
+  .say input{flex:1}
+  .say button{flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:0;cursor:pointer;
+    background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFE9C0;display:grid;place-items:center}
+  .say button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .leave{margin:14px 0 0;position:relative;z-index:1}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+    animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .foot{margin:16px 0 0;text-align:center;font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;
+    text-transform:uppercase;color:#A98545}
+  @media (max-width:380px){h1{font-size:23px}.wrap{padding:12px 15px 26px}.chat{height:30vh}}
+</style>
+</head>
+<body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/room.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
+<div class="wrap">
+
+  <div class="top">
+    <span class="mark">IVORY</span>
+    <span class="sp"></span>
+    <span class="chip" id="chip"><i class="dot"></i><b id="chip-t">the room</b></span>
+  </div>
+
+  <!-- ── the door ─────────────────────────────────────────────── -->
+  <section id="v-door" class="hide">
+    <p class="kicker">the room &middot; for members</p>
+    <h1>The house opens from here.</h1>
+    <p class="lede">Sign in with the same account you use in the app. When Ivory is on air, the room is
+      on this page &mdash; the film, the chat, and a quiet way out.</p>
+    <div class="card">
+      <label class="f"><span>email</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
+      <label class="f"><span>password</span><input type="password" id="pass" autocomplete="current-password"></label>
+      <button class="btn" id="signin">Unlock the room</button>
+      <p class="note">No account yet? Membership begins in the app &mdash; the same account opens here.</p>
+      <p class="err hide" id="door-err"></p>
+    </div>
+  </section>
+
+  <!-- ── the rooms ────────────────────────────────────────────── -->
+  <section id="v-list" class="hide">
+    <p class="kicker">the room</p>
+    <h1 id="list-h">What the house is holding.</h1>
+    <p class="lede" id="list-lede">Everything on air, and everything about to be.</p>
+    <div id="rooms"><div class="empty">Reading the book…</div></div>
+    <button class="btn quiet" id="signout">Sign out</button>
+  </section>
+
+  <!-- ── the room itself ──────────────────────────────────────── -->
+  <section id="v-room" class="hide">
+    <div class="stage" id="stage">
+      <video id="remote" playsinline autoplay></video>
+      <span class="who-on"><i class="dot" style="background:#FF6B81"></i><span id="who-on">on air</span></span>
+      <span class="watch" id="watch">0 watching</span>
+      <div class="wait" id="wait"><div><span class="spin"></span><br>Opening the room…</div></div>
+    </div>
+    <div class="roomhead">
+      <h2 id="room-title">The room</h2>
+      <p id="room-sub">&nbsp;</p>
+    </div>
+    <div class="chat" id="chat"></div>
+    <form class="say" id="say">
+      <input type="text" id="say-in" maxlength="240" placeholder="Say something kind…" autocomplete="off">
+      <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M4 12l16-7-7 16-2.2-6.8L4 12z"/></svg></button>
+    </form>
+    <button class="btn quiet leave" id="leave">Leave quietly</button>
+    <p class="err hide" id="room-err"></p>
+  </section>
+
+  <p class="foot">ivory &middot; the room &middot; nothing here is recorded</p>
+</div>
+
+<script src="media/agora/AgoraRTC_N-4.23.4.js"></script>
+<script>
+/* ============================================================
+   THE ROOM · a member walks in from the website
+   Real accounts (the same Supabase project as the app), real
+   entitlement, a real Agora room. Chat is read by asking the
+   book every few seconds — no websocket to lose on a train.
+   ============================================================ */
+(function(){
+  'use strict';
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+  var $=function(id){ return document.getElementById(id); };
+
+  var S={sess:null, profile:null, session:null, client:null, tick:null, msgTick:null,
+         lastId:0, seen:{}, room:null};
+
+  function show(id){
+    ['v-door','v-list','v-room'].forEach(function(v){ $(v).classList.toggle('hide', v!==id); });
+    window.scrollTo(0,0);
+  }
+  function err(id,msg){ var e=$(id); if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=msg; e.classList.remove('hide'); }
+  function chip(on,txt){ $('chip').classList.toggle('live',!!on); $('chip-t').textContent=txt||(on?'on air':'the room'); }
+
+  /* ---------- the member's session ---------- */
+  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
+  function load(){ try{ var raw=localStorage.getItem('ivory.member'); S.sess=raw?JSON.parse(raw):null; }catch(e){ S.sess=null; } return S.sess; }
+  function expired(){
+    if(!S.sess||!S.sess.access_token) return true;
+    try{
+      var p=JSON.parse(atob(S.sess.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      return (p.exp*1000 - Date.now()) < 60000;
+    }catch(e){ return false; }
+  }
+  function headers(){ var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+
+  function login(email,password){
+    return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:password})})
+      .then(function(r){ return r.json().then(function(j){
+        if(!r.ok) throw new Error(j.error_description||j.msg||j.message||'That sign-in was not accepted.');
+        return j; }); });
+  }
+  function renew(){
+    if(!S.sess||!S.sess.refresh_token) return Promise.reject(new Error('Sign in again.'));
+    return fetch(SB+'/auth/v1/token?grant_type=refresh_token',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:S.sess.refresh_token})})
+      .then(function(r){ return r.json().then(function(j){
+        if(!r.ok) throw new Error('The session ran out. Sign in again.');
+        /* keep the profile the app knows us by, refresh the token over it */
+        save(j); return j; }); });
+  }
+  function call(path,body,opt){
+    opt=opt||{};
+    var go=function(){
+      return fetch(SB+path,{method:opt.method||'POST',headers:headers(),
+        body:(body===undefined||body===null)?undefined:JSON.stringify(body)})
+        .then(function(r){ return r.text().then(function(t){
+          var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+          if(r.ok) return j;
+          if(r.status===401 && !opt.retried){ opt.retried=true; return renew().then(go); }
+          var m=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
+          throw new Error(typeof m==='string'?m:'That did not work.');
+        });});
+    };
+    if(expired()) return renew().then(go).catch(function(){ return go(); });
+    return go();
+  }
+  function get(path){ return call(path,null,{method:'GET'}); }
+
+  /* ---------- 1 · the door ---------- */
+  $('signin').addEventListener('click',function(){
+    var e=$('email').value.trim(), p=$('pass').value, b=this;
+    err('door-err');
+    if(!e||!p){ err('door-err','Both lines, please.'); return; }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    login(e,p).then(function(s){ save(s); $('pass').value=''; return me(); })
+      .then(function(){ rooms(); })
+      .catch(function(x){ err('door-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Unlock the room'; });
+  });
+  $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+  $('signout').addEventListener('click',function(){
+    var tok=S.sess&&S.sess.access_token;
+    if(tok) fetch(SB+'/auth/v1/logout',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+tok}}).catch(function(){});
+    save(null); S.profile=null; show('v-door'); chip(false);
+  });
+
+  function me(){
+    if(!S.sess||!S.sess.user) return Promise.resolve(null);
+    return get('/rest/v1/profiles?select=*&id=eq.'+S.sess.user.id).then(function(rows){
+      S.profile=(rows&&rows[0])||null;
+      if(S.profile) chip(false, (S.profile.display_name||'member').split(' ')[0]);
+      return S.profile;
+    }).catch(function(){ return null; });
+  }
+
+  /* ---------- 2 · what the house is holding ---------- */
+  function rooms(){
+    show('v-list'); chip(false);
+    loadTiers();
+    get('/rest/v1/live_public?select=*&order=id.desc&limit=30').then(function(rows){
+      /* a room left open by a closed tab is not on air; six hours is the line */
+      var list=(rows||[]).filter(function(r){
+        if(r.status!=='live'&&r.status!=='scheduled') return false;
+        var since=r.started_at||r.created_at||r.scheduled_at;
+        if(r.status==='live' && since && (Date.now()-Date.parse(since))>6*3600*1000) return false;
+        return true;
+      });
+      /* the same room must never appear twice */
+      var seen={};
+      list=list.filter(function(r){ if(seen[r.id]) return false; seen[r.id]=1; return true; });
+      var live=list.filter(function(r){ return r.status==='live'; });
+      $('list-h').textContent = live.length? 'Ivory is on air.' : 'What the house is holding.';
+      $('list-lede').textContent = live.length
+        ? 'Walk in. Nothing here is recorded, and nothing is kept after you leave.'
+        : 'Nothing is live this moment. Anything scheduled appears here when it opens.';
+      var box=$('rooms');
+      if(!list.length){ box.innerHTML='<div class="empty">The room is quiet. When Ivory goes on air, it appears here.</div>'; return; }
+      box.innerHTML='';
+      list.forEach(function(r){ box.appendChild(roomCard(r)); });
+    }).catch(function(x){
+      $('rooms').innerHTML='<div class="empty">The book could not be read — '+escapeHtml(x.message)+'.</div>';
+    });
+  }
+
+  var TIERS=[];   /* the house's own table, filled as the page loads */
+  function loadTiers(){
+    if(TIERS.length) return;
+    get('/rest/v1/subscription_tiers?select=id,name,level&is_active=eq.true&order=level.asc')
+      .then(function(rows){ TIERS=(rows||[]).map(function(t){ return {id:t.id,name:t.name,level:Number(t.level)}; }); })
+      .catch(function(){});
+  }
+  function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
+
+  function roomCard(r){
+    var b=document.createElement('button'); b.className='room'; b.type='button';
+    b.setAttribute('data-session', String(r.id));
+    var live=r.status==='live';
+    var list=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
+    var floor = r.access==='tier'
+      ? ((list.length===1) ? ((r.tier_name||('level '+list[0]))+' only')
+         : (list.length>1 && list.length===TIERS.length && Number(r.min_tier)<=1)
+             ? 'every member'
+             : (list.length>1 && r.tier_name ? (r.tier_name+' and above')
+                : (r.tier_name ? (r.tier_name+' and above') : 'from level '+(r.min_tier||1))))
+      : (r.access==='public' ? 'every member' : '');
+    var tag = live ? 'on air' : (r.access==='price' ? money(r.price_inr) : (r.access==='tier' ? 'tier room' : (r.access==='public' ? 'open room' : 'scheduled')));
+    var sub = r.subtitle || ((live ? 'in the room now' : 'opens later') + (floor ? ' · ' + floor : ''));
+    b.innerHTML='<span class="thumb">'+(r.cover_url?'<img alt="" src="'+escapeAttr(r.cover_url)+'">':'<i style="animation:'+(live?'beat 1.7s infinite':'none')+'"></i>')+'</span>'+
+      '<span class="txt"><b>'+escapeHtml(r.title||'The room')+'</b><s>'+escapeHtml(sub)+'</s></span>'+
+      '<span class="tag '+(live?'live':'')+'">'+escapeHtml(tag)+'</span>';
+    b.addEventListener('click',function(){ walkIn(r); });
+    return b;
+  }
+
+  function escapeHtml(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function escapeAttr(t){ return escapeHtml(t).replace(/`/g,'&#96;'); }
+
+  /* ---------- 3 · walking in ---------- */
+  /* which tier the member actually holds — needed to say why a door is shut */
+  var MINE={done:false,row:null};
+  function mine(){
+    if(MINE.done) return Promise.resolve(MINE.row);
+    return get('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1')
+      .then(function(r){ MINE={done:true,row:(r&&r[0])||null}; return MINE.row; })
+      .catch(function(){ MINE={done:true,row:null}; return null; });
+  }
+
+  function walkIn(r){
+    if(r.status!=='live'){ alert('That room is not open yet.'); return; }
+    S.session=r; S.lastId=0; S.seen={};
+    show('v-room');
+    $('room-title').textContent=r.title||'The room';
+    $('room-sub').textContent=(r.status==='live'?'on air now':'')+(r.viewer_count?' · '+r.viewer_count+' in the room':'');
+    $('chat').innerHTML='';
+    $('wait').classList.remove('hide');
+    err('room-err');
+    chip(true,'on air');
+
+    /* The house's own rule, read the way the app reads it: a tier room
+       is open to the tiers in its list (the floor is only the lowest of
+       them). The view's is_entitled can lag behind an approval, so the
+       list wins when we can work it out — and if we cannot, we ask. */
+    if(r.access==='tier' && !r.price_inr){
+      mine().then(function(m){
+        var lvl=(m&&(m.tier_level!=null?m.tier_level:m.level))||0;
+        var list=Array.isArray(r.allowed_tiers)?r.allowed_tiers:[];
+        var entitled;
+        if(!lvl) entitled = r.is_entitled!==false;
+        else if(list.length) entitled = list.indexOf(Number(lvl))>=0;
+        else entitled = Number(lvl) >= Number(r.min_tier||1);
+        if(entitled){ openRoom(r); return; }
+        var shut = (Number(r.min_tier)>=9) || !list.length;
+        var held=(m&&m.tier_name)||'no membership yet';
+        var said = shut
+          ? 'The house is rehearsing this one privately — no member is on the list yet.'
+          : 'This room is open to '+(r.tier_name||('level '+(r.min_tier||1)))+' members. You hold '+held+'.';
+        $('wait').innerHTML='<div style="max-width:272px;margin:0 auto;font-style:italic">'+
+          escapeHtml(said)+
+          '<button type="button" id="tryany" class="btn quiet" style="margin-top:16px;width:100%;font-style:normal">'+
+          'Ask anyway</button></div>';
+        var t=$('tryany');
+        if(t) t.addEventListener('click',function(){ openRoom(r); });
+      });
+      return;
+    }
+    openRoom(r);
+  }
+
+  function openRoom(r){
+    $('wait').innerHTML='<div><span class="spin"></span><br>Opening the room…</div>';
+    call('/functions/v1/agora-token',{mode:'live',id:r.id}).then(function(tk){
+      if(!tk||!tk.token) throw new Error((tk&&tk.error)||'That room did not open.');
+      return join(tk);
+    }).then(function(){
+      $('wait').classList.add('hide');
+      messages(true);
+      S.msgTick=setInterval(function(){ messages(false); }, 3500);
+      S.tick=setInterval(function(){ heartbeat(); }, 7000);
+      enterRoom();
+      setTimeout(function(){ heartbeat(); }, 900);
+    }).catch(function(x){
+      var m=x.message||String(x);
+      var plain=/not included|not entitled|membership/i.test(m)
+        ? 'The house keeps you out of this one: it is open to '+(r.tier_name||('level '+(r.min_tier||1)))+
+          ' members, and your membership does not reach it yet.'
+        : m;
+      $('wait').innerHTML='<div style="max-width:272px;margin:0 auto;font-style:italic">'+escapeHtml(plain)+'</div>';
+      err('room-err',plain);
+    });
+  }
+
+  function join(tk){
+    var client=AgoraRTC.createClient({mode:'live',codec:'vp8'});
+    S.client=client;
+    client.on('user-published',function(user,mediaType){
+      client.subscribe(user,mediaType).then(function(){
+        if(mediaType==='video'&&user.videoTrack){ user.videoTrack.play('remote'); $('wait').classList.add('hide'); }
+        if(mediaType==='audio'&&user.audioTrack){ user.audioTrack.play(); }
+      }).catch(function(){});
+    });
+    client.on('user-unpublished',function(){ /* the house may rest its picture for a moment */ });
+    client.on('connection-state-change',function(st){
+      if(st==='CONNECTED'){ $('wait').classList.add('hide'); }
+      if(st==='DISCONNECTED'||st==='RECONNECTING'){
+        $('wait').classList.remove('hide');
+        $('wait').innerHTML='<div>Holding your place&hellip;</div>';
+      }
+    });
+    return client.setClientRole('audience')
+      .then(function(){ return client.join(tk.appId||tk.app_id, tk.channel, tk.token, Number(tk.uid)||null); });
+  }
+
+  /* ---------- 4 · chat, read from the book ---------- */
+  function messages(first){
+    if(!S.session) return;
+    var q='/rest/v1/live_messages?select=*&session_id=eq.'+S.session.id+'&order=created_at.asc&limit=200';
+    get(q).then(function(rows){
+      (rows||[]).forEach(function(m){ addMsg(m,first); });
+    }).catch(function(){ /* a quiet failure; the room keeps playing */ });
+  }
+  function addMsg(m,quiet){
+    var key=m.id||(m.member_id+m.body);
+    if(S.seen[key]) return; S.seen[key]=1;
+    var mine=S.sess&&S.sess.user&&m.member_id===S.sess.user.id;
+    var div=document.createElement('div');
+    div.className='msg'+(m.is_host?' host':'');
+    var who=m.sender_name || (m.is_host?'Ivory':'a member');
+    div.innerHTML='<b>'+escapeHtml(who)+(mine?' <span class="mine">you</span>':'')+'</b>'+escapeHtml(m.body||'');
+    var chat=$('chat');
+    var atBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 60;
+    chat.appendChild(div);
+    if(atBottom||quiet) chat.scrollTop=chat.scrollHeight;
+  }
+
+  $('say').addEventListener('submit',function(e){
+    e.preventDefault();
+    var inp=$('say-in'), body=inp.value.trim();
+    if(!body||!S.session) return;
+    inp.value='';
+    call('/rest/v1/rpc/send_live_message',{session_id_in:S.session.id, body_in:body})
+      .then(function(){ messages(false); })
+      .catch(function(x){ err('room-err',x.message||String(x)); });
+  });
+
+  /* ---------- 5 · the room's own clock ---------- */
+  /* The house counts who is in the room from its attendance book. Agora only
+     counts phones that publish, and a member only listens — so without this the
+     host's screen says zero while she is sitting right there. */
+  function enterRoom(){
+    if(!S.session) return;
+    call('/rest/v1/rpc/live_enter',{session_id_in:S.session.id}).catch(function(){});
+  }
+
+  function heartbeat(){
+    if(!S.session) return;
+    call('/rest/v1/rpc/live_enter',{session_id_in:S.session.id}).catch(function(){});
+    get('/rest/v1/live_public?select=*&id=eq.'+S.session.id).then(function(rows){
+      var r=rows&&rows[0];
+      if(!r) return;
+      S.session=r;
+      var n=Number(r.viewer_count||0);
+      $('watch').textContent = n===1 ? 'you, and no one else yet' : (n+' in the room');
+      if(r.status!=='live'){ closed('The room has closed.'); }
+    }).catch(function(){});
+  }
+
+  function closed(reason){
+    try{ if(S.session) call('/rest/v1/rpc/leave_live',{session_id_in:S.session.id}).catch(function(){}); }catch(e){}
+    stopTicks();
+    if(S.client){ try{ S.client.leave(); }catch(e){} S.client=null; }
+    S.session=null; chip(false);
+    show('v-list');
+    rooms();
+    /* the house says it on its own page, never in a browser box */
+    var b=document.createElement('div');
+    b.id='closed-note';
+    b.setAttribute('role','status');
+    b.style.cssText='position:fixed;left:14px;right:14px;bottom:22px;z-index:60;padding:14px 16px;border-radius:13px;'+
+      'background:#FFFBF2;border:1px solid rgba(180,132,44,.45);box-shadow:0 10px 30px rgba(70,30,10,.16);'+
+      'font:italic 14px/1.55 Georgia,serif;color:#5C1226';
+    b.textContent=reason+' Nothing was recorded.';
+    var old=document.getElementById('closed-note'); if(old) old.remove();
+    document.body.appendChild(b);
+    setTimeout(function(){ try{ b.style.transition='opacity .5s'; b.style.opacity='0'; setTimeout(function(){ b.remove(); },520); }catch(e){} },5200);
+  }
+
+  function stopTicks(){ clearInterval(S.tick); clearInterval(S.msgTick); S.tick=S.msgTick=null; }
+
+  $('leave').addEventListener('click',function(){
+    var id=S.session&&S.session.id;
+    var done=function(){ stopTicks(); if(S.client){ try{ S.client.leave(); }catch(e){} S.client=null; }
+      try{ if(S.session) call('/rest/v1/rpc/leave_live',{session_id_in:S.session.id}).catch(function(){}); }catch(e){}
+      S.session=null; chip(false); show('v-list'); rooms(); };
+    if(!id){ done(); return; }
+    call('/rest/v1/rpc/leave_live',{session_id_in:id}).catch(function(){}).then(done);
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && S.session){ $('leave').click(); }
+  });
+  window.addEventListener('pagehide',function(){
+    stopTicks();
+    if(S.client){ try{ S.client.leave(); }catch(e){} }
+  });
+
+  /* ---------- boot ---------- */
+  var s=load();
+  if(s&&s.access_token){
+    (expired()?renew():Promise.resolve(s)).then(function(){ return me(); })
+      .then(function(){ rooms(); })
+      .catch(function(){ save(null); show('v-door'); });
+  } else {
+    show('v-door');
+  }
+  /* a direct link into one room: room.html?id=41 — the second phone can be sent straight in */
+  var want=(location.search.match(/[?&]id=(\d+)/)||[])[1];
+  if(want){
+    var tries=0;
+    var jump=setInterval(function(){
+      tries++;
+      var btn=[].slice.call(document.querySelectorAll('#rooms .room'));
+      if(btn.length){
+        var rows=[].slice.call(document.querySelectorAll('#rooms .room'));
+        /* the cards were built in list order; match on the id we were given */
+        for(var i=0;i<rows.length;i++){
+          if(rows[i].getAttribute('data-session')===want){ rows[i].click(); clearInterval(jump); return; }
+        }
+      }
+      if(tries>40) clearInterval(jump);
+    },300);
+  }
+  if(want) setTimeout(function(){ var r=S.session; if(!r) { /* the list will carry it */ } },10);
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+</body>
+</html>

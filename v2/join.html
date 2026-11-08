@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF7E2">
+<title>Ivory · Membership</title>
+<style>
+  :root{
+    --paper:#FFFDF6; --ink:#3A2007; --ink-soft:#6E4A1C; --gold:#C49A45;
+    --bu:#B81A34; --bu-deep:#6E0C24; --cream:#FFF7E2;
+    --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{font-family:var(--serif);color:var(--ink);background:
+      radial-gradient(120% 70% at 50% -10%,#FFF6DE 0,rgba(255,246,222,0) 60%),
+      linear-gradient(180deg,#FFFDF6 0,#FCF3E0 48%,#F6E6C6 100%);
+    background-attachment:fixed;min-height:100svh;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:560px;padding:14px 18px calc(30px + env(safe-area-inset-bottom));position:relative}
+  .wrap:before{content:'';position:fixed;inset:8px;border:1px solid rgba(180,132,44,.26);border-radius:20px;pointer-events:none;z-index:0}
+
+  .top{display:flex;align-items:center;gap:10px;padding:6px 0 12px;position:relative;z-index:1}
+  .mark{font-weight:700;font-size:14px;letter-spacing:.42em;color:#5C1226;text-indent:.42em}
+  .top .sp{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:100px;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--ui);font-size:8.4px;letter-spacing:.18em;text-transform:uppercase;color:#8A6A3A;max-width:60%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  h1{margin:0 0 6px;font-size:26px;line-height:1.14;font-weight:700;font-style:italic;color:var(--bu-deep)}
+  .kicker{margin:0 0 8px;font-family:var(--ui);font-size:8.2px;letter-spacing:.3em;text-transform:uppercase;color:#A98545}
+  .lede{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--ink-soft);font-style:italic}
+
+  .card{position:relative;z-index:1;border:1px solid rgba(180,132,44,.34);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.42));
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 18px 40px -34px rgba(90,42,6,.6);
+    padding:15px 15px 14px;margin:0 0 13px}
+  label.f{display:block;margin:0 0 11px}
+  label.f span{display:block;font-family:var(--ui);font-size:8.2px;letter-spacing:.22em;text-transform:uppercase;color:#96703A;margin:0 0 5px}
+  input[type=email],input[type=password],input[type=text],input[type=tel]{width:100%;padding:12px 13px;border-radius:11px;
+    border:1px solid rgba(180,132,44,.44);background:rgba(255,255,255,.86);font-family:var(--serif);font-size:15px;
+    color:var(--ink);outline:none;-webkit-appearance:none}
+  input:focus{border-color:rgba(150,97,15,.8);box-shadow:0 0 0 3px rgba(196,154,69,.16)}
+  input[type=file]{width:100%;font-family:var(--ui);font-size:10.5px;color:#7A4A12}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 16px;border:0;
+    border-radius:13px;cursor:pointer;font-family:var(--serif);font-size:15px;font-weight:700;color:var(--cream);
+    background:linear-gradient(180deg,#A8162F,#7E0E23);
+    box-shadow:0 1px 0 rgba(255,255,255,.22) inset,0 12px 24px -16px rgba(110,12,36,.9);
+    transition:transform .18s var(--ease),filter .18s}
+  .btn:active{transform:translateY(1px) scale(.995)}
+  .btn[disabled]{filter:saturate(.4) brightness(1.05);opacity:.55;pointer-events:none}
+  .btn.gold{color:#3A2007;background:linear-gradient(180deg,#F7D77F,#D9A93F);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 12px 24px -18px rgba(120,74,14,.9)}
+  .btn.quiet{color:#7A4A12;background:rgba(255,255,255,.6);border:1px solid rgba(180,132,44,.44);
+    box-shadow:none;font-weight:400}
+  .note{margin:11px 0 0;font-size:11.6px;line-height:1.55;color:#8A6A3A;font-style:italic}
+  .err{margin:11px 0 0;padding:10px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(184,26,52,.075);border:1px solid rgba(184,26,52,.28);color:#7E0E23}
+  .ok{margin:11px 0 0;padding:12px;border-radius:11px;font-size:12.8px;line-height:1.6;
+    background:rgba(23,197,126,.08);border:1px solid rgba(7,153,92,.3);color:#0A6B45}
+  .warnt{margin:11px 0 0;padding:11px 12px;border-radius:11px;font-size:12.4px;line-height:1.55;
+    background:rgba(233,179,60,.12);border:1px solid rgba(180,132,44,.34);color:#6E4A1C}
+  .hide{display:none !important}
+
+  /* — tiers — */
+  .tier{position:relative;z-index:1;margin:0 0 12px;padding:15px 15px 13px;border-radius:16px;
+    border:1px solid rgba(180,132,44,.4);
+    background:linear-gradient(178deg,#FFFDF6 0%,#FCF3E1 60%,#F7E8CB 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 36px -32px rgba(90,42,6,.75)}
+  .tier .head{display:flex;align-items:baseline;gap:10px}
+  .tier h3{margin:0;font-size:18px;font-style:italic;font-weight:700;color:#5C1226;flex:1;line-height:1.2}
+  .tier .price{font-family:var(--ui);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;white-space:nowrap}
+  .tier .price b{display:block;font-family:var(--serif);font-size:21px;letter-spacing:0;color:#5C1226;font-weight:700}
+  .tier p.d{margin:6px 0 10px;font-size:12.6px;line-height:1.55;color:var(--ink-soft)}
+  .tier ul{margin:0 0 12px;padding:0;list-style:none}
+  .tier li{position:relative;padding:0 0 0 15px;margin:0 0 5px;font-size:12.4px;line-height:1.5;color:#4B2C0D}
+  .tier li:before{content:'';position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 2px rgba(196,154,69,.18)}
+  .tier .btn{padding:12px 14px;font-size:14px}
+  .tier.held{border-color:rgba(23,197,126,.45)}
+  .tier .flag{font-family:var(--ui);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+    color:#0A6B45;border:1px solid rgba(23,197,126,.45);border-radius:100px;padding:3px 8px}
+
+  /* — the two rails — */
+  #settle{position:relative;z-index:1}
+  .railpick{display:flex;gap:10px;margin:0 0 12px}
+  .railpick button{flex:1;padding:13px 10px;border-radius:13px;cursor:pointer;text-align:left;
+    border:1px solid rgba(180,132,44,.4);background:rgba(255,255,255,.6);
+    font-family:var(--serif);color:#7A4A12;line-height:1.3}
+  .railpick button b{display:block;font-size:13.6px;color:#5C1226;font-style:italic}
+  .railpick button i{display:block;font-style:normal;font-family:var(--ui);font-size:8.4px;
+    letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;margin-top:3px}
+  .railpick button.on{border-color:rgba(150,97,15,.75);background:rgba(255,249,232,.95);
+    box-shadow:0 0 0 3px rgba(196,154,69,.16) inset}
+  .upibox{display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:12px;
+    background:rgba(255,255,255,.75);border:1px dashed rgba(180,132,44,.55);margin:0 0 11px}
+  .upibox code{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;color:#5C1226;word-break:break-all}
+  .upibox button{border:1px solid rgba(180,132,44,.5);background:#fff;border-radius:9px;padding:7px 10px;
+    font-family:var(--ui);font-size:8.6px;letter-spacing:.14em;text-transform:uppercase;color:#7A4A12;cursor:pointer}
+  .steps{margin:0 0 12px;padding:0;list-style:none;counter-reset:s}
+  .steps li{position:relative;padding:0 0 0 26px;margin:0 0 9px;font-size:12.6px;line-height:1.55;color:#4B2C0D;counter-increment:s}
+  .steps li:before{content:counter(s);position:absolute;left:0;top:1px;width:17px;height:17px;border-radius:50%;
+    background:rgba(196,154,69,.18);border:1px solid rgba(180,132,44,.5);color:#8A5A16;
+    font-family:var(--ui);font-size:9px;display:grid;place-items:center}
+  .paylist{margin:14px 0 0}
+  .pay{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px dashed rgba(180,132,44,.3);
+    font-size:12.4px;color:#4B2C0D}
+  .pay b{flex:1;font-weight:400}
+  .pay em{font-style:normal;font-family:var(--ui);font-size:8.4px;letter-spacing:.14em;text-transform:uppercase}
+  .pay em.p{color:#8A6A3A}.pay em.a{color:#0A6B45}.pay em.r{color:#8E1230}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+    animation:sp .7s linear infinite;display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .foot{margin:16px 0 0;text-align:center;font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;
+    text-transform:uppercase;color:#A98545}
+  .foot a{color:#8A6A3A;text-decoration:none;border-bottom:1px solid rgba(180,132,44,.45)}
+</style>
+</head>
+<body>
+<script>
+/* ---------------------------------------------------------------
+   A DOWNLOADED COPY CANNOT WORK.
+   No camera, no network, no broadcast engine — the browser forbids
+   all three for a file that was saved out of a chat. Say it plainly,
+   once, with the address that does work.
+   --------------------------------------------------------------- */
+(function(){
+  var pr=location.protocol;
+  if(pr==='http:'||pr==='https:') return;
+  var url='https://chawdhureprithwwiraj-svg.github.io/ivory-twin/join.html';
+  function paint(){
+    if(document.getElementById('iv-fileguard')) return;
+    var d=document.createElement('div');
+    d.id='iv-fileguard'; d.setAttribute('role','alert');
+    d.style.cssText='position:fixed;inset:0;z-index:2147483647;overflow:auto;padding:26px 20px 44px;'+
+      'display:flex;flex-direction:column;justify-content:center;'+
+      'background:linear-gradient(180deg,#FFFDF6 0,#FCF3E0 50%,#F6E6C6 100%);font-family:Georgia,serif;color:#3A2007';
+    d.innerHTML='<p style="font:600 9px/1.6 ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;'+
+        'text-transform:uppercase;color:#A98545;margin:0 0 14px">ivory &middot; a downloaded copy</p>'+
+      '<h1 style="font:italic 700 24px/1.2 Georgia,serif;color:#6E0C24;margin:0 0 12px">This page has to be opened at its address.</h1>'+
+      '<p style="font-size:14px;line-height:1.68;color:#6E4A1C;margin:0 0 16px">A file saved out of a chat cannot '+
+        'use the camera, cannot reach the house and cannot play a broadcast &mdash; the browser forbids all '+
+        'three to a page that has no address. Nothing is broken; it is simply the wrong copy.</p>'+
+      '<p id="iv-url" style="font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;'+
+        'background:#fff;border:1px solid rgba(180,132,44,.5);border-radius:12px;padding:12px;margin:0 0 12px">'+url+'</p>'+
+      '<button id="iv-copy" style="width:100%;padding:14px;border:0;border-radius:13px;'+
+        'background:linear-gradient(180deg,#A8162F,#7E0E23);color:#FFF7E2;font:700 15px Georgia,serif">Copy the address</button>'+
+      '<p style="font-size:12px;line-height:1.65;color:#8A6A3A;margin:14px 0 0;font-style:italic">'+
+        'Paste it into the bar at the top of Chrome (or Safari) &mdash; not into the file viewer that opened this.</p>';
+    document.body.appendChild(d);
+    var btn=d.querySelector('#iv-copy');
+    btn.addEventListener('click',function(){
+      var done=function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy the address'; },1800); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(fb); }
+      else fb();
+      function fb(){ try{ var i=document.createElement('textarea'); i.value=url; document.body.appendChild(i);
+        i.select(); document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+
+<div class="wrap">
+  <div class="top">
+    <span class="mark">IVORY</span>
+    <span class="sp"></span>
+    <span class="chip" id="chip">membership</span>
+  </div>
+
+  <p class="kicker" id="kicker">membership &middot; two ways to settle it</p>
+  <h1 id="h1">Four doors into the house.</h1>
+  <p class="lede" id="lede">A month at a time, and it runs to the end of that month. Settle by UPI straight
+    to the house, or by card and netbanking through Razorpay &mdash; whichever the house has open today.</p>
+
+  <section id="v-door" class="hide">
+    <div class="card">
+      <label class="f"><span>email</span><input type="email" id="email" autocomplete="username" inputmode="email" placeholder="you@…"></label>
+      <label class="f"><span>password</span><input type="password" id="pass" autocomplete="current-password"></label>
+      <button class="btn" id="signin">Unlock</button>
+      <p class="note">Sign in to see what you already hold. New here? An account can be made in the app,
+        and it opens here with the same email.</p>
+      <p class="err hide" id="door-err"></p>
+    </div>
+  </section>
+
+  <section id="v-held" class="hide"></section>
+  <section id="v-tiers"><div class="card"><div class="note" style="margin:0">Reading the ledger…</div></div></section>
+
+  <!-- the two rails, side by side, as the app has them -->
+  <section id="settle" class="hide">
+    <div class="card" id="settle-card">
+      <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 12px">
+        <h2 style="margin:0;flex:1;font-size:18px;font-style:italic;font-weight:700;color:#5C1226" id="settle-h">Settling</h2>
+        <button class="btn quiet" style="width:auto;padding:7px 11px;font-size:11px" id="settle-x">Change</button>
+      </div>
+
+      <div class="railpick" id="railpick"></div>
+
+      <!-- rail 1 · UPI, the house's own id -->
+      <div id="rail-upi" class="hide">
+        <div class="upibox">
+          <code id="upi-id">—</code>
+          <button id="upi-copy" type="button">Copy</button>
+        </div>
+        <ol class="steps">
+          <li>Open any UPI app and send <b id="upi-amt">₹0</b> to the id above.</li>
+          <li>Come back and paste the <b>12-digit UTR</b> or reference from the receipt.</li>
+          <li>The house checks it by hand &mdash; usually the same day. Access opens the moment it is approved.</li>
+        </ol>
+        <a class="btn gold" id="upi-open" href="#" style="text-decoration:none">Open a UPI app with it filled in</a>
+        <label class="f" style="margin-top:13px"><span>the UTR / reference</span>
+          <input type="tel" id="utr" inputmode="numeric" maxlength="24" placeholder="12 digits from your receipt"></label>
+        <label class="f"><span>a screenshot, if you have one (optional)</span>
+          <input type="file" id="proof" accept="image/*"></label>
+        <button class="btn" id="upi-send">Send it to the house</button>
+        <p class="note" id="upi-note">Nothing is charged here. The house reads your reference against the
+          bank statement, and approves or asks.</p>
+        <p class="warnt hide" id="upi-off"></p>
+        <p class="err hide" id="upi-err"></p>
+        <p class="ok hide" id="upi-ok"></p>
+      </div>
+
+      <!-- rail 2 · Razorpay -->
+      <div id="rail-rzp" class="hide">
+        <p class="note" style="margin:0 0 12px">Card, netbanking, wallet or UPI through Razorpay&rsquo;s own
+          window. The house never sees the card &mdash; it stays with Razorpay and your bank.</p>
+        <label class="f"><span>a code, if you were sent one (optional)</span>
+          <input type="text" id="code" placeholder="the code, or leave it empty" autocomplete="off"></label>
+        <button class="btn" id="rzp-pay">Pay by card or netbanking</button>
+        <p class="note" style="margin-top:14px">If the window would not open &mdash; or Razorpay took the money and
+          never came back to this page &mdash; put the payment id from your receipt here. The house checks it in its
+          own Razorpay account and opens your door by hand.</p>
+        <label class="f"><span>Razorpay's payment id (starts pay_)</span>
+          <input type="text" id="rzp-ref" placeholder="pay_XXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label>
+        <button class="btn quiet" id="rzp-ref-send">Send the payment id to the house</button>
+        <p class="err hide" id="rzp-ref-err"></p>
+        <p class="ok hide" id="rzp-ref-ok"></p>
+        <p class="note">The price comes from the house&rsquo;s own table &mdash; never from this page. What is
+          paid is checked against the house&rsquo;s Razorpay account before anything opens.</p>
+        <p class="err hide" id="rzp-err"></p>
+        <p class="ok hide" id="rzp-ok"></p>
+      </div>
+
+      <div class="paylist hide" id="paylist"></div>
+    </div>
+
+    <!-- whichever rail is open, a payment made elsewhere can always be recorded -->
+    <div class="card" style="margin-top:12px">
+      <h2 style="font-style:italic;font-size:17px;color:#5C1226;margin:0 0 6px">Paid another way?</h2>
+      <p class="note" style="margin:0 0 10px">If the window would not open, or the house asked you to send a
+        reference, put it here. The house reads it against its own account and opens your door by hand.</p>
+      <label class="f"><span>the reference, UTR, or payment id</span>
+        <input type="text" id="any-ref" placeholder="12 digits, or pay_…" autocomplete="off" spellcheck="false"></label>
+      <button class="btn quiet" id="any-send">Send the reference to the house</button>
+      <p class="err hide" id="any-err"></p>
+      <p class="ok hide" id="any-ok"></p>
+    </div>
+  </section>
+
+  <p class="foot"><a href="./">the house</a> &middot; <a href="room.html">the room</a></p>
+</div>
+
+<script>
+/* ============================================================
+   MEMBERSHIP · both rails, exactly as the app has them
+   UPI  : the house's own id (payment_settings), a UTR, a screenshot,
+          submit_payment → pending → the house approves by hand.
+   RZP  : rzp-create-order → Razorpay's window → rzp-verify-unlock.
+   Which rails appear is decided by payment_settings.mode, which the
+   house changes in the studio. Nothing secret lives in this page.
+   ============================================================ */
+(function(){
+  'use strict';
+  var SB='https://soephrftgddbwkzwjddj.supabase.co';
+  var KEY='sb_publishable_5b65ct89qKIucONgiOLWhw_QO4DXeQM';
+  var $=function(id){ return document.getElementById(id); };
+  var S={sess:null, settings:null, tier:null, rail:null, busy:false, poll:null};
+
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function money(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN'); }
+  function err(id,msg){ var e=$(id); if(!e) return; if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.textContent=msg; e.classList.remove('hide'); }
+  function ok(id,msg){ var e=$(id); if(!e) return; if(!msg){ e.classList.add('hide'); e.textContent=''; return; } e.innerHTML=msg; e.classList.remove('hide'); }
+  function clear(id){ err(id); ok(id); }
+
+  /* ---------- session ---------- */
+  function save(s){ S.sess=s; try{ if(s) localStorage.setItem('ivory.member',JSON.stringify(s)); else localStorage.removeItem('ivory.member'); }catch(e){} }
+  function load(){ try{ var r=localStorage.getItem('ivory.member'); S.sess=r?JSON.parse(r):null; }catch(e){ S.sess=null; } return S.sess; }
+  function expired(){
+    if(!S.sess||!S.sess.access_token) return true;
+    try{ var p=JSON.parse(atob(S.sess.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+      return (p.exp*1000-Date.now())<60000; }catch(e){ return false; }
+  }
+  function headers(){ var h={'apikey':KEY,'Content-Type':'application/json'};
+    if(S.sess&&S.sess.access_token) h['Authorization']='Bearer '+S.sess.access_token; return h; }
+  function login(e,p){ return fetch(SB+'/auth/v1/token?grant_type=password',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error_description||j.msg||'That sign-in was not accepted.'); return j; }); }); }
+  function renew(){ return fetch(SB+'/auth/v1/token?grant_type=refresh_token',{method:'POST',
+      headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.sess.refresh_token})})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error('Sign in again.'); save(j); return j; }); }); }
+  function call(path,body,opt){
+    opt=opt||{};
+    var go=function(){ return fetch(SB+path,{method:opt.method||'POST',headers:headers(),
+        body:(body===undefined||body===null)?undefined:JSON.stringify(body)})
+      .then(function(r){ return r.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){ j=t; }
+        if(r.ok) return j;
+        if(r.status===401&&!opt.retried){ opt.retried=true; return renew().then(go); }
+        var m=(j&&(j.error||j.message||j.error_description))||('The house answered '+r.status+'.');
+        var e=new Error(typeof m==='string'?m:'That did not work.'); e.raw=j; throw e;
+      });}); };
+    if(expired()&&S.sess) return renew().then(go).catch(go);
+    return go();
+  }
+
+  /* the house's own sentences, the same ones the app uses */
+  function friendly(x){
+    var m=String((x&&x.message)||x||'');
+    if(m.indexOf('already been submitted')>=0) return 'That reference number has already been used. Each UPI payment can only be submitted once.';
+    if(m.indexOf('does not look like a UTR')>=0) return 'That does not look right. Copy the 12-digit UTR or reference number from your payment receipt.';
+    if(m.indexOf('not available')>=0) return 'That membership is not available right now.';
+    if(m.indexOf('signed in')>=0) return 'Sign in first — the house needs to know whose payment this is.';
+    if(/Failed to fetch|NetworkError|Load failed/i.test(m))
+      return 'The house could not be reached. If this page was opened from a downloaded file it has no network — open its address instead. Otherwise check the connection and try once more.';
+    return m||'Something went wrong. Please check your connection and try again.';
+  }
+
+  /* ---------- the house's settings ---------- */
+  function settings(){
+    return call('/rest/v1/payment_settings?select=*&id=eq.1',null,{method:'GET'}).then(function(rows){
+      S.settings=(rows&&rows[0])||{};
+      return S.settings;
+    });
+  }
+  function upiReady(){
+    var id=(S.settings&&S.settings.upi_id)||'';
+    return id.indexOf('@')>0 && id.toLowerCase().indexOf('yourname@')!==0;
+  }
+  /* which rails the house has open: 'upi' · 'razorpay' · 'both' · paused */
+  function railsOpen(){
+    var m=String((S.settings&&S.settings.mode)||'upi').toLowerCase();
+    var active=(S.settings&&S.settings.is_active)!==false;
+    if(!active) return {upi:false,rzp:false,why:'paused'};
+    if(m==='both'||m==='both_on'||m==='parallel') return {upi:true,rzp:true};
+    if(m==='razorpay') return {upi:false,rzp:true};
+    if(m==='upi') return {upi:true,rzp:false};
+    return {upi:true,rzp:true};
+  }
+
+  /* ---------- tiers ---------- */
+  function tiers(){ return call('/rest/v1/subscription_tiers?select=*&is_active=eq.true&order=level.asc',null,{method:'GET'}); }
+  function mine(){ if(!S.sess) return Promise.resolve(null);
+    return call('/rest/v1/my_membership?select=*&order=tier_level.desc&limit=1',null,{method:'GET'})
+      .then(function(r){ return (r&&r[0])||null; }).catch(function(){ return null; }); }
+  function myPayments(){ if(!S.sess) return Promise.resolve([]);
+    return call('/rest/v1/my_payments?select=*&order=created_at.desc&limit=6',null,{method:'GET'}).catch(function(){ return []; }); }
+
+  function paint(list, held){
+    var box=$('v-tiers'); box.innerHTML='';
+    (list||[]).forEach(function(t){
+      var isHeld = held && (Number(held.tier_id)===Number(t.id) || String(held.tier_name||'')===String(t.name));
+      var el=document.createElement('article');
+      el.className='tier'+(isHeld?' held':'');
+      var perks=(t.perks||[]).map(function(p){ return '<li>'+esc(p)+'</li>'; }).join('');
+      el.innerHTML='<div class="head"><h3>'+esc(t.name)+'</h3>'+
+        (isHeld?'<span class="flag">yours</span>':'')+
+        '<span class="price">a month<b>'+money(t.price_inr)+'</b></span></div>'+
+        '<p class="d">'+esc(t.description||'')+'</p>'+
+        (perks?'<ul>'+perks+'</ul>':'')+
+        '<button class="btn'+(isHeld?' quiet':'')+'">'+(isHeld?'Renew this one':'Take this door')+'</button>';
+      el.querySelector('button').addEventListener('click',function(){ openSettle(t); });
+      box.appendChild(el);
+    });
+    if(!box.children.length) box.innerHTML='<div class="card"><div class="note" style="margin:0">The ledger is empty just now. Write to the house.</div></div>';
+  }
+
+  function heldBlock(m, list){
+    if(!m){ $('v-held').classList.add('hide'); return; }
+    var name=m.tier_name||'a tier';
+    var left=m.days_left;
+    var until=m.expires_at? new Date(m.expires_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    $('v-held').innerHTML='<div class="card"><div class="note" style="margin:0;color:#0A6B45">'+
+      'You hold <b>'+esc(name)+'</b>'+(left?' &middot; '+esc(left)+' days left':'')+(until?', until '+esc(until):'')+'.</div></div>';
+    $('v-held').classList.remove('hide');
+  }
+
+  /* ---------- opening the settle panel ---------- */
+  function openSettle(t){
+    S.tier=t;
+    $('settle').classList.remove('hide');
+    $('settle-h').textContent=t.name+' · '+money(t.price_inr);
+    var open=railsOpen();
+    var pick=$('railpick'); pick.innerHTML='';
+    var can=[];
+    if(open.upi) can.push('upi');   /* even before the id is set: the reference box still works */
+    if(open.rzp) can.push('rzp');
+
+    if(!can.length){
+      $('rail-upi').classList.add('hide'); $('rail-rzp').classList.add('hide');
+      pick.innerHTML='<div class="warnt" style="margin:0;flex:1">'+
+        (open.why==='paused'
+          ? 'The house has payments resting just now. Nothing can be settled from here until it reopens them.'
+          : 'The house has both rails closed just now. Nothing can be settled from here this moment.')+
+        '</div>';
+      $('settle').scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+    if(can.length>1){
+      can.forEach(function(k){
+        var b=document.createElement('button'); b.type='button'; b.dataset.rail=k;
+        b.innerHTML= k==='upi'
+          ? '<b>UPI, to the house</b><i>your own app</i>'
+          : '<b>Card or netbanking</b><i>through Razorpay</i>';
+        b.addEventListener('click',function(){ chooseRail(k); });
+        pick.appendChild(b);
+      });
+      chooseRail(can[0]);
+    } else {
+      pick.classList.add('hide');
+      chooseRail(can[0]);
+    }
+    if(can.length>1) pick.classList.remove('hide');
+    $('settle').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function chooseRail(k){
+    S.rail=k;
+    [].forEach.call(document.querySelectorAll('#railpick button'),function(b){
+      b.classList.toggle('on', b.dataset.rail===k);
+    });
+    $('rail-upi').classList.toggle('hide', k!=='upi');
+    $('rail-rzp').classList.toggle('hide', k!=='rzp');
+    clear('upi-err'); clear('upi-ok'); clear('rzp-err'); clear('rzp-ok');
+    if(k==='upi') paintUpi();
+    paymentsList();
+  }
+
+  function paintUpi(){
+    var s=S.settings||{}, amt=S.tier?S.tier.price_inr:0;
+    var note=(s.note_template||'Ivory membership')+' · '+(S.tier?S.tier.name:'');
+    $('upi-id').textContent=s.upi_id||'—';
+    $('upi-amt').textContent=money(amt);
+    var link='upi://pay?pa='+encodeURIComponent(s.upi_id||'')+
+      '&pn='+encodeURIComponent(s.payee_name||'Ivory')+
+      '&am='+encodeURIComponent(String(amt))+'&cu=INR&tn='+encodeURIComponent(note);
+    $('upi-open').setAttribute('href',link);
+    if(s.instructions) $('upi-note').textContent=s.instructions;
+    var ready=upiReady();
+    $('upi-open').classList.toggle('hide',!ready);
+    if(!ready){
+      $('upi-id').textContent='not set yet';
+      $('upi-amt').textContent='—';
+      $('upi-off').innerHTML='The house has not put its UPI id in yet, so there is nothing to send to here. '+
+        'If the house asked you for a reference, or you have already paid, the box below still works.';
+      $('upi-off').classList.remove('hide');
+      $('upi-send').textContent='Send the reference to the house';
+    } else {
+      $('upi-off').classList.add('hide');
+      $('upi-send').textContent='Send it to the house';
+    }
+    $('upi-send').disabled=false;
+  }
+
+  /* ---------- UPI: pay, then send the reference ---------- */
+  $('upi-copy').addEventListener('click',function(){
+    var t=(S.settings&&S.settings.upi_id)||'';
+    var b=this;
+    var done=function(){ b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy'; },1600); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(function(){ fallback(); });
+    else fallback();
+    function fallback(){ try{ var i=document.createElement('textarea'); i.value=t; document.body.appendChild(i); i.select();
+      document.execCommand('copy'); i.remove(); done(); }catch(e){} }
+  });
+
+  function uploadProof(file){
+    if(!file) return Promise.resolve(null);
+    var tok=S.sess&&S.sess.access_token; if(!tok) return Promise.resolve(null);
+    var uid=S.sess.user.id;
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase().slice(0,4);
+    var path=uid+'/'+Date.now()+'.'+ext;
+    return fetch(SB+'/storage/v1/object/payment-proofs/'+path,{method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+tok,'Content-Type':file.type||'image/jpeg','x-upsert':'false'},
+      body:file})
+      .then(function(r){ if(!r.ok) return null; return path; })
+      .catch(function(){ return null; });   /* a missing screenshot must never block a real payment */
+  }
+
+  $('upi-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var btn=this, utr=($('utr').value||'').replace(/\s/g,'');
+    clear('upi-err'); clear('upi-ok');
+    if(!S.sess){ err('upi-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(utr.length<6){ err('upi-err','That does not look like a UTR. Copy the reference number from your payment receipt.'); return; }
+    S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Sending';
+    uploadProof(($('proof').files||[])[0])
+      .then(function(path){
+        return call('/rest/v1/rpc/submit_payment',{
+          tier_id_in:S.tier.id, utr_in:utr, screenshot_url_in:path
+        });
+      })
+      .then(function(id){
+        ok('upi-ok','<b>Sent.</b> The house has your reference'+(id?(' (no. '+esc(id)+')'):'')+'. '+
+          'It is checked by hand and access opens the moment it is approved — this page will say so when you come back.');
+        $('utr').value=''; $('proof').value='';
+        watchPayment(id);
+      })
+      .catch(function(x){ err('upi-err',friendly(x)); })
+      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent=upiReady()?'Send it to the house':'I have paid — send the reference'; });
+  });
+
+  function watchPayment(id){
+    if(S.poll) clearInterval(S.poll);
+    if(!id) return;
+    S.poll=setInterval(function(){
+      call('/rest/v1/my_payments?select=*&id=eq.'+id,null,{method:'GET'}).then(function(rows){
+        var p=rows&&rows[0]; if(!p) return;
+        if(p.status==='approved'){
+          clearInterval(S.poll); S.poll=null;
+          ok('upi-ok','<b>Approved.</b> Your '+esc(p.tier_name||'membership')+' is on the account now.');
+          refreshHeld();
+        } else if(p.status==='rejected'){
+          clearInterval(S.poll); S.poll=null;
+          err('upi-err','The house could not match that reference'+(p.admin_note?(': '+esc(p.admin_note)):'')+'. Write through the quiet door and it will be put right.');
+        }
+      }).catch(function(){});
+    },9000);
+  }
+
+  /* ---------- Razorpay ---------- */
+  var RZP=null;
+  function loadRzp(){
+    if(window.Razorpay) return Promise.resolve(true);
+    if(RZP) return RZP;
+    RZP=new Promise(function(res,rej){
+      var s=document.createElement('script');
+      s.src='https://checkout.razorpay.com/v1/checkout.js';
+      s.onload=function(){ res(true); };
+      s.onerror=function(){ rej(new Error('The payment window could not load. Check the connection, then try once more.')); };
+      document.head.appendChild(s);
+    });
+    return RZP;
+  }
+
+  /* the card rail, in two strides:
+     first the house's own order (it checks the code and prices it);
+     if that address is asleep, Razorpay's window still opens on the
+     house's public key alone, and the house approves it by hand —
+     the same courtesy the UPI rail gets. */
+  function rzpWindow(cfg){
+    return loadRzp().then(function(){
+      return new Promise(function(resolve){
+        cfg.handler=function(r){ resolve(r); };
+        cfg.modal={ondismiss:function(){ resolve(null); }};
+        var rzp=new window.Razorpay(cfg);
+        rzp.on&&rzp.on('payment.failed',function(resp){
+          err('rzp-err',(resp&&resp.error&&resp.error.description)||'The payment did not finish. Nothing was taken.');
+          resolve(null);
+        });
+        rzp.open();
+      });
+    });
+  }
+
+  $('rzp-pay').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var btn=this, code=($('code').value||'').trim();
+    clear('rzp-err'); clear('rzp-ok');
+    if(!S.sess){ err('rzp-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    S.busy=true; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Opening';
+    var body={purpose:'subscription', tier_id:S.tier.id};
+    if(code) body.code=code;
+
+    var viaOrder=true;
+    call('/functions/v1/rzp-create-order',body)
+      .then(function(d){
+        if(!d||!d.order_id) throw new Error((d&&d.error)||'The order did not open.');
+        if(code && d.code_applied!==true) throw new Error('The code could not be applied just now. Please try again in a moment.');
+        return rzpWindow({
+            key:d.key_id, amount:d.amount_paise, currency:d.currency||'INR', order_id:d.order_id,
+            name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
+            prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''}
+          }).then(function(r){ return {res:r, order:true}; });
+      })
+      .catch(function(x){
+        /* the house's order address did not answer — try the key alone */
+        var key=(S.settings&&S.settings.razorpay_key_id)||'';
+        if(!key) throw x;
+        viaOrder=false;
+        return rzpWindow({
+            key:key, amount:Math.round(Number(S.tier.price_inr||0)*100), currency:'INR',
+            name:'Ivory', description:S.tier.name+' · one month', theme:{color:'#4A0E17'},
+            prefill:{email:(S.sess&&S.sess.user&&S.sess.user.email)||''}
+          }).then(function(r){ return {res:r, order:false}; });
+      })
+      .then(function(o){
+        if(!o.res) throw new Error('__closed');
+        if(o.order){
+          return call('/functions/v1/rzp-verify-unlock',{
+            razorpay_order_id:o.res.razorpay_order_id,
+            razorpay_payment_id:o.res.razorpay_payment_id,
+            razorpay_signature:o.res.razorpay_signature
+          }).then(function(v){
+            if(!v||v.ok!==true) throw new Error((v&&v.error)||'Verification hiccup — write to the house with your receipt.');
+            ok('rzp-ok','<b>It is yours now.</b> The house has your payment and everything is open. The receipt sits in the app under your payments.');
+            $('h1').textContent='Welcome into the house.';
+            refreshHeld();
+          });
+        }
+        /* key-only: the payment is real, the house still has to see it once */
+        return call('/rest/v1/rpc/submit_payment',{
+          tier_id_in:S.tier.id, utr_in:o.res.razorpay_payment_id||'RZP', screenshot_url_in:null
+        }).then(function(id){
+          ok('rzp-ok','<b>Paid.</b> Razorpay has taken it and the house has the reference (no. '+esc(o.res.razorpay_payment_id||'')+'). '+
+            (id?'A note is in the house\u2019s queue (no. '+esc(id)+') — access opens the moment it is approved.':'')+' This page says so when you come back.');
+          $('h1').textContent='Paid — the house is checking it.';
+          refreshHeld();
+        });
+      })
+      .catch(function(x){
+        if(x&&x.message==='__closed') return err('rzp-err','The payment window was closed. Nothing was taken.');
+        var m=(x&&x.message)||'';
+        if(/Failed to fetch|NetworkError|Load failed/i.test(m)){
+          if(!((S.settings&&S.settings.razorpay_key_id)||''))
+            return err('rzp-err','The card window is not set up yet: the house has not put its Razorpay public key into the counter, so there is nothing to open. Nothing has been taken — use UPI above, or write to the house.');
+          return err('rzp-err','The card window could not be reached from this page. If this page was opened from a downloaded file it has no network — open its address instead.');
+        }
+        err('rzp-err',friendly(x));
+      })
+      .then(function(){ S.busy=false; btn.disabled=false; btn.textContent='Pay by card or netbanking'; });
+  });
+
+  $('rzp-ref-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var b=this, ref=($('rzp-ref').value||'').trim();
+    clear('rzp-ref-err'); clear('rzp-ref-ok'); clear('rzp-err');
+    if(!S.sess){ err('rzp-ref-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(ref.length<8){ err('rzp-ref-err','A Razorpay payment id begins with pay_ and is longer than that. You will find it on the receipt Razorpay sent you.'); return; }
+    S.busy=true; b.disabled=true; b.innerHTML='<span class="spin"></span> Sending';
+    call('/rest/v1/rpc/submit_payment',{tier_id_in:S.tier.id, utr_in:ref, screenshot_url_in:null})
+      .then(function(id){
+        ok('rzp-ref-ok','<b>Sent.</b> The house has '+esc(ref)+(id?' (no. '+esc(id)+')':'')+' and will match it against its Razorpay account before it opens the door.');
+        $('rzp-ref').value='';
+        if(typeof watchPayment==='function') watchPayment(id);
+      })
+      .catch(function(x){ err('rzp-ref-err',friendly(x)); })
+      .then(function(){ S.busy=false; b.disabled=false; b.textContent='Send the payment id to the house'; });
+  });
+
+  if($('any-send')) $('any-send').addEventListener('click',function(){
+    if(S.busy||!S.tier) return;
+    var b=this, ref=($('any-ref').value||'').replace(/\s/g,'');
+    clear('any-err'); clear('any-ok');
+    if(!S.sess){ err('any-err','Sign in first — the house needs to know whose payment this is.'); return; }
+    if(ref.length<6){ err('any-err','That is too short to match. Copy the reference from your receipt.'); return; }
+    S.busy=true; b.disabled=true; b.innerHTML='<span class="spin"></span> Sending';
+    call('/rest/v1/rpc/submit_payment',{tier_id_in:S.tier.id, utr_in:ref, screenshot_url_in:null})
+      .then(function(id){
+        ok('any-ok','Sent. The house has '+esc(ref)+(id?' (no. '+esc(id)+')':'')+' and will check it by hand — your door opens the moment it is approved.');
+        $('any-ref').value='';
+        if(typeof watchPayment==='function') watchPayment(id);
+      })
+      .catch(function(x){ err('any-err',friendly(x)); })
+      .then(function(){ S.busy=false; b.disabled=false; b.textContent='Send the reference to the house'; });
+  });
+
+  /* ---------- what this member has already sent ---------- */
+  function paymentsList(){
+    myPayments().then(function(rows){
+      var box=$('paylist');
+      var list=(rows||[]).filter(function(r){ return r && r.status; }).slice(0,5);
+      if(!list.length){ box.classList.add('hide'); box.innerHTML=''; return; }
+      var label={pending:'pending',approved:'approved',rejected:'not verified'};
+      var cls={pending:'p',approved:'a',rejected:'r'};
+      box.innerHTML='<div style="font-family:var(--ui);font-size:8.2px;letter-spacing:.2em;text-transform:uppercase;color:#A98545;margin:0 0 6px">what you have sent</div>'+
+        list.map(function(p){
+          var d=p.created_at? new Date(p.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+          return '<div class="pay"><b>'+money(p.amount_inr)+(p.tier_name?' · '+esc(p.tier_name):'')+' <span style="color:#A98545">'+(d?('· '+esc(d)):'')+'</span></b>'+
+            '<em class="'+(cls[p.status]||'p')+'">'+(label[p.status]||p.status)+'</em></div>';
+        }).join('');
+      box.classList.remove('hide');
+    });
+  }
+
+  function refreshHeld(){
+    return mine().then(function(m){ heldBlock(m); paymentsList(); });
+  }
+
+  /* ---------- the door ---------- */
+  $('signin').addEventListener('click',function(){
+    var e=$('email').value.trim(), p=$('pass').value, b=this;
+    err('door-err');
+    if(!e||!p){ err('door-err','Both lines, please.'); return; }
+    b.disabled=true; b.innerHTML='<span class="spin"></span> Opening';
+    login(e,p).then(function(s){ save(s); $('pass').value=''; return start(); })
+      .catch(function(x){ err('door-err',x.message||String(x)); })
+      .then(function(){ b.disabled=false; b.textContent='Unlock'; });
+  });
+  $('pass').addEventListener('keydown',function(e){ if(e.key==='Enter') $('signin').click(); });
+  $('settle-x').addEventListener('click',function(){ $('settle').classList.add('hide'); $('v-tiers').scrollIntoView({behavior:'smooth'}); });
+
+  function start(){
+    var who=(S.sess&&S.sess.user&&S.sess.user.email)||'';
+    if(who) $('chip').textContent=who.split('@')[0];
+    $('v-door').classList.add('hide');
+    return settings().then(function(){
+      return Promise.all([tiers(), mine()]);
+    }).then(function(r){ paint(r[0],r[1]); heldBlock(r[1]); paymentsList(); });
+  }
+
+  /* boot: anyone may see the doors; the settings decide which rails are open */
+  settings().catch(function(){ S.settings={mode:'upi',is_active:true}; })
+    .then(tiers)
+    .then(function(list){ paint(list,null); })
+    .catch(function(x){
+      $('v-tiers').innerHTML='<div class="card"><div class="note" style="margin:0">The ledger could not be read — '+esc(friendly(x))+'</div></div>';
+    });
+  var s=load();
+  if(s&&s.access_token){ start().catch(function(){ save(null); $('v-door').classList.remove('hide'); }); }
+  else { $('v-door').classList.remove('hide'); }
+})();
+</script>
+<script>
+/* ---------------------------------------------------------------
+   The room needs a real browser. Inside WhatsApp, Instagram or any
+   app's own window, the camera and the microphone are refused by
+   the app before the page ever asks. Say so, quietly, at the top.
+   --------------------------------------------------------------- */
+(function(){
+  var ua=navigator.userAgent||'';
+  var inside=/(\bwv\b|WhatsApp|FBAN|FBAV|Instagram|Line\/)/i.test(ua);
+  if(!inside) return;
+  function paint(){
+    if(document.getElementById('iv-inapp')) return;
+    var d=document.createElement('div');
+    d.id='iv-inapp';
+    d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483646;padding:11px 40px 11px 14px;'+
+      'background:#5C1226;color:#FFF3D9;font:13px/1.5 Georgia,serif;box-shadow:0 2px 10px rgba(0,0,0,.22)';
+    d.innerHTML='<b style="font-style:italic">Open this in Chrome.</b> You are inside an app&rsquo;s own window, '+
+      'where the camera and the microphone are refused before the page can ask. Tap the menu at the top '+
+      'and choose <i>Open in Chrome</i>.';
+    var x=document.createElement('button');
+    x.textContent='\u00d7'; x.setAttribute('aria-label','dismiss');
+    x.style.cssText='position:absolute;right:8px;top:6px;width:28px;height:28px;border:0;background:none;'+
+      'color:#FFF3D9;font-size:20px;line-height:1';
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(x); document.body.appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',paint); else paint();
+})();
+</script>
+</body>
+</html>
