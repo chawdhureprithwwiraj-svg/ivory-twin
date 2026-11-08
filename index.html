@@ -21212,7 +21212,7 @@ window.IVCALL = (function () {
         R.cameraPublished = true; showSelf(); return Promise.resolve();
       }
       var track = R.vTrack || R.cam;
-      return c.publish(track).then(function () { R.cameraPublished = true; showSelf(); });
+      return R.client.publish(track).then(function () { R.cameraPublished = true; showSelf(); });
     }
     function appearanceOpen() {
       if (!canAppearance()) return;
@@ -21224,7 +21224,8 @@ window.IVCALL = (function () {
     R.appearanceAttach = appearanceAttach;R.appearanceDetach = appearanceDetach;R.appearanceOpen = appearanceOpen;
 
     /* controls */
-    scr.querySelector('#ivr-leave').addEventListener('click', function () { if (R.endedRemotely) closeRoom(); else leaveRoom(false); });
+    var leaveCallButton = scr.querySelector('#ivr-leave');
+    if (leaveCallButton) leaveCallButton.addEventListener('click', function () { if (R.endedRemotely) closeRoom(); else leaveRoom(false); });
 
     /* END is final, so it is armed rather than confirmed: the first tap turns
        the key into its own question, the second closes the room. No browser
@@ -21290,7 +21291,7 @@ window.IVCALL = (function () {
     });
 
     function flipCam(facing) { return appearanceRestart(function () { return flipRawCamera(facing); }).then(function () {
-      if (!R.cameraPublished && R.cam) return c.publish(R.vTrack || R.cam).then(function () { R.cameraPublished = true; showSelf(); });
+      if (!R.cameraPublished && R.cam) return R.client.publish(R.vTrack || R.cam).then(function () { R.cameraPublished = true; showSelf(); });
     }); }
     function flipRawCamera(facing) {
       return Promise.resolve().then(function () {
@@ -21607,7 +21608,7 @@ window.IVCALL = (function () {
     return '<div class="ivr-top">' +
         '<div class="ivr-who"><b>The session</b><s>' + (kind === 'video' ? 'Face to face · together, here' : 'Voice only · together, here') + '</s></div>' +
         '<div class="ivr-clock"><span class="dot"></span><span id="ivr-clock-text">0:00</span></div>' +
-        '<button class="ivr-x" id="ivr-x" aria-label="Leave quietly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '<button class="ivr-x" id="ivr-x" aria-label="' + (isOwner() && kind === 'video' ? 'Close room view; keep the session open' : 'Leave quietly') + '" title="' + (isOwner() && kind === 'video' ? 'Close room view; keep the session open' : 'Leave the call') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>' +
       '<div class="ivr-timeup" id="ivr-timeup"></div>' +
       '<div class="ivr-stage" id="ivr-stage">' +
@@ -21647,7 +21648,7 @@ window.IVCALL = (function () {
             (isOwner() ? '<div><button class="ivr-key" id="ivr-appearance" aria-label="Appearance controls" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.6l1.7 4.1 4.1 1.7-4.1 1.7L12 15.2l-1.7-4.1L6.2 9.4l4.1-1.7z"/><path d="M18.4 15.1l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg></button><span class="ivr-lbl">Beauty</span></div>' : '') +
             '<div><button class="ivr-key" id="ivr-flip" aria-label="Turn the camera around"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 9.4A8 8 0 0119 7.2"/><path d="M19.4 3.9v3.6h-3.6"/><path d="M19.6 14.6A8 8 0 015 16.8"/><path d="M4.6 20.1v-3.6h3.6"/></svg></button><span class="ivr-lbl">Flip</span></div>'
           : '<div><button class="ivr-key" id="ivr-speaker" aria-label="Speaker or earpiece"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.4v5.2h3.4L13.2 19V5L7.4 9.4z"/><path d="M16.6 9a4.2 4.2 0 010 6"/><path d="M19 6.6a7.6 7.6 0 010 10.8"/></svg></button><span class="ivr-lbl" id="ivr-speaker-lbl">Speaker</span></div>') +
-        '<div><button class="ivr-key end" id="ivr-leave" aria-label="Leave the room"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.6 14.6c4.4-3.4 10.4-3.4 14.8 0"/><path d="M7.4 17.2l-1.8-2.8M16.6 17.2l1.8-2.8"/></svg></button><span class="ivr-lbl">Leave</span></div>' +
+        (isOwner() && kind === 'video' ? '' : '<div><button class="ivr-key end" id="ivr-leave" aria-label="Leave the room"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.6 14.6c4.4-3.4 10.4-3.4 14.8 0"/><path d="M7.4 17.2l-1.8-2.8M16.6 17.2l1.8-2.8"/></svg></button><span class="ivr-lbl">Leave</span></div>') +
         (isOwner()
           ? '<span class="ivr-divide" aria-hidden="true"></span>' +
             '<div><button class="ivr-key own" id="ivr-moretime" aria-label="Offer more time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="7.6"/><path d="M12 9.6V13l2.6 1.8M9.4 3.4h5.2"/></svg></button><span class="ivr-lbl">More time</span></div>' +
@@ -41912,7 +41913,10 @@ function paintAudienceNote(r) {
 var note = $('lv-note'); if (!note || !r) return;
 var real = Number(r.viewer_count || 0);
 if (S.role === 'host') { note.textContent = real + ' watching · only you see the real count'; return; }
-var count = window.IVPRESENCE ? IVPRESENCE.fmt(real) : String(real);
+var pulse = window.IVPRESENCE;
+var estimate = pulse && typeof pulse.audienceCount === 'function'
+? pulse.audienceCount(real, S.id, r.started_at || S.from) : null;
+var count = estimate == null ? '—' : (pulse.fmt ? pulse.fmt(estimate) : String(estimate));
 note.textContent = (S.sub ? S.sub + ' · ' : '') + count + ' watching';
 }
 function poll() {
